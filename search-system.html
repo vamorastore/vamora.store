@@ -1,0 +1,129 @@
+<!-- Search System -->
+<div class="search-container">
+    <a class="text-black nav-link" id="enableSearch">
+        <i class="fas fa-search icon"></i>
+    </a>
+    <div class="search-input-container">
+        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+        <span class="search-close" id="closeSearch">&times;</span>
+        <span class="search-icon" id="searchButton">
+            <i class="fas fa-search"></i>
+        </span>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+</div>
+
+<script>
+    // Search System JavaScript
+    const searchData = [
+        { id: 1, title: "HOKKAIDO", category: "T-Shirt", url: "shop.html" },
+        { id: 2, title: "DE.ORIGIN", category: "T-Shirt", url: "shop.html" },
+        { id: 3, title: "EPISTLE RAP", category: "T-Shirt", url: "shop.html" },
+        { id: 4, title: "ODD.OUT", category: "T-Shirt", url: "shop.html" }
+    ];
+
+    let searchOpen = false;
+    const enableSearch = document.getElementById('enableSearch');
+    const searchInputContainer = document.querySelector('.search-input-container');
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+        
+        const results = searchData.filter(item => 
+            item.title.toLowerCase().includes(query) || 
+            item.category.toLowerCase().includes(query)
+        );
+        
+        displayResults(results);
+    });
+
+    // Perform search on button click
+    searchButton.addEventListener('click', function() {
+        const query = searchInput.value.toLowerCase();
+        
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+        
+        const results = searchData.filter(item => 
+            item.title.toLowerCase().includes(query) || 
+            item.category.toLowerCase().includes(query)
+        );
+        
+        displayResults(results);
+    });
+
+    // Display search results
+    function displayResults(results) {
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="no-results">No results found</div>';
+            searchResults.style.display = 'block';
+            return;
+        }
+        
+        searchResults.innerHTML = results.map(item => `
+            <div class="search-result-item" data-url="${item.url}">
+                <div class="title">${item.title}</div>
+                <div class="category">${item.category}</div>
+            </div>
+        `).join('');
+        
+        searchResults.style.display = 'block';
+        
+        // Add click event to results
+        document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                window.location.href = url;
+            });
+        });
+    }
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Close search results on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Toggle search input
+    enableSearch.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // If search is already open, close it
+        if (searchOpen) {
+            searchInputContainer.style.display = 'none';
+            searchOpen = false;
+            return;
+        }
+        
+        // Otherwise, close other elements and open search
+        closeAllOpenElements();
+        searchOpen = true;
+        searchInputContainer.style.display = 'block';
+        searchInput.focus();
+    });
+
+    // Close search
+    closeSearch.addEventListener('click', function() {
+        searchInputContainer.style.display = 'none';
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+        searchOpen = false;
+    });
+</script>
