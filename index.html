@@ -1,362 +1,83 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Unbounded', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Main content container */
-        .main-content {
-            flex: 1;
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-        }
-        
-        /* Product grid styles - Responsive */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
-        .product-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        
-        .image-frame {
-            width: 100%;
-            max-width: 540px;
-            height: 0;
-            padding-bottom: 125.93%; /* 680/540 = 1.2593 ratio */
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .image-frame img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease, opacity 0.5s ease;
-        }
-        
-        .image-frame:hover img:first-child {
-            transform: scale(1.1);
-            opacity: 0;
-        }
-        
-        .image-frame:hover img:last-child {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-        
-        .image-frame img:last-child {
-            opacity: 0;
-        }
-        
-        .product-caption {
-            width: 100%;
-            max-width: 540px;
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 0.75rem;
-        }
-        
-        /* Hero images */
-        .hero-image {
-            width: 100%;
-            height: auto;
-            max-height: 100vh;
-            object-fit: cover;
-        }
-        
-        /* Button styles */
-        .button {
-            position: relative;
-            background-color: black;
-            color: white;
-            padding: 10px 20px;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease;
-            overflow: hidden;
-            font-size: 0.75rem;
-        }
-        
-        .button:hover {
-            background-color: gray;
-        }
-        
-        .button::before, .button::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button::before {
-            top: 0;
-            left: -100%;
-        }
-        
-        .button::after {
-            bottom: 0;
-            right: -100%;
-        }
-        
-        .button:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .button:hover::after {
-            transform: translateX(-100%);
-        }
-        
-        .button span::before, .button span::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button span::before {
-            top: -100%;
-            left: 0;
-        }
-        
-        .button span::after {
-            bottom: -100%;
-            right: 0;
-        }
-        
-        .button:hover span::before {
-            transform: translateY(100%);
-        }
-        
-        .button:hover span::after {
-            transform: translateY(-100%);
-        }
-        
-        /* Text styles */
-        .heading-text {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        /* Page title */
-        .page-title {
-            font-size: 2rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 2rem 0 1rem;
-            text-transform: uppercase;
-        }
-        
-        .button-effect {
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        
-        .button-effect:hover {
-            transform: scale(1.05);
-        }
-        
-        .button-effect:active {
-            transform: scale(0.95);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .heading-text {
-                font-size: 1.25rem;
-                text-align: center;
-            }
-            
-            .page-title {
-                font-size: 1.5rem;
-                padding: 1.5rem 0 0.5rem;
-            }
-            
-            .product-grid {
-                gap: 1rem;
-                padding: 0 0.5rem;
-                margin-bottom: 2rem; /* Added space before footer */
-            }
-            
-            .product-caption {
-                font-size: 0.6875rem;
-            }
-            
-            .mobile-menu-links a {
-                font-size: 0.875rem;
-            }
-            
-            .mobile-menu-social a {
-                font-size: 1rem;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .page-title {
-                font-size: 2.5rem;
-                padding: 3rem 0 1.5rem;
-            }
-        }
-        
-        @media (min-width: 1400px) {
-            .heading-text {
-                font-size: 2rem;
-            }
-            
-            .page-title {
-                font-size: 3rem;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation Bar (will be loaded from nav.html) -->
-    <div id="nav-placeholder"></div>
-
-    <div class="main-content">
-        <!-- Hero Section -->
-        <div class="w-full mb-4 md:mb-8">
-            <img alt="Main banner" class="hero-image" src="https://media-hosting.imagekit.io/2fea1fb70c7e4f73/Artboard%2012.jpg?Expires=1837961167&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=cp-zAkDO92YDoCoA~lcpl55TN0eektLEppwC3Q-0evrp5WPTiv26N-8H2iDNwZy~uUoEJWZDWmSfPOkyYJAmvjw6B53WWTMpvLHoL8MO8EHkkgtOL7OPObWAePQgLPWgDR-DSuwhDaA7BAc-EU6uLvmAMe2CVRr20Pxj80lpjIRxprDb4fC~oq2tj2iHvAsC0D4XaUUWS5KyBgO3hCFToNiIVbminj7LThGokErWR2MZPBzP~P8NV29WSwt12ChXM4fCl1bhKTjqGGVnW~iZ3d9mUESMjTzNtMKB22u2X9GAxlWIKmYEmPm~1LiKsaCRCBTHZtfjpm3A4H3sdnHiqA__"/>
-        </div>
-        
-        <!-- Secondary Banner -->
-        <div class="w-full mb-4 md:mb-8">
-            <img alt="Secondary banner" class="hero-image" src="https://media-hosting.imagekit.io/f38528bc56c349df/Artboard%206.jpg?Expires=1837961186&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QzWuEbcufC3j8~rWNO48PsAuF-e3Abkef2PNz1QCSOCximFBj7AYKZWAAxYuThAHDszkRDKP-s2u580xHygiLckyiwoEmVm4fN0zAwzSAlA3ud~lGvEy9eCQaurTdnHWuX7Nv~rkrXZqQ7lycgUtj9-FUjBoc8BunVP9--t2pdyeT9bYa5cBjU00jON08mOZTJEjyOgZZ6jU6N-jWnwHBGI2fSPjUiEygAz5p1rs5rszT4OVP~Zt9JgIw5qYzybUKc5eFYOuDuvP8k1-NJNpAvbZYmZzfeJFTdNl-GTsx6ajRA3Z9OtBGALg5SnqkS4x1rfaPSJYt8eFEhijSkBuHA__"/>
-        </div>
-        
-        <!-- Heading Section -->
-        <div class="bg-gray-200 px-4 py-6 md:px-8 md:py-8 mb-4 md:mb-8">
-            <div class="max-w-1400 mx-auto flex flex-col md:flex-row justify-between items-center">
-                <h1 class="heading-text mb-4 md:mb-0">
-                    MAKE.YOUR.STYLE.BOLD
-                </h1>
-                <a class="button" href="https://www.vamora.store/shop">
-                    VIEW.ALL
-                </a>
-            </div>
-        </div>
-        
-        <!-- Product Grid -->
-        <div class="product-grid">
-            <!-- Product 1 -->
-            <div class="product-item">
-                <div class="image-frame">
-                    <img alt="Product 1" src="https://media-hosting.imagekit.io/1e2dce40b59b41fd/SA.png?Expires=1837980822&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=LR0zWw24aOBNCg7IqdYGtBDor~E405odw21ZavuMvog0FLvgQZ47CDWk6nV13v49hbMtL15e~B~WdRKzTsM7ekXvsRO61qXfb~cFy-l55pWqFKOslELCJ6gYgt0uHxWkLZ5XmRRm4aCMgzNCl8LrXjPRSnX9qIIg-6VvvF-MGphdQ~7lTnMZmfXnq-SWPRfZ5l88UM48qt2sAVnebsaZcLtaw~~nKIhB4OKlnmXEYYO3R5NijJ-ZJGEK92sfXv29MkxFMnDPkEfw3I4OjJiGa2viUHWaTrWgV7iHSy0gxoYamEd2L9nzikTnym~mW0aRuaQS90kgpk4ztQGmNv-pgQ__"/>
-                    <img alt="Product 1 Alternate" src="https://media-hosting.imagekit.io/6d08cf735f564d2a/SA22.png?Expires=1837980822&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=UKYCDOYQd2rG4vCm-AJ17YwNb3eOeBmhdfvRYpHiA7ydpKFvKBQZNvCqdITfuYLZilZuHgqMj-Iw3RBovrP8z93IwicRTXl7Eks3Fb0tcR~jRhL46uWjfSPiv6lLIreg5TFUwH2RGPfl~3hy3RDekm~57ljmIdc2LgMbA~bTaUHXBnyVE5xZPsRPI8LayX3shQYLcpkQdeCUEwqZpGYZy1BtbJ9ea8LQW4mEdJ0YICLhIK3yE-cfZomzf~PvHphcc-rdqctZxekYSiUBQQJd-VU9dJPiFU-Pwi0QO6YV8J69mHS88bImmQ3bQzgWytAnTOv3mNYtUZunK7xSfFkpUg__"/>
-                </div>
-                <div class="product-caption">
-                    <div>HOKKAIDO</div>
-                    <div>₹378.00</div>
-                </div>
-            </div>
-            
-            <!-- Product 2 -->
-            <div class="product-item">
-                <div class="image-frame">
-                    <img alt="Product 2" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
-                    <img alt="Product 2 Alternate" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png?Expires=1837960643&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=AzxkHV-N9wGaRlXAoP~ET4nomPhQwPQd-clpSgag~QvnDdoZFi5d8wUOnUgp46KB6QarJRtyEtQ91b7LWWK9FM4a6zAM-DCOdDRXbVzuTDMuya-iRaHzbYDe4hC4XnRP8Lr7aXlrZplwqsDGz9iLJ~wcpVj~pCeXgCpoLNx3blSL6BZIx0dsXO4-KjVg6mJ3nZQIrZ5kKeCkDTvfKOtPBQYfq2Gm9HLZzp46ieof~ZU6mKkCrhYJoH9lKEQvY3Agi4A8f9WK5s713b0VMW1Fv1MiEGf1TGqVQoQkZjmrW-X7eF2L9yK1a8zPo-0nqld1bIHz2WFl5jWiN37DRCtzFg__"/>
-                </div>
-                <div class="product-caption">
-                    <div>DE.ORIGIN</div>
-                    <div>₹378.00</div>
-                </div>
-            </div>
-            
-            <!-- Product 3 -->
-            <div class="product-item">
-                <div class="image-frame">
-                    <img alt="Product 3" src="https://media-hosting.imagekit.io/acd79ddde893419b/epi.png?Expires=1837935710&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=VUHCqy3NPeb0PCsg2q6DVxScw2A~D3mwgVEHcQLzxeohwwaHgTYb3HteHCEzyNbAwiikgNTpWwobAEyEYxlS8vFfwDTwZF37uYXJqBxC9A6q4-7EsQZv-nskFm7jCFd4d6dLt6fkPBX4B1lHrRwxXX1CSaPQH~I0qUWdh~bMVqi6eFF14oubABRnqzdjPpqBqEMaAk1IbUnOr6rlY5vPX-NNHwm~eKWwfSYbbXmHfCTAL0DdiSSODBn1o3zzDwKyZEH1ecmOPOBjzE9DHMnyJ8-QrCCSgpmJtWIFjkgZEZ27AKvGeL0NRsEoNFAtjGjKHkwO~CzCzhmOEh-Q-1efvw__"/>
-                    <img alt="Product 3 Alternate" src="https://media-hosting.imagekit.io/aa4abc4b416748ef/124%20(1).jpg?Expires=1837978235&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=cHEQQ6vR-IYAJOUew1GbCaxLMj~GmbY~q2BU5YTCZF0scfV6GoX3gB6YpO~HyFx3FWxxZklf4yHRMxaJ1W7v2JwslWJcruiCwD7q2HbEAz1ANfKp4LCEXqYLBswDegIjNKtyKw~F6p3JPYYIKfQJ58hsibjrKlZA6wwMQFK~K0Mp1vDoO8o6iG6I1V2m9WRCjAvamziitk-3eVIN4F~Gn8oiDlb7L8VR7dRE90D~O614E8H87-NlcRzDSNFZBNimzxvG~Xp2uM7ihq7Difk~3pnP-tFEyhDuxYviU1vpsufMXv-ewMuPuj7cSYkYGqY6ulPCoK4JLxG-BxgAhpZU3w__"/>
-                </div>
-                <div class="product-caption">
-                    <div>EPISTLE RAP</div>
-                    <div>₹579.00</div>
-                </div>
-            </div>
-            
-            <!-- Product 4 -->
-            <div class="product-item">
-                <div class="image-frame">
-                    <img alt="Product 4" src="https://media-hosting.imagekit.io/e0010cd530e84ca5/ODD%20OUT.png?Expires=1837978921&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=lYUlB3PXGHxHgblzx0lprWujSACKzZeG~ZFCYWBMeZZgNWkXS0TNQmv8ki6ZodA0htv5aBmAnIJ0m5btfe2gKB1pI2wJRSx09aCZkh0G2GbtvwqJv-O0qrBE~JCqi-56Ijl8iE~LDRAjdLOSrpqA40I5QeXEqamXCzgoahj4dAIZBDBVmdQ8JkEcpPGgkaFK3WsPooPelc3WLzbdWB~LcPYdoriai0m~C2nyTPXBgShcDdQ-jaJY16n~-aXDbGy9Xk7QjGU4E0fS976bHVEOvzieczlW68ReEZqgL0bDRYmrrELq9FHZcXK-vTXPIRID1-ah4EeNR4VmVCJWdryTTw__"/>
-                    <img alt="Product 4 Alternate" src="https://media-hosting.imagekit.io/41cd3d65814746a5/TSHIRT%20MAIN-Recovered.png?Expires=1837978162&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=DDJNJO9RrdEtbpiyRfgcB~MdbrmAu3lxZlXbo-JBpWg3fyMxgM68iOsayNPHJlgpy8dlapbVe6IYhRmoUnw5r1LE6j7M-1k6cBK87~tUNKN0-raHyWtTUIa4qfPKvOH6eISlLK~tzPGgkVR-6ZZVgEN13lVqQ5wtZMvC1tNSoDDSXp-Plcf6pjKJq1t2hFVbRoO-MV0T9K8iYMCAvCMDvVTYjmThv6UptOhKB3o033rWq87NumT5Wj3tErIBUVxE-XZO5vlv2rz7SP~V1vlQpTFntKd7ZDsYVwrSkrAyjOr3C8R6-NRYt24X7GtE7bb-4WLQ3DVTqdFTRJXmvwl5Nw__"/>
-                </div>
-                <div class="product-caption">
-                    <div>ODD.OUT</div>
-                    <div>₹579.00</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bottom Banner -->
-        <div class="w-full mt-4 md:mt-8">
-            <img alt="Bottom banner" class="hero-image" src="https://storage.googleapis.com/a1aa/image/VLGYOrEJfS-6FMAkQieRPdvarM-5ZZWt58DjJZIj9nM.jpg"/>
+---
+layout: default
+title: VAMORA.STORE - Home
+---
+<div class="main-content">
+    <!-- Hero Section -->
+    <div class="w-full mb-4 md:mb-8">
+        <img alt="Main banner" class="hero-image" src="https://media-hosting.imagekit.io/2fea1fb70c7e4f73/Artboard%2012.jpg"/>
+    </div>
+    
+    <!-- Secondary Banner -->
+    <div class="w-full mb-4 md:mb-8">
+        <img alt="Secondary banner" class="hero-image" src="https://media-hosting.imagekit.io/f38528bc56c349df/Artboard%206.jpg"/>
+    </div>
+    
+    <!-- Heading Section -->
+    <div class="bg-gray-200 px-4 py-6 md:px-8 md:py-8 mb-4 md:mb-8">
+        <div class="max-w-1400 mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="heading-text mb-4 md:mb-0">
+                MAKE.YOUR.STYLE.BOLD
+            </h1>
+            <a class="button" href="/shop">
+                VIEW.ALL
+            </a>
         </div>
     </div>
-
-    <!-- Footer (will be loaded from footer.html) -->
-    <div id="footer-placeholder"></div>
-
-    <script>
-        // Function to load navigation and footer
-        function loadCommonElements() {
-            // Load navigation
-            fetch('nav.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('nav-placeholder').innerHTML = data;
-                    // Initialize any nav-related scripts here if needed
-                });
-            
-            // Load footer
-            fetch('footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footer-placeholder').innerHTML = data;
-                });
-        }
-
-        // Load common elements when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCommonElements();
-            
-            // Initialize any page-specific scripts here
-            // For example, you might want to add event listeners for product clicks
-            document.querySelectorAll('.product-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    // Handle product click - you might want to redirect to product page
-                    // or show a quick view modal
-                    console.log('Product clicked');
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+    
+    <!-- Product Grid -->
+    <div class="product-grid">
+        <!-- Product 1 -->
+        <div class="product-item">
+            <div class="image-frame">
+                <img alt="Product 1" src="https://media-hosting.imagekit.io/1e2dce40b59b41fd/SA.png"/>
+                <img alt="Product 1 Alternate" src="https://media-hosting.imagekit.io/6d08cf735f564d2a/SA22.png"/>
+            </div>
+            <div class="product-caption">
+                <div>HOKKAIDO</div>
+                <div>₹378.00</div>
+            </div>
+        </div>
+        
+        <!-- Product 2 -->
+        <div class="product-item">
+            <div class="image-frame">
+                <img alt="Product 2" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png"/>
+                <img alt="Product 2 Alternate" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png"/>
+            </div>
+            <div class="product-caption">
+                <div>DE.ORIGIN</div>
+                <div>₹378.00</div>
+            </div>
+        </div>
+        
+        <!-- Product 3 -->
+        <div class="product-item">
+            <div class="image-frame">
+                <img alt="Product 3" src="https://media-hosting.imagekit.io/acd79ddde893419b/epi.png"/>
+                <img alt="Product 3 Alternate" src="https://media-hosting.imagekit.io/aa4abc4b416748ef/124%20(1).jpg"/>
+            </div>
+            <div class="product-caption">
+                <div>EPISTLE RAP</div>
+                <div>₹579.00</div>
+            </div>
+        </div>
+        
+        <!-- Product 4 -->
+        <div class="product-item">
+            <div class="image-frame">
+                <img alt="Product 4" src="https://media-hosting.imagekit.io/e0010cd530e84ca5/ODD%20OUT.png"/>
+                <img alt="Product 4 Alternate" src="https://media-hosting.imagekit.io/41cd3d65814746a5/TSHIRT%20MAIN-Recovered.png"/>
+            </div>
+            <div class="product-caption">
+                <div>ODD.OUT</div>
+                <div>₹579.00</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Banner -->
+    <div class="w-full mt-4 md:mt-8">
+        <img alt="Bottom banner" class="hero-image" src="https://storage.googleapis.com/a1aa/image/VLGYOrEJfS-6FMAkQieRPdvarM-5ZZWt58DjJZIj9nM.jpg"/>
+    </div>
+</div>
