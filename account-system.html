@@ -1,0 +1,619 @@
+<!-- Account System Modal and Dropdown -->
+<div class="relative">
+    <div class="cursor-pointer" id="accountIconNav">
+        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
+             alt="Account" 
+             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+    </div>
+    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
+        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
+        </a>
+        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Login/Signup Modal -->
+<div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+        <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" id="toggle-login-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                <div class="mb-4 flex items-center justify-between">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
+                        <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
+                    </label>
+                    <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
+                    <span id="login-button-text">Log In</span>
+                </button>
+            </form>
+            <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
+            <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
+            </div>
+        </div>
+        <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
+            <form id="signup-form">
+                <div class="mb-4">
+                    <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
+                    <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
+                    <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                    <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
+                    <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
+                    <span id="signup-button-text">Sign Up</span>
+                </button>
+            </form>
+            <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
+            <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
+        <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
+        <form id="forgot-password-form">
+            <div class="mb-4">
+                <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
+                <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
+            </div>
+            <div class="mb-4">
+                <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                    <option value="">Select a security question</option>
+                    <option value="pet">What is the name of your first pet?</option>
+                    <option value="school">What is the name of your elementary school?</option>
+                    <option value="city">In what city were you born?</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
+                <span id="forgot-button-text">Submit</span>
+            </button>
+        </form>
+        <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
+        <div id="reset-password-section" class="hidden">
+            <div class="mb-4 mt-6 password-container">
+                <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
+                <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
+                <button type="button" class="password-toggle" id="toggle-new-password">
+                    <i class="far fa-eye"></i>
+                </button>
+                <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+            </div>
+            <div class="mb-4 password-container">
+                <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
+                <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
+                <button type="button" class="password-toggle" id="toggle-confirm-new-password">
+                    <i class="far fa-eye"></i>
+                </button>
+                <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+            </div>
+            <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
+                <span id="save-password-button-text">Save Changes</span>
+            </button>
+            <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Account System JavaScript
+    const accountIconNav = document.getElementById('accountIconNav');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const profileOption = document.getElementById('profileOption');
+    const logoutOption = document.getElementById('logoutOption');
+    let dropdownOpen = false;
+
+    function toggleDropdown() {
+        // If dropdown is already open, close it
+        if (dropdownOpen) {
+            dropdownMenu.classList.add('hidden');
+            dropdownOpen = false;
+            return;
+        }
+        
+        // Otherwise, close other elements and open dropdown
+        closeAllOpenElements();
+        dropdownOpen = true;
+        dropdownMenu.classList.remove('hidden');
+    }
+
+    // Show login modal when profile is clicked
+    function showLoginModal(event) {
+        event.preventDefault();
+        document.getElementById('auth-container').classList.remove('hidden');
+        dropdownMenu.classList.add('hidden');
+    }
+
+    function logoutUser(event) {
+        event.preventDefault();
+        // Clear user data
+        localStorage.setItem('user', JSON.stringify({
+            name: '',
+            email: '',
+            addresses: []
+        }));
+        
+        alert('You have been logged out.');
+        dropdownMenu.classList.add('hidden');
+    }
+
+    // Login system functions
+    async function hashData(data) {
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(data);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function validateEmail(email) {
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    function validatePassword(password) {
+        return password.length >= 8 && 
+               /[A-Z]/.test(password) && 
+               /[0-9]/.test(password) && 
+               /[^A-Za-z0-9]/.test(password);
+    }
+
+    function validateName(name) {
+        return name.length >= 2 && name.length <= 50;
+    }
+
+    function hideAuthContainer() {
+        document.getElementById('auth-container').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        resetForms();
+    }
+
+    function resetForms() {
+        document.getElementById('login-form').reset();
+        document.getElementById('signup-form').reset();
+        document.getElementById('login-error').classList.add('hidden');
+        document.getElementById('login-success').classList.add('hidden');
+        document.getElementById('signup-error').classList.add('hidden');
+        document.getElementById('email-error').classList.add('hidden');
+        document.getElementById('email-exists-error').classList.add('hidden');
+        document.getElementById('password-mismatch-error').classList.add('hidden');
+        document.getElementById('name-error').classList.add('hidden');
+    }
+
+    function showLoading(buttonId) {
+        const button = document.getElementById(buttonId);
+        const textSpan = button.querySelector('span');
+        button.disabled = true;
+        button.classList.add('loading');
+        textSpan.classList.add('opacity-0');
+    }
+
+    function hideLoading(buttonId) {
+        const button = document.getElementById(buttonId);
+        const textSpan = button.querySelector('span');
+        button.disabled = false;
+        button.classList.remove('loading');
+        textSpan.classList.remove('opacity-0');
+    }
+
+    function setupPasswordToggles() {
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const inputId = this.id.replace('toggle-', '');
+                const input = document.getElementById(inputId);
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        });
+    }
+
+    // Login system event handlers
+    document.getElementById('signup-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        showLoading('signup-submit-button');
+        
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        // Reset error messages
+        document.getElementById('signup-error').classList.add('hidden');
+        document.getElementById('email-error').classList.add('hidden');
+        document.getElementById('email-exists-error').classList.add('hidden');
+        document.getElementById('password-mismatch-error').classList.add('hidden');
+        document.getElementById('name-error').classList.add('hidden');
+
+        // Validate all fields
+        let isValid = true;
+
+        if (!validateName(name)) {
+            document.getElementById('name-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (!validateEmail(email)) {
+            document.getElementById('email-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (!validatePassword(password)) {
+            document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+            document.getElementById('password-mismatch-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (password !== confirmPassword) {
+            document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+            document.getElementById('password-mismatch-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            hideLoading('signup-submit-button');
+            return;
+        }
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+            const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const emailExists = existingUsers.some(user => user.email === email);
+
+            if (emailExists) {
+                document.getElementById('email-exists-error').classList.remove('hidden');
+                hideLoading('signup-submit-button');
+                return;
+            }
+
+            // Store user with hashed password
+            const hashedPassword = await hashData(password);
+            
+            const user = {
+                name: name,
+                email: email,
+                password: hashedPassword,
+                addresses: []
+            };
+
+            existingUsers.push(user);
+            localStorage.setItem('users', JSON.stringify(existingUsers));
+            
+            // Also set as logged in user
+            localStorage.setItem('user', JSON.stringify({
+                name: name,
+                email: email,
+                addresses: []
+            }));
+            
+            document.getElementById('verify-email-success').classList.remove('hidden');
+            document.getElementById('signup-form').reset();
+            
+            // Auto switch to login after delay
+            setTimeout(() => {
+                document.getElementById('signup-section').classList.add('hidden');
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('verify-email-success').classList.add('hidden');
+                hideAuthContainer();
+            }, 2000);
+        } catch (error) {
+            console.error('Error during signup:', error);
+            document.getElementById('signup-error').textContent = 'An error occurred. Please try again.';
+            document.getElementById('signup-error').classList.remove('hidden');
+        } finally {
+            hideLoading('signup-submit-button');
+        }
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        showLoading('login-submit-button');
+        
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const rememberMe = document.getElementById('remember-me').checked;
+
+        // Reset error messages
+        document.getElementById('login-error').classList.add('hidden');
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+            const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const hashedPassword = await hashData(password);
+            
+            const storedUser = existingUsers.find(user => 
+                user.email === email && 
+                user.password === hashedPassword
+            );
+
+            if (storedUser) {
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', JSON.stringify({ 
+                        email: email, 
+                        name: storedUser.name 
+                    }));
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+                
+                // Store user data without password for security
+                const userData = {
+                    email: email,
+                    name: storedUser.name,
+                    addresses: storedUser.addresses || []
+                };
+                
+                localStorage.setItem('user', JSON.stringify(userData));
+                
+                document.getElementById('login-error').classList.add('hidden');
+                document.getElementById('login-success').classList.remove('hidden');
+                
+                // Hide success message after delay
+                setTimeout(() => {
+                    document.getElementById('login-success').classList.add('hidden');
+                    hideAuthContainer();
+                }, 1500);
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            document.getElementById('login-error').textContent = 'An error occurred. Please try again.';
+            document.getElementById('login-error').classList.remove('hidden');
+        } finally {
+            hideLoading('login-submit-button');
+        }
+    });
+
+    // Forgot Password Handlers
+    document.getElementById('forgot-password-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        showLoading('forgot-submit-button');
+        
+        const email = document.getElementById('forgot-email').value.trim();
+        const securityQuestion = document.getElementById('forgot-security-question').value;
+        const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
+
+        // Reset error message
+        document.getElementById('forgot-error').classList.add('hidden');
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+            const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const hashedAnswer = await hashData(securityAnswer);
+            
+            const storedUser = existingUsers.find(user => 
+                user.email === email && 
+                user.securityQuestion === securityQuestion && 
+                user.securityAnswer === hashedAnswer
+            );
+
+            if (storedUser) {
+                document.getElementById('forgot-error').classList.add('hidden');
+                document.getElementById('reset-password-section').classList.remove('hidden');
+            } else {
+                document.getElementById('forgot-error').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error during password recovery:', error);
+            document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
+            document.getElementById('forgot-error').classList.remove('hidden');
+        } finally {
+            hideLoading('forgot-submit-button');
+        }
+    });
+
+    document.getElementById('save-new-password').addEventListener('click', async function() {
+        showLoading('save-new-password');
+        
+        const newPassword = document.getElementById('new-password').value;
+        const confirmNewPassword = document.getElementById('confirm-new-password').value;
+        const email = document.getElementById('forgot-email').value.trim();
+
+        // Reset error message
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+        document.getElementById('reset-success').classList.add('hidden');
+
+        if (!validatePassword(newPassword)) {
+            document.getElementById('reset-password-mismatch').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            hideLoading('save-new-password');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            hideLoading('save-new-password');
+            return;
+        }
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+            const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = existingUsers.findIndex(user => user.email === email);
+            const hashedPassword = await hashData(newPassword);
+
+            if (userIndex !== -1) {
+                existingUsers[userIndex].password = hashedPassword;
+                localStorage.setItem('users', JSON.stringify(existingUsers));
+                
+                document.getElementById('reset-success').classList.remove('hidden');
+                document.getElementById('reset-password-mismatch').classList.add('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('forgot-password-modal').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    document.getElementById('forgot-password-form').reset();
+                    document.getElementById('reset-password-section').classList.add('hidden');
+                    document.getElementById('reset-success').classList.add('hidden');
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error during password reset:', error);
+            document.getElementById('reset-password-mismatch').textContent = 'An error occurred. Please try again.';
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        } finally {
+            hideLoading('save-new-password');
+        }
+    });
+
+    // Event Listeners
+    document.getElementById('show-signup').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('signup-section').classList.remove('hidden');
+        resetForms();
+    });
+
+    document.getElementById('show-login').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('signup-section').classList.add('hidden');
+        document.getElementById('login-section').classList.remove('hidden');
+        resetForms();
+    });
+
+    document.getElementById('close-forgot-password').addEventListener('click', function() {
+        document.getElementById('forgot-password-modal').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        document.getElementById('forgot-password-form').reset();
+        document.getElementById('reset-password-section').classList.add('hidden');
+        document.getElementById('forgot-error').classList.add('hidden');
+        document.getElementById('reset-success').classList.add('hidden');
+    });
+
+    document.getElementById('forgot-password-link').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('forgot-password-modal').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    });
+
+    // Password match validation
+    document.getElementById('signup-confirm-password').addEventListener('input', function() {
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        if (password && confirmPassword && password !== confirmPassword) {
+            document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+            document.getElementById('password-mismatch-error').classList.remove('hidden');
+        } else {
+            document.getElementById('password-mismatch-error').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('confirm-new-password').addEventListener('input', function() {
+        const newPassword = document.getElementById('new-password').value;
+        const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+        if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
+            document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        } else {
+            document.getElementById('reset-password-mismatch').classList.add('hidden');
+        }
+    });
+
+    // Close modals when clicking outside
+    document.getElementById('auth-container').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideAuthContainer();
+        }
+    });
+
+    document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    });
+
+    // Event listeners
+    accountIconNav.addEventListener('click', toggleDropdown);
+    profileOption.addEventListener('click', showLoginModal);
+    logoutOption.addEventListener('click', logoutUser);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!accountIconNav.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+            dropdownOpen = false;
+        }
+    });
+
+    // Initialize
+    window.addEventListener('load', function() {
+        setupPasswordToggles();
+        
+        const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+        
+        if (rememberedUser) {
+            document.getElementById('login-email').value = rememberedUser.email;
+            document.getElementById('remember-me').checked = true;
+        }
+    });
+</script>
