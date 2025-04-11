@@ -150,74 +150,6 @@
             padding: 0.75rem 0;
         }
         
-        /* Cart Overlay Styles */
-        .cart-overlay {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            background: white;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            transition: right 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        
-        .cart-overlay.active {
-            right: 0;
-        }
-        
-        .overlay-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .overlay-backdrop.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        
-        /* Account dropdown styles */
-        .account-icon-hover {
-            transition: all 0.2s ease;
-        }
-        .account-icon-hover:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-        }
-        .account-icon-hover:active {
-            transform: scale(0.95);
-        }
-        .icon-hover {
-            transition: all 0.2s ease;
-        }
-        .icon-hover:hover {
-            color: #3b82f6;
-            transform: scale(1.1);
-        }
-        .icon-hover-blue:hover {
-            color: #2563eb;
-        }
-        .icon-hover-gray:hover {
-            color: #6b7280;
-        }
-        .icon-hover-red:hover {
-            color: #dc2626;
-        }
-        .icon-click-effect:active {
-            transform: scale(0.85);
-        }
-        
         /* Search styles */
         .search-container {
             position: relative;
@@ -349,14 +281,10 @@
                 font-size: 1.35rem;
             }
             
-            .cart-overlay {
-                max-width: 100%;
-            }
-            
             .icon {
                 font-size: 1rem;
             }
-            
+
             /* Mobile search adjustments */
             .search-input-container {
                 position: fixed;
@@ -398,14 +326,6 @@
                 padding: 15px;
                 font-size: 1em;
             }
-
-            /* Adjusted dropdown position */
-            #dropdownMenu {
-                top: 100%;
-                right: 0;
-                left: auto;
-                width: 200px;
-            }
         }
         
         @media (min-width: 769px) {
@@ -417,27 +337,6 @@
             
             .nav-links a {
                 font-size: 0.875rem;
-            }
-            
-            .cart-overlay h2 {
-                font-size: 2.25rem;
-            }
-            
-            .cart-overlay .font-medium {
-                font-size: 1.125rem;
-            }
-            
-            .cart-overlay .text-lg {
-                font-size: 1.25rem;
-            }
-            
-            .cart-overlay button {
-                font-size: 1.125rem;
-                padding: 1rem;
-            }
-
-            .cart-overlay .fa-times {
-                font-size: 1.5rem;
             }
         }
     </style>
@@ -514,320 +413,33 @@
         </div>
     </div>
 
-    <!-- Cart Overlay -->
-    <div class="overlay-backdrop" id="cartBackdrop"></div>
-    <div class="cart-overlay" id="cartOverlay">
-        <div class="p-6 h-full flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold">Your Cart</h2>
-                <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
-            </div>
-            
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
-                </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login/Signup Modal -->
-    <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-            <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
-                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
-                <form id="login-form">
-                    <div class="mb-4">
-                        <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-                        <button type="button" class="password-toggle" id="toggle-login-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="mb-4 flex items-center justify-between">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
-                            <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
-                        </label>
-                        <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
-                        <span id="login-button-text">Log In</span>
-                    </button>
-                </form>
-                <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
-                <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
-                </div>
-            </div>
-            <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
-                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
-                <form id="signup-form">
-                    <div class="mb-4">
-                        <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
-                        <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
-                        <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                        <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
-                        <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
-                        <span id="signup-button-text">Sign Up</span>
-                    </button>
-                </form>
-                <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
-                <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
-            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
-            <form id="forgot-password-form">
-                <div class="mb-4">
-                    <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
-                    <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
-                    <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        <option value="">Select a security question</option>
-                        <option value="pet">What is the name of your first pet?</option>
-                        <option value="school">What is the name of your elementary school?</option>
-                        <option value="city">In what city were you born?</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
-                    <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
-                    <span id="forgot-button-text">Submit</span>
-                </button>
-            </form>
-            <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
-            <div id="reset-password-section" class="hidden">
-                <div class="mb-4 mt-6 password-container">
-                    <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
-                    <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                </div>
-                <div class="mb-4 password-container">
-                    <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
-                    <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                </div>
-                <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
-                    <span id="save-password-button-text">Save Changes</span>
-                </button>
-                <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Initialize user data if not exists
-        if (!localStorage.getItem('user')) {
-            localStorage.setItem('user', JSON.stringify({
-                name: '',
-                email: '',
-                addresses: []
-            }));
-        }
-
-        // Cart functionality
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let cartOpen = false;
-        let searchOpen = false;
+        // Navigation functionality
         let dropdownOpen = false;
 
-        // DOM Elements
-        const cartIconNav = document.getElementById('cartIconNav');
-        const cartOverlay = document.getElementById('cartOverlay');
-        const cartBackdrop = document.getElementById('cartBackdrop');
-        const closeCartButton = document.getElementById('closeCartButton');
-        const enableSearch = document.getElementById('enableSearch');
-        const searchInputContainer = document.querySelector('.search-input-container');
-        const accountIconNav = document.getElementById('accountIconNav');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const mobileMenuButton = document.getElementById('mobileMenuButton');
-        const mobileMenuContent = document.getElementById('mobileMenuContent');
-        const profileOption = document.getElementById('profileOption');
-        const logoutOption = document.getElementById('logoutOption');
-        const authContainer = document.getElementById('auth-container');
-        const closeAuthContainer = document.getElementById('close-auth-container');
-        const showSignup = document.getElementById('show-signup');
-        const showLogin = document.getElementById('show-login');
-        const forgotPasswordLink = document.getElementById('forgot-password-link');
-        const closeForgotPassword = document.getElementById('close-forgot-password');
-        const forgotPasswordModal = document.getElementById('forgot-password-modal');
-
-        // Function to close all open elements
-        function closeAllOpenElements() {
-            // Close cart
-            if (cartOpen) {
-                cartOverlay.classList.remove('active');
-                cartBackdrop.classList.remove('active');
-                cartOpen = false;
-            }
-            
-            // Close search
-            if (searchOpen) {
-                searchInputContainer.style.display = 'none';
-                searchOpen = false;
-            }
-            
-            // Close dropdown menu
+        function toggleDropdown() {
             if (dropdownOpen) {
                 dropdownMenu.classList.add('hidden');
                 dropdownOpen = false;
+                return;
             }
             
-            // Close mobile menu
+            dropdownOpen = true;
+            dropdownMenu.classList.remove('hidden');
+        }
+
+        function toggleMobileMenu() {
             if (mobileMenuContent.classList.contains('active')) {
                 mobileMenuContent.classList.remove('active');
                 mobileMenuButton.querySelector('i').classList.add('fa-bars');
                 mobileMenuButton.querySelector('i').classList.remove('fa-times');
-            }
-        }
-
-        // Toggle cart function
-        function toggleCart() {
-            // Close other open elements
-            if (!cartOpen) {
-                closeAllOpenElements();
-            }
-            
-            cartOpen = !cartOpen;
-            cartOverlay.classList.toggle('active', cartOpen);
-            cartBackdrop.classList.toggle('active', cartOpen);
-            
-            if (cartOpen) {
-                renderCart();
-            }
-        }
-
-        // Close cart function
-        function closeCart() {
-            cartOpen = false;
-            cartOverlay.classList.remove('active');
-            cartBackdrop.classList.remove('active');
-        }
-
-        function renderCart() {
-            const cartList = document.getElementById('cartList');
-            cartList.innerHTML = '';
-            let total = 0;
-
-            if (cart.length === 0) {
-                cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-                document.getElementById('cartTotal').textContent = '₹ 0.00';
                 return;
             }
-
-            cart.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
-                listItem.innerHTML = `
-                    <div class="flex items-start">
-                        <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
-                        <div>
-                            <p class="font-medium">${item.title}</p>
-                            <p class="text-sm text-gray-500">Size: ${item.size}</p>
-                            <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <p class="font-medium">${item.price}</p>
-                        <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
-                    </div>
-                `;
-                cartList.appendChild(listItem);
-
-                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-                total += priceValue * item.quantity;
-            });
-
-            document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
+            
+            mobileMenuContent.classList.add('active');
+            mobileMenuButton.querySelector('i').classList.remove('fa-bars');
+            mobileMenuButton.querySelector('i').classList.add('fa-times');
         }
-
-        function removeFromCart(index, event) {
-            event.stopPropagation();
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
-        }
-
-        function proceedToCheckout() {
-            alert('Proceeding to checkout!');
-            // Here you would typically redirect to a checkout page
-            // window.location.href = '/checkout';
-        }
-
-        // Close cart when pressing ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && cartOpen) {
-                closeCart();
-            }
-        });
-
-        // Cart event listeners
-        cartIconNav.addEventListener('click', toggleCart);
-        closeCartButton.addEventListener('click', closeCart);
-        cartBackdrop.addEventListener('click', closeCart);
 
         // Search functionality
         const searchData = [
@@ -841,20 +453,19 @@
             { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
         ];
 
+        let searchOpen = false;
+
         // Toggle search input
         enableSearch.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // If search is already open, close it
             if (searchOpen) {
                 searchInputContainer.style.display = 'none';
                 searchOpen = false;
                 return;
             }
             
-            // Otherwise, close other elements and open search
-            closeAllOpenElements();
             searchOpen = true;
             searchInputContainer.style.display = 'block';
             searchInput.focus();
@@ -928,8 +539,13 @@
             });
         }
 
-        // Close search results when clicking outside
-        document.addEventListener('click', function(e) {
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!accountIconNav.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+                dropdownOpen = false;
+            }
+            
             if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
                 searchResults.style.display = 'none';
             }
@@ -942,143 +558,9 @@
             }
         });
 
-        // Account dropdown functionality
-        function toggleDropdown() {
-            // If dropdown is already open, close it
-            if (dropdownOpen) {
-                dropdownMenu.classList.add('hidden');
-                dropdownOpen = false;
-                return;
-            }
-            
-            // Otherwise, close other elements and open dropdown
-            closeAllOpenElements();
-            dropdownOpen = true;
-            dropdownMenu.classList.remove('hidden');
-        }
-
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            // If mobile menu is already open, close it
-            if (mobileMenuContent.classList.contains('active')) {
-                mobileMenuContent.classList.remove('active');
-                mobileMenuButton.querySelector('i').classList.add('fa-bars');
-                mobileMenuButton.querySelector('i').classList.remove('fa-times');
-                return;
-            }
-            
-            // Otherwise, close other elements and open mobile menu
-            closeAllOpenElements();
-            mobileMenuContent.classList.add('active');
-            mobileMenuButton.querySelector('i').classList.remove('fa-bars');
-            mobileMenuButton.querySelector('i').classList.add('fa-times');
-        }
-
-        // Show login modal
-        function showLoginModal() {
-            authContainer.classList.remove('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-            document.getElementById('signup-section').classList.add('hidden');
-        }
-
-        function hideAuthContainer() {
-            authContainer.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            resetForms();
-        }
-
-        function resetForms() {
-            document.getElementById('login-form').reset();
-            document.getElementById('signup-form').reset();
-            document.getElementById('login-error').classList.add('hidden');
-            document.getElementById('login-success').classList.add('hidden');
-            document.getElementById('signup-error').classList.add('hidden');
-            document.getElementById('email-error').classList.add('hidden');
-            document.getElementById('email-exists-error').classList.add('hidden');
-            document.getElementById('password-mismatch-error').classList.add('hidden');
-            document.getElementById('name-error').classList.add('hidden');
-        }
-
-        function showForgotPasswordModal() {
-            forgotPasswordModal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
-
-        function closeForgotPasswordModal() {
-            forgotPasswordModal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            document.getElementById('forgot-password-form').reset();
-            document.getElementById('reset-password-section').classList.add('hidden');
-            document.getElementById('forgot-error').classList.add('hidden');
-            document.getElementById('reset-success').classList.add('hidden');
-        }
-
         // Event listeners
         accountIconNav.addEventListener('click', toggleDropdown);
-        profileOption.addEventListener('click', function(e) {
-            e.preventDefault();
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            if (loggedInUser && loggedInUser.email) {
-                // Show account info page
-            } else {
-                showLoginModal();
-            }
-        });
-        logoutOption.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.setItem('user', JSON.stringify({
-                name: '',
-                email: '',
-                addresses: []
-            }));
-            dropdownMenu.classList.add('hidden');
-        });
         mobileMenuButton.addEventListener('click', toggleMobileMenu);
-        closeAuthContainer.addEventListener('click', hideAuthContainer);
-        showSignup.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('signup-section').classList.remove('hidden');
-            resetForms();
-        });
-        showLogin.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('signup-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-            resetForms();
-        });
-        forgotPasswordLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            showForgotPasswordModal();
-        });
-        closeForgotPassword.addEventListener('click', closeForgotPasswordModal);
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!accountIconNav.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                dropdownMenu.classList.add('hidden');
-                dropdownOpen = false;
-            }
-        });
-
-        // Close modals when clicking outside
-        authContainer.addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideAuthContainer();
-            }
-        });
-
-        forgotPasswordModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeForgotPasswordModal();
-            }
-        });
-
-        // Make functions available globally
-        window.toggleCart = toggleCart;
-        window.closeCart = closeCart;
-        window.removeFromCart = removeFromCart;
-        window.proceedToCheckout = proceedToCheckout;
     </script>
 </body>
 </html>
