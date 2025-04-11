@@ -1,7 +1,0 @@
-title: VAMORA.STORE
-description: Premium fashion store
-baseurl: ""
-url: "https://vamorastore.github.io"
-markdown: kramdown
-theme: jekyll-theme-minimal
-include: ['_includes']
