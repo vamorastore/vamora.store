@@ -213,10 +213,6 @@
             .mobile-menu-links a {
                 font-size: 0.875rem;
             }
-            
-            .mobile-menu-social a {
-                font-size: 1rem;
-            }
         }
         
         @media (min-width: 769px) {
@@ -238,7 +234,7 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Navigation Bar (will be loaded from nav.html) -->
+    <!-- Include Navigation -->
     <div id="nav-placeholder"></div>
 
     <div class="main-content">
@@ -321,21 +317,22 @@
         </div>
     </div>
 
-    <!-- Footer (will be loaded from footer.html) -->
+    <!-- Include Footer -->
     <div id="footer-placeholder"></div>
 
     <script>
-        // Function to load navigation and footer
-        function loadCommonElements() {
-            // Load navigation
+        // Function to load navigation
+        function loadNavigation() {
             fetch('nav.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('nav-placeholder').innerHTML = data;
-                    // Initialize any nav-related scripts here if needed
+                    // Initialize any nav-specific scripts here if needed
                 });
-            
-            // Load footer
+        }
+
+        // Function to load footer
+        function loadFooter() {
             fetch('footer.html')
                 .then(response => response.text())
                 .then(data => {
@@ -343,19 +340,10 @@
                 });
         }
 
-        // Load common elements when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCommonElements();
-            
-            // Initialize any page-specific scripts here
-            // For example, you might want to add event listeners for product clicks
-            document.querySelectorAll('.product-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    // Handle product click - you might want to redirect to product page
-                    // or show a quick view modal
-                    console.log('Product clicked');
-                });
-            });
+        // Load navigation and footer when page loads
+        window.addEventListener('DOMContentLoaded', (event) => {
+            loadNavigation();
+            loadFooter();
         });
     </script>
 </body>
