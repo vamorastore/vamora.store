@@ -1,142 +1,244 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>VAMORA.STORE</title>
-    
-    <!-- CSS Links (all HTTPS) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Unbounded', sans-serif;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-        }
-        
-        /* Navigation Styles */
-        .navbar {
-            background-color: #e5e5e5;
-            padding: 1rem 2rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 50;
-            height: 80px;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
         }
         
-        .nav-container {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .nav-icon {
-            font-size: 1.2rem;
-            color: #000;
-            padding: 0 10px;
-        }
-        
-        .mobile-menu-button {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        /* Logo styles */
-        .logo-container {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .logo-container img {
-            height: 50px;
-            width: auto;
-        }
-        
-        /* Main content spacing */
         .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
             padding-top: 80px;
         }
         
-        /* Rest of your existing styles... */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .product-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .image-frame {
+            width: 100%;
+            max-width: 540px;
+            height: 0;
+            padding-bottom: 125.93%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-frame img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .image-frame:hover img:first-child {
+            transform: scale(1.1);
+            opacity: 0;
+        }
+        
+        .image-frame:hover img:last-child {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        .image-frame img:last-child {
+            opacity: 0;
+        }
+        
+        .product-caption {
+            width: 100%;
+            max-width: 540px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.75rem;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: auto;
+            max-height: 100vh;
+            object-fit: cover;
+        }
+        
+        .button {
+            position: relative;
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+            font-size: 0.75rem;
+        }
+        
+        .button:hover {
+            background-color: gray;
+        }
+        
+        .heading-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 2rem 0 1rem;
+            text-transform: uppercase;
+        }
+        
+        .button-effect {
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        @media (max-width: 768px) {
+            .heading-text {
+                font-size: 1.25rem;
+                text-align: center;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                padding: 1.5rem 0 0.5rem;
+            }
+            
+            .product-grid {
+                gap: 1rem;
+                padding: 0 0.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .product-caption {
+                font-size: 0.6875rem;
+            }
+        }
     </style>
 </head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <!-- Mobile Menu Button -->
-            <button class="mobile-menu-button" id="mobileMenuButton">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <!-- Logo -->
-            <div class="flex items-center logo-container">
-                <img src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png" alt="VAMORA.STORE Logo">
-            </div>
-            
-            <!-- Desktop Navigation Icons -->
-            <div class="flex items-center space-x-4">
-                <!-- Search Icon -->
-                <a href="#" class="nav-icon" id="searchToggle">
-                    <i class="fas fa-search"></i>
-                </a>
-                
-                <!-- Account Icon -->
-                <a href="#" class="nav-icon" id="accountToggle">
-                    <i class="fas fa-user"></i>
-                </a>
-                
-                <!-- Cart Icon -->
-                <a href="#" class="nav-icon" id="cartToggle">
-                    <i class="fas fa-shopping-cart"></i>
+<body class="bg-gray-50 min-h-screen">
+    <div id="nav-placeholder"></div>
+
+    <div class="main-content">
+        <div class="w-full mb-4 md:mb-8">
+            <img alt="Main banner" class="hero-image" src="https://media-hosting.imagekit.io/2fea1fb70c7e4f73/Artboard%2012.jpg"/>
+        </div>
+        
+        <div class="w-full mb-4 md:mb-8">
+            <img alt="Secondary banner" class="hero-image" src="https://media-hosting.imagekit.io/f38528bc56c349df/Artboard%206.jpg"/>
+        </div>
+        
+        <div class="bg-gray-200 px-4 py-6 md:px-8 md:py-8 mb-4 md:mb-8">
+            <div class="max-w-1400 mx-auto flex flex-col md:flex-row justify-between items-center">
+                <h1 class="heading-text mb-4 md:mb-0">
+                    MAKE.YOUR.STYLE.BOLD
+                </h1>
+                <a class="button" href="https://www.vamora.store/shop">
+                    VIEW.ALL
                 </a>
             </div>
         </div>
-    </nav>
-
-    <!-- Mobile Menu (hidden by default) -->
-    <div class="mobile-menu hidden">
-        <a href="#" class="mobile-menu-item"><i class="fas fa-home"></i> Home</a>
-        <a href="#" class="mobile-menu-item"><i class="fas fa-store"></i> Shop</a>
-        <a href="#" class="mobile-menu-item"><i class="fas fa-info-circle"></i> About</a>
-        <a href="#" class="mobile-menu-item"><i class="fas fa-envelope"></i> Contact</a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Your page content here -->
-        <h1 class="text-center mt-8">Welcome to VAMORA.STORE</h1>
-        <p class="text-center">Icons should now be visible in the navigation bar</p>
-    </div>
-
-    <!-- JavaScript -->
-    <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuButton').addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
-        });
         
-        // Test if Font Awesome loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            const icons = document.querySelectorAll('.fas, .fab');
-            if (icons.length > 0) {
-                console.log('Font Awesome icons found:', icons.length);
-            } else {
-                console.warn('No Font Awesome icons detected - CSS may not have loaded');
-            }
+        <div class="product-grid">
+            <div class="product-item">
+                <div class="image-frame">
+                    <img alt="Product 1" src="https://media-hosting.imagekit.io/1e2dce40b59b41fd/SA.png"/>
+                    <img alt="Product 1 Alternate" src="https://media-hosting.imagekit.io/6d08cf735f564d2a/SA22.png"/>
+                </div>
+                <div class="product-caption">
+                    <div>HOKKAIDO</div>
+                    <div>₹378.00</div>
+                </div>
+            </div>
+            
+            <div class="product-item">
+                <div class="image-frame">
+                    <img alt="Product 2" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png"/>
+                    <img alt="Product 2 Alternate" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png"/>
+                </div>
+                <div class="product-caption">
+                    <div>DE.ORIGIN</div>
+                    <div>₹378.00</div>
+                </div>
+            </div>
+            
+            <div class="product-item">
+                <div class="image-frame">
+                    <img alt="Product 3" src="https://media-hosting.imagekit.io/acd79ddde893419b/epi.png"/>
+                    <img alt="Product 3 Alternate" src="https://media-hosting.imagekit.io/aa4abc4b416748ef/124%20(1).jpg"/>
+                </div>
+                <div class="product-caption">
+                    <div>EPISTLE RAP</div>
+                    <div>₹579.00</div>
+                </div>
+            </div>
+            
+            <div class="product-item">
+                <div class="image-frame">
+                    <img alt="Product 4" src="https://media-hosting.imagekit.io/e0010cd530e84ca5/ODD%20OUT.png"/>
+                    <img alt="Product 4 Alternate" src="https://media-hosting.imagekit.io/41cd3d65814746a5/TSHIRT%20MAIN-Recovered.png"/>
+                </div>
+                <div class="product-caption">
+                    <div>ODD.OUT</div>
+                    <div>₹579.00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="w-full mt-4 md:mt-8">
+            <img alt="Bottom banner" class="hero-image" src="https://storage.googleapis.com/a1aa/image/VLGYOrEJfS-6FMAkQieRPdvarM-5ZZWt58DjJZIj9nM.jpg"/>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        function loadNavigation() {
+            fetch('nav.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('nav-placeholder').innerHTML = data;
+                });
+        }
+
+        function loadFooter() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footer-placeholder').innerHTML = data;
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            loadNavigation();
+            loadFooter();
         });
     </script>
 </body>
