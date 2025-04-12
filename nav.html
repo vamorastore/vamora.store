@@ -1,1528 +1,300 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAMORA.STORE</title>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-container">
+        <button class="mobile-menu-button" id="mobileMenuButton">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="flex items-center logo-container">
+            <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
+            <span class="logo-text">VAMORA.STORE</span>
+        </div>
+        
+        <div class="flex items-center space-x-2 nav-icons">
+            <!-- Include Search Component -->
+            <div id="search-placeholder"></div>
+            
+            <div class="icon-separator"></div>
+            
+            <!-- Include Profile Component -->
+            <div id="profile-placeholder"></div>
+            
+            <div class="icon-separator"></div>
+            
+            <!-- Include Cart Component -->
+            <div id="cart-placeholder"></div>
+        </div>
+        
+        <div class="nav-links">
+            <a class="text-black nav-link active" href="https://www.vamora.store/home">HOME</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu Content -->
+<div class="mobile-menu-content" id="mobileMenuContent">
+    <div class="mobile-menu-links">
+        <a class="text-black nav-link active" href="https://www.vamora.store/home">HOME</a>
+        <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
+        <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
+        <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+    </div>
+    <div class="mobile-menu-social">
+        <a class="text-black" href="#"><i class="https://www.instagram.com/vamora.store"></i></a>
+        <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+    </div>
+</div>
+
+<style>
+    /* Navigation styles */
+    .nav-link {
+        position: relative;
+        cursor: pointer;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 3px;
+        background-color: black;
+        left: 50%;
+        bottom: -4px;
+        transition: width 0.3s ease, left 0.3s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+        width: 100%;
+        left: 0;
+    }
     
-    <!-- Updated CDN links with integrity and crossorigin -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&display=swap" 
-          rel="stylesheet" crossorigin="anonymous">
+    .icon-separator {
+        border-left: 1px solid black;
+        height: 28px;
+        margin: 0 10px;
+    }
     
-    <style>
-        body {
-            font-family: 'Unbounded', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        
-        /* Navigation styles */
-        .nav-link {
-            position: relative;
-            cursor: pointer;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 3px;
-            background-color: black;
-            left: 50%;
-            bottom: -4px;
-            transition: width 0.3s ease, left 0.3s ease;
-        }
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-            left: 0;
-        }
-        
-        .icon-separator {
-            border-left: 1px solid black;
-            height: 28px;
-            margin: 0 10px;
-        }
-        
-        .icon {
-            font-size: 1.2rem;
-        }
-        
-        /* Logo animation */
-        .logo-container {
-            position: relative;
-            display: inline-block;
-        }
-        .logo-container img {
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            height: 50px;
-            width: 60px;
-        }
-        .logo-container:hover img {
-            transform: rotateY(360deg);
-        }
-        .logo-text {
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.6s, left 0.6s;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        .logo-container:hover .logo-text {
-            opacity: 1;
-            left: calc(100% + 10px);
-        }
-        
-        /* Navigation bar */
-        .navbar {
-            background-color: #e5e5e5;
-            padding: 1rem 2rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 50;
-            height: 80px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .nav-container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        /* Mobile menu */
+    .icon {
+        font-size: 1.2rem;
+    }
+    
+    /* Logo animation */
+    .logo-container {
+        position: relative;
+        display: inline-block;
+    }
+    .logo-container img {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        height: 50px;
+        width: 60px;
+    }
+    .logo-container:hover img {
+        transform: rotateY(360deg);
+    }
+    .logo-text {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.6s, left 0.6s;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .logo-container:hover .logo-text {
+        opacity: 1;
+        left: calc(100% + 10px);
+    }
+    
+    /* Navigation bar */
+    .navbar {
+        background-color: #e5e5e5;
+        padding: 1rem 2rem;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 50;
+        height: 80px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .nav-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    /* Mobile menu */
+    .mobile-menu-button {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+    
+    .mobile-menu-button:hover {
+        color: #555;
+        transform: scale(1.1);
+    }
+    
+    .mobile-menu-button:active {
+        transform: scale(0.95);
+    }
+    
+    .nav-links {
+        display: flex;
+        gap: 1.75rem;
+    }
+    
+    .nav-icons {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+    
+    /* Mobile menu content */
+    .mobile-menu-content {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #e5e5e5;
+        padding: 1.25rem 1.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 40;
+    }
+    
+    .mobile-menu-content.active {
+        display: block;
+    }
+    
+    .mobile-menu-links {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .mobile-menu-social {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.75rem;
+        padding: 0.75rem 0;
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
         .mobile-menu-button {
+            display: block;
+            order: 1;
+        }
+        
+        .logo-container {
+            order: 2;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .logo-container:hover img {
+            transform: none;
+        }
+        
+        .logo-text {
             display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-        
-        .mobile-menu-button:hover {
-            color: #555;
-            transform: scale(1.1);
-        }
-        
-        .mobile-menu-button:active {
-            transform: scale(0.95);
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 1.75rem;
         }
         
         .nav-icons {
-            display: flex;
-            align-items: center;
-            position: relative;
+            order: 3;
         }
         
-        /* Mobile menu content */
-        .mobile-menu-content {
-            display: none;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            background-color: #e5e5e5;
-            padding: 1.25rem 1.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 40;
-        }
-        
-        .mobile-menu-content.active {
-            display: block;
-        }
-        
-        .mobile-menu-links {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-        }
-        
-        .mobile-menu-social {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1.75rem;
-            padding: 0.75rem 0;
-        }
-        
-        /* Cart Overlay Styles */
-        .cart-overlay {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            background: white;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            transition: right 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        
-        .cart-overlay.active {
-            right: 0;
-        }
-        
-        .overlay-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .overlay-backdrop.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        
-        /* Account dropdown styles */
-        .account-icon-hover {
-            transition: all 0.2s ease;
-        }
-        .account-icon-hover:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-        }
-        .account-icon-hover:active {
-            transform: scale(0.95);
-        }
-        .icon-hover {
-            transition: all 0.2s ease;
-        }
-        .icon-hover:hover {
-            color: #3b82f6;
-            transform: scale(1.1);
-        }
-        .icon-hover-blue:hover {
-            color: #2563eb;
-        }
-        .icon-hover-gray:hover {
-            color: #6b7280;
-        }
-        .icon-hover-red:hover {
-            color: #dc2626;
-        }
-        .icon-click-effect:active {
-            transform: scale(0.85);
-        }
-        
-        /* Login modal styles */
-        .no-scrollbar::-webkit-scrollbar {
+        .nav-links {
             display: none;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        
+        .mobile-menu-links a {
+            font-size: 1rem;
         }
-        .loading {
-            position: relative;
-            pointer-events: none;
+        
+        .mobile-menu-social a {
+            font-size: 1.35rem;
         }
-        .loading:after {
-            content: "";
+        
+        .icon {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        .nav-links {
             position: absolute;
-            top: 50%;
             left: 50%;
-            width: 16px;
-            height: 16px;
-            margin: -8px 0 0 -8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .password-container {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            cursor: pointer;
-            color: #6b7280;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 10;
-        }
-        .password-input {
-            padding-right: 40px !important;
-        }
-
-        /* Search styles */
-        .search-container {
-            position: relative;
-            display: inline-block;
+            transform: translateX(-50%);
         }
         
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 180px;
-            max-height: 400px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            z-index: 100;
-            display: none;
+        .nav-links a {
+            font-size: 0.875rem;
+        }
+    }
+</style>
+
+<script>
+    // Load components
+    function loadComponents() {
+        fetch('search.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('search-placeholder').innerHTML = data;
+            });
+            
+        fetch('profile.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('profile-placeholder').innerHTML = data;
+            });
+            
+        fetch('cart.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('cart-placeholder').innerHTML = data;
+            });
+    }
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+        const mobileMenuContent = document.getElementById('mobileMenuContent');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        
+        if (mobileMenuContent.classList.contains('active')) {
+            mobileMenuContent.classList.remove('active');
+            mobileMenuButton.querySelector('i').classList.add('fa-bars');
+            mobileMenuButton.querySelector('i').classList.remove('fa-times');
+            return;
         }
         
-        .search-result-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+        mobileMenuContent.classList.add('active');
+        mobileMenuButton.querySelector('i').classList.remove('fa-bars');
+        mobileMenuButton.querySelector('i').classList.add('fa-times');
+    }
+
+    // Initialize when loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        loadComponents();
         
-        .search-result-item:hover {
-            background-color: #f5f5f5;
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
         }
-        
-        .search-result-item .title {
-            font-weight: 600;
-            margin-bottom: 3px;
-            font-size: 0.9rem;
-        }
-        
-        .search-result-item .category {
-            font-size: 0.8em;
-            color: #666;
-        }
-        
-        .no-results {
-            padding: 10px 15px;
-            color: #666;
-            font-size: 0.9em;
-            text-align: center;
-        }
-        
-        .search-input-container {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            display: none;
-        }
-        
-        .search-input {
-            padding: 8px 15px;
-            padding-right: 35px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            width: 180px;
-            outline: none;
-            transition: width 0.3s;
-        }
-        
-        .search-input:focus {
-            width: 220px;
-            border-color: #999;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-        }
-        
-        .search-close {
-            position: absolute;
-            right: 35px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #999;
-        }
-        
-        .search-close:hover {
-            color: #333;
-        }
-
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .mobile-menu-button {
-                display: block;
-                order: 1;
-            }
-            
-            .logo-container {
-                order: 2;
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            
-            .logo-container:hover img {
-                transform: none;
-            }
-            
-            .logo-text {
-                display: none;
-            }
-            
-            .nav-icons {
-                order: 3;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu-links a {
-                font-size: 1rem;
-            }
-            
-            .mobile-menu-social a {
-                font-size: 1.35rem;
-            }
-            
-            .cart-overlay {
-                max-width: 100%;
-            }
-            
-            .icon {
-                font-size: 1rem;
-            }
-            
-            .password-toggle {
-                top: 36px;
-            }
-            #auth-container > div {
-                width: 95%;
-                max-width: 95%;
-            }
-            .auth-section {
-                padding: 1.5rem;
-            }
-
-            /* Mobile search adjustments */
-            .search-input-container {
-                position: fixed;
-                top: 80px;
-                left: 0;
-                right: 0;
-                width: 100%;
-                padding: 10px;
-                background: #e5e5e5;
-                z-index: 60;
-            }
-            
-            .search-input {
-                width: calc(100% - 50px);
-                padding: 10px 45px 10px 15px;
-            }
-            
-            .search-input:focus {
-                width: calc(100% - 50px);
-            }
-            
-            .search-results {
-                position: fixed;
-                top: 140px;
-                left: 10px;
-                right: 10px;
-                width: calc(100% - 20px);
-            }
-            
-            .search-close {
-                right: 45px;
-            }
-            
-            .search-icon {
-                right: 20px;
-            }
-
-            .no-results {
-                padding: 15px;
-                font-size: 1em;
-            }
-
-            /* Adjusted dropdown position */
-            #dropdownMenu {
-                top: 100%;
-                right: 0;
-                left: auto;
-                width: 200px;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .nav-links {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            
-            .nav-links a {
-                font-size: 0.875rem;
-            }
-            
-            .cart-overlay h2 {
-                font-size: 2.25rem;
-            }
-            
-            .cart-overlay .font-medium {
-                font-size: 1.125rem;
-            }
-            
-            .cart-overlay .text-lg {
-                font-size: 1.25rem;
-            }
-            
-            .cart-overlay button {
-                font-size: 1.125rem;
-                padding: 1rem;
-            }
-
-            .cart-overlay .fa-times {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <button class="mobile-menu-button" id="mobileMenuButton">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <div class="flex items-center logo-container">
-                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
-                <span class="logo-text">VAMORA.STORE</span>
-            </div>
-            
-            <div class="flex items-center space-x-2 nav-icons">
-                <div class="search-container">
-                    <a class="text-black nav-link" id="enableSearch">
-                        <i class="fas fa-search icon"></i>
-                    </a>
-                    <div class="search-input-container">
-                        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
-                        <span class="search-close" id="closeSearch">&times;</span>
-                        <span class="search-icon" id="searchButton">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </div>
-                    <div class="search-results" id="searchResults"></div>
-                </div>
-                <div class="icon-separator"></div>
-                <div class="relative">
-                    <div class="cursor-pointer" id="accountIconNav">
-                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
-                             alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
-                    </div>
-                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
-                        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
-                        </a>
-                        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
-                        </a>
-                    </div>
-                </div>
-                <div class="icon-separator"></div>
-                <div class="relative">
-                    <a class="text-black nav-link" id="cartIconNav" style="cursor: pointer;">
-                        <i class="fas fa-shopping-cart icon"></i>
-                        <span class="cart-count" id="cartCount"></span>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="nav-links">
-                <a class="text-black nav-link" href="index.html">HOME</a>
-                <a class="text-black nav-link active" href="shop.html">SHOP</a>
-                <a class="text-black nav-link" href="about.html">ABOUT</a>
-                <a class="text-black nav-link" href="contact.html">CONTACT</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Menu Content -->
-    <div class="mobile-menu-content" id="mobileMenuContent">
-        <div class="mobile-menu-links">
-            <a class="text-black nav-link" href="index.html">HOME</a>
-            <a class="text-black nav-link active" href="shop.html">SHOP</a>
-            <a class="text-black nav-link" href="about.html">ABOUT</a>
-            <a class="text-black nav-link" href="contact.html">CONTACT</a>
-        </div>
-        <div class="mobile-menu-social">
-            <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
-            <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
-        </div>
-    </div>
-
-    <!-- Cart Overlay -->
-    <div class="overlay-backdrop" id="cartBackdrop"></div>
-    <div class="cart-overlay" id="cartOverlay">
-        <div class="p-6 h-full flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Your Cart</h2>
-                <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
-            </div>
-            
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
-                </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login/Signup Modal -->
-    <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-            <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
-                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
-                <form id="login-form">
-                    <div class="mb-4">
-                        <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-                        <button type="button" class="password-toggle" id="toggle-login-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="mb-4 flex items-center justify-between">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
-                            <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
-                        </label>
-                        <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
-                        <span id="login-button-text">Log In</span>
-                    </button>
-                </form>
-                <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
-                <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
-                </div>
-            </div>
-            <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
-                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
-                <form id="signup-form">
-                    <div class="mb-4">
-                        <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
-                        <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
-                        <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                        <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
-                        <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
-                        <span id="signup-button-text">Sign Up</span>
-                    </button>
-                </form>
-                <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
-                <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
-            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
-            <form id="forgot-password-form">
-                <div class="mb-4">
-                    <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
-                    <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
-                    <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        <option value="">Select a security question</option>
-                        <option value="pet">What is the name of your first pet?</option>
-                        <option value="school">What is the name of your elementary school?</option>
-                        <option value="city">In what city were you born?</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
-                    <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
-                    <span id="forgot-button-text">Submit</span>
-                </button>
-            </form>
-            <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
-            <div id="reset-password-section" class="hidden">
-                <div class="mb-4 mt-6 password-container">
-                    <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
-                    <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                </div>
-                <div class="mb-4 password-container">
-                    <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
-                    <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                </div>
-                <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
-                    <span id="save-password-button-text">Save Changes</span>
-                </button>
-                <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Initialize user data if not exists
-                if (!localStorage.getItem('user')) {
-                    localStorage.setItem('user', JSON.stringify({
-                        name: '',
-                        email: '',
-                        addresses: []
-                    }));
-                }
-
-                // Cart functionality
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                let cartOpen = false;
-                let searchOpen = false;
-                let dropdownOpen = false;
-
-                // DOM Elements
-                const cartIconNav = document.getElementById('cartIconNav');
-                const cartOverlay = document.getElementById('cartOverlay');
-                const cartBackdrop = document.getElementById('cartBackdrop');
-                const closeCartButton = document.getElementById('closeCartButton');
-                const enableSearch = document.getElementById('enableSearch');
-                const searchInput = document.getElementById('searchInput');
-                const searchResults = document.getElementById('searchResults');
-                const searchButton = document.getElementById('searchButton');
-                const closeSearch = document.getElementById('closeSearch');
-                const accountIconNav = document.getElementById('accountIconNav');
-                const dropdownMenu = document.getElementById('dropdownMenu');
-                const mobileMenuButton = document.getElementById('mobileMenuButton');
-                const mobileMenuContent = document.getElementById('mobileMenuContent');
-                const profileOption = document.getElementById('profileOption');
-                const logoutOption = document.getElementById('logoutOption');
-
-                // Safe event listener function
-                function safeAddEventListener(element, event, handler) {
-                    try {
-                        if (element && handler) {
-                            element.addEventListener(event, handler);
-                        }
-                    } catch (error) {
-                        console.error(`Error adding ${event} listener to`, element, error);
-                    }
-                }
-
-                // Function to close all open elements
-                function closeAllOpenElements() {
-                    // Close cart
-                    if (cartOpen) {
-                        cartOverlay.classList.remove('active');
-                        cartBackdrop.classList.remove('active');
-                        cartOpen = false;
-                    }
-                    
-                    // Close search
-                    if (searchOpen) {
-                        searchInputContainer.style.display = 'none';
-                        searchOpen = false;
-                    }
-                    
-                    // Close dropdown menu
-                    if (dropdownOpen) {
-                        dropdownMenu.classList.add('hidden');
-                        dropdownOpen = false;
-                    }
-                    
-                    // Close mobile menu
-                    if (mobileMenuContent.classList.contains('active')) {
-                        mobileMenuContent.classList.remove('active');
-                        mobileMenuButton.querySelector('i').classList.add('fa-bars');
-                        mobileMenuButton.querySelector('i').classList.remove('fa-times');
-                    }
-                }
-
-                // Toggle cart function
-                function toggleCart() {
-                    // Close other open elements
-                    if (!cartOpen) {
-                        closeAllOpenElements();
-                    }
-                    
-                    cartOpen = !cartOpen;
-                    cartOverlay.classList.toggle('active', cartOpen);
-                    cartBackdrop.classList.toggle('active', cartOpen);
-                    
-                    if (cartOpen) {
-                        renderCart();
-                    }
-                }
-
-                // Close cart function
-                function closeCart() {
-                    cartOpen = false;
-                    cartOverlay.classList.remove('active');
-                    cartBackdrop.classList.remove('active');
-                }
-
-                function renderCart() {
-                    const cartList = document.getElementById('cartList');
-                    cartList.innerHTML = '';
-                    let total = 0;
-
-                    if (cart.length === 0) {
-                        cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-                        document.getElementById('cartTotal').textContent = '₹ 0.00';
-                        return;
-                    }
-
-                    cart.forEach((item, index) => {
-                        const listItem = document.createElement('li');
-                        listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
-                        listItem.innerHTML = `
-                            <div class="flex items-start">
-                                <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
-                                <div>
-                                    <p class="font-medium">${item.title}</p>
-                                    <p class="text-sm text-gray-500">Size: ${item.size}</p>
-                                    <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end">
-                                <p class="font-medium">${item.price}</p>
-                                <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
-                                    <i class="fas fa-trash text-sm"></i>
-                                </button>
-                            </div>
-                        `;
-                        cartList.appendChild(listItem);
-
-                        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-                        total += priceValue * item.quantity;
-                    });
-
-                    document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
-                }
-
-                function removeFromCart(index, event) {
-                    event.stopPropagation();
-                    cart.splice(index, 1);
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    renderCart();
-                    updateCartCount();
-                }
-
-                function proceedToCheckout() {
-                    alert('Proceeding to checkout!');
-                    // Here you would typically redirect to a checkout page
-                    // window.location.href = '/checkout';
-                }
-
-                // Function to update cart count in navbar
-                function updateCartCount() {
-                    const cartCountElement = document.getElementById('cartCount');
-                    if (cartCountElement) {
-                        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-                        cartCountElement.textContent = count > 0 ? count : '';
-                        cartCountElement.style.display = count > 0 ? 'inline-block' : 'none';
-                    }
-                }
-
-                // Search functionality
-                const searchData = [
-                    { id: 1, title: "HOKKAIDO", category: "T-Shirt", url: "shop.html" },
-                    { id: 2, title: "DE.ORIGIN", category: "T-Shirt", url: "shop.html" },
-                    { id: 3, title: "EPISTLE RAP", category: "T-Shirt", url: "shop.html" },
-                    { id: 4, title: "ODD.OUT", category: "T-Shirt", url: "shop.html" }
-                ];
-
-                // Search input container (added here since it might not be in DOM at first)
-                const searchInputContainer = document.querySelector('.search-input-container');
-
-                // Search functionality
-                safeAddEventListener(searchInput, 'input', function() {
-                    const query = this.value.toLowerCase();
-                    
-                    if (query.length < 2) {
-                        searchResults.style.display = 'none';
-                        return;
-                    }
-                    
-                    const results = searchData.filter(item => 
-                        item.title.toLowerCase().includes(query) || 
-                        item.category.toLowerCase().includes(query)
-                    );
-                    
-                    displayResults(results);
-                });
-
-                // Perform search on button click
-                safeAddEventListener(searchButton, 'click', function() {
-                    const query = searchInput.value.toLowerCase();
-                    
-                    if (query.length < 2) {
-                        searchResults.style.display = 'none';
-                        return;
-                    }
-                    
-                    const results = searchData.filter(item => 
-                        item.title.toLowerCase().includes(query) || 
-                        item.category.toLowerCase().includes(query)
-                    );
-                    
-                    displayResults(results);
-                });
-
-                // Display search results
-                function displayResults(results) {
-                    if (results.length === 0) {
-                        searchResults.innerHTML = '<div class="no-results">No results found</div>';
-                        searchResults.style.display = 'block';
-                        return;
-                    }
-                    
-                    searchResults.innerHTML = results.map(item => `
-                        <div class="search-result-item" data-url="${item.url}">
-                            <div class="title">${item.title}</div>
-                            <div class="category">${item.category}</div>
-                        </div>
-                    `).join('');
-                    
-                    searchResults.style.display = 'block';
-                    
-                    // Add click event to results
-                    document.querySelectorAll('.search-result-item').forEach(item => {
-                        safeAddEventListener(item, 'click', function() {
-                            const url = this.getAttribute('data-url');
-                            window.location.href = url;
-                        });
-                    });
-                }
-
-                // Close search results when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
-                        searchResults.style.display = 'none';
-                    }
-                });
-
-                // Close search results on ESC key
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        searchResults.style.display = 'none';
-                    }
-                });
-
-                // Toggle search input
-                safeAddEventListener(enableSearch, 'click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // If search is already open, close it
-                    if (searchOpen) {
-                        searchInputContainer.style.display = 'none';
-                        searchOpen = false;
-                        return;
-                    }
-                    
-                    // Otherwise, close other elements and open search
-                    closeAllOpenElements();
-                    searchOpen = true;
-                    searchInputContainer.style.display = 'block';
-                    searchInput.focus();
-                });
-
-                // Close search
-                safeAddEventListener(closeSearch, 'click', function() {
-                    searchInputContainer.style.display = 'none';
-                    searchInput.value = '';
-                    searchResults.style.display = 'none';
-                    searchOpen = false;
-                });
-
-                // Account dropdown functionality
-                function toggleDropdown() {
-                    // If dropdown is already open, close it
-                    if (dropdownOpen) {
-                        dropdownMenu.classList.add('hidden');
-                        dropdownOpen = false;
-                        return;
-                    }
-                    
-                    // Otherwise, close other elements and open dropdown
-                    closeAllOpenElements();
-                    dropdownOpen = true;
-                    dropdownMenu.classList.remove('hidden');
-                }
-
-                // Mobile menu toggle
-                function toggleMobileMenu() {
-                    // If mobile menu is already open, close it
-                    if (mobileMenuContent.classList.contains('active')) {
-                        mobileMenuContent.classList.remove('active');
-                        mobileMenuButton.querySelector('i').classList.add('fa-bars');
-                        mobileMenuButton.querySelector('i').classList.remove('fa-times');
-                        return;
-                    }
-                    
-                    // Otherwise, close other elements and open mobile menu
-                    closeAllOpenElements();
-                    mobileMenuContent.classList.add('active');
-                    mobileMenuButton.querySelector('i').classList.remove('fa-bars');
-                    mobileMenuButton.querySelector('i').classList.add('fa-times');
-                }
-
-                // Show login modal when profile is clicked
-                function showLoginModal(event) {
-                    event.preventDefault();
-                    document.getElementById('auth-container').classList.remove('hidden');
-                    dropdownMenu.classList.add('hidden');
-                }
-
-                function logoutUser(event) {
-                    event.preventDefault();
-                    // Clear user data
-                    localStorage.setItem('user', JSON.stringify({
-                        name: '',
-                        email: '',
-                        addresses: []
-                    }));
-                    
-                    alert('You have been logged out.');
-                    dropdownMenu.classList.add('hidden');
-                }
-
-                // Login system functions
-                async function hashData(data) {
-                    const encoder = new TextEncoder();
-                    const dataBuffer = encoder.encode(data);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                }
-
-                function validateEmail(email) {
-                    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                    return re.test(String(email).toLowerCase());
-                }
-
-                function validatePassword(password) {
-                    return password.length >= 8 && 
-                           /[A-Z]/.test(password) && 
-                           /[0-9]/.test(password) && 
-                           /[^A-Za-z0-9]/.test(password);
-                }
-
-                function validateName(name) {
-                    return name.length >= 2 && name.length <= 50;
-                }
-
-                function hideAuthContainer() {
-                    document.getElementById('auth-container').classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                    resetForms();
-                }
-
-                function resetForms() {
-                    document.getElementById('login-form').reset();
-                    document.getElementById('signup-form').reset();
-                    document.getElementById('login-error').classList.add('hidden');
-                    document.getElementById('login-success').classList.add('hidden');
-                    document.getElementById('signup-error').classList.add('hidden');
-                    document.getElementById('email-error').classList.add('hidden');
-                    document.getElementById('email-exists-error').classList.add('hidden');
-                    document.getElementById('password-mismatch-error').classList.add('hidden');
-                    document.getElementById('name-error').classList.add('hidden');
-                }
-
-                function showLoading(buttonId) {
-                    const button = document.getElementById(buttonId);
-                    const textSpan = button.querySelector('span');
-                    button.disabled = true;
-                    button.classList.add('loading');
-                    textSpan.classList.add('opacity-0');
-                }
-
-                function hideLoading(buttonId) {
-                    const button = document.getElementById(buttonId);
-                    const textSpan = button.querySelector('span');
-                    button.disabled = false;
-                    button.classList.remove('loading');
-                    textSpan.classList.remove('opacity-0');
-                }
-
-                function setupPasswordToggles() {
-                    document.querySelectorAll('.password-toggle').forEach(toggle => {
-                        safeAddEventListener(toggle, 'click', function() {
-                            const inputId = this.id.replace('toggle-', '');
-                            const input = document.getElementById(inputId);
-                            if (input) {
-                                const type = input.type === 'password' ? 'text' : 'password';
-                                input.type = type;
-                                const icon = this.querySelector('i');
-                                if (icon) {
-                                    icon.classList.toggle('fa-eye');
-                                    icon.classList.toggle('fa-eye-slash');
-                                }
-                            }
-                        });
-                    });
-                }
-
-                // Login system event handlers
-                safeAddEventListener(document.getElementById('signup-form'), 'submit', async function(event) {
-                    event.preventDefault();
-                    showLoading('signup-submit-button');
-                    
-                    const name = document.getElementById('signup-name').value.trim();
-                    const email = document.getElementById('signup-email').value.trim();
-                    const password = document.getElementById('signup-password').value;
-                    const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-                    // Reset error messages
-                    document.getElementById('signup-error').classList.add('hidden');
-                    document.getElementById('email-error').classList.add('hidden');
-                    document.getElementById('email-exists-error').classList.add('hidden');
-                    document.getElementById('password-mismatch-error').classList.add('hidden');
-                    document.getElementById('name-error').classList.add('hidden');
-
-                    // Validate all fields
-                    let isValid = true;
-
-                    if (!validateName(name)) {
-                        document.getElementById('name-error').classList.remove('hidden');
-                        isValid = false;
-                    }
-
-                    if (!validateEmail(email)) {
-                        document.getElementById('email-error').classList.remove('hidden');
-                        isValid = false;
-                    }
-
-                    if (!validatePassword(password)) {
-                        document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
-                        document.getElementById('password-mismatch-error').classList.remove('hidden');
-                        isValid = false;
-                    }
-
-                    if (password !== confirmPassword) {
-                        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
-                        document.getElementById('password-mismatch-error').classList.remove('hidden');
-                        isValid = false;
-                    }
-
-                    if (!isValid) {
-                        hideLoading('signup-submit-button');
-                        return;
-                    }
-
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    try {
-                        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-                        const emailExists = existingUsers.some(user => user.email === email);
-
-                        if (emailExists) {
-                            document.getElementById('email-exists-error').classList.remove('hidden');
-                            hideLoading('signup-submit-button');
-                            return;
-                        }
-
-                        // Store user with hashed password
-                        const hashedPassword = await hashData(password);
-                        
-                        const user = {
-                            name: name,
-                            email: email,
-                            password: hashedPassword,
-                            addresses: []
-                        };
-
-                        existingUsers.push(user);
-                        localStorage.setItem('users', JSON.stringify(existingUsers));
-                        
-                        // Also set as logged in user
-                        localStorage.setItem('user', JSON.stringify({
-                            name: name,
-                            email: email,
-                            addresses: []
-                        }));
-                        
-                        document.getElementById('verify-email-success').classList.remove('hidden');
-                        document.getElementById('signup-form').reset();
-                        
-                        // Auto switch to login after delay
-                        setTimeout(() => {
-                            document.getElementById('signup-section').classList.add('hidden');
-                            document.getElementById('login-section').classList.remove('hidden');
-                            document.getElementById('verify-email-success').classList.add('hidden');
-                            hideAuthContainer();
-                        }, 2000);
-                    } catch (error) {
-                        console.error('Error during signup:', error);
-                        document.getElementById('signup-error').textContent = 'An error occurred. Please try again.';
-                        document.getElementById('signup-error').classList.remove('hidden');
-                    } finally {
-                        hideLoading('signup-submit-button');
-                    }
-                });
-
-                safeAddEventListener(document.getElementById('login-form'), 'submit', async function(event) {
-                    event.preventDefault();
-                    showLoading('login-submit-button');
-                    
-                    const email = document.getElementById('login-email').value.trim();
-                    const password = document.getElementById('login-password').value;
-                    const rememberMe = document.getElementById('remember-me').checked;
-
-                    // Reset error messages
-                    document.getElementById('login-error').classList.add('hidden');
-
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    try {
-                        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-                        const hashedPassword = await hashData(password);
-                        
-                        const storedUser = existingUsers.find(user => 
-                            user.email === email && 
-                            user.password === hashedPassword
-                        );
-
-                        if (storedUser) {
-                            if (rememberMe) {
-                                localStorage.setItem('rememberedUser', JSON.stringify({ 
-                                    email: email, 
-                                    name: storedUser.name 
-                                }));
-                            } else {
-                                localStorage.removeItem('rememberedUser');
-                            }
-                            
-                            // Store user data without password for security
-                            const userData = {
-                                email: email,
-                                name: storedUser.name,
-                                addresses: storedUser.addresses || []
-                            };
-                            
-                            localStorage.setItem('user', JSON.stringify(userData));
-                            
-                            document.getElementById('login-error').classList.add('hidden');
-                            document.getElementById('login-success').classList.remove('hidden');
-                            
-                            // Hide success message after delay
-                            setTimeout(() => {
-                                document.getElementById('login-success').classList.add('hidden');
-                                hideAuthContainer();
-                            }, 1500);
-                        } else {
-                            document.getElementById('login-error').classList.remove('hidden');
-                        }
-                    } catch (error) {
-                        console.error('Error during login:', error);
-                        document.getElementById('login-error').textContent = 'An error occurred. Please try again.';
-                        document.getElementById('login-error').classList.remove('hidden');
-                    } finally {
-                        hideLoading('login-submit-button');
-                    }
-                });
-
-                // Forgot Password Handlers
-                safeAddEventListener(document.getElementById('forgot-password-form'), 'submit', async function(event) {
-                    event.preventDefault();
-                    showLoading('forgot-submit-button');
-                    
-                    const email = document.getElementById('forgot-email').value.trim();
-                    const securityQuestion = document.getElementById('forgot-security-question').value;
-                    const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
-
-                    // Reset error message
-                    document.getElementById('forgot-error').classList.add('hidden');
-
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    try {
-                        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-                        const hashedAnswer = await hashData(securityAnswer);
-                        
-                        const storedUser = existingUsers.find(user => 
-                            user.email === email && 
-                            user.securityQuestion === securityQuestion && 
-                            user.securityAnswer === hashedAnswer
-                        );
-
-                        if (storedUser) {
-                            document.getElementById('forgot-error').classList.add('hidden');
-                            document.getElementById('reset-password-section').classList.remove('hidden');
-                        } else {
-                            document.getElementById('forgot-error').classList.remove('hidden');
-                        }
-                    } catch (error) {
-                        console.error('Error during password recovery:', error);
-                        document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
-                        document.getElementById('forgot-error').classList.remove('hidden');
-                    } finally {
-                        hideLoading('forgot-submit-button');
-                    }
-                });
-
-                safeAddEventListener(document.getElementById('save-new-password'), 'click', async function() {
-                    showLoading('save-new-password');
-                    
-                    const newPassword = document.getElementById('new-password').value;
-                    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-                    const email = document.getElementById('forgot-email').value.trim();
-
-                    // Reset error message
-                    document.getElementById('reset-password-mismatch').classList.add('hidden');
-                    document.getElementById('reset-success').classList.add('hidden');
-
-                    if (!validatePassword(newPassword)) {
-                        document.getElementById('reset-password-mismatch').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
-                        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-                        hideLoading('save-new-password');
-                        return;
-                    }
-
-                    if (newPassword !== confirmNewPassword) {
-                        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
-                        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-                        hideLoading('save-new-password');
-                        return;
-                    }
-
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    try {
-                        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-                        const userIndex = existingUsers.findIndex(user => user.email === email);
-                        const hashedPassword = await hashData(newPassword);
-
-                        if (userIndex !== -1) {
-                            existingUsers[userIndex].password = hashedPassword;
-                            localStorage.setItem('users', JSON.stringify(existingUsers));
-                            
-                            document.getElementById('reset-success').classList.remove('hidden');
-                            document.getElementById('reset-password-mismatch').classList.add('hidden');
-                            
-                            setTimeout(() => {
-                                document.getElementById('forgot-password-modal').classList.add('hidden');
-                                document.body.classList.remove('overflow-hidden');
-                                document.getElementById('forgot-password-form').reset();
-                                document.getElementById('reset-password-section').classList.add('hidden');
-                                document.getElementById('reset-success').classList.add('hidden');
-                            }, 2000);
-                        }
-                    } catch (error) {
-                        console.error('Error during password reset:', error);
-                        document.getElementById('reset-password-mismatch').textContent = 'An error occurred. Please try again.';
-                        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-                    } finally {
-                        hideLoading('save-new-password');
-                    }
-                });
-
-                // Event Listeners
-                safeAddEventListener(document.getElementById('show-signup'), 'click', function(event) {
-                    event.preventDefault();
-                    document.getElementById('login-section').classList.add('hidden');
-                    document.getElementById('signup-section').classList.remove('hidden');
-                    resetForms();
-                });
-
-                safeAddEventListener(document.getElementById('show-login'), 'click', function(event) {
-                    event.preventDefault();
-                    document.getElementById('signup-section').classList.add('hidden');
-                    document.getElementById('login-section').classList.remove('hidden');
-                    resetForms();
-                });
-
-                safeAddEventListener(document.getElementById('close-forgot-password'), 'click', function() {
-                    document.getElementById('forgot-password-modal').classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                    document.getElementById('forgot-password-form').reset();
-                    document.getElementById('reset-password-section').classList.add('hidden');
-                    document.getElementById('forgot-error').classList.add('hidden');
-                    document.getElementById('reset-success').classList.add('hidden');
-                });
-
-                safeAddEventListener(document.getElementById('forgot-password-link'), 'click', function(event) {
-                    event.preventDefault();
-                    document.getElementById('forgot-password-modal').classList.remove('hidden');
-                    document.body.classList.add('overflow-hidden');
-                });
-
-                // Password match validation
-                safeAddEventListener(document.getElementById('signup-confirm-password'), 'input', function() {
-                    const password = document.getElementById('signup-password').value;
-                    const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-                    if (password && confirmPassword && password !== confirmPassword) {
-                        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
-                        document.getElementById('password-mismatch-error').classList.remove('hidden');
-                    } else {
-                        document.getElementById('password-mismatch-error').classList.add('hidden');
-                    }
-                });
-
-                safeAddEventListener(document.getElementById('confirm-new-password'), 'input', function() {
-                    const newPassword = document.getElementById('new-password').value;
-                    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-
-                    if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
-                        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
-                        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-                    } else {
-                        document.getElementById('reset-password-mismatch').classList.add('hidden');
-                    }
-                });
-
-                // Close modals when clicking outside
-                safeAddEventListener(document.getElementById('auth-container'), 'click', function(e) {
-                    if (e.target === this) {
-                        hideAuthContainer();
-                    }
-                });
-
-                safeAddEventListener(document.getElementById('forgot-password-modal'), 'click', function(e) {
-                    if (e.target === this) {
-                        this.classList.add('hidden');
-                        document.body.classList.remove('overflow-hidden');
-                    }
-                });
-
-                // Event listeners
-                safeAddEventListener(accountIconNav, 'click', toggleDropdown);
-                safeAddEventListener(profileOption, 'click', showLoginModal);
-                safeAddEventListener(logoutOption, 'click', logoutUser);
-                safeAddEventListener(mobileMenuButton, 'click', toggleMobileMenu);
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!accountIconNav.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                        dropdownMenu.classList.add('hidden');
-                        dropdownOpen = false;
-                    }
-                });
-
-                // Close cart when pressing ESC key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && cartOpen) {
-                        closeCart();
-                    }
-                });
-
-                // Initialize
-                setupPasswordToggles();
-                updateCartCount();
-                
-                const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
-                
-                if (rememberedUser) {
-                    document.getElementById('login-email').value = rememberedUser.email;
-                    document.getElementById('remember-me').checked = true;
-                }
-
-                // Make functions available globally
-                window.toggleCart = toggleCart;
-                window.closeCart = closeCart;
-                window.removeFromCart = removeFromCart;
-                window.proceedToCheckout = proceedToCheckout;
-
-            } catch (error) {
-                console.error('Initialization error:', error);
-            }
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
