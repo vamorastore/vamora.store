@@ -1,4 +1,3 @@
-<!-- Navigation Bar -->
 <nav class="navbar">
     <div class="nav-container">
         <button class="mobile-menu-button" id="mobileMenuButton">
@@ -6,22 +5,15 @@
         </button>
         
         <div class="flex items-center logo-container">
-            <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
+            <img alt="Company logo" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png"/>
             <span class="logo-text">VAMORA.STORE</span>
         </div>
         
         <div class="flex items-center space-x-2 nav-icons">
-            <!-- Include Search Component -->
             <div id="search-placeholder"></div>
-            
             <div class="icon-separator"></div>
-            
-            <!-- Include Profile Component -->
             <div id="profile-placeholder"></div>
-            
             <div class="icon-separator"></div>
-            
-            <!-- Include Cart Component -->
             <div id="cart-placeholder"></div>
         </div>
         
@@ -34,7 +26,6 @@
     </div>
 </nav>
 
-<!-- Mobile Menu Content -->
 <div class="mobile-menu-content" id="mobileMenuContent">
     <div class="mobile-menu-links">
         <a class="text-black nav-link active" href="https://www.vamora.store/home">HOME</a>
@@ -43,13 +34,12 @@
         <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
     </div>
     <div class="mobile-menu-social">
-        <a class="text-black" href="#"><i class="https://www.instagram.com/vamora.store"></i></a>
+        <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
         <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
     </div>
 </div>
 
 <style>
-    /* Navigation styles */
     .nav-link {
         position: relative;
         cursor: pointer;
@@ -80,7 +70,6 @@
         font-size: 1.2rem;
     }
     
-    /* Logo animation */
     .logo-container {
         position: relative;
         display: inline-block;
@@ -110,7 +99,6 @@
         left: calc(100% + 10px);
     }
     
-    /* Navigation bar */
     .navbar {
         background-color: #e5e5e5;
         padding: 1rem 2rem;
@@ -132,7 +120,6 @@
         align-items: center;
     }
     
-    /* Mobile menu */
     .mobile-menu-button {
         display: none;
         background: none;
@@ -162,7 +149,6 @@
         position: relative;
     }
     
-    /* Mobile menu content */
     .mobile-menu-content {
         display: none;
         position: fixed;
@@ -193,7 +179,6 @@
         padding: 0.75rem 0;
     }
     
-    /* Mobile adjustments */
     @media (max-width: 768px) {
         .mobile-menu-button {
             display: block;
@@ -250,7 +235,6 @@
 </style>
 
 <script>
-    // Load components
     function loadComponents() {
         fetch('search.html')
             .then(response => response.text())
@@ -271,7 +255,6 @@
             });
     }
 
-    // Mobile menu toggle
     function toggleMobileMenu() {
         const mobileMenuContent = document.getElementById('mobileMenuContent');
         const mobileMenuButton = document.getElementById('mobileMenuButton');
@@ -288,7 +271,6 @@
         mobileMenuButton.querySelector('i').classList.add('fa-times');
     }
 
-    // Initialize when loaded
     document.addEventListener('DOMContentLoaded', function() {
         loadComponents();
         
