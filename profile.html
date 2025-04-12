@@ -1,0 +1,726 @@
+<div class="relative">
+    <div class="cursor-pointer" id="accountIconNav">
+        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
+             alt="Account" 
+             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+    </div>
+    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
+        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
+        </a>
+        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Account Info Page (hidden by default) -->
+<div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white p-6 rounded-lg shadow-md relative">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-4">Account Information</h2>
+            <div class="mb-4">
+                <div class="flex items-center mb-2">
+                    <span class="font-semibold">Name</span>
+                    <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                </div>
+                <p id="displayName"></p>
+            </div>
+            <div class="mb-4">
+                <span class="font-semibold">Email</span>
+                <p id="displayEmail"></p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-semibold">Address</span>
+                    <a href="#" class="text-blue-500" id="addAddressLink" style="display: none;">
+                        <i class="fas fa-plus-circle"></i> Add
+                    </a>
+                </div>
+                <div id="addressContainer" class="bg-gray-100 p-4 rounded-lg min-h-[200px] flex flex-col items-center justify-center">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                        <p class="text-lg">No addresses saved yet</p>
+                        <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders Section -->
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                <div id="ordersContainer">
+                    <!-- Orders will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Profile</h3>
+            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mb-4">
+            <label for="nameInput" class="block text-gray-700 mb-2">Name</label>
+            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label for="emailDisplay" class="block text-gray-700 mb-2">Email</label>
+            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+        </div>
+        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
+    </div>
+</div>
+
+<!-- Enhanced Add Address Modal -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Address</h3>
+            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addressForm" class="space-y-4">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                <input type="text" id="fullName" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                <input type="tel" id="phoneNumber" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 1 -->
+            <div>
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                <input type="text" id="addressLine1" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 2 -->
+            <div>
+                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Postal/Zip Code -->
+            <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                <input type="text" id="postalCode" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                <select id="country" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Country</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Address Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="home" checked 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Home</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="work" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Work</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="other" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Other</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Set as Default -->
+            <div class="flex items-center">
+                <input type="checkbox" id="setAsDefault" 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                    Set as default address
+                </label>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelAddressBtn" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" id="saveAddressBtn" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Save Address
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .account-icon-hover {
+        transition: all 0.2s ease;
+    }
+    .account-icon-hover:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+    .account-icon-hover:active {
+        transform: scale(0.95);
+    }
+    .icon-hover {
+        transition: all 0.2s ease;
+    }
+    .icon-hover:hover {
+        color: #3b82f6;
+        transform: scale(1.1);
+    }
+    .icon-hover-blue:hover {
+        color: #2563eb;
+    }
+    .icon-hover-gray:hover {
+        color: #6b7280;
+    }
+    .icon-hover-red:hover {
+        color: #dc2626;
+    }
+    .icon-click-effect:active {
+        transform: scale(0.85);
+    }
+    
+    @media (max-width: 768px) {
+        #dropdownMenu {
+            top: 100%;
+            right: 0;
+            left: auto;
+            width: 200px;
+        }
+    }
+</style>
+
+<script>
+    // Initialize when loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountIconNav = document.getElementById('accountIconNav');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const profileOption = document.getElementById('profileOption');
+        const logoutOption = document.getElementById('logoutOption');
+        const accountInfoPage = document.getElementById('account-info-page');
+        const closeAccountInfoPage = document.getElementById('closeAccountInfoPage');
+        const editProfileIcon = document.getElementById('editProfileIcon');
+        const addAddressLink = document.getElementById('addAddressLink');
+        const editProfileModal = document.getElementById('editProfileModal');
+        const closeEditProfileModal = document.getElementById('closeEditProfileModal');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        const nameInput = document.getElementById('nameInput');
+        const emailDisplay = document.getElementById('emailDisplay');
+        const addAddressModal = document.getElementById('addAddressModal');
+        const closeAddAddressModal = document.getElementById('closeAddAddressModal');
+        const saveAddressBtn = document.getElementById('saveAddressBtn');
+        const addressContainer = document.getElementById('addressContainer');
+        const ordersContainer = document.getElementById('ordersContainer');
+        
+        let dropdownOpen = false;
+
+        // Toggle dropdown function
+        function toggleDropdown() {
+            dropdownOpen = !dropdownOpen;
+            dropdownMenu.classList.toggle('hidden', !dropdownOpen);
+        }
+
+        // Show account info page
+        function showAccountInfo(event) {
+            event.preventDefault();
+            const loggedInUser = JSON.parse(localStorage.getItem('user'));
+            
+            if (loggedInUser && loggedInUser.email) {
+                document.getElementById('displayName').textContent = loggedInUser.name || '';
+                document.getElementById('displayEmail').textContent = loggedInUser.email || '';
+                emailDisplay.value = loggedInUser.email || '';
+                
+                if (loggedInUser.email) {
+                    loadAddresses(loggedInUser.email);
+                    loadOrders(loggedInUser.email);
+                }
+                
+                accountInfoPage.classList.remove('hidden');
+                dropdownMenu.classList.add('hidden');
+            }
+        }
+
+        // Close account info page
+        function closeAccountInfo() {
+            accountInfoPage.classList.add('hidden');
+        }
+
+        // Load addresses
+        function loadAddresses(email) {
+            const loggedInUser = JSON.parse(localStorage.getItem('user'));
+            if (!loggedInUser || !loggedInUser.addresses) {
+                addressContainer.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                        <p class="text-lg">No addresses saved yet</p>
+                        <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const userAddresses = loggedInUser.addresses;
+            
+            if (userAddresses && userAddresses.length > 0) {
+                addressContainer.innerHTML = userAddresses.map(address => `
+                    <div class="address-card ${address.isDefault ? 'default-address' : ''} bg-white p-4 rounded-lg shadow-sm mb-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center mb-1">
+                                    <span class="font-medium">${address.fullName}</span>
+                                    ${address.isDefault ? 
+                                        '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
+                                </div>
+                                <p class="text-sm text-gray-600">${address.phoneNumber}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-500 hover:text-blue-700 icon-hover icon-hover-blue icon-click-effect" onclick="editAddress('${address.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-gray-700 icon-hover icon-hover-gray icon-click-effect" onclick="setDefaultAddress('${address.id}')">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-red-700 icon-hover icon-hover-red icon-click-effect" onclick="deleteAddress('${address.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <p>${address.addressLine1}</p>
+                            ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
+                            <p>${address.city}, ${address.state} ${address.postalCode}</p>
+                            <p>${address.country}</p>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500 capitalize">
+                            ${address.addressType} address
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('addAddressLink').style.display = 'block';
+            }
+        }
+
+        // Load orders
+        function loadOrders(email) {
+            const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
+            const userOrders = allOrders[email] || [];
+            
+            if (userOrders.length > 0) {
+                document.getElementById('ordersContainer').innerHTML = userOrders.map(order => `
+                    <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="font-semibold">Order ID:</span>
+                                <span class="block text-gray-600">${order.orderId}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Date:</span>
+                                <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Status Bar -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                                <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                                <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                                <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                                    <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                                </div>
+                                <div class="relative flex justify-between">
+                                    <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                                        order.status === 'status-processing' || 
+                                        order.status === 'status-shipped' || 
+                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                                        rounded-full flex items-center justify-center text-white">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                                        order.status === 'status-shipped' || 
+                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                                        rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                                        order.status === 'status-shipped' || 
+                                        order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                                        <i class="fas fa-truck text-xs"></i>
+                                    </div>
+                                    <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                                        rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                                        order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                                        <i class="fas fa-shipping-fast text-xs"></i>
+                                    </div>
+                                    <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                                        rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                                        <i class="fas fa-box-open text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="font-semibold">Status:</span>
+                                <span class="block capitalize ${getStatusColor(order.status)}">
+                                    ${order.status.replace('status-', '').replace('-', ' ')}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Total:</span>
+                                <span class="block text-gray-600">
+                                    ₹${order.cart.reduce((total, item) => {
+                                        const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
+                                        return total + (price * item.quantity);
+                                    }, 0).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium mb-2">Items:</h4>
+                            ${order.cart.map(item => `
+                                <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                                    <img src="${item.imageUrl || 'https://via.placeholder.com/50'}" 
+                                         alt="${item.title}" 
+                                         class="w-12 h-12 rounded mr-3 object-cover">
+                                    <div class="flex-1">
+                                        <p class="font-medium">${item.title}</p>
+                                        <div class="flex justify-between text-sm text-gray-500">
+                                            <span>Size: ${item.size}</span>
+                                            <span>Qty: ${item.quantity}</span>
+                                            <span>${item.price}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Helper function to determine the progress bar width
+        function getStatusProgress(status) {
+            switch(status) {
+                case 'status-order-placed':
+                    return 'bg-blue-500 w-1/4';
+                case 'status-processing':
+                    return 'bg-blue-500 w-2/4';
+                case 'status-shipped':
+                    return 'bg-blue-500 w-3/4';
+                case 'status-delivered':
+                    return 'bg-blue-500 w-full';
+                default:
+                    return 'bg-blue-500 w-1/4';
+            }
+        }
+
+        // Update the getStatusColor function to include all statuses
+        function getStatusColor(status) {
+            switch(status) {
+                case 'status-order-placed':
+                    return 'text-blue-500';
+                case 'status-processing':
+                    return 'text-yellow-500';
+                case 'status-shipped':
+                    return 'text-purple-500';
+                case 'status-delivered':
+                    return 'text-green-500';
+                case 'status-cancelled':
+                    return 'text-red-500';
+                default:
+                    return 'text-gray-500';
+            }
+        }
+
+        // Show edit profile modal
+        function showEditProfileModal() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            nameInput.value = user.name || '';
+            emailDisplay.value = user.email || '';
+            editProfileModal.classList.remove('hidden');
+        }
+
+        // Save profile
+        function saveProfile() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.name = nameInput.value;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            document.getElementById('displayName').textContent = user.name || '';
+            editProfileModal.classList.add('hidden');
+        }
+
+        // Show add address modal
+        function showAddAddressModal(event) {
+            event.preventDefault();
+            document.getElementById('addressForm').reset();
+            delete document.getElementById('addressForm').dataset.editingId;
+            addAddressModal.classList.remove('hidden');
+        }
+
+        // Save address
+        function saveAddress(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('addressForm');
+            const isEditing = form.dataset.editingId;
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            // Get all form values
+            const address = {
+                fullName: document.getElementById('fullName').value.trim(),
+                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                addressLine1: document.getElementById('addressLine1').value.trim(),
+                addressLine2: document.getElementById('addressLine2').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                state: document.getElementById('state').value.trim(),
+                postalCode: document.getElementById('postalCode').value.trim(),
+                country: document.getElementById('country').value,
+                addressType: document.querySelector('input[name="addressType"]:checked').value,
+                isDefault: document.getElementById('setAsDefault').checked,
+                id: isEditing || Date.now().toString()
+            };
+            
+            // Basic validation
+            if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
+                !address.city || !address.state || !address.postalCode || !address.country) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Initialize user's addresses if not exists
+            if (!user.addresses) {
+                user.addresses = [];
+            }
+            
+            // If this is set as default, unset any existing default
+            if (address.isDefault) {
+                user.addresses.forEach(addr => addr.isDefault = false);
+            }
+            
+            if (isEditing) {
+                // Update existing address
+                const index = user.addresses.findIndex(addr => addr.id === isEditing);
+                if (index !== -1) {
+                    user.addresses[index] = address;
+                }
+                delete form.dataset.editingId;
+            } else {
+                // Add new address
+                user.addresses.push(address);
+            }
+            
+            // Save back to storage
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            loadAddresses(user.email);
+            addAddressModal.classList.add('hidden');
+            form.reset();
+        }
+
+        // Cancel address
+        function cancelAddress() {
+            document.getElementById('addressForm').reset();
+            delete document.getElementById('addressForm').dataset.editingId;
+            addAddressModal.classList.add('hidden');
+        }
+
+        // Delete address
+        function deleteAddress(addressId) {
+            if (!confirm('Are you sure you want to delete this address?')) return;
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.addresses) return;
+            
+            // Remove the address
+            const updatedAddresses = user.addresses.filter(addr => addr.id !== addressId);
+            user.addresses = updatedAddresses;
+            
+            // If we deleted the default address and there are other addresses, set the first one as default
+            if (user.addresses.length > 0 && !user.addresses.some(addr => addr.isDefault)) {
+                user.addresses[0].isDefault = true;
+            }
+            
+            // Update user data
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            loadAddresses(user.email);
+        }
+
+        // Edit address
+        function editAddress(addressId) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.addresses) return;
+            
+            const address = user.addresses.find(addr => addr.id === addressId);
+            if (!address) return;
+            
+            // Fill the form with the address data
+            document.getElementById('fullName').value = address.fullName;
+            document.getElementById('phoneNumber').value = address.phoneNumber;
+            document.getElementById('addressLine1').value = address.addressLine1;
+            document.getElementById('addressLine2').value = address.addressLine2 || '';
+            document.getElementById('city').value = address.city;
+            document.getElementById('state').value = address.state;
+            document.getElementById('postalCode').value = address.postalCode;
+            document.getElementById('country').value = address.country;
+            document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
+            document.getElementById('setAsDefault').checked = address.isDefault;
+            
+            // Store the address ID being edited
+            document.getElementById('addressForm').dataset.editingId = addressId;
+            
+            // Update modal title
+            document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
+            
+            addAddressModal.classList.remove('hidden');
+        }
+
+        // Set default address
+        function setDefaultAddress(addressId) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+            
+            // Initialize addresses array if not exists
+            if (!user.addresses) {
+                user.addresses = [];
+            }
+            
+            // Unset any existing default address
+            user.addresses.forEach(addr => {
+                addr.isDefault = addr.id === addressId;
+            });
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            loadAddresses(user.email);
+        }
+
+        // Logout user
+        function logoutUser(event) {
+            event.preventDefault();
+            // Clear user data
+            localStorage.setItem('user', JSON.stringify({
+                name: '',
+                email: '',
+                addresses: []
+            }));
+            
+            alert('You have been logged out.');
+            dropdownMenu.classList.add('hidden');
+            
+            // Clear the displayed information
+            document.getElementById('displayName').textContent = '';
+            document.getElementById('displayEmail').textContent = '';
+            emailDisplay.value = '';
+            
+            // Clear addresses and orders display
+            addressContainer.innerHTML = `
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                    <p class="text-lg">No addresses saved yet</p>
+                    <p class="text-sm mt-2">Please login to view your saved addresses</p>
+                </div>
+            `;
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">You haven't placed any orders yet</p>
+                    <p class="text-sm mt-2">Please login to view your orders</p>
+                </div>
+            `;
+            
+            // Hide the account info page if it's visible
+            accountInfoPage.classList.add('hidden');
+        }
+
+        // Event listeners
+        accountIconNav.addEventListener('click', toggleDropdown);
+        profileOption.addEventListener('click', showAccountInfo);
+        logoutOption.addEventListener('click', logoutUser);
+        editProfileIcon.addEventListener('click', showEditProfileModal);
+        closeEditProfileModal.addEventListener('click', function() {
+            editProfileModal.classList.add('hidden');
+        });
+        saveProfileBtn.addEventListener('click', saveProfile);
+        addAddressLink.addEventListener('click', showAddAddressModal);
+        closeAddAddressModal.addEventListener('click', function() {
+            addAddressModal.classList.add('hidden');
+        });
+        saveAddressBtn.addEventListener('click', saveAddress);
+        cancelAddressBtn.addEventListener('click', cancelAddress);
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!accountIconNav.contains(event.target) {
+                dropdownMenu.classList.add('hidden');
+                dropdownOpen = false;
+            }
+        });
+
+        // Make functions available globally
+        window.deleteAddress = deleteAddress;
+        window.editAddress = editAddress;
+        window.setDefaultAddress = setDefaultAddress;
+    </script>
+</div>
