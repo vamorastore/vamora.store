@@ -1,7 +1,7 @@
 <div class="search-container">
- <a class="text-black nav-link" id="enableSearch">
-    <i class="fas fa-search icon"></i>
-</a>
+    <a class="text-black nav-link" id="enableSearch">
+        <i class="fas fa-search icon"></i>
+    </a>
     <div class="search-input-container">
         <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
         <span class="search-close" id="closeSearch">&times;</span>
@@ -13,7 +13,6 @@
 </div>
 
 <style>
-    /* Search styles */
     .search-container {
         position: relative;
         display: inline-block;
@@ -23,7 +22,7 @@
         position: absolute;
         top: 100%;
         left: 0;
-        width: 180px; /* Reduced width */
+        width: 180px;
         max-height: 400px;
         overflow-y: auto;
         background: white;
@@ -75,13 +74,13 @@
         padding-right: 35px;
         border: 1px solid #ddd;
         border-radius: 20px;
-        width: 180px; /* Reduced width */
+        width: 180px;
         outline: none;
         transition: width 0.3s;
     }
     
     .search-input:focus {
-        width: 220px; /* Slightly larger when focused */
+        width: 220px;
         border-color: #999;
     }
     
@@ -106,7 +105,6 @@
         color: #333;
     }
 
-    /* Mobile adjustments */
     @media (max-width: 768px) {
         .search-input-container {
             position: fixed;
@@ -152,7 +150,6 @@
 </style>
 
 <script>
-    // Search functionality
     const searchData = [
         { id: 1, title: "Men's T-Shirt", category: "Clothing", url: "/products/mens-tshirt" },
         { id: 2, title: "Women's Jeans", category: "Clothing", url: "/products/womens-jeans" },
@@ -164,7 +161,6 @@
         { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
     ];
 
-    // DOM elements
     const enableSearch = document.getElementById('enableSearch');
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
@@ -174,25 +170,21 @@
 
     let searchOpen = false;
 
-    // Toggle search input
     enableSearch.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // If search is already open, close it
         if (searchOpen) {
             searchInputContainer.style.display = 'none';
             searchOpen = false;
             return;
         }
         
-        // Otherwise, open search
         searchOpen = true;
         searchInputContainer.style.display = 'block';
         searchInput.focus();
     });
 
-    // Close search
     closeSearch.addEventListener('click', function() {
         searchInputContainer.style.display = 'none';
         searchInput.value = '';
@@ -200,7 +192,6 @@
         searchOpen = false;
     });
 
-    // Search functionality
     searchInput.addEventListener('input', function() {
         const query = this.value.toLowerCase();
         
@@ -217,7 +208,6 @@
         displayResults(results);
     });
 
-    // Perform search on button click
     searchButton.addEventListener('click', function() {
         const query = searchInput.value.toLowerCase();
         
@@ -234,7 +224,6 @@
         displayResults(results);
     });
 
-    // Display search results
     function displayResults(results) {
         if (results.length === 0) {
             searchResults.innerHTML = '<div class="no-results">No results found</div>';
@@ -251,7 +240,6 @@
         
         searchResults.style.display = 'block';
         
-        // Add click event to results
         document.querySelectorAll('.search-result-item').forEach(item => {
             item.addEventListener('click', function() {
                 const url = this.getAttribute('data-url');
@@ -260,14 +248,12 @@
         });
     }
 
-    // Close search results when clicking outside
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
             searchResults.style.display = 'none';
         }
     });
 
-    // Close search results on ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             searchResults.style.display = 'none';
