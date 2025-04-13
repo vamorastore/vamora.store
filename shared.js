@@ -22,9 +22,6 @@
                                 quantity: 2,
                                 imageUrl: 'https://via.placeholder.com/50'
                             }
-                                function proceedToCheckout() {
-    window.location.href = "proceed.html";
-}
                         ]
                     },
                     {
