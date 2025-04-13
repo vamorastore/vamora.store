@@ -968,13 +968,18 @@
             </div>
         </div>
     </div>
+<!-- Include shared modals -->
+<div id="modals-container"></div>
 
-
-
-
-
-
-    
+<script>
+// Load shared modals
+fetch('shared-modals.html')
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('modals-container').innerHTML = html;
+        // Initialize any modal-related scripts here if needed
+    });
+</script> 
     <div class="main-content">
         <!-- Hero Section -->
         <div class="w-full mb-4 md:mb-8">
