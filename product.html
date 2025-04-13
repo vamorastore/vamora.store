@@ -9,10 +9,851 @@
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            font-family: 'Unbounded', sans-serif;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #e5e5e5; /* Match navbar and footer */
+        }
+        
+        .size-button {
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .size-button.selected {
+            background-color: black;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .size-button:hover:not(.selected) {
+            border-color: black;
+            transform: translateY(-2px);
+        }
+        
+        .button-effect {
+            transition: all 0.3s ease;
+        }
+        
+        .button-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button-effect:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quantity-button {
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .quantity-button:active {
+            background-color: #e5e7eb;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .thumbnail:hover {
+            border-color: black;
+            transform: scale(1.05);
+        }
+        
+        .main-image {
+            border-radius: 16px;
+            object-fit: contain;
+            background-color: #f9fafb;
+            max-height: 70vh;
+        }
+        
+        .dropdown-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .dropdown-container.open {
+            max-height: 1000px;
+            margin-top: 1rem;
+        }
+        
+        .dropdown-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            text-align: left;
+            cursor: pointer;
+        }
+        
+        .dropdown-button .icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .dropdown-button.open .icon {
+            transform: rotate(180deg);
+        }
+        
+        .share-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            color: #000;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .share-icon:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        
+        .policy-link {
+            color: #000;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+        
+        .policy-link:hover {
+            color: #555;
+        }
+
+        /* Navigation styles */
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            background-color: black;
+            left: 50%;
+            bottom: -4px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        .icon-separator {
+            border-left: 1px solid black;
+            height: 28px;
+            margin: 0 10px;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Logo animation */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+        .logo-container img {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            height: 50px;
+            width: 60px;
+        }
+        .logo-container:hover img {
+            transform: rotateY(360deg);
+        }
+        .logo-text {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.6s, left 0.6s;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .logo-container:hover .logo-text {
+            opacity: 1;
+            left: calc(100% + 10px);
+        }
+        
+        /* Navigation bar */
+        .navbar {
+            background-color: #e5e5e5;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 50;
+            height: 80px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Mobile menu */
+        .mobile-menu-button {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .mobile-menu-button:hover {
+            color: #555;
+            transform: scale(1.1);
+        }
+        
+        .mobile-menu-button:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.75rem;
+        }
+        
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Mobile menu content */
+        .mobile-menu-content {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: #e5e5e5;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+        
+        .mobile-menu-content.active {
+            display: block;
+        }
+        
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .mobile-menu-social {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.75rem;
+            padding: 0.75rem 0;
+        }
+        
+        /* Cart Overlay Styles */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .cart-overlay.active {
+            right: 0;
+        }
+        
+        .overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay-backdrop.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+
+        /* Search styles */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 180px; /* Reduced width */
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .search-result-item .title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+        
+        .search-result-item .category {
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        .no-results {
+            padding: 10px 15px;
+            color: #666;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        
+        .search-input-container {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+        
+        .search-input {
+            padding: 8px 15px;
+            padding-right: 35px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 180px; /* Reduced width */
+            outline: none;
+            transition: width 0.3s;
+        }
+        
+        .search-input:focus {
+            width: 220px; /* Slightly larger when focused */
+            border-color: #999;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        
+        .search-close {
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .search-close:hover {
+            color: #333;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+                order: 1;
+            }
+            
+            .logo-container {
+                order: 2;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .logo-container:hover img {
+                transform: none;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .nav-icons {
+                order: 3;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 1rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1.35rem;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .icon {
+                font-size: 1rem;
+            }
+            
+            .password-toggle {
+                top: 36px;
+            }
+            #auth-container > div {
+                width: 95%;
+                max-width: 95%;
+            }
+            .auth-section {
+                padding: 1.5rem;
+            }
+
+            /* Mobile search adjustments */
+            .search-input-container {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                padding: 10px;
+                background: #e5e5e5;
+                z-index: 60;
+            }
+            
+            .search-input {
+                width: calc(100% - 50px);
+                padding: 10px 45px 10px 15px;
+            }
+            
+            .search-input:focus {
+                width: calc(100% - 50px);
+            }
+            
+            .search-results {
+                position: fixed;
+                top: 140px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+            }
+            
+            .search-close {
+                right: 45px;
+            }
+            
+            .search-icon {
+                right: 20px;
+            }
+
+            .no-results {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            /* Adjusted dropdown position */
+            #dropdownMenu {
+                top: 100%;
+                right: 0;
+                left: auto;
+                width: 200px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-links {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .nav-links a {
+                font-size: 0.875rem;
+            }
+            
+            .cart-overlay h2 {
+                font-size: 2.25rem;
+            }
+            
+            .cart-overlay .font-medium {
+                font-size: 1.125rem;
+            }
+            
+            .cart-overlay .text-lg {
+                font-size: 1.25rem;
+            }
+            
+            .cart-overlay button {
+                font-size: 1.125rem;
+                padding: 1rem;
+            }
+
+            .cart-overlay .fa-times {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Footer styles */
+        .footer-link {
+            position: relative;
+            cursor: pointer;
+            font-weight: 300;
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background-color: black;
+            left: 50%;
+            bottom: -2px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .footer-link:hover::after,
+        .footer-link.active::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px; /* Space for fixed navbar */
+            background-color: white; /* Changed to white */
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #e5e5e5;
+            padding: 1.5rem;
+            padding-bottom: 3rem; /* Added space after footer */
+        }
+        
+        .footer-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .footer-social-desktop,
+        .footer-social-mobile {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-social-desktop a,
+        .footer-social-mobile a {
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-social-desktop a:hover,
+        .footer-social-mobile a:hover {
+            opacity: 0.7;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #d1d5db;
+            padding-top: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-bottom p {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 1rem;
+                padding-bottom: 2rem; /* Added space after footer */
+            }
+            
+            .footer-social-desktop {
+                display: none;
+            }
+            
+            .footer-social-mobile {
+                display: flex;
+                margin: 1rem 0;
+            }
+            
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .footer-link {
+                font-size: 0.6rem;
+            }
+            
+            .footer-bottom p {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .footer-social-mobile {
+                display: none;
+            }
+            
+            .footer-social-desktop {
+                display: flex;
+            }
+            
+            .footer-link {
+                font-size: 0.7rem;
+            }
+            
+            .footer-container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .footer-bottom p {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+                line-height: normal;
+            }
+        }
+
+        /* Product page specific styles */
+        .product-container {
+            background-color: white; /* Changed to white */
+            padding: 2rem;
+            border-radius: 0;
+            box-shadow: none; /* Removed shadow */
+            width: 100%;
+            max-width: 1200px; /* Increased max-width */
+            margin: 2rem auto;
+            display: flex;
+            min-height: calc(100vh - 80px - 6rem); /* Full height minus navbar and footer */
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                padding: 1rem;
+                min-height: auto;
+            }
+            
+            .image-section, .details-section {
+                width: 100% !important;
+            }
+            
+            .details-section {
+                margin-left: 0 !important;
+                margin-top: 1.5rem;
+            }
+            
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .size-button {
+                font-size: 0.65rem;
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+            
+            .main-image {
+                max-height: 60vh;
+            }
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Navigation Bar -->
+  <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -20,7 +861,7 @@
             </button>
             
             <div class="flex items-center logo-container">
-                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png"/>
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
                 <span class="logo-text">VAMORA.STORE</span>
             </div>
             
@@ -41,7 +882,7 @@
                 <div class="icon-separator"></div>
                 <div class="relative">
                     <div class="cursor-pointer" id="accountIconNav">
-                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png" 
+                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
                              alt="Account" 
                              class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
                     </div>
@@ -57,15 +898,14 @@
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
             
             <div class="nav-links">
-                <a class="text-black nav-link" href="https://www.vamora.store/home">HOME</a>
-                <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
-                <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
-                <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+                <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="contact.html">CONTACT</a>
             </div>
         </div>
     </nav>
@@ -73,14 +913,14 @@
     <!-- Mobile Menu Content -->
     <div class="mobile-menu-content" id="mobileMenuContent">
         <div class="mobile-menu-links">
-            <a class="text-black nav-link" href="https://www.vamora.store/home">HOME</a>
-            <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
-            <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
-            <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+         <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="contact.html">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
-            <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-            <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+                  <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
 
@@ -111,6 +951,343 @@
         </div>
     </div>
 
+    <!-- Account Info Page (hidden by default) -->
+    <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="bg-white p-6 rounded-lg shadow-md relative">
+                <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="text-2xl font-bold mb-4">Account Information</h2>
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="font-semibold">Name</span>
+                        <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                    </div>
+                    <p id="displayName"></p>
+                </div>
+                <div class="mb-4">
+                    <span class="font-semibold">Email</span>
+                    <p id="displayEmail"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold">Address</span>
+                        <a href="#" class="text-blue-500" id="addAddressLink" style="display: none;">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </a>
+                    </div>
+                    <div id="addressContainer" class="bg-gray-100 p-4 rounded-lg min-h-[200px] flex flex-col items-center justify-center">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                            <p class="text-lg">No addresses saved yet</p>
+                            <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Section -->
+                <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <div id="ordersContainer">
+                        <!-- Orders will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Edit Profile</h3>
+                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Name</label>
+                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Email</label>
+                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+            </div>
+            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <!-- Enhanced Add Address Modal -->
+    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Edit Address</h3>
+                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="addressForm" class="space-y-4">
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                    <input type="text" id="fullName" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Phone Number -->
+                <div>
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                    <input type="tel" id="phoneNumber" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Address Line 1 -->
+                <div>
+                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                    <input type="text" id="addressLine1" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Address Line 2 -->
+                <div>
+                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                    <input type="text" id="addressLine2" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- City -->
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                    <input type="text" id="city" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- State/District -->
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                    <input type="text" id="state" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Postal/Zip Code -->
+                <div>
+                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                    <input type="text" id="postalCode" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Country -->
+                <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                    <select id="country" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Country</option>
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Address Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="home" checked 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Home</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="work" 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Work</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="other" 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Set as Default -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="setAsDefault" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                        Set as default address
+                    </label>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelAddressBtn" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-times mr-2"></i> Cancel
+                    </button>
+                    <button type="submit" id="saveAddressBtn" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i> Save Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+            <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
+                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-4 password-container">
+                        <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                        <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" id="toggle-login-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="mb-4 flex items-center justify-between">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
+                            <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
+                        </label>
+                        <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
+                        <span id="login-button-text">Log In</span>
+                    </button>
+                </form>
+                <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
+                <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+                <div class="mt-4 sm:mt-6 text-center">
+                    <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
+                </div>
+            </div>
+            <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
+                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
+                <form id="signup-form">
+                    <div class="mb-4">
+                        <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
+                        <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
+                        <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                        <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                        <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
+                        <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
+                    </div>
+                    <div class="mb-4 password-container">
+                        <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                        <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
+                        <button type="button" class="password-toggle" id="toggle-signup-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                        <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                    </div>
+                    <div class="mb-4 password-container">
+                        <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
+                        <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                        <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                            <option value="">Select a security question</option>
+                            <option value="pet">What is the name of your first pet?</option>
+                            <option value="school">What is the name of your elementary school?</option>
+                            <option value="city">In what city were you born?</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
+                        <span id="signup-button-text">Sign Up</span>
+                    </button>
+                </form>
+                <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
+                <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
+                <div class="mt-4 sm:mt-6 text-center">
+                    <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
+            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
+            <form id="forgot-password-form">
+                <div class="mb-4">
+                    <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
+                    <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
+                </div>
+                <div class="mb-4">
+                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                    <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                        <option value="">Select a security question</option>
+                        <option value="pet">What is the name of your first pet?</option>
+                        <option value="school">What is the name of your elementary school?</option>
+                        <option value="city">In what city were you born?</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                    <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
+                    <span id="forgot-button-text">Submit</span>
+                </button>
+            </form>
+            <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
+            <div id="reset-password-section" class="hidden">
+                <div class="mb-4 mt-6 password-container">
+                    <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
+                    <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
+                    <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                </div>
+                <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
+                    <span id="save-password-button-text">Save Changes</span>
+                </button>
+                <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
+            </div>
+        </div>
+    </div>
     <div class="main-content">
         <!-- Product Page Content -->
         <div class="product-container flex flex-col md:flex-row">
@@ -118,8 +1295,7 @@
             <div class="image-section w-full md:w-1/2 mb-6 md:mb-0 md:pr-6">
                 <div class="sticky top-6">
                     <img alt="DE.ORIGIN T-shirt" 
-                         class="main-image w-full h-auto mb-4" 
-                                src="https://media-hosting.imagekit.io/e176c7c73c594b5f/eui.jpg?Expires=1839178783&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=KYEx6CFY7jVRo9T0r8juKIHl9KXxUpNcIjlGCoKtkFFC4ln5OvWO-nFQ~xT2OXq0YFcfODEcmd~2yuGljDJdOsRvhEMBbIgfgB7fDcIpQLjwjj29vjYvXrDuVKHDsXSIzYpWvcF0du41CO7IhmSbWiG07koVMTHIRJ9peillDDklj0VBaPTiOf0UObYCLgiWkPTbkhnM~lR57g2Baho0H1uTjwBw6dzs-3JCNS4hN99mvZO0Tbgphvr3jAdSOkBuPLTGW2iYBjQsa6AwFUwejH3WSkyQyCHLnNNXZozrTOZtlr09houri~NY4yjV1S8TdmLinylmjQwxbT8TnP3wWQ__"/>
+                          src="https://media-hosting.imagekit.io/e176c7c73c594b5f/eui.jpg?Expires=1839178783&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=KYEx6CFY7jVRo9T0r8juKIHl9KXxUpNcIjlGCoKtkFFC4ln5OvWO-nFQ~xT2OXq0YFcfODEcmd~2yuGljDJdOsRvhEMBbIgfgB7fDcIpQLjwjj29vjYvXrDuVKHDsXSIzYpWvcF0du41CO7IhmSbWiG07koVMTHIRJ9peillDDklj0VBaPTiOf0UObYCLgiWkPTbkhnM~lR57g2Baho0H1uTjwBw6dzs-3JCNS4hN99mvZO0Tbgphvr3jAdSOkBuPLTGW2iYBjQsa6AwFUwejH3WSkyQyCHLnNNXZozrTOZtlr09houri~NY4yjV1S8TdmLinylmjQwxbT8TnP3wWQ__"/>
                     <div class="flex gap-3 justify-start">
                         <div class="cursor-pointer" onclick="changeMainImage('https://media-hosting.imagekit.io/b7962a0e281b4821/eye.jpg?Expires=1839178727&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=w2EcqX2lpUPsluD7YQtuqROi4huigqgVNoDZ9JdAqzvWWWDs7E3dXwS7hs1IiOPsECKQzWAENKZWs80dkSaHLi6CM-gkbJUFVmfOIQNi9dJ6eg8DzLRXEbt51bTNaHkH4jcbL~oEV6pnialuFkdeMwnN81tJBrkKekidYOJDo3LhquIqpI8V7fPt8-jHfHqRXDoHDkEWfqTr5hMOy477SGPtqYV4KxXs1xYHur6S1tovTSMZkTKk0Bm5~rIN-cISAvSm~hr4Zv7eMpiR0ytYHZ4KwTJvqYfO3eEw3nVvwzG1VoxppHYBwSKcs-NUYJlA-28vgpeNNFLBu4OL1hcJ6A__')">
                             <img alt="Product view 1" class="thumbnail" src="https://media-hosting.imagekit.io/b7962a0e281b4821/eye.jpg?Expires=1839178727&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=w2EcqX2lpUPsluD7YQtuqROi4huigqgVNoDZ9JdAqzvWWWDs7E3dXwS7hs1IiOPsECKQzWAENKZWs80dkSaHLi6CM-gkbJUFVmfOIQNi9dJ6eg8DzLRXEbt51bTNaHkH4jcbL~oEV6pnialuFkdeMwnN81tJBrkKekidYOJDo3LhquIqpI8V7fPt8-jHfHqRXDoHDkEWfqTr5hMOy477SGPtqYV4KxXs1xYHur6S1tovTSMZkTKk0Bm5~rIN-cISAvSm~hr4Zv7eMpiR0ytYHZ4KwTJvqYfO3eEw3nVvwzG1VoxppHYBwSKcs-NUYJlA-28vgpeNNFLBu4OL1hcJ6A__"/>
@@ -149,17 +1325,17 @@
                         <button id="size-guide-btn" class="text-xs text-gray-500 underline hover:text-black">Size guide</button>
                     </div>
                     <div class="flex flex-wrap gap-2 mt-2">
-                        <button class="size-button" data-size="XS">XS</button>
-                        <button class="size-button selected" data-size="S">S</button>
-                        <button class="size-button" data-size="M">M</button>
-                        <button class="size-button" data-size="L">L</button>
-                        <button class="size-button" data-size="XL">XL</button>
-                        <button class="size-button" data-size="XXL">XXL</button>
+                        <button class="size-button">XS</button>
+                        <button class="size-button selected">S</button>
+                        <button class="size-button">M</button>
+                        <button class="size-button">L</button>
+                        <button class="size-button">XL</button>
+                        <button class="size-button">XXL</button>
                     </div>
                 </div>
                 
                 <div id="size-guide-container" class="dropdown-container">
-                    <img src="https://media-hosting.imagekit.io/6e7da2422e0f42be/Screenshot%202025-04-03%20132306.png" alt="Size Guide" class="w-full rounded-lg border border-gray-200">
+                    <img src="https://media-hosting.imagekit.io/6e7da2422e0f42be/Screenshot%202025-04-03%20132306.png?Expires=1838279948&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=nE~e~HRFepGXkNhsJW00h6uwmZvmEc~RaP4esf9JmJb9kKxuIDwlCQdGP6I35Y0QbrfdfdSg0D94HbNxIMrqPc1DJaVIkJ30P9K0qvg53uqURhKBKH4-rmJh4DC~DX-9IKp-dyhfVFGUrGuAdA~327Qpj1CKQfxgL-Q1wJjv5A8g2iT1jgKyo02NDp78eDVKzrqc0ZtfwO4WJFDtJxvNhJznG1Pcxmkz2z3dLQr9HAjcRC-A0koclAxO2CmFf~npp0RVo6cXwSnz6ag2nSs7r28CX9Rf4I68IrIy7QbCbmIgc3W7SXIXQTmDLU3jyynUGDfFxgNwaPbyjEfMyPXOfw__" alt="Size Guide" class="w-full rounded-lg border border-gray-200">
                 </div>
                 
                 <div class="mb-6 w-full">
@@ -181,7 +1357,7 @@
                     <button id="add-to-cart-btn" class="button-effect w-full py-3 border-2 border-black text-black rounded-full font-medium hover:bg-black hover:text-white">
                         ADD TO CART
                     </button>
-                    <button id="buy-now-btn" class="button-effect w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800">
+                    <button class="button-effect w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800">
                         BUY IT NOW
                     </button>
                 </div>
@@ -221,85 +1397,85 @@
                     </ul>
                 </div>
                 
-                <!-- Wash Care Section -->
-                <div class="mb-2 mt-6">
-                    <button class="dropdown-button">
-                        <span class="font-medium text-gray-900">WASH CARE</span>
-                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div class="dropdown-container">
-                        <div class="py-4">
-                            <ul class="text-gray-700 text-sm space-y-2">
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                    </svg>
-                                    <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                                    </svg>
-                                    <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                                    </svg>
-                                    <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                    </svg>
-                                    <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                    <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
-                                </li>
-                            </ul>
-                        </div>
+    <!-- Wash Care Section -->
+            <div class="mb-2 mt-6">
+                <button class="dropdown-button">
+                    <span class="font-medium text-gray-900">WASH CARE</span>
+                    <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div class="dropdown-container">
+                    <div class="py-4">
+                        <ul class="text-gray-700 text-sm space-y-2">
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                </svg>
+                                <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                </svg>
+                                <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                
-                <!-- Return Policy Section with Icons -->
-                <div class="mb-2">
-                    <button class="dropdown-button">
-                        <span class="font-medium text-gray-900">RETURN POLICY</span>
-                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div class="dropdown-container">
-                        <div class="py-4">
-                            <ul class="text-gray-700 text-sm space-y-2">
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                    </svg>
-                                    <span>AVAILABLE PAN INDIA DELIVERY</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                    </svg>
-                                    <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    <span><a href="/return-policy" class="policy-link">Read our Return Policy</a></span>
-                                </li>
-                            </ul>
-                        </div>
+            </div>
+            
+            <!-- Return Policy Section with Icons -->
+            <div class="mb-2">
+                <button class="dropdown-button">
+                    <span class="font-medium text-gray-900">RETURN POLICY</span>
+                    <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div class="dropdown-container">
+                    <div class="py-4">
+                        <ul class="text-gray-700 text-sm space-y-2">
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                </svg>
+                                <span>AVAILABLE PAN INDIA DELIVERY</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span><a href="/return-policy" class="policy-link">Read our Return Policy</a></span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+            </div>
                 
                 <!-- Share Button -->
                 <div class="mt-6 flex items-center">
@@ -316,13 +1492,13 @@
         </div>
     </div>
 
-    <!-- Footer -->
+      <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
             <!-- Centered logo -->
             <div class="footer-logo">
                 <div class="flex items-center justify-center logo-container">
-                    <img alt="Company logo" class="h-10 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png"/>
+                    <img alt="Company logo" class="h-10 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
                 </div>
             </div>
             
@@ -341,16 +1517,16 @@
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/order-track">ORDER TRACK</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="track.html">ORDER TRACK</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/contact">CONTACT</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
                 </div>
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/bulk-order">BULK ORDER</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
                 </div>
             </div>
             
@@ -364,21 +1540,20 @@
                 <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
                     <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
                     <span>
-                    <a class="footer-link" href="https://www.vamora.store/return-policy" style="font-size: 0.5rem;"> . REFUND POLICY</a>
+                    <a class="footer-link" href="refund.html" style="font-size: 0.5rem;"> . REFUND POLICY</a>
                     
-                    <a class="footer-link" href="https://www.vamora.store/privacy-policy" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
+                    <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
                     </span>
                     <span>
-                    <a class="footer-link" href="https://www.vamora.store/terms-of-services" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
                     
-                    <a class="footer-link" href="https://www.vamora.store/shipping-policy" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
+                    <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
                     </span>
                 </p>
             </div>
         </div>
     </footer>
-
     <script src="shared.js"></script>
-    <script src="product.js"></script>
+       <script src="product.js"></script>
 </body>
 </html>
