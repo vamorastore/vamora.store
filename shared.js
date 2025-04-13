@@ -1,3 +1,5 @@
+// Shared JavaScript for all pages
+
 // Initialize user data if not exists
 if (!localStorage.getItem('user')) {
     localStorage.setItem('user', JSON.stringify({
@@ -186,6 +188,7 @@ function removeFromCart(index, event) {
     cart.splice(index, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
     renderCart();
+    updateCartCount();
 }
 
 function proceedToCheckout() {
@@ -217,12 +220,6 @@ const searchData = [
     { id: 7, title: "Sunglasses", category: "Accessories", url: "/products/sunglasses" },
     { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
 ];
-
-// DOM elements
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
-const closeSearch = document.getElementById('closeSearch');
-const searchButton = document.getElementById('searchButton');
 
 // Toggle search input
 enableSearch.addEventListener('click', function(e) {
@@ -1045,9 +1042,6 @@ document.getElementById('signup-form').addEventListener('submit', async function
             document.getElementById('verify-email-success').classList.add('hidden');
             hideAuthContainer();
             loadAccountInfo(email);
-            
-            // Show account info page after successful signup
-            accountInfoPage.classList.remove('hidden');
         }, 2000);
     } catch (error) {
         console.error('Error during signup:', error);
@@ -1108,9 +1102,6 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 document.getElementById('login-success').classList.add('hidden');
                 hideAuthContainer();
                 loadAccountInfo(email);
-                
-                // Show account info page after successful login
-                accountInfoPage.classList.remove('hidden');
             }, 1500);
         } else {
             document.getElementById('login-error').classList.remove('hidden');
@@ -1331,7 +1322,24 @@ window.addEventListener('load', function() {
     if (loggedInUser && loggedInUser.email) {
         loadAccountInfo(loggedInUser.email);
     }
+    
+    // Update cart count on load
+    updateCartCount();
 });
+
+// Update cart count function
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartCount = document.getElementById('cart-count');
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    
+    if (totalItems > 0) {
+        cartCount.textContent = totalItems;
+        cartCount.classList.remove('hidden');
+    } else {
+        cartCount.classList.add('hidden');
+    }
+}
 
 // Make functions available globally
 window.deleteAddress = deleteAddress;
@@ -1339,3 +1347,5 @@ window.editAddress = editAddress;
 window.setDefaultAddress = setDefaultAddress;
 window.toggleCart = toggleCart;
 window.closeCart = closeCart;
+window.removeFromCart = removeFromCart;
+window.updateCartCount = updateCartCount;
