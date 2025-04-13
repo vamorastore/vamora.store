@@ -1,188 +1,384 @@
-// Product Page Specific JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart count
-    updateCartCount();
-    
-    // Size buttons selection
-    const sizeButtons = document.querySelectorAll('.size-button');
-    sizeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            sizeButtons.forEach(btn => btn.classList.remove('selected'));
-            this.classList.add('selected');
-        });
-    });
-
-    // Quantity adjustment
-    const decrementButton = document.getElementById('decrement-quantity');
-    const incrementButton = document.getElementById('increment-quantity');
-    const quantityInput = document.getElementById('product-quantity');
-
-    decrementButton.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        if (value > 1) {
-            quantityInput.value = value - 1;
-        }
-    });
-
-    incrementButton.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        quantityInput.value = value + 1;
-    });
-
-    // Size guide toggle
-    const sizeGuideBtn = document.getElementById('size-guide-btn');
-    const sizeGuideContainer = document.getElementById('size-guide-container');
-
-    sizeGuideBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        sizeGuideContainer.classList.toggle('open');
-        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
-    });
-
-    // Input validation
-    quantityInput.addEventListener('change', function() {
-        if (this.value < 1) this.value = 1;
-    });
-
-    // Dropdown toggle functionality
-    const dropdownButtons = document.querySelectorAll('.dropdown-button');
-    dropdownButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const container = this.nextElementSibling;
-            const isOpen = container.classList.contains('open');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DE.ORIGIN T-shirt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <button class="mobile-menu-button" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
             
-            // Close all other dropdowns
-            document.querySelectorAll('.dropdown-container').forEach(dropdown => {
-                if (dropdown !== container) {
-                    dropdown.classList.remove('open');
-                }
-            });
+            <div class="flex items-center logo-container">
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png"/>
+                <span class="logo-text">VAMORA.STORE</span>
+            </div>
             
-            // Toggle the clicked dropdown
-            container.classList.toggle('open');
+            <div class="flex items-center space-x-2 nav-icons">
+                <div class="search-container">
+                    <a class="text-black nav-link" id="enableSearch">
+                        <i class="fas fa-search icon"></i>
+                    </a>
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+                        <span class="search-close" id="closeSearch">&times;</span>
+                        <span class="search-icon" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="icon-separator"></div>
+                <div class="relative">
+                    <div class="cursor-pointer" id="accountIconNav">
+                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png" 
+                             alt="Account" 
+                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                    </div>
+                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
+                        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
+                        </a>
+                        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                <div class="icon-separator"></div>
+                <a class="text-black nav-link" id="cartIconNav">
+                    <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
             
-            // Toggle the open class on the button
-            this.classList.toggle('open');
-        });
-    });
+            <div class="nav-links">
+                <a class="text-black nav-link" href="https://www.vamora.store/home">HOME</a>
+                <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
+                <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
+                <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+            </div>
+        </div>
+    </nav>
 
-    // Share functionality
-    const shareButton = document.querySelector('.share-icon');
-    shareButton.addEventListener('click', function() {
-        if (navigator.share) {
-            // Use the Web Share API if available
-            navigator.share({
-                title: "DE.ORIGIN T-shirt",
-                text: "crafted for those who lead, blending premium fabric, timeless style, and unmatched comfort—because excellence is meant to be worn.",
-                url: window.location.href
-            }).catch(err => {
-                console.log('Error sharing:', err);
-                fallbackShare();
-            });
-        } else {
-            // Fallback for browsers without Web Share API
-            fallbackShare();
-        }
-    });
+    <!-- Mobile Menu Content -->
+    <div class="mobile-menu-content" id="mobileMenuContent">
+        <div class="mobile-menu-links">
+            <a class="text-black nav-link" href="https://www.vamora.store/home">HOME</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/shop">SHOP</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/about">ABOUT</a>
+            <a class="text-black nav-link" href="https://www.vamora.store/contact">CONTACT</a>
+        </div>
+        <div class="mobile-menu-social">
+            <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+            <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+        </div>
+    </div>
 
-    function fallbackShare() {
-        // Copy the URL to clipboard
-        navigator.clipboard.writeText(window.location.href)
-            .then(() => {
-                alert('Link copied to clipboard!');
-            })
-            .catch(err => {
-                console.error('Could not copy text: ', err);
-                prompt('Copy this link:', window.location.href);
-            });
-    }
+    <!-- Cart Overlay -->
+    <div class="overlay-backdrop" id="cartBackdrop"></div>
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-bold">Your Cart</h2>
+                <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="cartContainer" class="flex-grow overflow-y-auto">
+                <ul id="cartList" class="space-y-4"></ul>
+            </div>
+            
+            <div class="border-t pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-medium">Total:</span>
+                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
+                </div>
+                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
 
-    // Add to cart functionality
-    const addToCartBtn = document.getElementById('add-to-cart-btn');
-    addToCartBtn.addEventListener('click', function() {
-        addToCart();
-    });
+    <div class="main-content">
+        <!-- Product Page Content -->
+        <div class="product-container flex flex-col md:flex-row">
+            <!-- Image Section -->
+            <div class="image-section w-full md:w-1/2 mb-6 md:mb-0 md:pr-6">
+                <div class="sticky top-6">
+                    <img alt="DE.ORIGIN T-shirt" 
+                         class="main-image w-full h-auto mb-4" 
+                         src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png"/>
+                    <div class="flex gap-3 justify-start">
+                        <div class="cursor-pointer" onclick="changeMainImage('https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png')">
+                            <img alt="Product view 1" class="thumbnail" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png"/>
+                        </div>
+                        <div class="cursor-pointer" onclick="changeMainImage('https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg')">
+                            <img alt="Product view 2" class="thumbnail" src="https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg"/>
+                        </div>
+                        <div class="cursor-pointer" onclick="changeMainImage('https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png')">
+                            <img alt="Product view 3" class="thumbnail" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    // Buy now functionality
-    const buyNowBtn = document.getElementById('buy-now-btn');
-    buyNowBtn.addEventListener('click', function() {
-        addToCart();
-        toggleCart();
-    });
+            <!-- Details Section -->
+            <div class="details-section w-full md:w-1/2">
+                <h1 class="text-2xl md:text-3xl font-semibold mb-3">DE.ORIGIN</h1>
+                
+                <div class="flex items-center mb-1">
+                    <p class="text-2xl font-bold">₹378.00</p>
+                </div>
+                <p class="text-gray-500 text-sm mb-4">Taxes included</p>
+                
+                <div class="mb-4">
+                    <div class="flex items-center justify-between">
+                        <p class="font-medium text-gray-900 text-sm">SIZE</p>
+                        <button id="size-guide-btn" class="text-xs text-gray-500 underline hover:text-black">Size guide</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button class="size-button" data-size="XS">XS</button>
+                        <button class="size-button selected" data-size="S">S</button>
+                        <button class="size-button" data-size="M">M</button>
+                        <button class="size-button" data-size="L">L</button>
+                        <button class="size-button" data-size="XL">XL</button>
+                        <button class="size-button" data-size="XXL">XXL</button>
+                    </div>
+                </div>
+                
+                <div id="size-guide-container" class="dropdown-container">
+                    <img src="https://media-hosting.imagekit.io/6e7da2422e0f42be/Screenshot%202025-04-03%20132306.png" alt="Size Guide" class="w-full rounded-lg border border-gray-200">
+                </div>
+                
+                <div class="mb-6 w-full">
+                    <p class="font-medium mb-3 text-gray-900 text-sm">QUANTITY</p>
+                    <div class="flex items-center border border-gray-200 rounded-full w-full max-w-md">
+                        <button class="quantity-button px-4 py-3 text-gray-500 rounded-l-full w-1/4 flex justify-center" id="decrement-quantity">-</button>
+                        <div class="flex-1 text-center w-2/4">
+                            <input class="w-full text-center border-none focus:ring-0 bg-transparent" 
+                                   type="number" 
+                                   min="1" 
+                                   value="1"
+                                   id="product-quantity"/>
+                        </div>
+                        <button class="quantity-button px-4 py-3 text-gray-500 rounded-r-full w-1/4 flex justify-center" id="increment-quantity">+</button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-3 mb-8 w-full max-w-md">
+                    <button id="add-to-cart-btn" class="button-effect w-full py-3 border-2 border-black text-black rounded-full font-medium hover:bg-black hover:text-white">
+                        ADD TO CART
+                    </button>
+                    <button id="buy-now-btn" class="button-effect w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800">
+                        BUY IT NOW
+                    </button>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2 text-gray-900">DESCRIPTION</h3>
+                    <p class="text-gray-700">crafted for those who lead, blending premium fabric, timeless style, and unmatched comfort—because excellence is meant to be worn.</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2 text-gray-900">FEATURES</h3>
+                    <ul class="text-gray-700">
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            180-GSM
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Double-stitched seam
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Bio-Washed fabric & Ribbed neck
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Ethically produced
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Wash Care Section -->
+                <div class="mb-2 mt-6">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">WASH CARE</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                    <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                    </svg>
+                                    <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                    <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Return Policy Section with Icons -->
+                <div class="mb-2">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">RETURN POLICY</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                    <span>AVAILABLE PAN INDIA DELIVERY</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span><a href="/return-policy" class="policy-link">Read our Return Policy</a></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Share Button -->
+                <div class="mt-6 flex items-center">
+                    <p class="text-sm font-medium text-gray-900 mr-3">SHARE</p>
+                    <div class="share-icon" title="Share this product">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-500 mt-6">
+                    <p>FREE SHIPPING</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    // Change main image function
-    window.changeMainImage = function(newSrc) {
-        document.querySelector('.main-image').src = newSrc;
-    };
-});
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Centered logo -->
+            <div class="footer-logo">
+                <div class="flex items-center justify-center logo-container">
+                    <img alt="Company logo" class="h-10 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png"/>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on desktop, hidden on mobile -->
+            <div class="footer-social-desktop">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <!-- Footer links grid -->
+            <div class="footer-grid">
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="vamora.co.in@gmail.com">EMAIL</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/order-track">ORDER TRACK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/contact">CONTACT</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/bulk-order">BULK ORDER</a>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on mobile, hidden on desktop -->
+            <div class="footer-social-mobile">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
+                    <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
+                    <span>
+                    <a class="footer-link" href="https://www.vamora.store/return-policy" style="font-size: 0.5rem;"> . REFUND POLICY</a>
+                    
+                    <a class="footer-link" href="https://www.vamora.store/privacy-policy" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
+                    </span>
+                    <span>
+                    <a class="footer-link" href="https://www.vamora.store/terms-of-services" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    
+                    <a class="footer-link" href="https://www.vamora.store/shipping-policy" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
 
-function addToCart() {
-    // Get product details
-    const productName = document.querySelector('h1').textContent;
-    const productPrice = document.querySelector('.text-2xl.font-bold').textContent;
-    const selectedSize = document.querySelector('.size-button.selected').textContent;
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productImage = document.querySelector('.main-image').src;
-    
-    // Create cart item object
-    const cartItem = {
-        title: productName,
-        price: productPrice,
-        size: selectedSize,
-        quantity: quantity,
-        image: productImage,
-        id: 'de-origin-tshirt-' + selectedSize.toLowerCase() // Unique ID for this product + size
-    };
-    
-    // Get existing cart or create new one
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    
-    // Check if this item (same product + size) already exists in cart
-    const existingItemIndex = cart.findIndex(item => 
-        item.id === cartItem.id
-    );
-    
-    if (existingItemIndex !== -1) {
-        // Update quantity if item already exists
-        cart[existingItemIndex].quantity += quantity;
-    } else {
-        // Add new item to cart
-        cart.push(cartItem);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Update cart count
-    updateCartCount();
-    
-    // Show success message
-    showSuccessMessage('Item added to cart!');
-}
-
-function showSuccessMessage(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const cartCount = document.getElementById('cart-count');
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    
-    if (totalItems > 0) {
-        cartCount.textContent = totalItems;
-        cartCount.classList.remove('hidden');
-    } else {
-        cartCount.classList.add('hidden');
-    }
-}
+    <script src="shared.js"></script>
+    <script src="product.js"></script>
+</body>
+</html>
