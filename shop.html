@@ -868,9 +868,9 @@
                 font-size: 3rem;
             }
         }
-    </style>
+   </style>
 </head>
-<body>
+<body class="bg-gray-50 min-h-screen">
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
@@ -902,7 +902,7 @@
                     <div class="cursor-pointer" id="accountIconNav">
                         <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
                              alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200"> <!-- Reduced size to w-6 h-6 -->
                     </div>
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
                         <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
@@ -914,19 +914,16 @@
                     </div>
                 </div>
                 <div class="icon-separator"></div>
-                <div class="relative">
-                    <a class="text-black nav-link" id="cartIconNav" style="cursor: pointer;">
-                        <i class="fas fa-shopping-cart icon"></i>
-                        <span class="cart-count" id="cartCount"></span>
-                    </a>
-                </div>
+                <a class="text-black nav-link" id="cartIconNav">
+                    <i class="fas fa-shopping-cart icon"></i>
+                </a>
             </div>
             
             <div class="nav-links">
-            <a class="text-black nav-link" href="index.html">HOME</a>
-            <a class="text-black nav-link active" href="shop.html">SHOP</a>
-            <a class="text-black nav-link" href="about.html">ABOUT</a>
-            <a class="text-black nav-link" href="contact.html">CONTACT</a>
+                <a class="text-black nav-link  active" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="p1.html">ABOUT</a>
+                <a class="text-black nav-link" href="">CONTACT</a>
             </div>
         </div>
     </nav>
@@ -934,14 +931,14 @@
     <!-- Mobile Menu Content -->
     <div class="mobile-menu-content" id="mobileMenuContent">
         <div class="mobile-menu-links">
-            <a class="text-black nav-link" href="index.html">HOME</a>
-            <a class="text-black nav-link active" href="shop.html">SHOP</a>
-            <a class="text-black nav-link" href="about.html">ABOUT</a>
-            <a class="text-black nav-link" href="contact.html">CONTACT</a>
+       <a class="text-black nav-link active" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="">ABOUT</a>
+                <a class="text-black nav-link" href="">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
-            <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
-            <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
+            <a class="text-black" href="#"><i class="https://www.instagram.com/vamora.store"></i></a>
+            <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
 
@@ -950,9 +947,9 @@
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Your Cart</h2>
+                <h2 class="font-bold">Your Cart</h2>
                 <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             
@@ -969,6 +966,196 @@
                     Proceed to Checkout
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Account Info Page (hidden by default) -->
+    <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="bg-white p-6 rounded-lg shadow-md relative">
+                <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="text-2xl font-bold mb-4">Account Information</h2>
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="font-semibold">Name</span>
+                        <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                    </div>
+                    <p id="displayName"></p>
+                </div>
+                <div class="mb-4">
+                    <span class="font-semibold">Email</span>
+                    <p id="displayEmail"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold">Address</span>
+                        <a href="#" class="text-blue-500" id="addAddressLink" style="display: none;">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </a>
+                    </div>
+                    <div id="addressContainer" class="bg-gray-100 p-4 rounded-lg min-h-[200px] flex flex-col items-center justify-center">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                            <p class="text-lg">No addresses saved yet</p>
+                            <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Section -->
+                <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <div id="ordersContainer">
+                        <!-- Orders will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Edit Profile</h3>
+                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Name</label>
+                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Email</label>
+                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+            </div>
+            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <!-- Enhanced Add Address Modal -->
+    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Edit Address</h3>
+                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="addressForm" class="space-y-4">
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                    <input type="text" id="fullName" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Phone Number -->
+                <div>
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                    <input type="tel" id="phoneNumber" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Address Line 1 -->
+                <div>
+                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                    <input type="text" id="addressLine1" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Address Line 2 -->
+                <div>
+                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                    <input type="text" id="addressLine2" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- City -->
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                    <input type="text" id="city" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- State/District -->
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                    <input type="text" id="state" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Postal/Zip Code -->
+                <div>
+                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                    <input type="text" id="postalCode" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Country -->
+                <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                    <select id="country" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Country</option>
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Address Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="home" checked 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Home</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="work" 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Work</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="addressType" value="other" 
+                                   class="form-radio h-4 w-4 text-blue-600">
+                            <span class="ml-2">Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Set as Default -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="setAsDefault" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                        Set as default address
+                    </label>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelAddressBtn" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-times mr-2"></i> Cancel
+                    </button>
+                    <button type="submit" id="saveAddressBtn" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i> Save Address
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1038,6 +1225,19 @@
                             <i class="far fa-eye"></i>
                         </button>
                         <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                            <option value="">Select a security question</option>
+                            <option value="pet">What is the name of your first pet?</option>
+                            <option value="school">What is the name of your elementary school?</option>
+                            <option value="city">In what city were you born?</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
                         <span id="signup-button-text">Sign Up</span>
@@ -1163,7 +1363,7 @@
         </div>
     </div>
 
-       <!-- Footer -->
+      <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
             <!-- Centered logo -->
@@ -1188,7 +1388,7 @@
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="track.html">ORDER TRACK</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="order.html">ORDER TRACK</a>
                 </div>
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
@@ -1203,8 +1403,8 @@
             
             <!-- Social icons - shown on mobile, hidden on desktop -->
             <div class="footer-social-mobile">
-       <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
             </div>
             
             <div class="footer-bottom">
