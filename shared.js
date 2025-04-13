@@ -1,58 +1,9 @@
-        // Initialize user data if not exists
+ // Initialize user data if not exists
         if (!localStorage.getItem('user')) {
             localStorage.setItem('user', JSON.stringify({
                 name: '',
                 email: '',
                 addresses: []
-            }));
-        }
-
-        if (!localStorage.getItem('allOrders')) {
-            localStorage.setItem('allOrders', JSON.stringify({
-                'swa@gmail.com': [
-                    {
-                        orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        date: new Date().toISOString(),
-                        status: 'status-delivered',
-                        cart: [
-                            {
-                                title: 'Sample Product',
-                                size: 'M',
-                                price: '₹599',
-                                quantity: 2,
-                                imageUrl: 'https://via.placeholder.com/50'
-                            }
-                        ]
-                    },
-                    {
-                        orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-                        status: 'status-processing',
-                        cart: [
-                            {
-                                title: 'Sample Product 2',
-                                size: 'L',
-                                price: '₹799',
-                                quantity: 1,
-                                imageUrl: 'https://via.placeholder.com/50'
-                            }
-                        ]
-                    },
-                    {
-                        orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-                        status: 'status-order-placed',
-                        cart: [
-                            {
-                                title: 'Sample Product 3',
-                                size: 'S',
-                                price: '₹399',
-                                quantity: 3,
-                                imageUrl: 'https://via.placeholder.com/50'
-                            }
-                        ]
-                    }
-                ]
             }));
         }
 
@@ -75,20 +26,6 @@
         const mobileMenuContent = document.getElementById('mobileMenuContent');
         const profileOption = document.getElementById('profileOption');
         const logoutOption = document.getElementById('logoutOption');
-        const accountInfoPage = document.getElementById('account-info-page');
-        const closeAccountInfoPage = document.getElementById('closeAccountInfoPage');
-        const editProfileIcon = document.getElementById('editProfileIcon');
-        const addAddressLink = document.getElementById('addAddressLink');
-        const editProfileModal = document.getElementById('editProfileModal');
-        const closeEditProfileModal = document.getElementById('closeEditProfileModal');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        const nameInput = document.getElementById('nameInput');
-        const emailDisplay = document.getElementById('emailDisplay');
-        const addAddressModal = document.getElementById('addAddressModal');
-        const closeAddAddressModal = document.getElementById('closeAddAddressModal');
-        const saveAddressBtn = document.getElementById('saveAddressBtn');
-        const addressContainer = document.getElementById('addressContainer');
-        const ordersContainer = document.getElementById('ordersContainer');
 
         // Function to close all open elements
         function closeAllOpenElements() {
@@ -186,6 +123,7 @@
             cart.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
             renderCart();
+            updateCartCount();
         }
 
         function proceedToCheckout() {
@@ -201,6 +139,15 @@
             }
         });
 
+        // Function to update cart count in navbar
+        function updateCartCount() {
+            const cartCountElement = document.getElementById('cartCount');
+            if (cartCountElement) {
+                cartCountElement.textContent = cart.length;
+                cartCountElement.style.display = cart.length > 0 ? 'flex' : 'none';
+            }
+        }
+
         // Cart event listeners
         cartIconNav.addEventListener('click', toggleCart);
         closeCartButton.addEventListener('click', closeCart);
@@ -208,48 +155,11 @@
 
         // Search functionality
         const searchData = [
-            { id: 1, title: "Men's T-Shirt", category: "Clothing", url: "/products/mens-tshirt" },
-            { id: 2, title: "Women's Jeans", category: "Clothing", url: "/products/womens-jeans" },
-            { id: 3, title: "Running Shoes", category: "Footwear", url: "/products/running-shoes" },
-            { id: 4, title: "Smart Watch", category: "Electronics", url: "/products/smart-watch" },
-            { id: 5, title: "Backpack", category: "Accessories", url: "/products/backpack" },
-            { id: 6, title: "Wireless Headphones", category: "Electronics", url: "/products/headphones" },
-            { id: 7, title: "Sunglasses", category: "Accessories", url: "/products/sunglasses" },
-            { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
+            { id: 1, title: "HOKKAIDO", category: "T-Shirt", url: "#" },
+            { id: 2, title: "DE.ORIGIN", category: "T-Shirt", url: "#" },
+            { id: 3, title: "EPISTLE RAP", category: "T-Shirt", url: "#" },
+            { id: 4, title: "ODD.OUT", category: "T-Shirt", url: "#" }
         ];
-
-        // DOM elements
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const closeSearch = document.getElementById('closeSearch');
-        const searchButton = document.getElementById('searchButton');
-
-        // Toggle search input
-        enableSearch.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // If search is already open, close it
-            if (searchOpen) {
-                searchInputContainer.style.display = 'none';
-                searchOpen = false;
-                return;
-            }
-            
-            // Otherwise, close other elements and open search
-            closeAllOpenElements();
-            searchOpen = true;
-            searchInputContainer.style.display = 'block';
-            searchInput.focus();
-        });
-
-        // Close search
-        closeSearch.addEventListener('click', function() {
-            searchInputContainer.style.display = 'none';
-            searchInput.value = '';
-            searchResults.style.display = 'none';
-            searchOpen = false;
-        });
 
         // Search functionality
         searchInput.addEventListener('input', function() {
@@ -325,6 +235,33 @@
             }
         });
 
+        // Toggle search input
+        enableSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // If search is already open, close it
+            if (searchOpen) {
+                searchInputContainer.style.display = 'none';
+                searchOpen = false;
+                return;
+            }
+            
+            // Otherwise, close other elements and open search
+            closeAllOpenElements();
+            searchOpen = true;
+            searchInputContainer.style.display = 'block';
+            searchInput.focus();
+        });
+
+        // Close search
+        closeSearch.addEventListener('click', function() {
+            searchInputContainer.style.display = 'none';
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            searchOpen = false;
+        });
+
         // Account dropdown functionality
         function toggleDropdown() {
             // If dropdown is already open, close it
@@ -357,289 +294,24 @@
             mobileMenuButton.querySelector('i').classList.add('fa-times');
         }
 
-        // Show account info page
-        function showAccountInfo(event) {
+        // Show login modal when profile is clicked
+        function showLoginModal(event) {
             event.preventDefault();
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            
-            if (loggedInUser && loggedInUser.email) {
-                document.getElementById('displayName').textContent = loggedInUser.name || '';
-                document.getElementById('displayEmail').textContent = loggedInUser.email || '';
-                emailDisplay.value = loggedInUser.email || '';
-                
-                if (loggedInUser.email) {
-                    loadAddresses(loggedInUser.email);
-                    loadOrders(loggedInUser.email);
-                } else {
-                    // Clear addresses and orders if no email (logged out)
-                    addressContainer.innerHTML = `
-                        <div class="text-center text-gray-500">
-                            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                            <p class="text-lg">No addresses saved yet</p>
-                            <p class="text-sm mt-2">Please login to view your saved addresses</p>
-                        </div>
-                    `;
-                    ordersContainer.innerHTML = `
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                            <p class="text-lg">You haven't placed any orders yet</p>
-                            <p class="text-sm mt-2">Please login to view your orders</p>
-                        </div>
-                    `;
-                }
-                
-                accountInfoPage.classList.remove('hidden');
-                dropdownMenu.classList.add('hidden');
-            } else {
-                // Show login modal if user is not logged in
-                document.getElementById('auth-container').classList.remove('hidden');
-            }
+            document.getElementById('auth-container').classList.remove('hidden');
+            dropdownMenu.classList.add('hidden');
         }
 
-        // Close account info page
-        closeAccountInfoPage.addEventListener('click', function(event) {
+        function logoutUser(event) {
             event.preventDefault();
-            accountInfoPage.classList.add('hidden');
-        });
-
-        // Load account info
-        function loadAccountInfo(email) {
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            if (loggedInUser) {
-                document.getElementById('displayName').textContent = loggedInUser.name || '';
-                document.getElementById('displayEmail').textContent = loggedInUser.email || '';
-                emailDisplay.value = loggedInUser.email || '';
-                
-                if (loggedInUser.email) {
-                    loadAddresses(loggedInUser.email);
-                    loadOrders(loggedInUser.email);
-                } else {
-                    // Clear addresses and orders if no email (logged out)
-                    addressContainer.innerHTML = `
-                        <div class="text-center text-gray-500">
-                            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                            <p class="text-lg">No addresses saved yet</p>
-                            <p class="text-sm mt-2">Please login to view your saved addresses</p>
-                        </div>
-                    `;
-                    ordersContainer.innerHTML = `
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                            <p class="text-lg">You haven't placed any orders yet</p>
-                            <p class="text-sm mt-2">Please login to view your orders</p>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Load addresses
-        function loadAddresses(email) {
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            if (!loggedInUser || !loggedInUser.addresses) {
-                addressContainer.innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                        <p class="text-lg">No addresses saved yet</p>
-                        <p class="text-sm mt-2">Your saved addresses will appear here</p>
-                    </div>
-                `;
-                return;
-            }
+            // Clear user data
+            localStorage.setItem('user', JSON.stringify({
+                name: '',
+                email: '',
+                addresses: []
+            }));
             
-            const userAddresses = loggedInUser.addresses;
-            
-            if (userAddresses && userAddresses.length > 0) {
-                addressContainer.innerHTML = userAddresses.map(address => `
-                    <div class="address-card ${address.isDefault ? 'default-address' : ''} bg-white p-4 rounded-lg shadow-sm mb-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center mb-1">
-                                    <span class="font-medium">${address.fullName}</span>
-                                    ${address.isDefault ? 
-                                        '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
-                                </div>
-                                <p class="text-sm text-gray-600">${address.phoneNumber}</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700 icon-hover icon-hover-blue icon-click-effect" onclick="editAddress('${address.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="text-gray-500 hover:text-gray-700 icon-hover icon-hover-gray icon-click-effect" onclick="setDefaultAddress('${address.id}')">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <button class="text-red-500 hover:text-red-700 icon-hover icon-hover-red icon-click-effect" onclick="deleteAddress('${address.id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-sm">
-                            <p>${address.addressLine1}</p>
-                            ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
-                            <p>${address.city}, ${address.state} ${address.postalCode}</p>
-                            <p>${address.country}</p>
-                        </div>
-                        <div class="mt-2 text-xs text-gray-500 capitalize">
-                            ${address.addressType} address
-                        </div>
-                    </div>
-                `).join('');
-                document.getElementById('addAddressLink').style.display = 'block';
-            } else {
-                addressContainer.innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                        <p class="text-lg">No addresses saved yet</p>
-                        <p class="text-sm mt-2">Your saved addresses will appear here</p>
-                    </div>
-                `;
-                document.getElementById('addAddressLink').style.display = 'block';
-            }
-        }
-
-        // Load orders
-        function loadOrders(email) {
-            const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
-            const userOrders = allOrders[email] || [];
-            
-            if (userOrders.length > 0) {
-                document.getElementById('ordersContainer').innerHTML = userOrders.map(order => `
-                    <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <span class="font-semibold">Order ID:</span>
-                                <span class="block text-gray-600">${order.orderId}</span>
-                            </div>
-                            <div>
-                                <span class="font-semibold">Date:</span>
-                                <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Order Status Bar -->
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                                <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                                <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                                <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                            </div>
-                            <div class="relative">
-                                <div class="absolute inset-0 flex items-center">
-                                    <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                                    <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                                </div>
-                                <div class="relative flex justify-between">
-                                    <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                                        order.status === 'status-processing' || 
-                                        order.status === 'status-shipped' || 
-                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                        rounded-full flex items-center justify-center text-white">
-                                        <i class="fas fa-check text-xs"></i>
-                                    </div>
-                                    <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                                        order.status === 'status-shipped' || 
-                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                        rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                                        order.status === 'status-shipped' || 
-                                        order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                        <i class="fas fa-truck text-xs"></i>
-                                    </div>
-                                    <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                                        order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                        rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                                        order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                        <i class="fas fa-shipping-fast text-xs"></i>
-                                    </div>
-                                    <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                        rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                        <i class="fas fa-box-open text-xs"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <span class="font-semibold">Status:</span>
-                                <span class="block capitalize ${getStatusColor(order.status)}">
-                                    ${order.status.replace('status-', '').replace('-', ' ')}
-                                </span>
-                            </div>
-                            <div>
-                                <span class="font-semibold">Total:</span>
-                                <span class="block text-gray-600">
-                                    ₹${order.cart.reduce((total, item) => {
-                                        const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
-                                        return total + (price * item.quantity);
-                                    }, 0).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h4 class="font-medium mb-2">Items:</h4>
-                            ${order.cart.map(item => `
-                                <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                                    <img src="${item.imageUrl || 'https://via.placeholder.com/50'}" 
-                                         alt="${item.title}" 
-                                         class="w-12 h-12 rounded mr-3 object-cover">
-                                    <div class="flex-1">
-                                        <p class="font-medium">${item.title}</p>
-                                        <div class="flex justify-between text-sm text-gray-500">
-                                            <span>Size: ${item.size}</span>
-                                            <span>Qty: ${item.quantity}</span>
-                                            <span>${item.price}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                document.getElementById('ordersContainer').innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                        <p class="text-lg">You haven't placed any orders yet</p>
-                        <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Helper function to determine the progress bar width
-        function getStatusProgress(status) {
-            switch(status) {
-                case 'status-order-placed':
-                    return 'bg-blue-500 w-1/4';
-                case 'status-processing':
-                    return 'bg-blue-500 w-2/4';
-                case 'status-shipped':
-                    return 'bg-blue-500 w-3/4';
-                case 'status-delivered':
-                    return 'bg-blue-500 w-full';
-                default:
-                    return 'bg-blue-500 w-1/4';
-            }
-        }
-
-        // Update the getStatusColor function to include all statuses
-        function getStatusColor(status) {
-            switch(status) {
-                case 'status-order-placed':
-                    return 'text-blue-500';
-                case 'status-processing':
-                    return 'text-yellow-500';
-                case 'status-shipped':
-                    return 'text-purple-500';
-                case 'status-delivered':
-                    return 'text-green-500';
-                case 'status-cancelled':
-                    return 'text-red-500';
-                default:
-                    return 'text-gray-500';
-            }
+            alert('You have been logged out.');
+            dropdownMenu.classList.add('hidden');
         }
 
         // Login system functions
@@ -715,235 +387,6 @@
             });
         }
 
-        function showEditProfileModal() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            nameInput.value = user.name || '';
-            emailDisplay.value = user.email || '';
-            editProfileModal.classList.remove('hidden');
-        }
-
-        function saveProfile() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            user.name = nameInput.value;
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            document.getElementById('displayName').textContent = user.name || '';
-            editProfileModal.classList.add('hidden');
-        }
-
-        function showAddAddressModal(event) {
-            event.preventDefault();
-            document.getElementById('addressForm').reset();
-            delete document.getElementById('addressForm').dataset.editingId;
-            addAddressModal.classList.remove('hidden');
-        }
-
-        function saveAddress(event) {
-            event.preventDefault();
-            
-            const form = document.getElementById('addressForm');
-            const isEditing = form.dataset.editingId;
-            const user = JSON.parse(localStorage.getItem('user'));
-            
-            // Get all form values
-            const address = {
-                fullName: document.getElementById('fullName').value.trim(),
-                phoneNumber: document.getElementById('phoneNumber').value.trim(),
-                addressLine1: document.getElementById('addressLine1').value.trim(),
-                addressLine2: document.getElementById('addressLine2').value.trim(),
-                city: document.getElementById('city').value.trim(),
-                state: document.getElementById('state').value.trim(),
-                postalCode: document.getElementById('postalCode').value.trim(),
-                country: document.getElementById('country').value,
-                addressType: document.querySelector('input[name="addressType"]:checked').value,
-                isDefault: document.getElementById('setAsDefault').checked,
-                id: isEditing || Date.now().toString()
-            };
-            
-            // Basic validation
-            if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
-                !address.city || !address.state || !address.postalCode || !address.country) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            // Initialize user's addresses if not exists
-            if (!user.addresses) {
-                user.addresses = [];
-            }
-            
-            // If this is set as default, unset any existing default
-            if (address.isDefault) {
-                user.addresses.forEach(addr => addr.isDefault = false);
-            }
-            
-            if (isEditing) {
-                // Update existing address
-                const index = user.addresses.findIndex(addr => addr.id === isEditing);
-                if (index !== -1) {
-                    user.addresses[index] = address;
-                }
-                delete form.dataset.editingId;
-            } else {
-                // Add new address
-                user.addresses.push(address);
-            }
-            
-            // Save back to storage
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Also update in the global users array
-            const allUsers = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = allUsers.findIndex(u => u.email === user.email);
-            if (userIndex !== -1) {
-                allUsers[userIndex] = user;
-                localStorage.setItem('users', JSON.stringify(allUsers));
-            }
-            
-            // Store as default address if needed
-            if (address.isDefault) {
-                localStorage.setItem('defaultAddress', JSON.stringify(address));
-            }
-            
-            loadAddresses(user.email);
-            addAddressModal.classList.add('hidden');
-            form.reset();
-        }
-
-        function cancelAddress() {
-            document.getElementById('addressForm').reset();
-            delete document.getElementById('addressForm').dataset.editingId;
-            addAddressModal.classList.add('hidden');
-        }
-
-        function deleteAddress(addressId) {
-            if (!confirm('Are you sure you want to delete this address?')) return;
-            
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || !user.addresses) return;
-            
-            // Remove the address
-            const updatedAddresses = user.addresses.filter(addr => addr.id !== addressId);
-            user.addresses = updatedAddresses;
-            
-            // If we deleted the default address and there are other addresses, set the first one as default
-            if (user.addresses.length > 0 && !user.addresses.some(addr => addr.isDefault)) {
-                user.addresses[0].isDefault = true;
-                localStorage.setItem('defaultAddress', JSON.stringify(user.addresses[0]));
-            }
-            
-            // Update user data
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Also update in the global users array
-            const allUsers = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = allUsers.findIndex(u => u.email === user.email);
-            if (userIndex !== -1) {
-                allUsers[userIndex] = user;
-                localStorage.setItem('users', JSON.stringify(allUsers));
-            }
-            
-            loadAddresses(user.email);
-        }
-
-        function editAddress(addressId) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || !user.addresses) return;
-            
-            const address = user.addresses.find(addr => addr.id === addressId);
-            if (!address) return;
-            
-            // Fill the form with the address data
-            document.getElementById('fullName').value = address.fullName;
-            document.getElementById('phoneNumber').value = address.phoneNumber;
-            document.getElementById('addressLine1').value = address.addressLine1;
-            document.getElementById('addressLine2').value = address.addressLine2 || '';
-            document.getElementById('city').value = address.city;
-            document.getElementById('state').value = address.state;
-            document.getElementById('postalCode').value = address.postalCode;
-            document.getElementById('country').value = address.country;
-            document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
-            document.getElementById('setAsDefault').checked = address.isDefault;
-            
-            // Store the address ID being edited
-            document.getElementById('addressForm').dataset.editingId = addressId;
-            
-            // Update modal title
-            document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
-            
-            addAddressModal.classList.remove('hidden');
-        }
-
-        function setDefaultAddress(addressId) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user) return;
-            
-            // Initialize addresses array if not exists
-            if (!user.addresses) {
-                user.addresses = [];
-            }
-            
-            // Unset any existing default address
-            user.addresses.forEach(addr => {
-                addr.isDefault = addr.id === addressId;
-            });
-            
-            // Find and store the default address
-            const defaultAddress = user.addresses.find(addr => addr.isDefault);
-            if (defaultAddress) {
-                localStorage.setItem('defaultAddress', JSON.stringify(defaultAddress));
-            }
-            
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Also update in the global users array
-            const allUsers = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = allUsers.findIndex(u => u.email === user.email);
-            if (userIndex !== -1) {
-                allUsers[userIndex] = user;
-                localStorage.setItem('users', JSON.stringify(allUsers));
-            }
-            
-            loadAddresses(user.email);
-        }
-
-        function logoutUser(event) {
-            event.preventDefault();
-            // Clear user data
-            localStorage.setItem('user', JSON.stringify({
-                name: '',
-                email: '',
-                addresses: []
-            }));
-            
-            alert('You have been logged out.');
-            dropdownMenu.classList.add('hidden');
-            
-            // Clear the displayed information
-            document.getElementById('displayName').textContent = '';
-            document.getElementById('displayEmail').textContent = '';
-            emailDisplay.value = '';
-            
-            // Clear addresses and orders display
-            addressContainer.innerHTML = `
-                <div class="text-center text-gray-500">
-                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                    <p class="text-lg">No addresses saved yet</p>
-                    <p class="text-sm mt-2">Please login to view your saved addresses</p>
-                </div>
-            `;
-            ordersContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                    <p class="text-lg">You haven't placed any orders yet</p>
-                    <p class="text-sm mt-2">Please login to view your orders</p>
-                </div>
-            `;
-            
-            // Hide the account info page if it's visible
-            accountInfoPage.classList.add('hidden');
-        }
-
         // Login system event handlers
         document.getElementById('signup-form').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -953,8 +396,6 @@
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirmPassword = document.getElementById('signup-confirm-password').value;
-            const securityQuestion = document.getElementById('security-question').value;
-            const securityAnswer = document.getElementById('security-answer').value.trim();
 
             // Reset error messages
             document.getElementById('signup-error').classList.add('hidden');
@@ -988,12 +429,6 @@
                 isValid = false;
             }
 
-            if (!securityQuestion || !securityAnswer) {
-                document.getElementById('signup-error').textContent = 'All fields are required';
-                document.getElementById('signup-error').classList.remove('hidden');
-                isValid = false;
-            }
-
             if (!isValid) {
                 hideLoading('signup-submit-button');
                 return;
@@ -1012,16 +447,13 @@
                     return;
                 }
 
-                // Store user with hashed password and security answer
+                // Store user with hashed password
                 const hashedPassword = await hashData(password);
-                const hashedAnswer = await hashData(securityAnswer);
                 
                 const user = {
                     name: name,
                     email: email,
                     password: hashedPassword,
-                    securityQuestion: securityQuestion,
-                    securityAnswer: hashedAnswer,
                     addresses: []
                 };
 
@@ -1044,7 +476,6 @@
                     document.getElementById('login-section').classList.remove('hidden');
                     document.getElementById('verify-email-success').classList.add('hidden');
                     hideAuthContainer();
-                    loadAccountInfo(email);
                 }, 2000);
             } catch (error) {
                 console.error('Error during signup:', error);
@@ -1104,7 +535,6 @@
                     setTimeout(() => {
                         document.getElementById('login-success').classList.add('hidden');
                         hideAuthContainer();
-                        loadAccountInfo(email);
                     }, 1500);
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
@@ -1286,19 +716,8 @@
 
         // Event listeners
         accountIconNav.addEventListener('click', toggleDropdown);
-        profileOption.addEventListener('click', showAccountInfo);
+        profileOption.addEventListener('click', showLoginModal);
         logoutOption.addEventListener('click', logoutUser);
-        editProfileIcon.addEventListener('click', showEditProfileModal);
-        closeEditProfileModal.addEventListener('click', function() {
-            editProfileModal.classList.add('hidden');
-        });
-        saveProfileBtn.addEventListener('click', saveProfile);
-        addAddressLink.addEventListener('click', showAddAddressModal);
-        closeAddAddressModal.addEventListener('click', function() {
-            addAddressModal.classList.add('hidden');
-        });
-        saveAddressBtn.addEventListener('click', saveAddress);
-        cancelAddressBtn.addEventListener('click', cancelAddress);
         mobileMenuButton.addEventListener('click', toggleMobileMenu);
 
         // Close dropdown when clicking outside
@@ -1312,6 +731,7 @@
         // Initialize
         window.addEventListener('load', function() {
             setupPasswordToggles();
+            updateCartCount();
             
             const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
             
@@ -1319,17 +739,10 @@
                 document.getElementById('login-email').value = rememberedUser.email;
                 document.getElementById('remember-me').checked = true;
             }
-            
-            // Check if user is logged in on page load
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            if (loggedInUser && loggedInUser.email) {
-                loadAccountInfo(loggedInUser.email);
-            }
         });
 
         // Make functions available globally
-        window.deleteAddress = deleteAddress;
-        window.editAddress = editAddress;
-        window.setDefaultAddress = setDefaultAddress;
         window.toggleCart = toggleCart;
         window.closeCart = closeCart;
+        window.removeFromCart = removeFromCart;
+        window.proceedToCheckout = proceedToCheckout;
