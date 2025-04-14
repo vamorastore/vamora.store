@@ -10,7 +10,7 @@
 
         if (!localStorage.getItem('allOrders')) {
             localStorage.setItem('allOrders', JSON.stringify({
-                'swa@gmail.com': [
+                '@gmail.com': [
                     {
                         orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
                         date: new Date().toISOString(),
