@@ -15,24 +15,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Toast animations */
-@keyframes toastIn {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes toastOut {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(20px); opacity: 0; }
-}
-
-.animate-toast {
-    animation: toastIn 0.3s ease-out forwards;
-}
-
-.animate-toast-out {
-    animation: toastOut 0.3s ease-out forwards;
-}
         
         /* Navigation styles */
         .nav-link {
@@ -1039,6 +1021,24 @@
                 width: 60px;
                 height: 60px;
             }
+             /* Toast animations */
+        @keyframes toastIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(20px); opacity: 0; }
+        }
+
+        .animate-toast {
+            animation: toastIn 0.3s ease-out forwards;
+        }
+
+        .animate-toast-out {
+            animation: toastOut 0.3s ease-out forwards;
+        }
         }
     </style>
 </head>
@@ -1716,10 +1716,12 @@
     </footer>
     
     <script src="shared.js"></script>
-    <script 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart count
-    updateCartCount();
+     <script>
+        // Cart functionality
+        let cartOpen = false;
+
+        // Initialize cart when page loads
+        document.addEventListener('DOMContentLoaded', function() {
             // Size buttons selection
             const sizeButtons = document.querySelectorAll('.size-button');
             sizeButtons.forEach(button => {
@@ -1746,121 +1748,181 @@ document.addEventListener('DOMContentLoaded', function() {
                 quantityInput.value = value + 1;
             });
 
-            // Size guide toggle
-            const sizeGuideBtn = document.getElementById('size-guide-btn');
-            const sizeGuideContainer = document.getElementById('size-guide-container');
-
-            sizeGuideBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                sizeGuideContainer.classList.toggle('open');
-                this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
-            });
-
-            // Input validation
-            quantityInput.addEventListener('change', function() {
-                if (this.value < 1) this.value = 1;
-            });
-
-            // Share functionality
-            const shareButton = document.querySelector('.share-icon');
-            shareButton.addEventListener('click', function() {
-                if (navigator.share) {
-                    navigator.share({
-                        title: "DE.ORIGIN T-shirt",
-                        text: "Check out this product!",
-                        url: window.location.href
-                    }).catch(err => {
-                        console.log('Error sharing:', err);
-                        fallbackShare();
-                    });
+            // Add to cart functionality
+            document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+                // Get product details
+                const productName = document.querySelector('h8').textContent.trim();
+                const productPrice = document.querySelector('.text-2xl.font-bold').textContent.trim();
+                const selectedSize = document.querySelector('.size-button.selected').textContent.trim();
+                const quantity = parseInt(document.getElementById('product-quantity').value);
+                const productImage = document.querySelector('.main-image').src;
+                
+                // Create cart item object
+                const cartItem = {
+                    id: `${productName}-${selectedSize}`, // Unique identifier
+                    title: productName,
+                    price: productPrice,
+                    size: selectedSize,
+                    quantity: quantity,
+                    image: productImage
+                };
+                
+                // Get existing cart or initialize empty array
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                
+                // Check if item already exists in cart
+                const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
+                
+                if (existingItemIndex >= 0) {
+                    // Update quantity if item exists
+                    cart[existingItemIndex].quantity += quantity;
                 } else {
-                    fallbackShare();
+                    // Add new item if it doesn't exist
+                    cart.push(cartItem);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                // Update cart count in navbar
+                updateCartCount();
+                
+                // Show success message
+                showToast('Item added to cart!');
+                
+                // Open cart if not already open
+                if (!cartOpen) {
+                    toggleCart();
                 }
             });
 
-            function fallbackShare() {
-                navigator.clipboard.writeText(window.location.href)
-                    .then(() => {
-                        alert('Link copied to clipboard!');
-                    })
-                    .catch(err => {
-                        console.error('Could not copy text: ', err);
-                        prompt('Copy this link:', window.location.href);
-                    });
+            // Initialize cart count
+            updateCartCount();
+        });
+
+        // Function to update cart count in navbar
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.getElementById('cart-count');
+            
+            if (cartCountElement) {
+                cartCountElement.textContent = totalItems;
+                if (totalItems > 0) {
+                    cartCountElement.classList.remove('hidden');
+                } else {
+                    cartCountElement.classList.add('hidden');
+                }
+            }
+        }
+
+        // Function to show toast message
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('animate-toast-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Toggle cart function
+        function toggleCart() {
+            cartOpen = !cartOpen;
+            document.getElementById('cartOverlay').classList.toggle('active', cartOpen);
+            document.getElementById('cartBackdrop').classList.toggle('active', cartOpen);
+            
+            if (cartOpen) {
+                renderCart();
+            }
+        }
+
+        // Close cart function
+        function closeCart() {
+            cartOpen = false;
+            document.getElementById('cartOverlay').classList.remove('active');
+            document.getElementById('cartBackdrop').classList.remove('active');
+        }
+
+        // Render cart items
+        function renderCart() {
+            const cartList = document.getElementById('cartList');
+            const cartTotalElement = document.getElementById('cartTotal');
+            cartList.innerHTML = '';
+            
+            let total = 0;
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            if (cart.length === 0) {
+                cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+                cartTotalElement.textContent = '₹ 0.00';
+                return;
             }
 
-           // Add to cart functionality
-document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-    // Get product details
-    const productName = document.querySelector('h8').textContent.trim();
-    const productPrice = document.querySelector('.text-2xl.font-bold').textContent.trim();
-    const selectedSize = document.querySelector('.size-button.selected').textContent.trim();
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productImage = document.querySelector('.main-image').src;
-    
-    // Create cart item object
-    const cartItem = {
-        id: `${productName}-${selectedSize}`, // Unique identifier
-        title: productName,
-        price: productPrice,
-        size: selectedSize,
-        quantity: quantity,
-        image: productImage
-    };
-    
-    // Get existing cart or initialize empty array
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    
-    // Check if item already exists in cart
-    const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-    
-    if (existingItemIndex >= 0) {
-        // Update quantity if item exists
-        cart[existingItemIndex].quantity += quantity;
-    } else {
-        // Add new item if it doesn't exist
-        cart.push(cartItem);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Update cart count in navbar
-    updateCartCount();
-    
-    // Show success message
-    showToast('Item added to cart!');
-    
-    // Open cart if not already open
-    if (!cartOpen) {
-        toggleCart();
-    }
-});
+            cart.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex justify-between items-start border-b pb-4';
+                
+                // Calculate item total price
+                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+                const itemTotal = priceValue * item.quantity;
+                total += itemTotal;
 
-// Function to update cart count in navbar
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartCountElement = document.getElementById('cart-count');
-    
-    if (cartCountElement) {
-        cartCountElement.textContent = totalItems;
-        cartCountElement.classList.remove('hidden');
-    }
-}
+                listItem.innerHTML = `
+                    <div class="flex items-start">
+                        <img src="${item.image}" alt="${item.title}" 
+                             class="w-16 h-16 rounded-lg mr-4 object-cover"/>
+                        <div>
+                            <p class="font-medium">${item.title}</p>
+                            <p class="text-sm text-gray-500">Size: ${item.size}</p>
+                            <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
+                            <p class="text-sm text-gray-500">₹${priceValue.toFixed(2)} each</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <p class="font-medium">₹${itemTotal.toFixed(2)}</p>
+                        <button class="text-red-500 hover:text-red-700 mt-2" 
+                                onclick="removeFromCart(${index}, event)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                cartList.appendChild(listItem);
+            });
 
-// Function to show toast message
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('animate-toast-out');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+            // Update total
+            cartTotalElement.textContent = `₹ ${total.toFixed(2)}`;
+            
+            // Update cart count in navbar
+            updateCartCount();
+        }
+
+        // Remove item from cart
+        function removeFromCart(index, event) {
+            event.stopPropagation();
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+            
+            // Show removed message
+            showToast('Item removed from cart');
+        }
+
+        // Proceed to checkout
+        function proceedToCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            alert('Proceeding to checkout!');
+            // Here you would typically redirect to a checkout page
+            // window.location.href = '/checkout';
+        }
     </script>
     </body>
 </html>
