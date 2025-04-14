@@ -144,43 +144,54 @@
 
        function renderCart() {
     const cartList = document.getElementById('cartList');
+    const cartTotalElement = document.getElementById('cartTotal');
     cartList.innerHTML = '';
+    
     let total = 0;
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
     if (cart.length === 0) {
         cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-        document.getElementById('cartTotal').textContent = '₹ 0.00';
+        cartTotalElement.textContent = '₹ 0.00';
         return;
     }
 
     cart.forEach((item, index) => {
         const listItem = document.createElement('li');
-        listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
+        listItem.className = 'flex justify-between items-start border-b pb-4';
+        
+        // Calculate item total price
+        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+        const itemTotal = priceValue * item.quantity;
+        total += itemTotal;
+
         listItem.innerHTML = `
             <div class="flex items-start">
-                <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
+                <img src="${item.image}" alt="${item.title}" 
+                     class="w-16 h-16 rounded-lg mr-4 object-cover"/>
                 <div>
                     <p class="font-medium">${item.title}</p>
                     <p class="text-sm text-gray-500">Size: ${item.size}</p>
                     <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
+                    <p class="text-sm text-gray-500">₹${priceValue.toFixed(2)} each</p>
                 </div>
             </div>
             <div class="flex flex-col items-end">
-                <p class="font-medium">${item.price}</p>
-                <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
-                    <i class="fas fa-trash text-sm"></i>
+                <p class="font-medium">₹${itemTotal.toFixed(2)}</p>
+                <button class="text-red-500 hover:text-red-700 mt-2" 
+                        onclick="removeFromCart(${index}, event)">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
         cartList.appendChild(listItem);
-
-        // Calculate total - remove currency symbol and commas before parsing
-        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-        total += priceValue * item.quantity;
     });
 
-    // Format total with currency symbol and 2 decimal places
-    document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
+    // Update total
+    cartTotalElement.textContent = `₹ ${total.toFixed(2)}`;
+    
+    // Update cart count in navbar
+    updateCartCount();
 }
 
         function removeFromCart(index, event) {
