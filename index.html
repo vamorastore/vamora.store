@@ -1763,30 +1763,64 @@
                     });
             }
 
-            // Add to cart functionality
-            const addToCartBtn = document.getElementById('add-to-cart-btn');
-            addToCartBtn.addEventListener('click', function() {
-                const productName = document.querySelector('h8').textContent;
-                const productPrice = document.querySelector('.text-2xl.font-bold').textContent;
-                const selectedSize = document.querySelector('.size-button.selected').textContent;
-                const quantity = parseInt(document.getElementById('product-quantity').value);
-                const productImage = document.querySelector('.main-image').src;
-                
-                const cartItem = {
-                    title: productName,
-                    price: productPrice,
-                    size: selectedSize,
-                    quantity: quantity,
-                    image: productImage
-                };
-                
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                cart.push(cartItem);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                
-                alert('Item added to cart!');
-            });
-        });
+           // Add to cart functionality
+const addToCartBtn = document.getElementById('add-to-cart-btn');
+addToCartBtn.addEventListener('click', function() {
+    const productName = document.querySelector('h8').textContent.trim();
+    const productPrice = document.querySelector('.text-2xl.font-bold').textContent.trim();
+    const selectedSize = document.querySelector('.size-button.selected').textContent.trim();
+    const quantity = parseInt(document.getElementById('product-quantity').value);
+    const productImage = document.querySelector('.main-image').src;
+    
+    const cartItem = {
+        title: productName,
+        price: productPrice,
+        size: selectedSize,
+        quantity: quantity,
+        image: productImage
+    };
+    
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // Check if item with same title and size already exists in cart
+    const existingItemIndex = cart.findIndex(item => 
+        item.title === productName && item.size === selectedSize
+    );
+    
+    if (existingItemIndex >= 0) {
+        // Update quantity if item already exists
+        cart[existingItemIndex].quantity += quantity;
+    } else {
+        // Add new item if it doesn't exist
+        cart.push(cartItem);
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Update cart count in navbar if exists
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.classList.remove('hidden');
+    }
+    
+    // Show success message
+    const successMessage = document.createElement('div');
+    successMessage.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg';
+    successMessage.textContent = 'Item added to cart!';
+    document.body.appendChild(successMessage);
+    
+    // Remove message after 3 seconds
+    setTimeout(() => {
+        successMessage.remove();
+    }, 3000);
+    
+    // Open cart if not already open
+    if (!cartOpen) {
+        toggleCart();
+    }
+});
     </script>
     <script src="shared.js"></script>
 </body>
