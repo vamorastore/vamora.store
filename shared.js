@@ -194,12 +194,13 @@
     updateCartCount();
 }
 
-        function removeFromCart(index, event) {
-            event.stopPropagation();
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
-        }
+       function removeFromCart(index, event) {
+    event.stopPropagation();
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+}
 
         function proceedToCheckout() {
             alert('Proceeding to checkout!');
