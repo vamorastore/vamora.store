@@ -142,44 +142,46 @@
             cartBackdrop.classList.remove('active');
         }
 
-        function renderCart() {
-            const cartList = document.getElementById('cartList');
-            cartList.innerHTML = '';
-            let total = 0;
+       function renderCart() {
+    const cartList = document.getElementById('cartList');
+    cartList.innerHTML = '';
+    let total = 0;
 
-            if (cart.length === 0) {
-                cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-                document.getElementById('cartTotal').textContent = '₹ 0.00';
-                return;
-            }
+    if (cart.length === 0) {
+        cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+        document.getElementById('cartTotal').textContent = '₹ 0.00';
+        return;
+    }
 
-            cart.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
-                listItem.innerHTML = `
-                    <div class="flex items-start">
-                        <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
-                        <div>
-                            <p class="font-medium">${item.title}</p>
-                            <p class="text-sm text-gray-500">Size: ${item.size}</p>
-                            <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <p class="font-medium">${item.price}</p>
-                        <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
-                    </div>
-                `;
-                cartList.appendChild(listItem);
+    cart.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
+        listItem.innerHTML = `
+            <div class="flex items-start">
+                <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
+                <div>
+                    <p class="font-medium">${item.title}</p>
+                    <p class="text-sm text-gray-500">Size: ${item.size}</p>
+                    <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <p class="font-medium">${item.price}</p>
+                <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
+                    <i class="fas fa-trash text-sm"></i>
+                </button>
+            </div>
+        `;
+        cartList.appendChild(listItem);
 
-                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-                total += priceValue * item.quantity;
-            });
+        // Calculate total - remove currency symbol and commas before parsing
+        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+        total += priceValue * item.quantity;
+    });
 
-            document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
-        }
+    // Format total with currency symbol and 2 decimal places
+    document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
+}
 
         function removeFromCart(index, event) {
             event.stopPropagation();
