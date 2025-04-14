@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | VAMORA.STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            font-family: 'Unbounded', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navigation styles */
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            background-color: black;
+            left: 50%;
+            bottom: -4px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        .icon-separator {
+            border-left: 1px solid black;
+            height: 24px;
+            margin: 0 8px;
+        }
+        
+        .icon {
+            font-size: 0.875rem;
+        }
+        
+        /* Logo animation */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+        .logo-container img {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            height: 50px;
+            width: 60px;
+        }
+        .logo-container:hover img {
+            transform: rotateY(360deg);
+        }
+        .logo-text {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.6s, left 0.6s;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .logo-container:hover .logo-text {
+            opacity: 1;
+            left: calc(100% + 10px);
+        }
+        
+        /* Footer styles */
+        .footer-link {
+            position: relative;
+            cursor: pointer;
+            font-weight: 300;
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background-color: black;
+            left: 50%;
+            bottom: -2px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .footer-link:hover::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        .required-field::after {
+            content: "*";
+            color: red;
+            margin-left: 2px;
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 300;
+        }
+        
+        input, select {
+            font-weight: 300;
+            background-color: white;
+        }
+        
+        .checkout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 180px 20px 40px;
+        }
+        
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .checkout-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        
+        @media (min-width: 1024px) {
+            .checkout-grid {
+                grid-template-columns: 1.5fr 1fr;
+            }
+            
+            .checkout-right {
+                position: sticky;
+                top: 180px;
+                height: fit-content;
+                align-self: start;
+            }
+        }
+        
+        .checkout-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 640px) {
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-method:hover {
+            border-color: #ccc;
+        }
+        
+        .payment-method.active {
+            border-color: black;
+        }
+        
+        .payment-icon {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .payment-details {
+            flex-grow: 1;
+        }
+        
+        .payment-title {
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        
+        .payment-description {
+            font-size: 0.75rem;
+            font-weight: 300;
+            color: #666;
+        }
+        
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-summary-label {
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+        
+        .order-summary-value {
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+        
+        .order-total {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #333;
+        }
+        
+        .product-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .product-image {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 3px;
+        }
+        
+        .product-details {
+            flex-grow: 1;
+        }
+        
+        .product-title {
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        
+        .product-variant {
+            font-size: 0.75rem;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+        
+        /* Login Button Styles */
+        .login-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .login-button {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 300;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        /* Auth Container Styles - Updated to match order summary */
+        #auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        #auth-container.active {
+            display: flex;
+        }
+        
+        .auth-wrapper {
+            background-color: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .auth-section {
+            padding: 25px;
+        }
+        
+        .auth-title {
+            font-size: 1.25rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+        
+        .auth-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        
+        .auth-submit:hover {
+            background-color: #333;
+        }
+        
+        .auth-toggle {
+            color: #666;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 300;
+        }
+        
+        .auth-toggle a {
+            color: black;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        
+        .close-auth {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 35px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        /* Navigation bar */
+        .navbar {
+            background-color: #e5e5e5;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 50;
+            height: 80px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Mobile menu */
+        .mobile-menu-button {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .mobile-menu-button:hover {
+            color: #555;
+            transform: scale(1.1);
+        }
+        
+        .mobile-menu-button:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-icons {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Mobile menu content */
+        .mobile-menu-content {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: #e5e5e5;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+        
+        .mobile-menu-content.active {
+            display: block;
+        }
+        
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-menu-social {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #e5e5e5;
+            padding: 1.5rem;
+            padding-bottom: 3rem;
+        }
+        
+        .footer-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .footer-social-desktop,
+        .footer-social-mobile {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-social-desktop a,
+        .footer-social-mobile a {
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-social-desktop a:hover,
+        .footer-social-mobile a:hover {
+            opacity: 0.7;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #d1d5db;
+            padding-top: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-bottom p {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        /* Loading spinner */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+                order: 1;
+            }
+            
+            .logo-container {
+                order: 2;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .logo-container:hover img {
+                transform: none;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .nav-icons {
+                order: 3;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .footer {
+                padding: 1rem;
+                padding-bottom: 2rem;
+            }
+            
+            .footer-social-desktop {
+                display: none;
+            }
+            
+            .footer-social-mobile {
+                display: flex;
+                margin: 1rem 0;
+            }
+            
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .footer-link {
+                font-size: 0.6rem;
+            }
+            
+            .footer-bottom p {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-links {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .footer-social-mobile {
+                display: none;
+            }
+            
+            .footer-social-desktop {
+                display: flex;
+            }
+            
+            .footer-link {
+                font-size: 0.7rem;
+            }
+            
+            .footer-container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .footer-bottom p {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+                line-height: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <button class="mobile-menu-button" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="flex items-center logo-container">
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
+                <span class="logo-text">VAMORA.STORE</span>
+            </div>
+            
+            <div class="flex items-center space-x-2 nav-icons">
+                <a class="text-black nav-link" href="#search">
+                    <i class="fas fa-search icon"></i>
+                </a>
+                <div class="icon-separator"></div>
+                <a class="text-black nav-link" href="#account">
+                    <i class="fas fa-user icon"></i>
+                </a>
+                <div class="icon-separator"></div>
+                <a class="text-black nav-link" onclick="toggleCart()" style="cursor: pointer;">
+                    <i class="fas fa-shopping-cart icon"></i>
+                </a>
+            </div>
+            
+            <div class="nav-links">
+                <a class="text-black text-xs nav-link" href="#">HOME</a>
+                <a class="text-black text-xs nav-link" href="#">SHOP</a>
+                <a class="text-black text-xs nav-link" href="#">ABOUT</a>
+                <a class="text-black text-xs nav-link" href="#">CONTACT</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Content -->
+    <div class="mobile-menu-content" id="mobileMenuContent">
+        <div class="mobile-menu-links">
+            <a class="text-black nav-link" href="#">HOME</a>
+            <a class="text-black nav-link" href="#">SHOP</a>
+            <a class="text-black nav-link" href="#">ABOUT</a>
+            <a class="text-black nav-link" href="#">CONTACT</a>
+        </div>
+        <div class="mobile-menu-social">
+            <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
+            <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
+        </div>
+    </div>
+
+    <!-- Main Checkout Content -->
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1 class="checkout-title">CHECKOUT</h1>
+        </div>
+        
+        <div class="checkout-grid">
+            <!-- Left Column - Customer Information -->
+            <div class="checkout-left">
+                <!-- Login Button -->
+                <div class="login-button-container">
+                    <button id="login-button" class="login-button" onclick="showAuthContainer()">LOG IN</button>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="checkout-section">
+                    <h2 class="section-title">Contact Information</h2>
+                    <div class="form-group">
+                        <label for="email" class="form-label required-field">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+                        <div id="email-error" class="error-message">This field is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="news-offers" class="mr-2">
+                            <span class="text-xs font-weight-300">Email me with news and offers</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Shipping Address -->
+                <div class="checkout-section">
+                    <h2 class="section-title">Shipping Address</h2>
+                    <div class="form-group">
+                        <label for="country" class="form-label required-field">Country/Region</label>
+                        <select id="country" class="form-input" required>
+                            <option value="India">India</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Japan">Japan</option>
+                            <option value="China">China</option>
+                            <option value="Brazil">Brazil</option>
+                        </select>
+                        <div id="country-error" class="error-message">This field is required</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name" class="form-label required-field">First Name</label>
+                            <input type="text" id="first-name" class="form-input" placeholder="First name" required>
+                            <div id="first-name-error" class="error-message">This field is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name" class="form-label required-field">Last Name</label>
+                            <input type="text" id="last-name" class="form-input" placeholder="Last name" required>
+                            <div id="last-name-error" class="error-message">This field is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address" class="form-label required-field">Address</label>
+                        <input type="text" id="address" class="form-input" placeholder="Address" required>
+                        <div id="address-error" class="error-message">This field is required</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apartment" class="form-label">Apartment, suite, etc. (optional)</label>
+                        <input type="text" id="apartment" class="form-input" placeholder="Apartment, suite, etc.">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label required-field">City</label>
+                            <input type="text" id="city" class="form-input" placeholder="City" required>
+                            <div id="city-error" class="error-message">This field is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="state" class="form-label required-field">State</label>
+                            <input type="text" id="state" class="form-input" placeholder="State" required>
+                            <div id="state-error" class="error-message">This field is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pin-code" class="form-label required-field">PIN Code</label>
+                            <input type="text" id="pin-code" class="form-input" placeholder="PIN code" required>
+                            <div id="pin-code-error" class="error-message">This field is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="form-label required-field">Phone</label>
+                            <input type="tel" id="phone" class="form-input" placeholder="Phone number" required>
+                            <div id="phone-error" class="error-message">This field is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="save-info" class="mr-2" onclick="saveInformation()">
+                            <span class="text-xs font-weight-300">Save this information for next time</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Shipping Method -->
+                <div class="checkout-section">
+                    <h2 class="section-title">Shipping Method</h2>
+                    <div class="payment-method active" id="standard-shipping">
+                        <div class="payment-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="payment-details">
+                            <div class="payment-title">Standard Shipping</div>
+                            <div class="payment-description">Delivery in 7-15 business days</div>
+                        </div>
+                        <div class="payment-price">FREE</div>
+                    </div>
+                    <div class="payment-method" id="international-express-shipping" style="display: none;">
+                        <div class="payment-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="payment-details">
+                            <div class="payment-title">International Express</div>
+                            <div class="payment-description">Delivery in 5-10 business days</div>
+                        </div>
+                        <div class="payment-price">₹ 899.00</div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method -->
+                <div class="checkout-section">
+                    <h2 class="section-title">Payment Method</h2>
+                    <div class="payment-method active">
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-details">
+                            <div class="payment-title">Razorpay Payment Gateway</div>
+                            <div class="payment-description">UPI, Cards & NetBanking</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 mt-4 rounded text-center text-xs font-weight-300">
+                        After clicking "Pay now", you will be redirected to RazorPay Payment Gateway to complete your purchase securely.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Order Summary -->
+            <div class="checkout-right">
+                <div class="checkout-section">
+                    <h2 class="section-title">Order Summary</h2>
+                    
+                    <div id="orderSummaryItems">
+                        <!-- Products will be loaded here -->
+                    </div>
+                    
+                    <div class="order-summary-item">
+                        <span class="order-summary-label">Subtotal</span>
+                        <span class="order-summary-value" id="orderSubtotal">₹ 0.00</span>
+                    </div>
+                    
+                    <div class="order-summary-item">
+                        <span class="order-summary-label">Shipping</span>
+                        <span class="order-summary-value" id="orderShipping">FREE</span>
+                    </div>
+                    
+                    <div class="order-summary-item" style="border-bottom: none; padding-bottom: 0;">
+                        <span class="order-summary-label order-total">Total</span>
+                        <span class="order-summary-value order-total" id="orderGrandTotal">₹ 0.00</span>
+                    </div>
+                    
+                    <button class="checkout-btn mt-6" onclick="placeOrder()">PAY NOW</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Container (Hidden by default) - Updated to match order summary style -->
+    <div id="auth-container">
+        <div class="auth-wrapper">
+            <button class="close-auth" onclick="hideAuthContainer()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Login Section -->
+            <div id="login-section" class="auth-section">
+                <h2 class="auth-title">Log In</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email" class="form-label required-field">Email</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group password-container">
+                        <label for="login-password" class="form-label required-field">Password</label>
+                        <input type="password" id="login-password" class="form-input password-input" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" id="toggle-login-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-group flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="remember-me" class="mr-2">
+                            <span class="text-xs font-weight-300">Remember me</span>
+                        </label>
+                        <a href="#" id="forgot-password-link" class="text-xs font-weight-300" style="color: #333; text-decoration: underline;">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="auth-submit" id="login-submit-button">
+                        <span id="login-button-text">LOG IN</span>
+                    </button>
+                </form>
+                <p id="login-error" class="error-message text-center" style="display: none;">Invalid email or password. Please try again.</p>
+                <p id="login-success" class="text-green-500 text-center text-sm mt-2 hidden" style="font-weight: 300;">Login successful!</p>
+                <div class="auth-toggle">
+                    Don't have an account? <a id="show-signup">Sign Up</a>
+                </div>
+            </div>
+            
+            <!-- Signup Section (Hidden by default) -->
+            <div id="signup-section" class="auth-section hidden">
+                <h2 class="auth-title">Sign Up</h2>
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label for="signup-name" class="form-label required-field">Name</label>
+                        <input type="text" id="signup-name" class="form-input" placeholder="Your name" required>
+                        <p id="name-error" class="error-message">Name must be 2-50 characters long.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email" class="form-label required-field">Email</label>
+                        <input type="email" id="signup-email" class="form-input" placeholder="your@email.com" required>
+                        <p id="email-error" class="error-message">Please enter a valid email address.</p>
+                        <p id="email-exists-error" class="error-message">Email already exists. Please use a different email.</p>
+                    </div>
+                    <div class="form-group password-container">
+                        <label for="signup-password" class="form-label required-field">Password</label>
+                        <input type="password" id="signup-password" class="form-input password-input" placeholder="Create a password" required>
+                        <button type="button" class="password-toggle" id="toggle-signup-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                    </div>
+                    <div class="form-group password-container">
+                        <label for="signup-confirm-password" class="form-label required-field">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="form-input password-input" placeholder="Confirm your password" required>
+                        <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                        <p id="password-mismatch-error" class="error-message">Passwords do not match.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="security-question" class="form-label required-field">Security Question</label>
+                        <select id="security-question" class="form-input" required>
+                            <option value="">Select a security question</option>
+                            <option value="pet">What is the name of your first pet?</option>
+                            <option value="school">What is the name of your elementary school?</option>
+                            <option value="city">In what city were you born?</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="security-answer" class="form-label required-field">Answer</label>
+                        <input type="text" id="security-answer" class="form-input" placeholder="Your answer" required>
+                    </div>
+                    <button type="submit" class="auth-submit" id="signup-submit-button">
+                        <span id="signup-button-text">SIGN UP</span>
+                    </button>
+                </form>
+                <p id="signup-error" class="error-message text-center" style="display: none;">Please fill all fields correctly.</p>
+                <p id="verify-email-success" class="text-green-500 text-center text-sm mt-2 hidden" style="font-weight: 300;">Sign up successful! You can now log in.</p>
+                <div class="auth-toggle">
+                    Already have an account? <a id="show-login">Log In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto" style="background-color: white; border-radius: 5px;">
+            <button id="close-forgot-password" class="close-auth">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="auth-title">Forgot Password</h2>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-email" class="form-label required-field">Registered Email</label>
+                    <input type="email" id="forgot-email" class="form-input" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="forgot-security-question" class="form-label required-field">Security Question</label>
+                    <select id="forgot-security-question" class="form-input" required>
+                        <option value="">Select a security question</option>
+                        <option value="pet">What is the name of your first pet?</option>
+                        <option value="school">What is the name of your elementary school?</option>
+                        <option value="city">In what city were you born?</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="forgot-security-answer" class="form-label required-field">Answer</label>
+                    <input type="text" id="forgot-security-answer" class="form-input" placeholder="Your answer" required>
+                </div>
+                <button type="submit" class="auth-submit" id="forgot-submit-button">
+                    <span id="forgot-button-text">SUBMIT</span>
+                </button>
+            </form>
+            <p id="forgot-error" class="error-message text-center" style="display: none;">The information provided doesn't match our records.</p>
+            <div id="reset-password-section" class="hidden">
+                <div class="form-group password-container mt-6">
+                    <label for="new-password" class="form-label required-field">New Password</label>
+                    <input type="password" id="new-password" class="form-input password-input" placeholder="Create a new password" required>
+                    <button type="button" class="password-toggle" id="toggle-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="form-group password-container">
+                    <label for="confirm-new-password" class="form-label required-field">Confirm New Password</label>
+                    <input type="password" id="confirm-new-password" class="form-input password-input" placeholder="Confirm new password" required>
+                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p id="reset-password-mismatch" class="error-message">Passwords do not match.</p>
+                </div>
+                <button id="save-new-password" class="auth-submit">
+                    <span id="save-password-button-text">SAVE CHANGES</span>
+                </button>
+                <p id="reset-success" class="text-green-500 text-center text-sm mt-2 hidden" style="font-weight: 300;">Password reset successful! You can now log in with your new password.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Centered logo -->
+            <div class="footer-logo">
+                <div class="flex items-center justify-center logo-container">
+                    <img alt="Company logo" class="h-10 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on desktop, hidden on mobile -->
+            <div class="footer-social-desktop">
+                <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <!-- Footer links grid -->
+            <div class="footer-grid">
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">EMAIL</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">INSTAGRAM</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">ORDER TRACK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">CONTACT</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">FACEBOOK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="#">BULK ORDER</a>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on mobile, hidden on desktop -->
+            <div class="footer-social-mobile">
+                <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
+                    <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
+                    <span>
+                        <a class="footer-link" href="#" style="font-size: 0.5rem;">. REFUND POLICY</a>
+                        <a class="footer-link" href="#" style="font-size: 0.5rem;">. PRIVACY POLICY</a>
+                    </span>
+                    <span>
+                        <a class="footer-link" href="#" style="font-size: 0.5rem;">. TERMS OF SERVICE</a>
+                        <a class="footer-link" href="#" style="font-size: 0.5rem;">. SHIPPING POLICY</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+</body>
+</html>
