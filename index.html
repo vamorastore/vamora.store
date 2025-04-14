@@ -893,15 +893,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 15px;
             pointer-events: none;
-            background-image: 
-                /* Top-left curly corner */
-                radial-gradient(circle at 0 0, transparent 15px, #e0e0e0 15px, #e0e0e0 17px, transparent 17px),
-                /* Top-right curly corner */
-                radial-gradient(circle at 100% 0, transparent 15px, #e0e0e0 15px, #e0e0e0 17px, transparent 17px),
-                /* Bottom-right curly corner */
-                radial-gradient(circle at 100% 100%, transparent 15px, #e0e0e0 15px, #e0e0e0 17px, transparent 17px),
-                /* Bottom-left curly corner */
-                radial-gradient(circle at 0 100%, transparent 15px, #e0e0e0 15px, #e0e0e0 17px, transparent 17px);
             background-repeat: no-repeat;
             background-size: 30px 30px;
             background-position: 
@@ -1622,6 +1613,11 @@
                             </button>
                         </div>
                         
+                                      <div class="mb-6">
+                    <h3 class="font-medium mb-2 text-gray-900">DESCRIPTION</h3>
+                    <p class="text-gray-700">crafted for those who lead, blending premium fabric, timeless style, and unmatched comfort—because excellence is meant to be worn.</p>
+                </div>
+                        
                         <!-- Share Button -->
                         <div class="mt-6 flex items-center">
                             <p class="text-sm font-medium text-gray-900 mr-3">SHARE</p>
@@ -1696,7 +1692,102 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Size buttons selection
+            const sizeButtons = document.querySelectorAll('.size-button');
+            sizeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    sizeButtons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
 
+            // Quantity adjustment
+            const decrementButton = document.getElementById('decrement-quantity');
+            const incrementButton = document.getElementById('increment-quantity');
+            const quantityInput = document.getElementById('product-quantity');
+
+            decrementButton.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                if (value > 1) {
+                    quantityInput.value = value - 1;
+                }
+            });
+
+            incrementButton.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                quantityInput.value = value + 1;
+            });
+
+            // Size guide toggle
+            const sizeGuideBtn = document.getElementById('size-guide-btn');
+            const sizeGuideContainer = document.getElementById('size-guide-container');
+
+            sizeGuideBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sizeGuideContainer.classList.toggle('open');
+                this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+            });
+
+            // Input validation
+            quantityInput.addEventListener('change', function() {
+                if (this.value < 1) this.value = 1;
+            });
+
+            // Share functionality
+            const shareButton = document.querySelector('.share-icon');
+            shareButton.addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: "DE.ORIGIN T-shirt",
+                        text: "Check out this product!",
+                        url: window.location.href
+                    }).catch(err => {
+                        console.log('Error sharing:', err);
+                        fallbackShare();
+                    });
+                } else {
+                    fallbackShare();
+                }
+            });
+
+            function fallbackShare() {
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => {
+                        alert('Link copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Could not copy text: ', err);
+                        prompt('Copy this link:', window.location.href);
+                    });
+            }
+
+            // Add to cart functionality
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            addToCartBtn.addEventListener('click', function() {
+                const productName = document.querySelector('h1').textContent;
+                const productPrice = document.querySelector('.text-2xl.font-bold').textContent;
+                const selectedSize = document.querySelector('.size-button.selected').textContent;
+                const quantity = parseInt(document.getElementById('product-quantity').value);
+                const productImage = document.querySelector('.main-image').src;
+                
+                const cartItem = {
+                    title: productName,
+                    price: productPrice,
+                    size: selectedSize,
+                    quantity: quantity,
+                    image: productImage
+                };
+                
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.push(cartItem);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                alert('Item added to cart!');
+            });
+        });
+    </script>
     <script src="shared.js"></script>
 </body>
 </html>
