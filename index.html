@@ -1501,7 +1501,7 @@
                 <h1 class="heading-text mb-4 md:mb-0">
                     MAKE.YOUR.STYLE.BOLD
                 </h1>
-                <a class="button" href="https://www.vamora.store/shop">
+                <a class="button" href="shop.html">
                     VIEW.ALL
                 </a>
             </div>
@@ -1718,6 +1718,8 @@
     <script src="shared.js"></script>
     <script 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize cart count
+    updateCartCount();
             // Size buttons selection
             const sizeButtons = document.querySelectorAll('.size-button');
             sizeButtons.forEach(button => {
