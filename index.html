@@ -1785,15 +1785,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
            // Add to cart functionality
-const addToCartBtn = document.getElementById('add-to-cart-btn');
-addToCartBtn.addEventListener('click', function() {
+document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+    // Get product details
     const productName = document.querySelector('h8').textContent.trim();
     const productPrice = document.querySelector('.text-2xl.font-bold').textContent.trim();
     const selectedSize = document.querySelector('.size-button.selected').textContent.trim();
     const quantity = parseInt(document.getElementById('product-quantity').value);
     const productImage = document.querySelector('.main-image').src;
     
+    // Create cart item object
     const cartItem = {
+        id: `${productName}-${selectedSize}`, // Unique identifier
         title: productName,
         price: productPrice,
         size: selectedSize,
@@ -1801,47 +1803,59 @@ addToCartBtn.addEventListener('click', function() {
         image: productImage
     };
     
+    // Get existing cart or initialize empty array
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     
-    // Check if item with same title and size already exists in cart
-    const existingItemIndex = cart.findIndex(item => 
-        item.title === productName && item.size === selectedSize
-    );
+    // Check if item already exists in cart
+    const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
     
     if (existingItemIndex >= 0) {
-        // Update quantity if item already exists
+        // Update quantity if item exists
         cart[existingItemIndex].quantity += quantity;
     } else {
         // Add new item if it doesn't exist
         cart.push(cartItem);
     }
     
+    // Save to localStorage
     localStorage.setItem('cart', JSON.stringify(cart));
     
-    // Update cart count in navbar if exists
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.classList.remove('hidden');
-    }
+    // Update cart count in navbar
+    updateCartCount();
     
     // Show success message
-    const successMessage = document.createElement('div');
-    successMessage.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg';
-    successMessage.textContent = 'Item added to cart!';
-    document.body.appendChild(successMessage);
-    
-    // Remove message after 3 seconds
-    setTimeout(() => {
-        successMessage.remove();
-    }, 3000);
+    showToast('Item added to cart!');
     
     // Open cart if not already open
     if (!cartOpen) {
         toggleCart();
     }
 });
+
+// Function to update cart count in navbar
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    const cartCountElement = document.getElementById('cart-count');
+    
+    if (cartCountElement) {
+        cartCountElement.textContent = totalItems;
+        cartCountElement.classList.remove('hidden');
+    }
+}
+
+// Function to show toast message
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('animate-toast-out');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
     </script>
     </body>
 </html>
