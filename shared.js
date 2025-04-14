@@ -10,7 +10,7 @@
 
         if (!localStorage.getItem('allOrders')) {
             localStorage.setItem('allOrders', JSON.stringify({
-                '@gmail.com': [
+                'swa@gmail.com': [
                     {
                         orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
                         date: new Date().toISOString(),
@@ -143,86 +143,44 @@
             cartBackdrop.classList.remove('active');
         }
 
-       // In the renderCart function, replace with this:
-function renderCart() {
-    const cartList = document.getElementById('cartList');
-    cartList.innerHTML = '';
-    let total = 0;
+        function renderCart() {
+            const cartList = document.getElementById('cartList');
+            cartList.innerHTML = '';
+            let total = 0;
 
-    if (cart.length === 0) {
-        cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-        document.getElementById('cartTotal').textContent = '₹ 0.00';
-        return;
-    }
+            if (cart.length === 0) {
+                cartList.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+                document.getElementById('cartTotal').textContent = '₹ 0.00';
+                return;
+            }
 
-    cart.forEach((item, index) => {
-        // Extract numeric price value from the string (handles formats like "₹378.00")
-        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
-        const itemTotal = priceValue * item.quantity;
-        total += itemTotal;
+            cart.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
+                listItem.innerHTML = `
+                    <div class="flex items-start">
+                        <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
+                        <div>
+                            <p class="font-medium">${item.title}</p>
+                            <p class="text-sm text-gray-500">Size: ${item.size}</p>
+                            <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <p class="font-medium">${item.price}</p>
+                        <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                cartList.appendChild(listItem);
 
-        const listItem = document.createElement('li');
-        listItem.classList.add('flex', 'justify-between', 'items-start', 'border-b', 'pb-4');
-        listItem.innerHTML = `
-            <div class="flex items-start">
-                <img src="${item.image}" alt="${item.title}" class="w-16 h-16 rounded-lg mr-4 object-cover"/>
-                <div>
-                    <p class="font-medium">${item.title}</p>
-                    <p class="text-sm text-gray-500">Size: ${item.size}</p>
-                    <p class="text-sm text-gray-500">Qty: ${item.quantity}</p>
-                </div>
-            </div>
-            <div class="flex flex-col items-end">
-                <p class="font-medium">₹${itemTotal.toFixed(2)}</p>
-                <button class="text-red-500 mt-2" onclick="removeFromCart(${index}, event)">
-                    <i class="fas fa-trash text-sm"></i>
-                </button>
-            </div>
-        `;
-        cartList.appendChild(listItem);
-    });
+                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+                total += priceValue * item.quantity;
+            });
 
-    document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
-}
-
-// In the addToCartBtn event listener (in your product page script), replace with this:
-addToCartBtn.addEventListener('click', function() {
-    const productName = document.querySelector('h8').textContent;
-    const productPrice = document.querySelector('.text-2xl.font-bold').textContent;
-    const selectedSize = document.querySelector('.size-button.selected').textContent;
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productImage = document.querySelector('.main-image').src;
-    
-    // Extract numeric price value
-    const priceValue = parseFloat(productPrice.replace(/[^\d.]/g, '')) || 0;
-    
-    const cartItem = {
-        title: productName,
-        price: `₹${priceValue.toFixed(2)}`, // Store as formatted string
-        size: selectedSize,
-        quantity: quantity,
-        image: productImage
-    };
-    
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cart.push(cartItem);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Update cart count in navbar if you have one
-    updateCartCount();
-    
-    alert('Item added to cart!');
-    renderCart(); // Refresh cart display if open
-});
-
-// Add this helper function to update cart count in navbar
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = cart.length;
-    }
-}
+            document.getElementById('cartTotal').textContent = `₹ ${total.toFixed(2)}`;
+        }
 
         function removeFromCart(index, event) {
             event.stopPropagation();
