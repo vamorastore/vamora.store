@@ -15,7 +15,20 @@
             display: flex;
             flex-direction: column;
         }
-        
+        #cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: black;
+    color: white;
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
         /* Navigation styles */
         .nav-link {
             position: relative;
@@ -1560,7 +1573,7 @@
                             </div>
                         </div>
                     </div>
-
+<span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                     <!-- Details Section -->
                     <div class="details-section">
                         <h8 class="text-2xl md:text-3xl font-semibold mb-3">KULKUL</h8>
@@ -1694,6 +1707,7 @@
     </footer>
    <script src="shared.js"></script>
 <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Size buttons selection
     const sizeButtons = document.querySelectorAll('.size-button');
@@ -1764,16 +1778,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Add to cart functionality
+    // Add to cart functionality - now properly integrated with shared.js
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     addToCartBtn.addEventListener('click', function() {
+        // Get cart from localStorage or initialize if it doesn't exist
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
         const productName = document.querySelector('h8').textContent;
-        // CORRECTED: Get price from the element with class 'text-2xl font-bold mb-1'
         const productPrice = document.querySelector('.text-2xl.font-bold.mb-1').textContent;
         const selectedSize = document.querySelector('.size-button.selected').textContent;
         const quantity = parseInt(document.getElementById('product-quantity').value);
         const productImage = document.querySelector('.main-image').src;
         
+        // Create cart item object
         const cartItem = {
             title: productName,
             price: productPrice,
@@ -1782,12 +1799,32 @@ document.addEventListener('DOMContentLoaded', function() {
             image: productImage
         };
         
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        // Add item to cart
         cart.push(cartItem);
+        
+        // Save back to localStorage
         localStorage.setItem('cart', JSON.stringify(cart));
         
-        alert('Item added to cart!');
+        // Show success message
+        alert(`${productName} (Size: ${selectedSize}) added to cart!`);
+        
+        // Update cart count in navbar if exists
+        updateCartCount();
     });
+
+    // Function to update cart count in navbar
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            cartCountElement.classList.toggle('hidden', totalItems === 0);
+        }
+    }
+
+    // Initialize cart count on page load
+    updateCartCount();
 });
 </script>
 </body>
