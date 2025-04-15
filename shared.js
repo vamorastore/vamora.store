@@ -1,5 +1,4 @@
-
-        // Initialize user data if not exists
+               // Initialize user data if not exists
         if (!localStorage.getItem('user')) {
             localStorage.setItem('user', JSON.stringify({
                 name: '',
@@ -1334,4 +1333,3 @@
         window.setDefaultAddress = setDefaultAddress;
         window.toggleCart = toggleCart;
         window.closeCart = closeCart;
-
