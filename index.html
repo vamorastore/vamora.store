@@ -14,21 +14,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-        #cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: black;
-    color: white;
-    border-radius: 50%;
-    height: 20px;
-    width: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
         /* Navigation styles */
         .nav-link {
             position: relative;
@@ -1821,9 +1806,6 @@ document.addEventListener('DOMContentLoaded', function() {
             cartCountElement.classList.toggle('hidden', totalItems === 0);
         }
     }
-
-    // Initialize cart count on page load
-    updateCartCount();
 });
 </script>
 </body>
