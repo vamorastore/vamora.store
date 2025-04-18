@@ -6,15 +6,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
+         body {
             font-family: 'Unbounded', sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;https://media-hosting.imagekit.io/2fea1fb70c7e4f73/Artboard%2012.jpg?Expires=1837961167&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=cp-zAkDO92YDoCoA~lcpl55TN0eektLEppwC3Q-0evrp5WPTiv26N-8H2iDNwZy~uUoEJWZDWmSfPOkyYJAmvjw6B53WWTMpvLHoL8MO8EHkkgtOL7OPObWAePQgLPWgDR-DSuwhDaA7BAc-EU6uLvmAMe2CVRr20Pxj80lpjIRxprDb4fC~oq2tj2iHvAsC0D4XaUUWS5KyBgO3hCFToNiIVbminj7LThGokErWR2MZPBzP~P8NV29WSwt12ChXM4fCl1bhKTjqGGVnW~iZ3d9mUESMjTzNtMKB22u2X9GAxlWIKmYEmPm~1LiKsaCRCBTHZtfjpm3A4H3sdnHiqA__
+            overflow-x: hidden;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            
+        }
+        
         /* Navigation styles */
         .nav-link {
             position: relative;
@@ -194,6 +195,43 @@
         .overlay-backdrop.active {
             opacity: 1;
             pointer-events: all;
+        }
+        
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
         }
         
         /* Account dropdown styles */
@@ -638,6 +676,14 @@
             font-size: 1rem;
             transition: opacity 0.3s;
         }
+        /* Add to your CSS */
+#account-info-page {
+    transition: overflow 0.3s ease;
+}
+
+#account-info-page.overflow-hidden {
+    overflow: hidden;
+}
         
         .footer-social-desktop a:hover,
         .footer-social-mobile a:hover {
