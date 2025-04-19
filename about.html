@@ -16,16 +16,92 @@
             margin: 0;
             padding: 0;
             background-color: #e5e5e5;
-            
-            
-             /* About page specific styles */
-        .about-container {
+        }
+         /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px; /* Space for fixed navbar */
+        }
+        
+        /* Contact form styles */
+        .contact-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
         }
+        
+        /* Button styles */
+        .button {
+            position: relative;
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+            font-size: 0.75rem;
         }
         
+        .button:hover {
+            background-color: gray;
+        }
+        
+        .button::before, .button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button::before {
+            top: 0;
+            left: -100%;
+        }
+        
+        .button::after {
+            bottom: 0;
+            right: -100%;
+        }
+        
+        .button:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .button:hover::after {
+            transform: translateX(-100%);
+        }
+        
+        .button span::before, .button span::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button span::before {
+            top: -100%;
+            left: 0;
+        }
+        
+        .button span::after {
+            bottom: -100%;
+            right: 0;
+        }
+        
+        .button:hover span::before {
+            transform: translateY(100%);
+        }
+        
+        .button:hover span::after {
+            transform: translateY(-100%);
+        }
           /* Account dropdown styles */
         .account-icon-hover {
             transition: all 0.2s ease;
@@ -830,7 +906,7 @@
             <div class="nav-links">
                 <a class="text-black nav-link" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
             </div>
         </div>
@@ -841,7 +917,7 @@
         <div class="mobile-menu-links">
          <a class="text-black nav-link" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
@@ -1214,23 +1290,44 @@
         </div>
     </div>
     
-<div class="main-content">
-        <!-- About Page Content -->
-        <div class="about-container">
-            <h1 class="text-4xl font-light mb-4">About Us</h1>
+ <div class="main-content">
+        <!-- Contact Form Content -->
+        <div class="contact-container">
+            <h1 class="text-4xl font-light mb-4">Contact Us</h1>
             <p class="text-lg font-light mb-4">
-                Welcome to VAMORA.STORE, your number one source for all things fashion. We're dedicated to giving you the very best of our products, with a focus on dependability, customer service, and uniqueness.
+                We'd love to hear from you! Whether you have a question about our products, need assistance with an order, or just want to give us some feedback, feel free to reach out.
             </p>
-            <p class="text-lg font-light mb-4">
-                Founded in 2024, VAMORA.STORE has come a long way from its beginnings. When we first started out, our passion for providing the best equipment for our fellow fashion enthusiasts drove us to do intense research, and gave us the impetus to turn hard work and inspiration into a booming online store. We now serve customers all over the world, and are thrilled to be a part of the eco-friendly wing of the fashion industry.
-            </p>
-            <p class="text-lg font-light mb-4">
-                We hope you enjoy our products as much as we enjoy offering them to you. If you have any questions or comments, please don't hesitate to contact us.
-            </p>
-            <p class="text-lg font-light mb-4">
-                Sincerely, <br>
-                <span class="font-bold">The VAMORA.STORE Team</span>
-            </p>
+            <form class="w-full max-w-lg" id="contactForm">
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+                            Name
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-first-name" type="text" placeholder="Your Name" required>
+                    </div>
+                </div>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-email">
+                            Email
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-email" type="email" placeholder="Your Email" required>
+                    </div>
+                </div>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-message">
+                            Message
+                        </label>
+                        <textarea class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-message" rows="5" placeholder="Your Message" required></textarea>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="button" type="submit">
+                        <span>Send</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>         
          
