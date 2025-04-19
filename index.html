@@ -15,7 +15,17 @@
             display: flex;
             flex-direction: column;
         }
-        
+        .product-link {
+    display: block;
+    text-decoration: none;
+    color: inherit; /* to maintain text color consistency */
+}
+
+.product-link:hover .product-item {
+    /* Optional: Add hover effects */
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
         /* Navigation styles */
         .nav-link {
             position: relative;
@@ -1534,6 +1544,7 @@
     <!-- Product Grid -->
         <div class="product-grid">
             <!-- Product 1 -->
+                        <a href="p1.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 1" src="https://media-hosting.imagekit.io/04ea2ee1729e4a8a/q7.jpg?Expires=1839294614&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=Feoq~zMzYY3J7LVRkIC8JrNhK1LwopN2IdF32srUrozFBUJy4xkfKmrBl0nmizC9waeawpJkWBEES6qVQSJikXIpmYNayYGDVu58zSwhAV~A2qiJ-3N0bn1YbzpJEmrXHkrdIFv9qBrRl4yUlb~2EcIVSS521aoh9glCsKbX43EsI1uVhTnnPlej4puiYWZQ28jUh5OIPw07kkaqijUehvxDJDjzepjPpfWWWbXjdmmeBkVAIOauHNWbnHAOjgajhi6cNXhTBkU6i88AxVfQvug~jR059WSWspld4zPwOEft~jrTxrychUZz~CS7ioif8o3B8xgSURWFpuRNU76UrQ__"/>
@@ -1544,20 +1555,24 @@
                     <div>₹378.00</div>
                 </div>
             </div>
+                            </a>
             
-            <!-- Product 2 -->
-            <div class="product-item">
-                <div class="image-frame">
-                    <img alt="Product 2" src="https://media-hosting.imagekit.io/850245417acb46dd/q6.jpg?Expires=1839294614&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=jeHNqXz8ULbw~ueet2ZiyFARe2eSbdpbLHhQkk5vyGdjKWOnpfvf6cYTZGfGsg5k68e5bMi997ODt3dZQPNNQjCo6NZhovkKY2RHrXs8t1P06ZqWp7jfOXsupzuCuR1jtWgly9A0T9jilQszsW4Xy4shLGTOowGEA5VvnzZRvKbg9KpTdrbM~PbRp~nlj4Gmtayeqk65HvmRovsBLuzUPNDa70mIittXos-0qoB7Ib2POSep5E6NOAI2KrpjFUBsrfNg~TQPyTfs3ljhZbAJBmIcG-9ySVsOt65hFvHlb0AdiB-AfRSDJSov6ywiA-6yKcK50lKGRRLWr4NCWQ4-lw__"/>
-                    <img alt="Product 2 Alternate" src="https://media-hosting.imagekit.io/85b03b6bf0914ff3/AS.jpg?Expires=1839190484&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=i-nl29JPRGNr0C9POIBUr~5NWnph0ppJZbUL506sBRf4eAjTCYLtsaId~hukCHUytAWbjFVXIt7vYvtm68yPl21qga53nBV587JMBBJ7QRx9U~rwDtYWi57wsHmwW1KGvUDxmPPds5h~ck8FEbl0jAg9LI8tLA0xZPDSuCdE9eBqmlnu7NumcQh9pdARCCUbAtEztU-Ar2lSqZHSbhBqkywd-PMhcvCDAK1j5IiaadVqrme58MxTQ6IBGctmhPQauLHdjKabDOfiUq0ssJgvQe0EkKhFslzpIYsUr~PSbmc2Xo5cezGOaU2f0mu~fBUmXZoRIES7ytBlFjLJ6REvNQ__"/>
-                </div>
-                <div class="product-caption">
-                    <div>BRO.GO</div>
-                    <div>₹378.00</div>
-                </div>
-            </div>
+          <!-- Product 2 -->
+<a href="p2.html" class="product-link">
+    <div class="product-item">
+        <div class="image-frame">
+            <img alt="Product 2" src="https://media-hosting.imagekit.io/850245417acb46dd/q6.jpg?Expires=1839294614&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=jeHNqXz8ULbw~ueet2ZiyFARe2eSbdpbLHhQkk5vyGdjKWOnpfvf6cYTZGfGsg5k68e5bMi997ODt3dZQPNNQjCo6NZhovkKY2RHrXs8t1P06ZqWp7jfOXsupzuCuR1jtWgly9A0T9jilQszsW4Xy4shLGTOowGEA5VvnzZRvKbg9KpTdrbM~PbRp~nlj4Gmtayeqk65HvmRovsBLuzUPNDa70mIittXos-0qoB7Ib2POSep5E6NOAI2KrpjFUBsrfNg~TQPyTfs3ljhZbAJBmIcG-9ySVsOt65hFvHlb0AdiB-AfRSDJSov6ywiA-6yKcK50lKGRRLWr4NCWQ4-lw__"/>
+            <img alt="Product 2 Alternate" src="https://media-hosting.imagekit.io/85b03b6bf0914ff3/AS.jpg?Expires=1839190484&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=i-nl29JPRGNr0C9POIBUr~5NWnph0ppJZbUL506sBRf4eAjTCYLtsaId~hukCHUytAWbjFVXIt7vYvtm68yPl21qga53nBV587JMBBJ7QRx9U~rwDtYWi57wsHmwW1KGvUDxmPPds5h~ck8FEbl0jAg9LI8tLA0xZPDSuCdE9eBqmlnu7NumcQh9pdARCCUbAtEztU-Ar2lSqZHSbhBqkywd-PMhcvCDAK1j5IiaadVqrme58MxTQ6IBGctmhPQauLHdjKabDOfiUq0ssJgvQe0EkKhFslzpIYsUr~PSbmc2Xo5cezGOaU2f0mu~fBUmXZoRIES7ytBlFjLJ6REvNQ__"/>
+        </div>
+        <div class="product-caption">
+            <div>BRO.GO</div>
+            <div>₹378.00</div>
+        </div>
+    </div>
+</a>
             
             <!-- Product 3 -->
+            <a href="p3" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 3" src="https://media-hosting.imagekit.io/e018692677164553/q1.jpg?Expires=1839294614&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=VTiTyufp0xSXVTDed13AxW3gT6BD8Vt9Ri4qEd4mM1itWsQKZLw6J-PCuKPEp52h4GpY-5zjOsvLVGB5uRz-ASSO4XQ2Kr5sUp91GtQDtGgfJ8hghgvdYOJgvGpkG3Dx2cOVj3v3ShImbsLzga2FH-557ASX~-Nl2nKU9lKAKZJCCEyBG2iq1cqj9kFfm8VfBauksFP9gP15WVGDjNA~-BSRw22zJH622K4u27vKaIiy5Mkg6gmyc1tkcRYL2act~1xGCZVj64SPaVEcycfsuy2IlBly5pcspylgfEJHaVUbSya-eelx9fdKAC9uo5ofAgQuSl2FsfRKq2yfFKfhHg__"/>
@@ -1568,7 +1583,10 @@
                     <div>₹579.00</div>
                 </div>
 </div>
+                </a>
+
             <!-- Product 4 -->
+                        <a href="p4.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 4" src="https://media-hosting.imagekit.io/12d77de17fb04b83/q5.jpg?Expires=1839294614&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=dhx12BnEJDxuHyz-txJYLhz6Z4TOq-0Zp4Yip7clrGDgkX-mjNL7lYeJjOjHUpDujkeFrRPoZhS4hY6twigE-yFYYno75m7Ql2gttJiQ9AV-6NPKqJvp5OBJaX0ZTA3VJFadOQ-Ih7heg5XS77czHjbKMHDWYrPNuqjKugQySulxj7lH8yFnKnNo9mcHkXUA-nW7UdrvrnOsnLx58ISKZB55WwJ1hqZZ68IxPolr-~d7mpwahNNkIlyhrUPzGmynAjrBQxGq9qfhQOYyFXob6EBrJueNoAFNoEtQH0mXPe2oZPYd5lxyUSN-sB2H8R-AFZGmOJpC44fILdzTWc2kkQ__"/>
@@ -1580,7 +1598,7 @@
                 </div>
             </div>
         </div>
-        
+        </a>
         
         <!-- DE.ORIGIN Product Page -->
         <div class="curly-frame-container">
