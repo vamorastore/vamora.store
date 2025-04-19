@@ -6,17 +6,174 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Unbounded', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+         body {
+    font-family: 'Unbounded', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #e5e5e5; /* Ensure this is set */
+  }
+   /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px; /* Space for fixed navbar */
         }
-       
-        /* Navigation styles */
+   /* Contact form styles */
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Button styles */
+        .button {
+            position: relative;
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+            font-size: 0.75rem;
+        }
+        
+        .button:hover {
+            background-color: gray;
+        }
+        
+        .button::before, .button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button::before {
+            top: 0;
+            left: -100%;
+        }
+        
+        .button::after {
+            bottom: 0;
+            right: -100%;
+        }
+        
+        .button:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .button:hover::after {
+            transform: translateX(-100%);
+        }
+        
+        .button span::before, .button span::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button span::before {
+            top: -100%;
+            left: 0;
+        }
+        
+        .button span::after {
+            bottom: -100%;
+            right: 0;
+        }
+        
+        .button:hover span::before {
+            transform: translateY(100%);
+        }
+        
+        .button:hover span::after {
+            transform: translateY(-100%);
+        }
+          /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+ /* Navigation styles */
         .nav-link {
             position: relative;
             cursor: pointer;
@@ -228,52 +385,6 @@
             transform: scale(0.85);
         }
         
-        /* Login modal styles */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-        .loading:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 16px;
-            margin: -8px 0 0 -8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .password-container {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            cursor: pointer;
-            color: #6b7280;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 10;
-        }
-        .password-input {
-            padding-right: 40px !important;
-        }
-
         /* Search styles */
         .search-container {
             position: relative;
@@ -284,7 +395,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            width: 180px; /* Reduced width */
+            width: 180px;
             max-height: 400px;
             overflow-y: auto;
             background: white;
@@ -336,13 +447,13 @@
             padding-right: 35px;
             border: 1px solid #ddd;
             border-radius: 20px;
-            width: 180px; /* Reduced width */
+            width: 180px;
             outline: none;
             transition: width 0.3s;
         }
         
         .search-input:focus {
-            width: 220px; /* Slightly larger when focused */
+            width: 220px;
             border-color: #999;
         }
         
@@ -413,17 +524,6 @@
                 font-size: 1rem;
             }
             
-            .password-toggle {
-                top: 36px;
-            }
-            #auth-container > div {
-                width: 95%;
-                max-width: 95%;
-            }
-            .auth-section {
-                padding: 1.5rem;
-            }
-
             /* Mobile search adjustments */
             .search-input-container {
                 position: fixed;
@@ -536,91 +636,15 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-        }
-        
-        /* Contact form styles */
-        .contact-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        /* Button styles */
-        .button {
-            position: relative;
-            background-color: black;
-            color: white;
-            padding: 10px 20px;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease;
-            overflow: hidden;
-            font-size: 0.75rem;
-        }
-        
-        .button:hover {
-            background-color: gray;
-        }
-        
-        .button::before, .button::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
+            padding-top: 80px;
             background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button::before {
-            top: 0;
-            left: -100%;
-        }
-        
-        .button::after {
-            bottom: 0;
-            right: -100%;
-        }
-        
-        .button:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .button:hover::after {
-            transform: translateX(-100%);
-        }
-        
-        .button span::before, .button span::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button span::before {
-            top: -100%;
-            left: 0;
-        }
-        
-        .button span::after {
-            bottom: -100%;
-            right: 0;
-        }
-        
-        .button:hover span::before {
-            transform: translateY(100%);
-        }
-        
-        .button:hover span::after {
-            transform: translateY(-100%);
         }
         
         /* Footer */
         .footer {
             background-color: #e5e5e5;
             padding: 1.5rem;
-            padding-bottom: 3rem; /* Added space after footer */
+            padding-bottom: 3rem;
         }
         
         .footer-container {
@@ -681,13 +705,9 @@
         
         /* Mobile adjustments */
         @media (max-width: 768px) {
-            .contact-container {
-                padding: 1rem;
-            }
-            
             .footer {
                 padding: 1rem;
-                padding-bottom: 2rem; /* Added space after footer */
+                padding-bottom: 2rem;
             }
             
             .footer-social-desktop {
@@ -745,6 +765,84 @@
                 align-items: center;
                 gap: 0.5rem;
                 line-height: normal;
+            }
+        }
+ /* Enhanced cart styles */
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                padding: 1rem;
+                min-height: auto;
+            }
+            
+            .image-section, .details-section {
+                width: 100% !important;
+            }
+            
+            .details-section {
+                margin-left: 0 !important;
+                margin-top: 1.5rem;
+            }
+            
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .size-button {
+                font-size: 0.65rem;
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+            
+            .main-image {
+                max-height: 60vh;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .cart-item-image {
+                width: 60px;
+                height: 60px;
             }
         }
     </style>
@@ -821,7 +919,7 @@
         </div>
     </div>
 
-    <!-- Cart Overlay -->
+ <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
