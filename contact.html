@@ -826,22 +826,22 @@
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold">Your Cart</h2>
+                <h2 class="font-bold text-2xl">Your Cart</h2>
                 <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
+                <div id="cartList" class="divide-y divide-gray-200"></div>
             </div>
             
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
+            <div class="border-t border-gray-200 pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-6">
                     <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
+                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
                 </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
+                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
                     Proceed to Checkout
                 </button>
             </div>
