@@ -1737,6 +1737,131 @@
         </div>
     </footer>
     <script src="shared.js"></script>
+// Add to cart functionality
+document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+    const selectedSize = document.querySelector('.size-button.selected');
+    if (!selectedSize) {
+        alert('Please select a size');
+        return;
+    }
+    
+    const quantity = parseInt(document.getElementById('product-quantity').value);
+    const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
+    
+    const product = {
+        title: document.querySelector('h8').textContent,
+        size: selectedSize.textContent,
+        price: productPrice,
+        quantity: quantity,
+        image: document.querySelector('.main-image').src
+    };
+ 
+    // Check if item already exists in cart with same size
+    const existingItemIndex = cart.findIndex(item => 
+        item.title === product.title && item.size === product.size
+    );
+    
+    if (existingItemIndex !== -1) {
+        // Update quantity if item already exists
+        cart[existingItemIndex].quantity += product.quantity;
+    } else {
+        // Add new item to cart
+        cart.push(product);
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Open cart
+    toggleCart();
+});
 
+        // Make functions available globally
+        window.deleteAddress = deleteAddress;
+        window.editAddress = editAddress;
+        window.setDefaultAddress = setDefaultAddress;
+        window.toggleCart = toggleCart;
+        window.closeCart = closeCart; 
+        
+document.addEventListener('DOMContentLoaded', function() {
+    // Size buttons selection
+    const sizeButtons = document.querySelectorAll('.size-button');
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            sizeButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Quantity adjustment
+    const decrementButton = document.getElementById('decrement-quantity');
+    const incrementButton = document.getElementById('increment-quantity');
+    const quantityInput = document.getElementById('product-quantity');
+
+    decrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+        }
+    });
+
+    incrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+    });
+
+    // Size guide toggle
+    const sizeGuideBtn = document.getElementById('size-guide-btn');
+    const sizeGuideContainer = document.getElementById('size-guide-container');
+
+    sizeGuideBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sizeGuideContainer.classList.toggle('open');
+        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+    });
+
+    // Input validation
+    quantityInput.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+    });
+
+    // Share functionality
+    const shareButton = document.querySelector('.share-icon');
+    shareButton.addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: "DE.ORIGIN T-shirt",
+                text: "Check out this product!",
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare();
+            });
+        } else {
+            fallbackShare();
+        }
+    });
+
+    function fallbackShare() {
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => {
+                alert('Link copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Could not copy text: ', err);
+                prompt('Copy this link:', window.location.href);
+            });
+    }
+
+    // Function to update cart count in navbar
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            cartCountElement.classList.toggle('hidden', totalItems === 0);
+        }
+    }
+});
 </body>
 </html>
