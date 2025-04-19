@@ -13,13 +13,96 @@
         * {
             font-family: 'Unbounded', sans-serif;
         }
-        
-        html, body {
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #e5e5e5; /* Match navbar and footer */
+            background-color: #e5e5e5;
         }
+          /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+  /* Add to your CSS */
+#account-info-page {
+    transition: overflow 0.3s ease;
+}
+
+#account-info-page.overflow-hidden {
+    overflow: hidden;
+}
         
         .size-button {
             border-radius: 6px;
@@ -95,7 +178,7 @@
         .dropdown-container {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .dropdown-container.open {
@@ -366,52 +449,6 @@
             transform: scale(0.85);
         }
         
-        /* Login modal styles */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-        .loading:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 16px;
-            margin: -8px 0 0 -8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .password-container {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            cursor: pointer;
-            color: #6b7280;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 10;
-        }
-        .password-input {
-            padding-right: 40px !important;
-        }
-
         /* Search styles */
         .search-container {
             position: relative;
@@ -422,7 +459,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            width: 180px; /* Reduced width */
+            width: 180px;
             max-height: 400px;
             overflow-y: auto;
             background: white;
@@ -474,13 +511,13 @@
             padding-right: 35px;
             border: 1px solid #ddd;
             border-radius: 20px;
-            width: 180px; /* Reduced width */
+            width: 180px;
             outline: none;
             transition: width 0.3s;
         }
         
         .search-input:focus {
-            width: 220px; /* Slightly larger when focused */
+            width: 220px;
             border-color: #999;
         }
         
@@ -551,17 +588,6 @@
                 font-size: 1rem;
             }
             
-            .password-toggle {
-                top: 36px;
-            }
-            #auth-container > div {
-                width: 95%;
-                max-width: 95%;
-            }
-            .auth-section {
-                padding: 1.5rem;
-            }
-
             /* Mobile search adjustments */
             .search-input-container {
                 position: fixed;
@@ -674,15 +700,15 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-            background-color: white; /* Changed to white */
+            padding-top: 80px;
+            background-color: white;
         }
         
         /* Footer */
         .footer {
             background-color: #e5e5e5;
             padding: 1.5rem;
-            padding-bottom: 3rem; /* Added space after footer */
+            padding-bottom: 3rem;
         }
         
         .footer-container {
@@ -745,7 +771,7 @@
         @media (max-width: 768px) {
             .footer {
                 padding: 1rem;
-                padding-bottom: 2rem; /* Added space after footer */
+                padding-bottom: 2rem;
             }
             
             .footer-social-desktop {
@@ -808,15 +834,58 @@
 
         /* Product page specific styles */
         .product-container {
-            background-color: white; /* Changed to white */
+            background-color: white;
             padding: 2rem;
             border-radius: 0;
-            box-shadow: none; /* Removed shadow */
+            box-shadow: none;
             width: 100%;
-            max-width: 1200px; /* Increased max-width */
+            max-width: 1200px;
             margin: 2rem auto;
             display: flex;
-            min-height: calc(100vh - 80px - 6rem); /* Full height minus navbar and footer */
+            min-height: calc(100vh - 80px - 6rem);
+        }
+        
+        .image-section {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        /* Enhanced cart styles */
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
         }
         
         @media (max-width: 768px) {
@@ -849,11 +918,20 @@
             .main-image {
                 max-height: 60vh;
             }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .cart-item-image {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Navigation Bar -->
+  <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -884,7 +962,7 @@
                     <div class="cursor-pointer" id="accountIconNav">
                         <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
                              alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200"> <!-- Reduced size to w-6 h-6 -->
+                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
                     </div>
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
                         <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
@@ -895,14 +973,16 @@
                         </a>
                     </div>
                 </div>
+
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
-            
-<div class="nav-links">
-                <a class="text-black nav-link" href="index.html">HOME</a>
+
+            <div class="nav-links">
+                <a class="text-black nav-link active" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
                 <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
@@ -913,7 +993,7 @@
     <!-- Mobile Menu Content -->
     <div class="mobile-menu-content" id="mobileMenuContent">
         <div class="mobile-menu-links">
-         <a class="text-black nav-link" href="index.html">HOME</a>
+         <a class="text-black nav-link active" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
                 <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
@@ -923,28 +1003,27 @@
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
-
     <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold">Your Cart</h2>
+                <h2 class="font-bold text-2xl">Your Cart</h2>
                 <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
+                <div id="cartList" class="divide-y divide-gray-200"></div>
             </div>
             
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
+            <div class="border-t border-gray-200 pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-6">
                     <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
+                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
                 </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
+                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
                     Proceed to Checkout
                 </button>
             </div>
@@ -988,7 +1067,7 @@
                 
                 <!-- Orders Section -->
                 <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <h3 class="text-xl font-bold">Your Orders</h3>
                     <div id="ordersContainer">
                         <!-- Orders will be displayed here -->
                     </div>
@@ -997,149 +1076,149 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Profile</h3>
-                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mb-4">
-                <label for="nameInput" class="block text-gray-700 mb-2">Name</label>
-                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
-            </div>
-            <div class="mb-4">
-                <label for="emailDisplay" class="block text-gray-700 mb-2">Email</label>
-                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
-            </div>
-            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-save mr-2"></i> Save Changes
+   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Profile</h3>
+            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Name</label>
+            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Email</label>
+            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+        </div>
+        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
     </div>
+</div>
 
-    <!-- Enhanced Add Address Modal -->
-    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Address</h3>
-                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+<!-- Enhanced Add Address Modal (move this inside the account-info-page div) -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Address</h3>
+            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addressForm" class="space-y-4">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                <input type="text" id="fullName" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
-            <form id="addressForm" class="space-y-4">
-                <!-- Full Name -->
-                <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
-                    <input type="text" id="fullName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Phone Number -->
-                <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
-                    <input type="tel" id="phoneNumber" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 1 -->
-                <div>
-                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
-                    <input type="text" id="addressLine1" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 2 -->
-                <div>
-                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
-                    <input type="text" id="addressLine2" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- City -->
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                    <input type="text" id="city" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- State/District -->
-                <div>
-                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
-                    <input type="text" id="state" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Postal/Zip Code -->
-                <div>
-                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
-                    <input type="text" id="postalCode" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Country -->
-                <div>
-                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                    <select id="country" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Country</option>
-                        <option value="India">India</option>
-                        <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <!-- Address Type -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
-                    <div class="flex space-x-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="home" checked 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Home</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="work" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Work</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="other" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Other</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Set as Default -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="setAsDefault" 
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
-                        Set as default address
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                <input type="tel" id="phoneNumber" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 1 -->
+            <div>
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                <input type="text" id="addressLine1" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 2 -->
+            <div>
+                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Postal/Zip Code -->
+            <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                <input type="text" id="postalCode" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                <select id="country" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Country</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Address Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="home" checked 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Home</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="work" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Work</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="other" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Other</span>
                     </label>
                 </div>
-                
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" id="cancelAddressBtn" 
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i> Cancel
-                    </button>
-                    <button type="submit" id="saveAddressBtn" 
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-save mr-2"></i> Save Address
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <!-- Set as Default -->
+            <div class="flex items-center">
+                <input type="checkbox" id="setAsDefault" 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                    Set as default address
+                </label>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelAddressBtn" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" id="saveAddressBtn" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Save Address
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Login/Signup Modal -->
     <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1209,7 +1288,7 @@
                         <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
                     </div>
                     <div class="mb-4">
-                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                         <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                             <option value="">Select a security question</option>
                             <option value="pet">What is the name of your first pet?</option>
@@ -1218,7 +1297,7 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
                         <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
@@ -1247,7 +1326,7 @@
                     <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
                 </div>
                 <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                     <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                         <option value="">Select a security question</option>
                         <option value="pet">What is the name of your first pet?</option>
@@ -1288,26 +1367,24 @@
             </div>
         </div>
     </div>
-
+    
     <div class="main-content">
         <!-- Product Page Content -->
         <div class="product-container flex flex-col md:flex-row">
             <!-- Image Section -->
             <div class="image-section w-full md:w-1/2 mb-6 md:mb-0 md:pr-6">
-                <div class="sticky top-6">
-                    <img alt="DE.ORIGIN T-shirt" 
-                         class="main-image w-full h-auto mb-4" 
-                         src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
-                    <div class="flex gap-3 justify-start">
-                        <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png?Expires=1837960643&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=AzxkHV-N9wGaRlXAoP~ET4nomPhQwPQd-clpSgag~QvnDdoZFi5d8wUOnUgp46KB6QarJRtyEtQ91b7LWWK9FM4a6zAM-DCOdDRXbVzuTDMuya-iRaHzbYDe4hC4XnRP8Lr7aXlrZplwqsDGz9iLJ~wcpVj~pCeXgCpoLNx3blSL6BZIx0dsXO4-KjVg6mJ3nZQIrZ5kKeCkDTvfKOtPBQYfq2Gm9HLZzp46ieof~ZU6mKkCrhYJoH9lKEQvY3Agi4A8f9WK5s713b0VMW1Fv1MiEGf1TGqVQoQkZjmrW-X7eF2L9yK1a8zPo-0nqld1bIHz2WFl5jWiN37DRCtzFg__'">
-                            <img alt="Product view 1" class="thumbnail" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png?Expires=1837960643&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=AzxkHV-N9wGaRlXAoP~ET4nomPhQwPQd-clpSgag~QvnDdoZFi5d8wUOnUgp46KB6QarJRtyEtQ91b7LWWK9FM4a6zAM-DCOdDRXbVzuTDMuya-iRaHzbYDe4hC4XnRP8Lr7aXlrZplwqsDGz9iLJ~wcpVj~pCeXgCpoLNx3blSL6BZIx0dsXO4-KjVg6mJ3nZQIrZ5kKeCkDTvfKOtPBQYfq2Gm9HLZzp46ieof~ZU6mKkCrhYJoH9lKEQvY3Agi4A8f9WK5s713b0VMW1Fv1MiEGf1TGqVQoQkZjmrW-X7eF2L9yK1a8zPo-0nqld1bIHz2WFl5jWiN37DRCtzFg__"/>
-                        </div>
-                        <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg?Expires=1838280298&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=HGr-gotWReSKqjZeVsJy-bE5iVT2lGNMiN7RHqnrcJRbfPYDmdy4OAW0C~~S28YrY2~yGzfGw0OTKlh-2L3LXqlBU5~q7jhN5OMEbWRKnJXkF3GotFgOrMHYk97aU78afp4w5wL2DGj0rjX~yYQrtvXb109E3f1vXDsdt1ONl6Q0147qfB4tcvYssrsURNZNN~GXkIjWmBEG4C64ZOGtjWQyPNvvUhzEuyECxu8FxkMYMy3FSrXOVJEmzrMEjiNv5QcJIeQbI9aJdoO5951YtGavxRROBSqCm7Sa4NGuq5IcVogccGeA0F0chfcZEOMLwSI8TIrWk-zUIERHuClS9Q__'">
-                            <img alt="Product view 2" class="thumbnail" src="https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg?Expires=1838280298&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=HGr-gotWReSKqjZeVsJy-bE5iVT2lGNMiN7RHqnrcJRbfPYDmdy4OAW0C~~S28YrY2~yGzfGw0OTKlh-2L3LXqlBU5~q7jhN5OMEbWRKnJXkF3GotFgOrMHYk97aU78afp4w5wL2DGj0rjX~yYQrtvXb109E3f1vXDsdt1ONl6Q0147qfB4tcvYssrsURNZNN~GXkIjWmBEG4C64ZOGtjWQyPNvvUhzEuyECxu8FxkMYMy3FSrXOVJEmzrMEjiNv5QcJIeQbI9aJdoO5951YtGavxRROBSqCm7Sa4NGuq5IcVogccGeA0F0chfcZEOMLwSI8TIrWk-zUIERHuClS9Q__"/>
-                        </div>
-                        <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__'">
-                            <img alt="Product view 3" class="thumbnail" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
-                        </div>
+                <img alt="DE.ORIGIN T-shirt" 
+                     class="main-image w-full h-auto mb-4" 
+                     src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
+                <div class="flex gap-3 justify-start">
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png?Expires=1837960643&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=AzxkHV-N9wGaRlXAoP~ET4nomPhQwPQd-clpSgag~QvnDdoZFi5d8wUOnUgp46KB6QarJRtyEtQ91b7LWWK9FM4a6zAM-DCOdDRXbVzuTDMuya-iRaHzbYDe4hC4XnRP8Lr7aXlrZplwqsDGz9iLJ~wcpVj~pCeXgCpoLNx3blSL6BZIx0dsXO4-KjVg6mJ3nZQIrZ5kKeCkDTvfKOtPBQYfq2Gm9HLZzp46ieof~ZU6mKkCrhYJoH9lKEQvY3Agi4A8f9WK5s713b0VMW1Fv1MiEGf1TGqVQoQkZjmrW-X7eF2L9yK1a8zPo-0nqld1bIHz2WFl5jWiN37DRCtzFg__'">
+                        <img alt="Product view 1" class="thumbnail" src="https://media-hosting.imagekit.io/a77874a297c64bfa/orginn2.png?Expires=1837960643&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=AzxkHV-N9wGaRlXAoP~ET4nomPhQwPQd-clpSgag~QvnDdoZFi5d8wUOnUgp46KB6QarJRtyEtQ91b7LWWK9FM4a6zAM-DCOdDRXbVzuTDMuya-iRaHzbYDe4hC4XnRP8Lr7aXlrZplwqsDGz9iLJ~wcpVj~pCeXgCpoLNx3blSL6BZIx0dsXO4-KjVg6mJ3nZQIrZ5kKeCkDTvfKOtPBQYfq2Gm9HLZzp46ieof~ZU6mKkCrhYJoH9lKEQvY3Agi4A8f9WK5s713b0VMW1Fv1MiEGf1TGqVQoQkZjmrW-X7eF2L9yK1a8zPo-0nqld1bIHz2WFl5jWiN37DRCtzFg__"/>
+                    </div>
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg?Expires=1838280298&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=HGr-gotWReSKqjZeVsJy-bE5iVT2lGNMiN7RHqnrcJRbfPYDmdy4OAW0C~~S28YrY2~yGzfGw0OTKlh-2L3LXqlBU5~q7jhN5OMEbWRKnJXkF3GotFgOrMHYk97aU78afp4w5wL2DGj0rjX~yYQrtvXb109E3f1vXDsdt1ONl6Q0147qfB4tcvYssrsURNZNN~GXkIjWmBEG4C64ZOGtjWQyPNvvUhzEuyECxu8FxkMYMy3FSrXOVJEmzrMEjiNv5QcJIeQbI9aJdoO5951YtGavxRROBSqCm7Sa4NGuq5IcVogccGeA0F0chfcZEOMLwSI8TIrWk-zUIERHuClS9Q__'">
+                        <img alt="Product view 2" class="thumbnail" src="https://media-hosting.imagekit.io/26f5ee6725034106/ha.jpg?Expires=1838280298&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=HGr-gotWReSKqjZeVsJy-bE5iVT2lGNMiN7RHqnrcJRbfPYDmdy4OAW0C~~S28YrY2~yGzfGw0OTKlh-2L3LXqlBU5~q7jhN5OMEbWRKnJXkF3GotFgOrMHYk97aU78afp4w5wL2DGj0rjX~yYQrtvXb109E3f1vXDsdt1ONl6Q0147qfB4tcvYssrsURNZNN~GXkIjWmBEG4C64ZOGtjWQyPNvvUhzEuyECxu8FxkMYMy3FSrXOVJEmzrMEjiNv5QcJIeQbI9aJdoO5951YtGavxRROBSqCm7Sa4NGuq5IcVogccGeA0F0chfcZEOMLwSI8TIrWk-zUIERHuClS9Q__"/>
+                    </div>
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__'">
+                        <img alt="Product view 3" class="thumbnail" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
                     </div>
                 </div>
             </div>
@@ -1399,85 +1476,85 @@
                     </ul>
                 </div>
                 
-    <!-- Wash Care Section -->
-            <div class="mb-2 mt-6">
-                <button class="dropdown-button">
-                    <span class="font-medium text-gray-900">WASH CARE</span>
-                    <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="dropdown-container">
-                    <div class="py-4">
-                        <ul class="text-gray-700 text-sm space-y-2">
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                                <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                                </svg>
-                                <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                                </svg>
-                                <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                </svg>
-                                <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                </svg>
-                                <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
-                            </li>
-                        </ul>
+                <!-- Wash Care Section -->
+                <div class="mb-2 mt-6">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">WASH CARE</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                    <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                    </svg>
+                                    <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                    <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Return Policy Section with Icons -->
-            <div class="mb-2">
-                <button class="dropdown-button">
-                    <span class="font-medium text-gray-900">RETURN POLICY</span>
-                    <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="dropdown-container">
-                    <div class="py-4">
-                        <ul class="text-gray-700 text-sm space-y-2">
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                </svg>
-                                <span>AVAILABLE PAN INDIA DELIVERY</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                                <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <span><a href="/return-policy" class="policy-link">Read our Return Policy</a></span>
-                            </li>
-                        </ul>
+                
+                <!-- Return Policy Section with Icons -->
+                <div class="mb-2">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">RETURN POLICY</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                    <span>AVAILABLE PAN INDIA DELIVERY</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span><a href="/return-policy" class="policy-link">Read our Return Policy</a></span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
                 
                 <!-- Share Button -->
                 <div class="mt-6 flex items-center">
@@ -1510,7 +1587,7 @@
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
             </div>
             
-        <!-- Footer links grid -->
+            <!-- Footer links grid -->
             <div class="footer-grid">
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="vamora.co.in@gmail.com">EMAIL</a>
@@ -1519,43 +1596,367 @@
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="track.html">ORDER TRACK</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/order-track">ORDER TRACK</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/contact">CONTACT</a>
                 </div>
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
                 </div>
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.vamora.store/bulk-order">BULK ORDER</a>
                 </div>
             </div>
             
             <!-- Social icons - shown on mobile, hidden on desktop -->
             <div class="footer-social-mobile">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="#"><i class="fab fa-facebook-f"></i></a>
             </div>
             
             <div class="footer-bottom">
                 <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
                     <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
                     <span>
-                    <a class="footer-link" href="refund.html" style="font-size: 0.5rem;"> . REFUND POLICY</a>
+                    <a class="footer-link" href="https://www.vamora.store/return-policy" style="font-size: 0.5rem;"> . REFUND POLICY</a>
                     
-                    <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
+                    <a class="footer-link" href="https://www.vamora.store/privacy-policy" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
                     </span>
                     <span>
-                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    <a class="footer-link" href="https://www.vamora.store/terms-of-services" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
                     
-                    <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
+                    <a class="footer-link" href="https://www.vamora.store/shipping-policy" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
                     </span>
                 </p>
             </div>
         </div>
     </footer>
-    
-    <script src="shared.js"></script>
-</body>
-</html>
+
+// Add to cart functionality
+        document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+            const selectedSize = document.querySelector('.size-button.selected').textContent;
+            const quantity = parseInt(document.getElementById('product-quantity').value);
+            
+            const product = {
+                title: 'DE.ORIGIN',
+                size: selectedSize,
+                price: '₹378.00',
+                quantity: quantity,
+                image: 'https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__'
+            };
+            
+            // Check if item already exists in cart with same size
+            const existingItemIndex = cart.findIndex(item => 
+                item.title === product.title && item.size === product.size
+            );
+            
+            if (existingItemIndex !== -1) {
+                // Update quantity if item already exists
+                cart[existingItemIndex].quantity += product.quantity;
+            } else {
+                // Add new item to cart
+                cart.push(product);
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Open cart
+            toggleCart();
+        });
+
+        // Login/Signup functionality
+        const authContainer = document.getElementById('auth-container');
+        const closeAuthContainer = document.getElementById('close-auth-container');
+        const showSignup = document.getElementById('show-signup');
+        const showLogin = document.getElementById('show-login');
+        const loginSection = document.getElementById('login-section');
+        const signupSection = document.getElementById('signup-section');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const forgotPasswordModal = document.getElementById('forgot-password-modal');
+        const closeForgotPassword = document.getElementById('close-forgot-password');
+        const forgotPasswordForm = document.getElementById('forgot-password-form');
+        const resetPasswordSection = document.getElementById('reset-password-section');
+        const saveNewPassword = document.getElementById('save-new-password');
+
+        // Toggle between login and signup
+        showSignup.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+        });
+
+        showLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            signupSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+        });
+
+        // Close auth container
+        function hideAuthContainer() {
+            authContainer.classList.add('hidden');
+        }
+
+        closeAuthContainer.addEventListener('click', hideAuthContainer);
+
+        // Password toggle functionality
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('.password-input');
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simple validation - in a real app, you would validate against a database
+            if (email && password) {
+                // For demo purposes, we'll just store the email
+                const user = {
+                    name: email.split('@')[0], // Use the part before @ as name for demo
+                    email: email,
+                    addresses: []
+                };
+                
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // Show success message
+                document.getElementById('login-error').classList.add('hidden');
+                document.getElementById('login-success').classList.remove('hidden');
+                
+                // Close modal after 1 second
+                setTimeout(() => {
+                    authContainer.classList.add('hidden');
+                    // Update account info if page is open
+                    if (!accountInfoPage.classList.contains('hidden')) {
+                        loadAccountInfo(email);
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+
+        // Signup form submission
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            // Validate name
+            if (name.length < 2 || name.length > 50) {
+                document.getElementById('name-error').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('name-error').classList.add('hidden');
+            }
+            
+            // Validate email
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                document.getElementById('email-error').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('email-error').classList.add('hidden');
+            }
+            
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                document.getElementById('password-mismatch-error').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('password-mismatch-error').classList.add('hidden');
+            }
+            
+            // For demo purposes, we'll just store the user data
+            const user = {
+                name: name,
+                email: email,
+                addresses: []
+            };
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Show success message
+            document.getElementById('signup-error').classList.add('hidden');
+            document.getElementById('verify-email-success').classList.remove('hidden');
+            
+            // Switch to login after 2 seconds
+            setTimeout(() => {
+                signupSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+                document.getElementById('verify-email-success').classList.add('hidden');
+            }, 2000);
+        });
+
+        // Forgot password link
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            authContainer.classList.add('hidden');
+            forgotPasswordModal.classList.remove('hidden');
+        });
+
+        // Close forgot password modal
+        closeForgotPassword.addEventListener('click', function() {
+            forgotPasswordModal.classList.add('hidden');
+            resetPasswordSection.classList.add('hidden');
+            document.getElementById('forgot-error').classList.add('hidden');
+            document.getElementById('reset-success').classList.add('hidden');
+        });
+
+        // Forgot password form submission
+        forgotPasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            const securityQuestion = document.getElementById('forgot-security-question').value;
+            const securityAnswer = document.getElementById('forgot-security-answer').value;
+            
+            // For demo purposes, we'll just show the reset section
+            resetPasswordSection.classList.remove('hidden');
+            document.getElementById('forgot-error').classList.add('hidden');
+        });
+
+        // Save new password
+        saveNewPassword.addEventListener('click', function() {
+            const newPassword = document.getElementById('new-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-password').value;
+            
+            if (newPassword !== confirmNewPassword) {
+                document.getElementById('reset-password-mismatch').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('reset-password-mismatch').classList.add('hidden');
+            document.getElementById('reset-success').classList.remove('hidden');
+            
+            // Close modal after 2 seconds
+            setTimeout(() => {
+                forgotPasswordModal.classList.add('hidden');
+                resetPasswordSection.classList.add('hidden');
+                document.getElementById('reset-success').classList.add('hidden');
+                authContainer.classList.remove('hidden');
+                loginSection.classList.remove('hidden');
+                signupSection.classList.add('hidden');
+            }, 2000);
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const loggedInUser = JSON.parse(localStorage.getItem('user'));
+            
+            // If account info page is open, load data
+            if (!accountInfoPage.classList.contains('hidden') && loggedInUser) {
+                loadAccountInfo(loggedInUser.email);
+            }
+             // Size buttons selection
+    const sizeButtons = document.querySelectorAll('.size-button');
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            sizeButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Quantity adjustment
+    const decrementButton = document.getElementById('decrement-quantity');
+    const incrementButton = document.getElementById('increment-quantity');
+    const quantityInput = document.getElementById('product-quantity');
+
+    decrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+        }
+    });
+
+    incrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+    });
+
+    // Size guide toggle
+    const sizeGuideBtn = document.getElementById('size-guide-btn');
+    const sizeGuideContainer = document.getElementById('size-guide-container');
+
+    sizeGuideBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sizeGuideContainer.classList.toggle('open');
+        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+    });
+
+    // Input validation
+    quantityInput.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+    });
+            // Add click event to all dropdown buttons
+            document.querySelectorAll('.dropdown-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const container = this.nextElementSibling;
+                    container.classList.toggle('open');
+                    
+                    // Rotate icon
+                    const icon = this.querySelector('.icon');
+                    if (container.classList.contains('open')) {
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                    
+                    // Close other dropdowns
+                    document.querySelectorAll('.dropdown-container').forEach(otherContainer => {
+                        if (otherContainer !== container && otherContainer.classList.contains('open')) {
+                            otherContainer.classList.remove('open');
+                            const otherIcon = otherContainer.previousElementSibling.querySelector('.icon');
+                            otherIcon.style.transform = 'rotate(0deg)';
+                        }
+                        
+                    });
+                });
+            });
+            
+          // Share functionality
+    const shareButton = document.querySelector('.share-icon');
+    shareButton.addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: "DE.ORIGIN T-shirt",
+                text: "Check out this product!",
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare();
+            });
+        } else {
+            fallbackShare();
+        }
+    });
+
+    function fallbackShare() {
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => {
+                alert('Link copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Could not copy text: ', err);
+                prompt('Copy this link:', window.location.href);
+            });
+    }
+        });
