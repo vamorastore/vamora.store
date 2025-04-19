@@ -1,22 +1,328 @@
-<!DOCTYPE html>
-<html>
+ <!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pages</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&display=swap" rel="stylesheet"/>
     <style>
-        body {
+    body {
             font-family: 'Unbounded', sans-serif;
+            height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: #e5e5e5;
+        }
+         /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px; /* Space for fixed navbar */
+        }
+        .product-link {
+    display: block;
+    text-decoration: none;
+    color: inherit; /* to maintain text color consistency */
+}
+
+.product-link:hover .product-item {
+    /* Optional: Add hover effects */
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+        
+        /* Product grid styles - Responsive */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
         
-            /* Navigation styles */
+        .product-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .image-frame {
+            width: 100%;
+            max-width: 540px;
+            height: 0;
+            padding-bottom: 125.93%; /* 680/540 = 1.2593 ratio */
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-frame img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .image-frame:hover img:first-child {
+            transform: scale(1.1);
+            opacity: 0;
+        }
+        
+        .image-frame:hover img:last-child {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        .image-frame img:last-child {
+            opacity: 0;
+        }
+        
+        .product-caption {
+            width: 100%;
+            max-width: 540px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.75rem;
+        }
+        
+        /* Hero images */
+        .hero-image {
+            width: 100%;
+            height: auto;
+            max-height: 100vh;
+            object-fit: cover;
+        }
+          /* Button styles */
+        .button {
+            position: relative;
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+            font-size: 0.75rem;
+        }
+        
+        .button:hover {
+            background-color: gray;
+        }
+        
+        .button::before, .button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button::before {
+            top: 0;
+            left: -100%;
+        }
+        
+        .button::after {
+            bottom: 0;
+            right: -100%;
+        }
+        
+        .button:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .button:hover::after {
+            transform: translateX(-100%);
+        }
+        
+        .button span::before, .button span::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: white;
+            transition: transform 0.5s;
+        }
+        
+        .button span::before {
+            top: -100%;
+            left: 0;
+        }
+        
+        .button span::after {
+            bottom: -100%;
+            right: 0;
+        }
+        
+        .button:hover span::before {
+            transform: translateY(100%);
+        }
+        
+        .button:hover span::after {
+            transform: translateY(-100%);
+        }
+        
+        /* Text styles */
+        .heading-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Page title */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 2rem 0 1rem;
+            text-transform: uppercase;
+        }
+        
+        .button-effect {
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .button-effect:hover {
+            transform: scale(1.05);
+        }
+        
+        .button-effect:active {
+            transform: scale(0.95);
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .heading-text {
+                font-size: 1.25rem;
+                text-align: center;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                padding: 1.5rem 0 0.5rem;
+            }
+            .product-grid {
+                gap: 1rem;
+                padding: 0 0.5rem;
+                margin-bottom: 2rem; /* Added space before footer */
+            }
+            
+            .product-caption {
+                font-size: 0.6875rem;
+            }
+             .page-title {
+                font-size: 2.5rem;
+                padding: 3rem 0 1.5rem;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .heading-text {
+                font-size: 2rem;
+            }
+            
+            .nav-link {
+                font-size: 0.875rem;
+            }
+            
+            .page-title {
+                font-size: 3rem;
+            }
+        }
+          /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+  /* Add to your CSS */
+#account-info-page {
+    transition: overflow 0.3s ease;
+}
+
+#account-info-page.overflow-hidden {
+    overflow: hidden;
+}
+ /* Navigation styles */
         .nav-link {
             position: relative;
             cursor: pointer;
@@ -228,52 +534,6 @@
             transform: scale(0.85);
         }
         
-        /* Login modal styles */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-        .loading:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 16px;
-            margin: -8px 0 0 -8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .password-container {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            cursor: pointer;
-            color: #6b7280;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 10;
-        }
-        .password-input {
-            padding-right: 40px !important;
-        }
-
         /* Search styles */
         .search-container {
             position: relative;
@@ -284,7 +544,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            width: 180px; /* Reduced width */
+            width: 180px;
             max-height: 400px;
             overflow-y: auto;
             background: white;
@@ -336,13 +596,13 @@
             padding-right: 35px;
             border: 1px solid #ddd;
             border-radius: 20px;
-            width: 180px; /* Reduced width */
+            width: 180px;
             outline: none;
             transition: width 0.3s;
         }
         
         .search-input:focus {
-            width: 220px; /* Slightly larger when focused */
+            width: 220px;
             border-color: #999;
         }
         
@@ -413,17 +673,6 @@
                 font-size: 1rem;
             }
             
-            .password-toggle {
-                top: 36px;
-            }
-            #auth-container > div {
-                width: 95%;
-                max-width: 95%;
-            }
-            .auth-section {
-                padding: 1.5rem;
-            }
-
             /* Mobile search adjustments */
             .search-input-container {
                 position: fixed;
@@ -536,80 +785,15 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-        }
-        
-        /* Product grid styles - Responsive */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
-        .product-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        
-        .image-frame {
-            width: 100%;
-            max-width: 540px;
-            height: 0;
-            padding-bottom: 125.93%; /* 680/540 = 1.2593 ratio */
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .image-frame img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease, opacity 0.5s ease;
-        }
-        
-        .image-frame:hover img:first-child {
-            transform: scale(1.1);
-            opacity: 0;
-        }
-        
-        .image-frame:hover img:last-child {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-        
-        .image-frame img:last-child {
-            opacity: 0;
-        }
-        
-        .product-caption {
-            width: 100%;
-            max-width: 540px;
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 0.75rem;
-        }
-        
-        /* Hero images */
-        .hero-image {
-            width: 100%;
-            height: auto;
-            max-height: 100vh;
-            object-fit: cover;
+            padding-top: 80px;
+            background-color: white;
         }
         
         /* Footer */
         .footer {
             background-color: #e5e5e5;
             padding: 1.5rem;
-            padding-bottom: 3rem; /* Added space after footer */
+            padding-bottom: 3rem;
         }
         
         .footer-container {
@@ -668,128 +852,11 @@
             gap: 0.5rem;
         }
         
-        /* Button styles */
-        .button {
-            position: relative;
-            background-color: black;
-            color: white;
-            padding: 10px 20px;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease;
-            overflow: hidden;
-            font-size: 0.75rem;
-        }
-        
-        .button:hover {
-            background-color: gray;
-        }
-        
-        .button::before, .button::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button::before {
-            top: 0;
-            left: -100%;
-        }
-        
-        .button::after {
-            bottom: 0;
-            right: -100%;
-        }
-        
-        .button:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .button:hover::after {
-            transform: translateX(-100%);
-        }
-        
-        .button span::before, .button span::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            background-color: white;
-            transition: transform 0.5s;
-        }
-        
-        .button span::before {
-            top: -100%;
-            left: 0;
-        }
-        
-        .button span::after {
-            bottom: -100%;
-            right: 0;
-        }
-        
-        .button:hover span::before {
-            transform: translateY(100%);
-        }
-        
-        .button:hover span::after {
-            transform: translateY(-100%);
-        }
-        
-        /* Text styles */
-        .heading-text {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        /* Page title */
-        .page-title {
-            font-size: 2rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 2rem 0 1rem;
-            text-transform: uppercase;
-        }
-        
-        .button-effect {
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        
-        .button-effect:hover {
-            transform: scale(1.05);
-        }
-        
-        .button-effect:active {
-            transform: scale(0.95);
-        }
-        
         /* Mobile adjustments */
         @media (max-width: 768px) {
-            .heading-text {
-                font-size: 1.25rem;
-                text-align: center;
-            }
-            
-            .page-title {
-                font-size: 1.5rem;
-                padding: 1.5rem 0 0.5rem;
-            }
-            
-            .product-grid {
-                gap: 1rem;
-                padding: 0 0.5rem;
-                margin-bottom: 2rem; /* Added space before footer */
-            }
-            
-            .product-caption {
-                font-size: 0.6875rem;
-            }
-            
             .footer {
                 padding: 1rem;
-                padding-bottom: 2rem; /* Added space after footer */
+                padding-bottom: 2rem;
             }
             
             .footer-social-desktop {
@@ -848,30 +915,89 @@
                 gap: 0.5rem;
                 line-height: normal;
             }
-            
-            .page-title {
-                font-size: 2.5rem;
-                padding: 3rem 0 1.5rem;
-            }
+        }
+ /* Enhanced cart styles */
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
         }
         
-        @media (min-width: 1400px) {
-            .heading-text {
-                font-size: 2rem;
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                padding: 1rem;
+                min-height: auto;
             }
             
-            .nav-link {
-                font-size: 0.875rem;
+            .image-section, .details-section {
+                width: 100% !important;
             }
             
-            .page-title {
-                font-size: 3rem;
+            .details-section {
+                margin-left: 0 !important;
+                margin-top: 1.5rem;
+            }
+            
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .size-button {
+                font-size: 0.65rem;
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+            
+            .main-image {
+                max-height: 60vh;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .cart-item-image {
+                width: 60px;
+                height: 60px;
             }
         }
-   </style>
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation Bar -->
+<body class="min-h-screen flex flex-col">
+  <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -902,7 +1028,7 @@
                     <div class="cursor-pointer" id="accountIconNav">
                         <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
                              alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200"> <!-- Reduced size to w-6 h-6 -->
+                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
                     </div>
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
                         <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
@@ -913,13 +1039,15 @@
                         </a>
                     </div>
                 </div>
+
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
-            
-                       <div class="nav-links">
+
+            <div class="nav-links">
                 <a class="text-black nav-link" href="index.html">HOME</a>
                 <a class="text-black nav-link active" href="shop.html">SHOP</a>
                 <a class="text-black nav-link" href="about.html">ABOUT</a>
@@ -946,29 +1074,29 @@
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold">Your Cart</h2>
+                <h2 class="font-bold text-2xl">Your Cart</h2>
                 <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
+                <div id="cartList" class="divide-y divide-gray-200"></div>
             </div>
             
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
+            <div class="border-t border-gray-200 pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-6">
                     <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
+                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
                 </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
+                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
                     Proceed to Checkout
                 </button>
             </div>
         </div>
     </div>
 
-      <!-- Account Info Page (hidden by default) -->
+    <!-- Account Info Page (hidden by default) -->
     <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
         <div class="max-w-4xl mx-auto p-6">
             <div class="bg-white p-6 rounded-lg shadow-md relative">
@@ -1005,7 +1133,7 @@
                 
                 <!-- Orders Section -->
                 <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <h3 class="text-xl font-bold">Your Orders</h3>
                     <div id="ordersContainer">
                         <!-- Orders will be displayed here -->
                     </div>
@@ -1014,149 +1142,149 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Profile</h3>
-                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Name</label>
-                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Email</label>
-                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
-            </div>
-            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-save mr-2"></i> Save Changes
+   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Profile</h3>
+            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Name</label>
+            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Email</label>
+            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+        </div>
+        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
     </div>
+</div>
 
-    <!-- Enhanced Add Address Modal -->
-    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Address</h3>
-                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+<!-- Enhanced Add Address Modal (move this inside the account-info-page div) -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Address</h3>
+            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addressForm" class="space-y-4">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                <input type="text" id="fullName" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
-            <form id="addressForm" class="space-y-4">
-                <!-- Full Name -->
-                <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
-                    <input type="text" id="fullName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Phone Number -->
-                <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
-                    <input type="tel" id="phoneNumber" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 1 -->
-                <div>
-                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
-                    <input type="text" id="addressLine1" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 2 -->
-                <div>
-                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
-                    <input type="text" id="addressLine2" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- City -->
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                    <input type="text" id="city" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- State/District -->
-                <div>
-                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
-                    <input type="text" id="state" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Postal/Zip Code -->
-                <div>
-                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
-                    <input type="text" id="postalCode" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Country -->
-                <div>
-                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                    <select id="country" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Country</option>
-                        <option value="India">India</option>
-                        <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <!-- Address Type -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
-                    <div class="flex space-x-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="home" checked 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Home</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="work" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Work</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="other" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Other</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Set as Default -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="setAsDefault" 
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
-                        Set as default address
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                <input type="tel" id="phoneNumber" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 1 -->
+            <div>
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                <input type="text" id="addressLine1" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 2 -->
+            <div>
+                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Postal/Zip Code -->
+            <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                <input type="text" id="postalCode" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                <select id="country" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Country</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Address Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="home" checked 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Home</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="work" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Work</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="other" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Other</span>
                     </label>
                 </div>
-                
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" id="cancelAddressBtn" 
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i> Cancel
-                    </button>
-                    <button type="submit" id="saveAddressBtn" 
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-save mr-2"></i> Save Address
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <!-- Set as Default -->
+            <div class="flex items-center">
+                <input type="checkbox" id="setAsDefault" 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                    Set as default address
+                </label>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelAddressBtn" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" id="saveAddressBtn" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Save Address
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Login/Signup Modal -->
     <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1226,7 +1354,7 @@
                         <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
                     </div>
                     <div class="mb-4">
-                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                         <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                             <option value="">Select a security question</option>
                             <option value="pet">What is the name of your first pet?</option>
@@ -1235,7 +1363,7 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
                         <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
@@ -1264,7 +1392,7 @@
                     <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
                 </div>
                 <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                     <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                         <option value="">Select a security question</option>
                         <option value="pet">What is the name of your first pet?</option>
@@ -1306,13 +1434,14 @@
         </div>
     </div>
     
-    <div class="main-content">
+ <div class="main-content">
         <!-- Page Title -->
         <h1 class="page-title">SHOP.ALL</h1>
         
         <!-- Product Grid -->
         <div class="product-grid">
             <!-- Product 1 -->
+            <a href="p1.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 1" src="https://media-hosting.imagekit.io/1e2dce40b59b41fd/SA.png?Expires=1837980822&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=LR0zWw24aOBNCg7IqdYGtBDor~E405odw21ZavuMvog0FLvgQZ47CDWk6nV13v49hbMtL15e~B~WdRKzTsM7ekXvsRO61qXfb~cFy-l55pWqFKOslELCJ6gYgt0uHxWkLZ5XmRRm4aCMgzNCl8LrXjPRSnX9qIIg-6VvvF-MGphdQ~7lTnMZmfXnq-SWPRfZ5l88UM48qt2sAVnebsaZcLtaw~~nKIhB4OKlnmXEYYO3R5NijJ-ZJGEK92sfXv29MkxFMnDPkEfw3I4OjJiGa2viUHWaTrWgV7iHSy0gxoYamEd2L9nzikTnym~mW0aRuaQS90kgpk4ztQGmNv-pgQ__"/>
@@ -1323,8 +1452,10 @@
                     <div>₹378.00</div>
                 </div>
             </div>
-            
+                      </a>
+
             <!-- Product 2 -->
+            <a href="p1.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 2" src="https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__"/>
@@ -1335,8 +1466,10 @@
                     <div>₹378.00</div>
                 </div>
             </div>
-            
+                      </a>
+
             <!-- Product 3 -->
+            <a href="p1.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 3" src="https://media-hosting.imagekit.io/acd79ddde893419b/epi.png?Expires=1837935710&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=VUHCqy3NPeb0PCsg2q6DVxScw2A~D3mwgVEHcQLzxeohwwaHgTYb3HteHCEzyNbAwiikgNTpWwobAEyEYxlS8vFfwDTwZF37uYXJqBxC9A6q4-7EsQZv-nskFm7jCFd4d6dLt6fkPBX4B1lHrRwxXX1CSaPQH~I0qUWdh~bMVqi6eFF14oubABRnqzdjPpqBqEMaAk1IbUnOr6rlY5vPX-NNHwm~eKWwfSYbbXmHfCTAL0DdiSSODBn1o3zzDwKyZEH1ecmOPOBjzE9DHMnyJ8-QrCCSgpmJtWIFjkgZEZ27AKvGeL0NRsEoNFAtjGjKHkwO~CzCzhmOEh-Q-1efvw__"/>
@@ -1347,8 +1480,10 @@
                     <div>₹579.00</div>
                 </div>
             </div>
-            
+                      </a>
+
             <!-- Product 4 -->
+            <a href="p1.html" class="product-link">
             <div class="product-item">
                 <div class="image-frame">
                     <img alt="Product 4" src="https://media-hosting.imagekit.io/e0010cd530e84ca5/ODD%20OUT.png?Expires=1837978921&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=lYUlB3PXGHxHgblzx0lprWujSACKzZeG~ZFCYWBMeZZgNWkXS0TNQmv8ki6ZodA0htv5aBmAnIJ0m5btfe2gKB1pI2wJRSx09aCZkh0G2GbtvwqJv-O0qrBE~JCqi-56Ijl8iE~LDRAjdLOSrpqA40I5QeXEqamXCzgoahj4dAIZBDBVmdQ8JkEcpPGgkaFK3WsPooPelc3WLzbdWB~LcPYdoriai0m~C2nyTPXBgShcDdQ-jaJY16n~-aXDbGy9Xk7QjGU4E0fS976bHVEOvzieczlW68ReEZqgL0bDRYmrrELq9FHZcXK-vTXPIRID1-ah4EeNR4VmVCJWdryTTw__"/>
@@ -1360,9 +1495,9 @@
                 </div>
             </div>
         </div>
-    </div>
-
-        <!-- Footer -->
+    </div>         
+          </a>
+     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
             <!-- Centered logo -->
@@ -1372,7 +1507,7 @@
                 </div>
             </div>
             
-            <!-- Social icons - shown on desktop, hidden on mobile -->
+                   <!-- Social icons - shown on desktop, hidden on mobile -->
             <div class="footer-social-desktop">
                 <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
@@ -1400,7 +1535,7 @@
                 </div>
             </div>
             
-            <!-- Social icons - shown on mobile, hidden on desktop -->
+             <!-- Social icons - shown on mobile, hidden on desktop -->
             <div class="footer-social-mobile">
                 <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
@@ -1423,6 +1558,6 @@
             </div>
         </div>
     </footer>
-<script src="shared.js"></script>
+            <script src="index.js"></script>
 </body>
 </html>
