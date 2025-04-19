@@ -845,10 +845,10 @@
                 height: 60px;
             }
         }
-    </style>
+      </style>
 </head>
-<body>
-     <!-- Navigation Bar -->
+<body class="min-h-screen flex flex-col">
+  <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -890,12 +890,14 @@
                         </a>
                     </div>
                 </div>
+
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
-            
+
             <div class="nav-links">
                 <a class="text-black nav-link" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
@@ -918,8 +920,7 @@
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
-
- <!-- Cart Overlay -->
+    <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
@@ -983,7 +984,7 @@
                 
                 <!-- Orders Section -->
                 <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <h3 class="text-xl font-bold">Your Orders</h3>
                     <div id="ordersContainer">
                         <!-- Orders will be displayed here -->
                     </div>
@@ -992,149 +993,149 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Profile</h3>
-                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Name</label>
-                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Email</label>
-                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
-            </div>
-            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-save mr-2"></i> Save Changes
+   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Profile</h3>
+            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Name</label>
+            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Email</label>
+            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+        </div>
+        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
     </div>
+</div>
 
-    <!-- Enhanced Add Address Modal -->
-    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Address</h3>
-                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+<!-- Enhanced Add Address Modal (move this inside the account-info-page div) -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Address</h3>
+            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addressForm" class="space-y-4">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                <input type="text" id="fullName" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
-            <form id="addressForm" class="space-y-4">
-                <!-- Full Name -->
-                <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
-                    <input type="text" id="fullName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Phone Number -->
-                <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
-                    <input type="tel" id="phoneNumber" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 1 -->
-                <div>
-                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
-                    <input type="text" id="addressLine1" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 2 -->
-                <div>
-                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
-                    <input type="text" id="addressLine2" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- City -->
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                    <input type="text" id="city" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- State/District -->
-                <div>
-                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
-                    <input type="text" id="state" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Postal/Zip Code -->
-                <div>
-                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
-                    <input type="text" id="postalCode" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Country -->
-                <div>
-                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                    <select id="country" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Country</option>
-                        <option value="India">India</option>
-                        <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <!-- Address Type -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
-                    <div class="flex space-x-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="home" checked 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Home</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="work" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Work</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="other" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Other</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Set as Default -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="setAsDefault" 
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
-                        Set as default address
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                <input type="tel" id="phoneNumber" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 1 -->
+            <div>
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                <input type="text" id="addressLine1" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 2 -->
+            <div>
+                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Postal/Zip Code -->
+            <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                <input type="text" id="postalCode" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                <select id="country" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Country</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Address Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="home" checked 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Home</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="work" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Work</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="other" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Other</span>
                     </label>
                 </div>
-                
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" id="cancelAddressBtn" 
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i> Cancel
-                    </button>
-                    <button type="submit" id="saveAddressBtn" 
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-save mr-2"></i> Save Address
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <!-- Set as Default -->
+            <div class="flex items-center">
+                <input type="checkbox" id="setAsDefault" 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                    Set as default address
+                </label>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelAddressBtn" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" id="saveAddressBtn" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Save Address
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Login/Signup Modal -->
     <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1204,7 +1205,7 @@
                         <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
                     </div>
                     <div class="mb-4">
-                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                         <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                             <option value="">Select a security question</option>
                             <option value="pet">What is the name of your first pet?</option>
@@ -1213,7 +1214,7 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
                         <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
@@ -1242,7 +1243,7 @@
                     <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
                 </div>
                 <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                     <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                         <option value="">Select a security question</option>
                         <option value="pet">What is the name of your first pet?</option>
@@ -1283,7 +1284,6 @@
             </div>
         </div>
     </div>
-
     <div class="main-content">
         <!-- Contact Form Content -->
         <div class="contact-container">
@@ -1387,6 +1387,6 @@
         </div>
     </footer>
 
-    <script src="shared.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>
