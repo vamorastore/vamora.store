@@ -1,23 +1,164 @@
-<!DOCTYPE html>
-<html>
+ <!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - VAMORA.STORE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>pages</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Unbounded', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+   body {
+    font-family: 'Unbounded', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #e5e5e5; /* Ensure this is set */
+}
+          /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
         }
-       
-        /* Navigation styles */
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+         /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px; /* Space for fixed navbar */
+        }
+        
+        /* Terms Content Styles */
+        .terms-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+       .terms-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #000; /* Add this line to ensure black text */
+    width: 100%; /* Ensure full width */
+}
+        
+        .terms-section {
+            margin-bottom: 2rem;
+        }
+        
+        .terms-section-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .terms-section-subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin: 1rem 0 0.5rem;
+            color: #444;
+        }
+        
+        .terms-text {
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .terms-list {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .terms-list li {
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+        
+        .terms-note {
+            font-style: italic;
+            font-weight: 300;
+            margin-top: 1rem;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+ /* Navigation styles */
         .nav-link {
             position: relative;
             cursor: pointer;
@@ -229,52 +370,6 @@
             transform: scale(0.85);
         }
         
-        /* Login modal styles */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-        .loading:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 16px;
-            margin: -8px 0 0 -8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .password-container {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            cursor: pointer;
-            color: #6b7280;
-            background: none;
-            border: none;
-            padding: 4px;
-            z-index: 10;
-        }
-        .password-input {
-            padding-right: 40px !important;
-        }
-
         /* Search styles */
         .search-container {
             position: relative;
@@ -285,7 +380,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            width: 180px; /* Reduced width */
+            width: 180px;
             max-height: 400px;
             overflow-y: auto;
             background: white;
@@ -337,13 +432,13 @@
             padding-right: 35px;
             border: 1px solid #ddd;
             border-radius: 20px;
-            width: 180px; /* Reduced width */
+            width: 180px;
             outline: none;
             transition: width 0.3s;
         }
         
         .search-input:focus {
-            width: 220px; /* Slightly larger when focused */
+            width: 220px;
             border-color: #999;
         }
         
@@ -366,6 +461,136 @@
         
         .search-close:hover {
             color: #333;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+                order: 1;
+            }
+            
+            .logo-container {
+                order: 2;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .logo-container:hover img {
+                transform: none;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .nav-icons {
+                order: 3;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 1rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1.35rem;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .icon {
+                font-size: 1rem;
+            }
+            
+            /* Mobile search adjustments */
+            .search-input-container {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                padding: 10px;
+                background: #e5e5e5;
+                z-index: 60;
+            }
+            
+            .search-input {
+                width: calc(100% - 50px);
+                padding: 10px 45px 10px 15px;
+            }
+            
+            .search-input:focus {
+                width: calc(100% - 50px);
+            }
+            
+            .search-results {
+                position: fixed;
+                top: 140px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+            }
+            
+            .search-close {
+                right: 45px;
+            }
+            
+            .search-icon {
+                right: 20px;
+            }
+
+            .no-results {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            /* Adjusted dropdown position */
+            #dropdownMenu {
+                top: 100%;
+                right: 0;
+                left: auto;
+                width: 200px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-links {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .nav-links a {
+                font-size: 0.875rem;
+            }
+            
+            .cart-overlay h2 {
+                font-size: 2.25rem;
+            }
+            
+            .cart-overlay .font-medium {
+                font-size: 1.125rem;
+            }
+            
+            .cart-overlay .text-lg {
+                font-size: 1.25rem;
+            }
+            
+            .cart-overlay button {
+                font-size: 1.125rem;
+                padding: 1rem;
+            }
+
+            .cart-overlay .fa-times {
+                font-size: 1.5rem;
+            }
         }
 
         /* Footer styles */
@@ -396,71 +621,15 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-        }
-        
-        /* Terms Content Styles */
-        .terms-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-       .terms-title {
-    font-size: 2.5rem;
-    font-weight: 300;
-    margin-bottom: 2rem;
-    text-align: center;
-    color: #000; /* Add this line to ensure black text */
-    width: 100%; /* Ensure full width */
-}
-        
-        .terms-section {
-            margin-bottom: 2rem;
-        }
-        
-        .terms-section-title {
-            font-size: 1.5rem;
-            font-weight: 400;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        
-        .terms-section-subtitle {
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin: 1rem 0 0.5rem;
-            color: #444;
-        }
-        
-        .terms-text {
-            font-weight: 300;
-            line-height: 1.6;
-            margin-bottom: 0.5rem;
-        }
-        
-        .terms-list {
-            padding-left: 1.5rem;
-            margin: 0.5rem 0;
-        }
-        
-        .terms-list li {
-            margin-bottom: 0.5rem;
-            font-weight: 300;
-            line-height: 1.6;
-        }
-        
-        .terms-note {
-            font-style: italic;
-            font-weight: 300;
-            margin-top: 1rem;
+            padding-top: 80px;
+            background-color: white;
         }
         
         /* Footer */
         .footer {
             background-color: #e5e5e5;
             padding: 1.5rem;
-            padding-bottom: 3rem; /* Added space after footer */
+            padding-bottom: 3rem;
         }
         
         .footer-container {
@@ -521,124 +690,6 @@
         
         /* Mobile adjustments */
         @media (max-width: 768px) {
-            .mobile-menu-button {
-                display: block;
-                order: 1;
-            }
-            
-            .logo-container {
-                order: 2;
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            
-            .logo-container:hover img {
-                transform: none;
-            }
-            
-            .logo-text {
-                display: none;
-            }
-            
-            .nav-icons {
-                order: 3;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu-links a {
-                font-size: 1rem;
-            }
-            
-            .mobile-menu-social a {
-                font-size: 1.35rem;
-            }
-            
-            .cart-overlay {
-                max-width: 100%;
-            }
-            
-            .icon {
-                font-size: 1rem;
-            }
-            
-            .password-toggle {
-                top: 36px;
-            }
-            #auth-container > div {
-                width: 95%;
-                max-width: 95%;
-            }
-            .auth-section {
-                padding: 1.5rem;
-            }
-
-            /* Mobile search adjustments */
-            .search-input-container {
-                position: fixed;
-                top: 80px;
-                left: 0;
-                right: 0;
-                width: 100%;
-                padding: 10px;
-                background: #e5e5e5;
-                z-index: 60;
-            }
-            
-            .search-input {
-                width: calc(100% - 50px);
-                padding: 10px 45px 10px 15px;
-            }
-            
-            .search-input:focus {
-                width: calc(100% - 50px);
-            }
-            
-            .search-results {
-                position: fixed;
-                top: 140px;
-                left: 10px;
-                right: 10px;
-                width: calc(100% - 20px);
-            }
-            
-            .search-close {
-                right: 45px;
-            }
-            
-            .search-icon {
-                right: 20px;
-            }
-
-            .no-results {
-                padding: 15px;
-                font-size: 1em;
-            }
-
-            /* Adjusted dropdown position */
-            #dropdownMenu {
-                top: 100%;
-                right: 0;
-                left: auto;
-                width: 200px;
-            }
-
-            /* Terms content mobile adjustments */
-            .terms-container {
-                padding: 1rem;
-            }
-            
-            .terms-title {
-                font-size: 2rem;
-            }
-            
-            .terms-section-title {
-                font-size: 1.3rem;
-            }
-            
             .footer {
                 padding: 1rem;
                 padding-bottom: 2rem;
@@ -666,40 +717,17 @@
                 flex-direction: column;
                 gap: 0.25rem;
             }
-        }
-        
-        @media (min-width: 769px) {
-            .nav-links {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-            }
             
-            .nav-links a {
+            .mobile-menu-links a {
                 font-size: 0.875rem;
             }
             
-            .cart-overlay h2 {
-                font-size: 2.25rem;
+            .mobile-menu-social a {
+                font-size: 1rem;
             }
-            
-            .cart-overlay .font-medium {
-                font-size: 1.125rem;
-            }
-            
-            .cart-overlay .text-lg {
-                font-size: 1.25rem;
-            }
-            
-            .cart-overlay button {
-                font-size: 1.125rem;
-                padding: 1rem;
-            }
-
-            .cart-overlay .fa-times {
-                font-size: 1.5rem;
-            }
-
+        }
+        
+        @media (min-width: 769px) {
             .footer-social-mobile {
                 display: none;
             }
@@ -724,10 +752,88 @@
                 line-height: normal;
             }
         }
+ /* Enhanced cart styles */
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                padding: 1rem;
+                min-height: auto;
+            }
+            
+            .image-section, .details-section {
+                width: 100% !important;
+            }
+            
+            .details-section {
+                margin-left: 0 !important;
+                margin-top: 1.5rem;
+            }
+            
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .size-button {
+                font-size: 0.65rem;
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+            
+            .main-image {
+                max-height: 60vh;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .cart-item-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
-<body>
-    <!-- Navigation Bar -->
+<body class="min-h-screen flex flex-col">
+  <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -769,12 +875,14 @@
                         </a>
                     </div>
                 </div>
+
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
-            
+
             <div class="nav-links">
                 <a class="text-black nav-link" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
@@ -793,32 +901,31 @@
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
-                  <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
-
     <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold">Your Cart</h2>
+                <h2 class="font-bold text-2xl">Your Cart</h2>
                 <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <ul id="cartList" class="space-y-4"></ul>
+                <div id="cartList" class="divide-y divide-gray-200"></div>
             </div>
             
-            <div class="border-t pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-4">
+            <div class="border-t border-gray-200 pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-6">
                     <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-lg font-bold">₹ 0.00</span>
+                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
                 </div>
-                <button class="w-full py-3 bg-blue-500 text-white rounded-lg button-effect" onclick="proceedToCheckout()">
+                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
                     Proceed to Checkout
                 </button>
             </div>
@@ -862,7 +969,7 @@
                 
                 <!-- Orders Section -->
                 <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                    <h3 class="text-xl font-bold">Your Orders</h3>
                     <div id="ordersContainer">
                         <!-- Orders will be displayed here -->
                     </div>
@@ -871,149 +978,149 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 font-unbounded">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Profile</h3>
-                <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Name</label>
-                <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Email</label>
-                <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
-            </div>
-            <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-save mr-2"></i> Save Changes
+   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Profile</h3>
+            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Name</label>
+            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Email</label>
+            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
+        </div>
+        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
     </div>
+</div>
 
-    <!-- Enhanced Add Address Modal -->
-    <div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Edit Address</h3>
-                <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+<!-- Enhanced Add Address Modal (move this inside the account-info-page div) -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Address</h3>
+            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="addressForm" class="space-y-4">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                <input type="text" id="fullName" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
-            <form id="addressForm" class="space-y-4">
-                <!-- Full Name -->
-                <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
-                    <input type="text" id="fullName" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Phone Number -->
-                <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
-                    <input type="tel" id="phoneNumber" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 1 -->
-                <div>
-                    <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
-                    <input type="text" id="addressLine1" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Address Line 2 -->
-                <div>
-                    <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
-                    <input type="text" id="addressLine2" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- City -->
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                    <input type="text" id="city" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- State/District -->
-                <div>
-                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
-                    <input type="text" id="state" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Postal/Zip Code -->
-                <div>
-                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
-                    <input type="text" id="postalCode" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <!-- Country -->
-                <div>
-                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                    <select id="country" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Country</option>
-                        <option value="India">India</option>
-                        <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <!-- Address Type -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
-                    <div class="flex space-x-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="home" checked 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Home</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="work" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Work</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="addressType" value="other" 
-                                   class="form-radio h-4 w-4 text-blue-600">
-                            <span class="ml-2">Other</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Set as Default -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="setAsDefault" 
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
-                        Set as default address
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                <input type="tel" id="phoneNumber" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 1 -->
+            <div>
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
+                <input type="text" id="addressLine1" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Address Line 2 -->
+            <div>
+                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
+                <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Postal/Zip Code -->
+            <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
+                <input type="text" id="postalCode" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                <select id="country" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Country</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Address Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="home" checked 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Home</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="work" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Work</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="addressType" value="other" 
+                               class="form-radio h-4 w-4 text-blue-600">
+                        <span class="ml-2">Other</span>
                     </label>
                 </div>
-                
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" id="cancelAddressBtn" 
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i> Cancel
-                    </button>
-                    <button type="submit" id="saveAddressBtn" 
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-save mr-2"></i> Save Address
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <!-- Set as Default -->
+            <div class="flex items-center">
+                <input type="checkbox" id="setAsDefault" 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
+                    Set as default address
+                </label>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelAddressBtn" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" id="saveAddressBtn" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Save Address
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Login/Signup Modal -->
     <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1083,7 +1190,7 @@
                         <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
                     </div>
                     <div class="mb-4">
-                        <label for="security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                        <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                         <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                             <option value="">Select a security question</option>
                             <option value="pet">What is the name of your first pet?</option>
@@ -1092,7 +1199,7 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                        <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
                         <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
@@ -1121,7 +1228,7 @@
                     <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
                 </div>
                 <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-gray-700 mb-2 text-sm sm:text-base">Security Question</label>
+                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
                     <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
                         <option value="">Select a security question</option>
                         <option value="pet">What is the name of your first pet?</option>
@@ -1162,8 +1269,7 @@
             </div>
         </div>
     </div>
-
- 
+    
 <!-- Terms Content -->
 <div class="main-content"> <!-- Ensure this wrapper exists -->
     <div class="terms-container">
@@ -1315,14 +1421,13 @@
             </p>
             <p class="terms-text">
                 Vamora.store<br>
-                Email: vamora.co.in@gmail.com
-            </p>
+<a href="mailto:vamora.co.in@gmail.com" class="text-black underline">vamora.co.in@gmail.com</a>            </p>
             <p class="terms-text terms-note">
                 Thank you for choosing Vamora.store!
             </p>
         </div>
-    </div>
-    
+    </div>         
+         
      <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
@@ -1333,7 +1438,7 @@
                 </div>
             </div>
             
-            <!-- Social icons - shown on desktop, hidden on mobile -->
+                       <!-- Social icons - shown on desktop, hidden on mobile -->
             <div class="footer-social-desktop">
                 <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
@@ -1342,7 +1447,7 @@
             <!-- Footer links grid -->
             <div class="footer-grid">
                 <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="vamora.co.in@gmail.com">EMAIL</a>
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="mailto:vamora.co.in@gmail.com">EMAIL</a>
                 </div>
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
@@ -1376,7 +1481,7 @@
                     <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
                     </span>
                     <span>
-                    <a class="footer-link active" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
                     
                     <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
                     </span>
@@ -1384,7 +1489,6 @@
             </div>
         </div>
     </footer>
-
-    <script src="shared.js"></script>
+            <script src="index.js"></script>
 </body>
 </html>
