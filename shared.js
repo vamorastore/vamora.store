@@ -1,3 +1,4 @@
+// your code goes here
 // Initialize user data if not exists
         if (!localStorage.getItem('user')) {
             localStorage.setItem('user', JSON.stringify({
@@ -216,7 +217,7 @@
         function proceedToCheckout() {
             alert('Proceeding to checkout!');
             // Here you would typically redirect to a checkout page
-            //window.location.href = '/checkout';
+            // window.location.href = '/checkout';
         }
 
         // Close cart when pressing ESC key
