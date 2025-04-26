@@ -217,7 +217,7 @@
         function proceedToCheckout() {
             alert('Proceeding to checkout!');
             // Here you would typically redirect to a checkout page
-            // window.location.href = '/checkout';
+             window.location.href = 'summary.html';
         }
 
         // Close cart when pressing ESC key
