@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
     body {
@@ -267,7 +265,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
-
+/* Remove any QR-code specific styles if they exist */
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .thank-you-content {
@@ -3272,6 +3270,12 @@ function hideLoading(buttonId) {
     textSpan.classList.remove('opacity-0');
 }
 
+rzp.on('payment.loaded', function(response) {
+    // This is called when the payment form is loaded
+    // You could add additional checks here if needed
+    console.log("Payment form loaded", response);
+});
+
 function setupPasswordToggles() {
     document.querySelectorAll('.password-toggle').forEach(toggle => {
         toggle.addEventListener('click', function() {
@@ -3501,10 +3505,10 @@ function placeOrder() {
     // 2. Calculate total amount (in paise)
     const amount = calculateTotalAmount();
 
-    // 3. Razorpay options (without order_id)
+    // 3. Razorpay options (without QR code)
     const options = {
-        key: "rzp_live_DPartLBDccSG34", // Replace with your test/live key
-        amount: amount, // Amount in paise (e.g., ₹100 = 10000 paise)
+        key: "rzp_live_DPartLBDccSG34", // Your Razorpay key
+        amount: amount,
         currency: "INR",
         name: "VAMORA.STORE",
         description: "Order Payment",
@@ -3522,6 +3526,14 @@ function placeOrder() {
         handler: function(response) {
             // Handle successful payment
             handlePaymentSuccess(response, getFormData());
+        },
+        // Disable QR code explicitly
+        method: {
+            netbanking: true,
+            card: true,
+            wallet: true,
+            upi: true,
+            qr_code: false // This disables QR code payments
         }
     };
 
@@ -3529,7 +3541,7 @@ function placeOrder() {
     const rzp = new Razorpay(options);
     rzp.open();
 
-    // 5. Handle payment failure with the new popup
+    // 5. Handle payment failure
     rzp.on('payment.failed', function(response) {
         handlePaymentFailure(response);
     });
