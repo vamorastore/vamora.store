@@ -1778,7 +1778,27 @@ document.getElementById('add-to-cart-btn').addEventListener('click', function() 
         quantity: quantity,
         image: document.querySelector('.main-image').src
     };
-    // Add "Buy it now" functionality
+ 
+    // Check if item already exists in cart with same size
+    const existingItemIndex = cart.findIndex(item => 
+        item.title === product.title && item.size === product.size
+    );
+    
+    if (existingItemIndex !== -1) {
+        // Update quantity if item already exists
+        cart[existingItemIndex].quantity += product.quantity;
+    } else {
+        // Add new item to cart
+        cart.push(product);
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Open cart
+    toggleCart();
+});
+
+// Add "Buy it now" functionality
 document.getElementById('buy-now-btn').addEventListener('click', function() {
     const selectedSize = document.querySelector('.size-button.selected');
     if (!selectedSize) {
@@ -1812,33 +1832,11 @@ document.getElementById('buy-now-btn').addEventListener('click', function() {
     
     localStorage.setItem('cart', JSON.stringify(cart));
     
-    // Redirect to checkout page
+ // Redirect to checkout page
     window.location.href = 'sumu.html';
 });
- 
-    // Check if item already exists in cart with same size
-    const existingItemIndex = cart.findIndex(item => 
-        item.title === product.title && item.size === product.size
-    );
-    
-    if (existingItemIndex !== -1) {
-        // Update quantity if item already exists
-        cart[existingItemIndex].quantity += product.quantity;
-    } else {
-        // Add new item to cart
-        cart.push(product);
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Open cart
-    toggleCart();
-});
-// Add "View details" button functionality
-document.getElementById('view-details-btn').addEventListener('click', function() {
-    // Redirect to sumu.html
-    window.location.href = 'p4.html';
-});
+
+
 
         // Make functions available globally
         window.deleteAddress = deleteAddress;
@@ -1888,7 +1886,12 @@ document.addEventListener('DOMContentLoaded', function() {
     quantityInput.addEventListener('change', function() {
         if (this.value < 1) this.value = 1;
     });
-
+    
+// Add "View details" button functionality
+document.getElementById('view-details-btn').addEventListener('click', function() {
+    // Redirect to sumu.html
+    window.location.href = 'p4.html';
+});
     // Share functionality
     const shareButton = document.querySelector('.share-icon');
     shareButton.addEventListener('click', function() {
@@ -1927,7 +1930,6 @@ document.addEventListener('DOMContentLoaded', function() {
             cartCountElement.classList.toggle('hidden', totalItems === 0);
         }
     }
-});
-             </script>
+}); </script>
 </body>
 </html>
