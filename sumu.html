@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
     body {
@@ -265,7 +266,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
-/* Remove any QR-code specific styles if they exist */
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .thank-you-content {
@@ -706,7 +707,41 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-        
+        /* Ensure QR code displays properly */
+.razorpay-qr-code-container {
+    display: block !important;
+    visibility: visible !important;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.razorpay-qr-code-container img {
+    max-width: 200px;
+    height: auto;
+    border: 1px solid #eee;
+    padding: 10px;
+    background: white;
+}
+
+/* Payment method selector */
+.payment-method[data-method="qr_code"] {
+    display: flex !important;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.payment-method[data-method="qr_code"] .payment-icon {
+    margin-right: 15px;
+    font-size: 1.5rem;
+}
+
+.payment-method[data-method="qr_code"] .payment-details {
+    flex-grow: 1;
+}
         .auth-section {
             padding: 25px;
         }
@@ -1991,6 +2026,16 @@
             </div>
         </div>
     </div>
+    
+<meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' https:;
+    script-src 'self' https://checkout.razorpay.com https://api.razorpay.com;
+    frame-src https://checkout.razorpay.com https://api.razorpay.com;
+    img-src 'self' https: data:;
+    style-src 'self' 'unsafe-inline' https:;
+    connect-src 'self' https://api.razorpay.com;
+">
+<meta name="referrer" content="no-referrer-when-downgrade">
 
     <!-- Forgot Password Modal -->
     <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -2182,15 +2227,22 @@
                     </div>
                 </div>
                 
-                <!-- Payment Failed Popup -->
-<div class="payment-failed-popup" id="paymentFailedPopup">
+<!-- Payment Failed Popup -->
+<div id="paymentFailedPopup" class="payment-failed-popup">
     <div class="payment-failed-content">
         <div class="payment-failed-icon">
             <i class="fas fa-times-circle"></i>
         </div>
-        <h3 class="payment-failed-title">Payment Failed</h3>
-        <p class="payment-failed-message">Your payment could not be processed. Please try again.</p>
-        <p class="payment-failed-countdown">Refreshing in <span id="countdown">5</span> seconds...</p>
+        <h2 class="payment-failed-title">Payment Failed</h2>
+        <p class="payment-failed-message">
+            We couldn't process your payment. Please try again.
+        </p>
+        <p class="payment-failed-countdown">
+            Refreshing in <span id="countdown">5</span> seconds...
+        </p>
+        <button class="checkout-btn" onclick="window.location.reload()">
+            Try Again Now
+        </button>
     </div>
 </div>
 
@@ -2722,17 +2774,7 @@ function showThankYouPopup(orderDetails, orderId) {
         }
     });
 }
-function handlePaymentSuccess(response, formData) {
-    // Save the order and get the order ID
-    const orderId = saveOrder(response.razorpay_payment_id, formData);
-    
-    // Clear the cart
-    cart = [];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Show thank you popup with order details
-    showThankYouPopup(formData, orderId);
-}
+
 function getFormData() {
     return {
         firstName: document.getElementById('first-name').value,
@@ -3270,12 +3312,6 @@ function hideLoading(buttonId) {
     textSpan.classList.remove('opacity-0');
 }
 
-rzp.on('payment.loaded', function(response) {
-    // This is called when the payment form is loaded
-    // You could add additional checks here if needed
-    console.log("Payment form loaded", response);
-});
-
 function setupPasswordToggles() {
     document.querySelectorAll('.password-toggle').forEach(toggle => {
         toggle.addEventListener('click', function() {
@@ -3454,46 +3490,7 @@ function generateOrderId() {
     return `${prefix}${randomNum}`;
 }
 
-// Function to calculate the total amount from the cart
-function calculateTotalAmount() {
-    let total = 0;
-    cart.forEach(item => {
-        const price = parseFloat(item.price.replace(/[^\d.]/g, '')); // Extract numeric price
-        total += price * item.quantity;
-    });
-    return total * 100; // Convert to paise (Razorpay expects amount in smallest currency unit)
-}
-
  // Function to handle payment failure with a popup
-function handlePaymentFailure(response) {
-    console.error("Payment failed:", response);
-    
-    // Show payment failed popup
-    const popup = document.getElementById('paymentFailedPopup');
-    popup.classList.add('active');
-    
-    // Start countdown and refresh
-    let seconds = 5;
-    const countdownElement = document.getElementById('countdown');
-    
-    const countdown = setInterval(() => {
-        seconds--;
-        countdownElement.textContent = seconds;
-        
-        if (seconds <= 0) {
-            clearInterval(countdown);
-            window.location.reload();
-        }
-    }, 1000);
-    
-    // Also log this failure for analytics
-    const paymentFailures = JSON.parse(localStorage.getItem("paymentFailures")) || [];
-    paymentFailures.push({
-        error: response.error,
-        timestamp: new Date().toISOString()
-    });
-    localStorage.setItem("paymentFailures", JSON.stringify(paymentFailures));
-}
 
 // Update the Razorpay options to use the new handlePaymentFailure function
 function placeOrder() {
@@ -3505,13 +3502,14 @@ function placeOrder() {
     // 2. Calculate total amount (in paise)
     const amount = calculateTotalAmount();
 
-    // 3. Razorpay options (without QR code)
+    // 3. Razorpay options with GitHub Pages specific fixes
     const options = {
         key: "rzp_live_DPartLBDccSG34", // Your Razorpay key
         amount: amount,
         currency: "INR",
         name: "VAMORA.STORE",
         description: "Order Payment",
+        image: "https://your-logo-url.png", // Add your logo URL
         prefill: {
             name: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
             email: document.getElementById('email').value,
@@ -3524,29 +3522,66 @@ function placeOrder() {
             color: "#000000"
         },
         handler: function(response) {
-            // Handle successful payment
             handlePaymentSuccess(response, getFormData());
         },
-        // Disable QR code explicitly
         method: {
             netbanking: true,
             card: true,
             wallet: true,
             upi: true,
-            qr_code: false // This disables QR code payments
+            qr_code: true // Enable QR code payments
+        },
+        modal: {
+            ondismiss: function() {
+                console.log("Payment modal closed");
+            }
         }
     };
 
-    // 4. Open Razorpay payment modal
+    // 4. Create and open Razorpay instance
     const rzp = new Razorpay(options);
+    
+    // 5. GitHub Pages specific fixes
+    rzp.on('payment.loaded', function(response) {
+        // Fix iframe sandboxing issues
+        const iframes = document.querySelectorAll('iframe[src*="razorpay.com"]');
+        iframes.forEach(iframe => {
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
+        });
+        
+        // Ensure QR code is visible
+        const qrContainers = document.querySelectorAll('.razorpay-qr-code-container');
+        qrContainers.forEach(container => {
+            container.style.display = 'block';
+            container.style.visibility = 'visible';
+        });
+        
+        // Force HTTPS for QR code images
+        const images = document.querySelectorAll('.razorpay-qr-code-container img');
+        images.forEach(img => {
+            if (img.src.startsWith('http://')) {
+                img.src = img.src.replace('http://', 'https://');
+            }
+        });
+    });
+    
     rzp.open();
-
-    // 5. Handle payment failure
+    
+    // 6. Additional timeout to ensure QR code appears
+    setTimeout(() => {
+        const qrContainers = document.querySelectorAll('.razorpay-qr-code-container');
+        qrContainers.forEach(container => {
+            container.style.display = 'block';
+            container.style.visibility = 'visible';
+        });
+    }, 1000);
+    
+    // 7. Handle payment failure
     rzp.on('payment.failed', function(response) {
         handlePaymentFailure(response);
     });
-}
-// Function to save order to localStorage
+}// Function to save order to localStorage
+
 function saveOrderToLocalStorage(order) {
     const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
     const userEmail = document.getElementById('email').value;
@@ -3573,6 +3608,98 @@ function handlePaymentFailure(response, orderId) {
     });
     localStorage.setItem("paymentFailures", JSON.stringify(paymentFailures));
 }
+// Initialize Razorpay script dynamically
+function loadRazorpayScript(callback) {
+    if (window.Razorpay) {
+        callback();
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = callback;
+    script.onerror = function() {
+        console.error('Failed to load Razorpay script');
+        document.getElementById('paymentFailedPopup').classList.add('active');
+    };
+    document.body.appendChild(script);
+}
+
+function calculateTotalAmount() {
+    let total = 0;
+    cart.forEach(item => {
+        const price = parseFloat(item.price.replace(/[^\d.]/g, '')); // Extract numeric price
+        total += price * item.quantity;
+    });
+    return total * 100; // Convert to paise
+}
+
+function handlePaymentSuccess(response, formData) {
+    // Save the order and get the order ID
+    const orderId = saveOrder(response.razorpay_payment_id, formData);
+    
+    // Clear the cart
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Show thank you popup with order details
+    showThankYouPopup(formData, orderId);
+}
+
+function handlePaymentFailure(response) {
+    console.error("Payment failed:", response);
+    
+    // Show payment failed popup
+    const popup = document.getElementById('paymentFailedPopup');
+    popup.classList.add('active');
+    
+    // Start countdown and refresh
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdown = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(countdown);
+            window.location.reload();
+        }
+    }, 1000);
+}
+// This function handles GitHub Pages specific issues
+function handleGitHubPagesCompatibility() {
+    // Fix for relative URLs
+    if (window.location.host.includes('github.io')) {
+        const base = document.createElement('base');
+        base.href = window.location.href;
+        document.head.appendChild(base);
+    }
+    
+    // Ensure Razorpay can open popups
+    window.RazorpayConfig = {
+        integration: 'github_pages',
+        popup: true
+    };
+}
+
+// Run when page loads
+window.addEventListener('load', function() {
+    handleGitHubPagesCompatibility();
+    
+    // If you need to detect mobile for QR code preference
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        document.querySelector('.payment-method[data-method="qr_code"]').style.display = 'flex';
+    }
+});
+
+// Update the Pay Now button event listener
+document.querySelector('.checkout-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    loadRazorpayScript(function() {
+        placeOrder();
+    });
+});
 
 // Update the Pay Now button event listener
 document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
