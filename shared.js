@@ -1,5 +1,3 @@
-// your code goes here
-// your code goes here
 // Initialize user data if not exists
         if (!localStorage.getItem('user')) {
             localStorage.setItem('user', JSON.stringify({
