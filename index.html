@@ -1847,11 +1847,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.value < 1) this.value = 1;
     });
     
-// Add "View details" button functionality
-document.getElementById('view-details-btn').addEventListener('click', function() {
-    // Redirect to sumu.html
-    window.location.href = 'p4.html';
-});
     // Share functionality
     const shareButton = document.querySelector('.share-icon');
     shareButton.addEventListener('click', function() {
@@ -1889,29 +1884,6 @@ document.getElementById('view-details-btn').addEventListener('click', function()
             cartCountElement.textContent = totalItems;
             cartCountElement.classList.toggle('hidden', totalItems === 0);
         }
-            // Buy Now functionality
-document.getElementById('buy-now-btn').addEventListener('click', function() {
-    const selectedSize = document.querySelector('.size-button.selected').textContent;
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    
-    const product = {
-        title: 'DE.ORIGIN',
-        size: selectedSize,
-        price: '₹1.00',
-        quantity: quantity,
-        image: 'https://media-hosting.imagekit.io/abb5a77ade1e43f1/orginn.png?Expires=1837960529&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=aVWyg0BvqcMRohO3mGvg5ASPCtMr4OKyiObcs~NNcAiOQ1zm5f5mQA6IkdqU5wTHtC6GuwZwpgxFtSUoC5GmbSf8hwoiiYiOxeIZPzQL4qYStzrPajvlhjseWLXe6~Wcg44i89BD-dJ4Nqn~h4UDHkfGsDmTwKOxVt7DoEjMSGp-VMm2ZzzGVbQvjB2Op49LN6Bn25hclmb5uViAgTBaVWI-mSy5WUuwXzmxj1umiU62FjaqOoWC7yXDklsTe15PuQb7RS~9vqDJPL-NdLTnp26W~sSzqXX3rnhpGb96ZvzwTvcIHnVC2QSvm2slqJss32vweZ~yk6ZK1nFEvXezkw__'
-    };
-    
-    // Clear the cart first (optional - depends on your business logic)
-    cart = [];
-    
-    // Add the current product to cart
-    cart.push(product);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Immediately redirect to checkout page
-    window.location.href = 'sumu.html';
-});
     }
 }); </script>
 </body>
