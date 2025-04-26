@@ -213,11 +213,10 @@
             renderCart();
         }
 
-        function proceedToCheckout() {
-            alert('Proceeding to checkout!');
-            // Here you would typically redirect to a checkout page
-            window.location.href = 'sumu.html';
-        }
+       function proceedToCheckout() {
+    // Simply redirect to sumu.html
+    window.location.href = 'sumu.html';
+}
 
         // Close cart when pressing ESC key
         document.addEventListener('keydown', (e) => {
