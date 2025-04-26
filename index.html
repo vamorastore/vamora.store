@@ -1798,46 +1798,6 @@ document.getElementById('add-to-cart-btn').addEventListener('click', function() 
     toggleCart();
 });
 
-// Add "Buy it now" functionality
-document.getElementById('buy-now-btn').addEventListener('click', function() {
-    const selectedSize = document.querySelector('.size-button.selected');
-    if (!selectedSize) {
-        alert('Please select a size');
-        return;
-    }
-    
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
-    
-    const product = {
-        title: document.querySelector('h8').textContent,
-        size: selectedSize.textContent,
-        price: productPrice,
-        quantity: quantity,
-        image: document.querySelector('.main-image').src
-    };
- 
-    // Check if item already exists in cart with same size
-    const existingItemIndex = cart.findIndex(item => 
-        item.title === product.title && item.size === product.size
-    );
-    
-    if (existingItemIndex !== -1) {
-        // Update quantity if item already exists
-        cart[existingItemIndex].quantity += product.quantity;
-    } else {
-        // Add new item to cart
-        cart.push(product);
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
- // Redirect to checkout page
-    window.location.href = 'sumu.html';
-});
-
-
-
         // Make functions available globally
         window.deleteAddress = deleteAddress;
         window.editAddress = editAddress;
