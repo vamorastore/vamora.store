@@ -2400,6 +2400,55 @@ if (!localStorage.getItem('user')) {
     }));
 }
 
+if (!localStorage.getItem('allOrders')) {
+    localStorage.setItem('allOrders', JSON.stringify({
+        'swa@gmail.com': [
+            {
+                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                date: new Date().toISOString(),
+                status: 'status-delivered',
+                cart: [
+                    {
+                        title: 'Sample Product',
+                        size: 'M',
+                        price: '₹599',
+                        quantity: 2,
+                        imageUrl: 'https://via.placeholder.com/50'
+                    }
+                ]
+            },
+            {
+                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+                status: 'status-processing',
+                cart: [
+                    {
+                        title: 'Sample Product 2',
+                        size: 'L',
+                        price: '₹799',
+                        quantity: 1,
+                        imageUrl: 'https://via.placeholder.com/50'
+                    }
+                ]
+            },
+            {
+                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+                status: 'status-order-placed',
+                cart: [
+                    {
+                        title: 'Sample Product 3',
+                        size: 'S',
+                        price: '₹399',
+                        quantity: 3,
+                        imageUrl: 'https://via.placeholder.com/50'
+                    }
+                ]
+            }
+        ]
+    }));
+}
+
 // Cart functionality
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let cartOpen = false;
@@ -2412,6 +2461,7 @@ const cartOverlay = document.getElementById('cartOverlay');
 const cartBackdrop = document.getElementById('cartBackdrop');
 const closeCartButton = document.getElementById('closeCartButton');
 const enableSearch = document.getElementById('enableSearch');
+const searchInputContainer = document.querySelector('.search-input-container');
 const accountIconNav = document.getElementById('accountIconNav');
 const dropdownMenu = document.getElementById('dropdownMenu');
 const mobileMenuButton = document.getElementById('mobileMenuButton');
@@ -2434,6 +2484,24 @@ const addressContainer = document.getElementById('addressContainer');
 const ordersContainer = document.getElementById('ordersContainer');
 const loginButton = document.getElementById('login-button');
 
+// Search functionality
+const searchData = [
+    { id: 1, title: "Men's T-Shirt", category: "Clothing", url: "/products/mens-tshirt" },
+    { id: 2, title: "Women's Jeans", category: "Clothing", url: "/products/womens-jeans" },
+    { id: 3, title: "Running Shoes", category: "Footwear", url: "/products/running-shoes" },
+    { id: 4, title: "Smart Watch", category: "Electronics", url: "/products/smart-watch" },
+    { id: 5, title: "Backpack", category: "Accessories", url: "/products/backpack" },
+    { id: 6, title: "Wireless Headphones", category: "Electronics", url: "/products/headphones" },
+    { id: 7, title: "Sunglasses", category: "Accessories", url: "/products/sunglasses" },
+    { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
+];
+
+// DOM elements for search
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const closeSearch = document.getElementById('closeSearch');
+const searchButton = document.getElementById('searchButton');
+
 // Function to close all open elements
 function closeAllOpenElements() {
     // Close cart
@@ -2445,7 +2513,8 @@ function closeAllOpenElements() {
     
     // Close search
     if (searchOpen) {
-        document.querySelector('.search-input-container').style.display = 'none';
+        searchInputContainer.style.display = 'none';
+        searchResults.style.display = 'none';
         searchOpen = false;
     }
     
@@ -2462,6 +2531,111 @@ function closeAllOpenElements() {
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
     }
 }
+
+// Toggle search input
+enableSearch.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // If search is already open, close it
+    if (searchOpen) {
+        searchInputContainer.style.display = 'none';
+        searchResults.style.display = 'none';
+        searchOpen = false;
+        return;
+    }
+    
+    // Otherwise, close other elements and open search
+    closeAllOpenElements();
+    searchOpen = true;
+    searchInputContainer.style.display = 'block';
+    searchInput.focus();
+});
+
+// Close search
+closeSearch.addEventListener('click', function() {
+    searchInputContainer.style.display = 'none';
+    searchInput.value = '';
+    searchResults.style.display = 'none';
+    searchOpen = false;
+});
+
+// Search functionality
+searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.category.toLowerCase().includes(query)
+    );
+    
+    displayResults(results);
+});
+
+// Perform search on button click
+searchButton.addEventListener('click', function() {
+    const query = searchInput.value.toLowerCase();
+    
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.category.toLowerCase().includes(query)
+    );
+    
+    displayResults(results);
+});
+
+// Display search results
+function displayResults(results) {
+    if (results.length === 0) {
+        searchResults.innerHTML = '<div class="no-results">No results found</div>';
+        searchResults.style.display = 'block';
+        return;
+    }
+    
+    searchResults.innerHTML = results.map(item => `
+        <div class="search-result-item" data-url="${item.url}">
+            <div class="title">${item.title}</div>
+            <div class="category">${item.category}</div>
+        </div>
+    `).join('');
+    
+    searchResults.style.display = 'block';
+    
+    // Add click event to results
+    document.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            window.location.href = url;
+        });
+    });
+}
+
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
+        searchResults.style.display = 'none';
+    }
+});
+
+// Close search results on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        searchResults.style.display = 'none';
+    }
+});
+
+// [Rest of your existing code...]
+// (All the other functions and event listeners from your second code snippet)
 
 // Toggle cart function
 function toggleCart() {
