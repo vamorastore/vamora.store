@@ -1372,7 +1372,7 @@ function placeOrder() {
     // 2. Calculate total amount (in paise)
     const amount = calculateTotalAmount();
 
-    // 3. Razorpay options (without order_id)
+    // 3. Razorpay options with UPI QR disabled
     const options = {
         key: "rzp_live_DPartLBDccSG34", // Replace with your test/live key
         amount: amount, // Amount in paise (e.g., ₹100 = 10000 paise)
@@ -1390,9 +1390,23 @@ function placeOrder() {
         theme: {
             color: "#000000"
         },
+        // Disable UPI QR but keep other UPI and payment methods
         handler: function(response) {
             // Handle successful payment
             handlePaymentSuccess(response, getFormData());
+        },
+        // Configure payment methods
+        method: {
+            netbanking: true,
+            card: true,
+            wallet: true,
+            upi: true, // Keep UPI enabled but disable QR specifically
+            paylater: true
+        },
+        // Disable UPI QR code
+        upi: {
+            flow: "collect", // This will show only the UPI ID collection flow
+            vpa: "" // You can pre-fill a VPA if you want
         }
     };
 
@@ -1405,7 +1419,6 @@ function placeOrder() {
         handlePaymentFailure(response);
     });
 }
-
 // Login system event handlers
 document.getElementById('signup-form').addEventListener('submit', async function(event) {
     event.preventDefault();
