@@ -1374,7 +1374,7 @@ function placeOrder() {
 
     // 3. Razorpay options with UPI QR disabled
     const options = {
-        key: "rzp_live_DPartLBDccSG34", // Replace with your test/live key
+        key: "rzp_test_4pNsyctqh77Ksd", // Replace with your test/live key
         amount: amount, // Amount in paise (e.g., ₹100 = 10000 paise)
         currency: "INR",
         name: "VAMORA.STORE",
