@@ -1838,25 +1838,6 @@ if (loginButton) {
         }
     });
 }
-// Mobile account options
-const mobileProfileOption = document.getElementById('mobileProfileOption');
-const mobileLogoutOption = document.getElementById('mobileLogoutOption');
-
-if (mobileProfileOption) {
-    mobileProfileOption.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAllOpenElements();
-        showAccountInfo(e);
-    });
-}
-
-if (mobileLogoutOption) {
-    mobileLogoutOption.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAllOpenElements();
-        logoutUser(e);
-    });
-}
 
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
