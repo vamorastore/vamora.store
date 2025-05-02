@@ -117,6 +117,7 @@ function closeAllOpenElements() {
         mobileMenuContent.classList.remove('active');
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
     }
 }
 
@@ -132,7 +133,7 @@ const searchData = [
     { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
 ];
 
-// DOM elements
+// DOM elements for search
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 const closeSearch = document.getElementById('closeSearch');
@@ -482,6 +483,7 @@ function toggleMobileMenu() {
         mobileMenuContent.classList.remove('active');
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
         return;
     }
     
@@ -490,6 +492,14 @@ function toggleMobileMenu() {
     mobileMenuContent.classList.add('active');
     mobileMenuButton.querySelector('i').classList.remove('fa-bars');
     mobileMenuButton.querySelector('i').classList.add('fa-times');
+    
+    // Show account options if logged in
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.email) {
+        document.getElementById('mobileAccountOptions').classList.remove('hidden');
+    } else {
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+    }
 }
 
 // Show account info page
@@ -525,6 +535,10 @@ function showAccountInfo(event) {
         
         accountInfoPage.classList.remove('hidden');
         dropdownMenu.classList.add('hidden');
+        mobileMenuContent.classList.remove('active');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        mobileMenuButton.querySelector('i').classList.add('fa-bars');
+        mobileMenuButton.querySelector('i').classList.remove('fa-times');
     } else {
         // Show login modal if user is not logged in
         document.getElementById('auth-container').classList.add('active');
@@ -1153,7 +1167,12 @@ function logoutUser(event) {
         addresses: []
     }));
     
+    // Close all menus
     dropdownMenu.classList.add('hidden');
+    mobileMenuContent.classList.remove('active');
+    document.getElementById('mobileAccountOptions').classList.add('hidden');
+    mobileMenuButton.querySelector('i').classList.add('fa-bars');
+    mobileMenuButton.querySelector('i').classList.remove('fa-times');
     
     // Clear the displayed information
     document.getElementById('displayName').textContent = '';
@@ -1202,6 +1221,20 @@ function updateLoginButton() {
                 e.preventDefault();
                 document.getElementById('auth-container').classList.add('active');
             };
+        }
+    }
+}
+
+// Update mobile account options visibility
+function updateMobileAccountOptions() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const mobileAccountOptions = document.getElementById('mobileAccountOptions');
+    
+    if (mobileAccountOptions) {
+        if (user && user.email) {
+            mobileAccountOptions.classList.remove('hidden');
+        } else {
+            mobileAccountOptions.classList.add('hidden');
         }
     }
 }
@@ -1419,6 +1452,7 @@ function placeOrder() {
         handlePaymentFailure(response);
     });
 }
+
 // Login system event handlers
 document.getElementById('signup-form').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -1521,6 +1555,7 @@ document.getElementById('signup-form').addEventListener('submit', async function
             hideAuthContainer();
             loadAccountInfo(email);
             updateLoginButton();
+            updateMobileAccountOptions();
         }, 2000);
     } catch (error) {
         console.error('Error during signup:', error);
@@ -1582,6 +1617,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 hideAuthContainer();
                 loadAccountInfo(email);
                 updateLoginButton();
+                updateMobileAccountOptions();
                 
                 // Update the checkout email field
                 document.getElementById('email').value = email;
@@ -1760,7 +1796,20 @@ document.getElementById('forgot-password-modal').addEventListener('click', funct
     }
 });
 
-// Event listeners
+// Event listeners for mobile account options
+document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    showAccountInfo(e);
+    toggleMobileMenu(); // Close the mobile menu
+});
+
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    toggleMobileMenu(); // Close the mobile menu
+});
+
+// Main event listeners
 accountIconNav.addEventListener('click', toggleDropdown);
 profileOption.addEventListener('click', showAccountInfo);
 logoutOption.addEventListener('click', logoutUser);
@@ -1800,6 +1849,7 @@ window.addEventListener('load', function() {
     const loggedInUser = JSON.parse(localStorage.getItem('user'));
     if (loggedInUser && loggedInUser.email) {
         loadAccountInfo(loggedInUser.email);
+        updateMobileAccountOptions();
     } else {
         // Still check for default address even if not logged in
         applyDefaultAddress();
