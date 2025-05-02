@@ -1,58 +1,23 @@
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
+  authDomain: "orderpage-cf139.firebaseapp.com",
+  projectId: "orderpage-cf139",
+  storageBucket: "orderpage-cf139.firebasestorage.app",
+  messagingSenderId: "242626860827",
+  appId: "1:242626860827:web:92d1d0b75630bc937c65be",
+  measurementId: "G-XRGTFCR75L"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // Initialize user data if not exists
 if (!localStorage.getItem('user')) {
     localStorage.setItem('user', JSON.stringify({
         name: '',
         email: '',
         addresses: []
-    }));
-}
-
-if (!localStorage.getItem('allOrders')) {
-    localStorage.setItem('allOrders', JSON.stringify({
-        'swa@gmail.com': [
-            {
-                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                date: new Date().toISOString(),
-                status: 'status-delivered',
-                cart: [
-                    {
-                        title: 'Sample Product',
-                        size: 'M',
-                        price: '₹599',
-                        quantity: 2,
-                        imageUrl: 'https://via.placeholder.com/50'
-                    }
-                ]
-            },
-            {
-                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-                status: 'status-processing',
-                cart: [
-                    {
-                        title: 'Sample Product 2',
-                        size: 'L',
-                        price: '₹799',
-                        quantity: 1,
-                        imageUrl: 'https://via.placeholder.com/50'
-                    }
-                ]
-            },
-            {
-                orderId: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-                status: 'status-order-placed',
-                cart: [
-                    {
-                        title: 'Sample Product 3',
-                        size: 'S',
-                        price: '₹399',
-                        quantity: 3,
-                        imageUrl: 'https://via.placeholder.com/50'
-                    }
-                ]
-            }
-        ]
     }));
 }
 
@@ -671,115 +636,155 @@ function loadAddresses(email) {
     }
 }
 
-// Load orders
-function loadOrders(email) {
-    const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
-    const userOrders = allOrders[email] || [];
-    
-    if (userOrders.length > 0) {
-        document.getElementById('ordersContainer').innerHTML = userOrders.map(order => `
-            <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <span class="font-semibold">Order Number:</span>
-                        <span class="block text-gray-600">${order.orderId}</span>
-                    </div>
-                    <div>
-                        <span class="font-semibold">Date:</span>
-                        <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
-                    </div>
-                </div>
-                
-                <!-- Order Status Bar -->
-                <div class="mb-6">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                        <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                        <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                        <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                    </div>
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                            <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                        </div>
-                        <div class="relative flex justify-between">
-                            <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                                order.status === 'status-processing' || 
-                                order.status === 'status-shipped' || 
-                                order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                rounded-full flex items-center justify-center text-white">
-                                <i class="fas fa-check text-xs"></i>
-                            </div>
-                            <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                                order.status === 'status-shipped' || 
-                                order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                                order.status === 'status-shipped' || 
-                                order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                <i class="fas fa-truck text-xs"></i>
-                            </div>
-                            <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                                order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                                order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                <i class="fas fa-shipping-fast text-xs"></i>
-                            </div>
-                            <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                                rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                                <i class="fas fa-box-open text-xs"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <span class="font-semibold">Status:</span>
-                        <span class="block capitalize ${getStatusColor(order.status)}">
-                            ${order.status.replace('status-', '').replace('-', ' ')}
-                        </span>
-                    </div>
-                    <div>
-                        <span class="font-semibold">Total:</span>
-                        <span class="block text-gray-600">
-                            ₹${order.cart.reduce((total, item) => {
-                                const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
-                                return total + (price * item.quantity);
-                            }, 0).toFixed(2)}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <h4 class="font-medium mb-2">Items:</h4>
-                    ${order.cart.map(item => `
-                        <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                            <img src="${item.imageUrl || 'https://via.placeholder.com/50'}" 
-                                 alt="${item.title}" 
-                                 class="w-12 h-12 rounded mr-3 object-cover">
-                            <div class="flex-1">
-                                <p class="font-medium">${item.title}</p>
-                                <div class="flex justify-between text-sm text-gray-500">
-                                    <span>Size: ${item.size}</span>
-                                    <span>Qty: ${item.quantity}</span>
-                                    <span>${item.price}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
-    } else {
-        document.getElementById('ordersContainer').innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                <p class="text-lg">You haven't placed any orders yet</p>
-                <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
-            </div>
-        `;
+async function loadOrders(email) {
+    try {
+        // First try to get orders from Firestore
+        const querySnapshot = await db.collection("orders")
+            .where("customerEmail", "==", email)
+            .orderBy("date", "desc")
+            .get();
+        
+        const firestoreOrders = [];
+        querySnapshot.forEach(doc => {
+            firestoreOrders.push(doc.data());
+        });
+        
+        // Check if we have any orders from Firestore
+        if (firestoreOrders.length > 0) {
+            renderOrdersList(firestoreOrders);
+            return;
+        }
+        
+        // Fallback to localStorage if no Firestore orders found
+        const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
+        const userOrders = allOrders[email] || [];
+        
+        if (userOrders.length > 0) {
+            renderOrdersList(userOrders);
+        } else {
+            showNoOrdersMessage();
+        }
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        
+        // Fallback to localStorage if Firestore fails
+        const allOrders = JSON.parse(localStorage.getItem("allOrders")) || {};
+        const userOrders = allOrders[email] || [];
+        
+        if (userOrders.length > 0) {
+            renderOrdersList(userOrders);
+        } else {
+            showNoOrdersMessage();
+        }
     }
+}
+
+function renderOrdersList(orders) {
+    const ordersContainer = document.getElementById('ordersContainer');
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+            
+            <!-- Order Status Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    </div>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                            order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${order.status.replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.cart.reduce((total, item) => {
+                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
+                            return total + (price * item.quantity);
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.cart.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size}</span>
+                                <span>Qty: ${item.quantity}</span>
+                                <span>${item.price}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function showNoOrdersMessage() {
+    document.getElementById('ordersContainer').innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+            <p class="text-lg">You haven't placed any orders yet</p>
+            <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
+        </div>
+    `;
 }
 
 // Helper function to determine the progress bar width
@@ -1273,17 +1278,22 @@ function showThankYouPopup(orderDetails, orderId) {
     });
 }
 
-// Handle successful payment
 function handlePaymentSuccess(response, formData) {
-    // Save the order and get the order ID
-    const orderId = saveOrder(response.razorpay_payment_id, formData);
-    
-    // Clear the cart
-    cart = [];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Show thank you popup with order details
-    showThankYouPopup(formData, orderId);
+    // Save the order to Firestore
+    saveOrder(response.razorpay_payment_id, formData)
+        .then(orderId => {
+            if (orderId) {
+                // Clear the cart
+                cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                // Show thank you popup with order details
+                showThankYouPopup(formData, orderId);
+            } else {
+                // Handle error case
+                showNotification('Error saving order', 'error');
+            }
+        });
 }
 
 // Get form data from checkout form
@@ -1349,15 +1359,18 @@ function handlePaymentFailure(response) {
     localStorage.setItem("paymentFailures", JSON.stringify(paymentFailures));
 }
 
-// In your checkout page's payment success handler:
-function saveOrderToFirestore(paymentId, formData) {
+async function saveOrder(paymentId, formData) {
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const email = user.email || document.getElementById('email').value;
+    
     const orderId = generateOrderId();
+    
     const orderData = {
         orderId: orderId,
         date: new Date().toISOString(),
         status: 'status-order-placed',
         paymentId: paymentId,
-        customerEmail: document.getElementById('email').value,
+        customerEmail: email,
         cart: [...cart],
         shippingAddress: {
             name: `${formData.firstName} ${formData.lastName}`,
@@ -1371,16 +1384,24 @@ function saveOrderToFirestore(paymentId, formData) {
         }
     };
     
-    // Save to Firestore
-    return db.collection("orders").add(orderData)
-        .then((docRef) => {
-            console.log("Order saved with ID: ", docRef.id);
-            return orderId;
-        })
-        .catch((error) => {
-            console.error("Error saving order: ", error);
-            return null;
-        });
+    try {
+        // Save to Firestore
+        await db.collection("orders").add(orderData);
+        
+        // If user is logged in, also update their local orders
+        if (user.email) {
+            if (!user.orders) {
+                user.orders = [];
+            }
+            user.orders.unshift(orderData);
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+        
+        return orderId;
+    } catch (error) {
+        console.error("Error saving order: ", error);
+        return null;
+    }
 }
 
 // Place order function with Razorpay integration
