@@ -18,12 +18,19 @@
             background-color: #e5e5e5;
          /* Main content container */
         .main-content {
-            flex: 10;
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding-top: 80px; /* Space for fixed navbar */
-        }
+    flex: 10;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: 20px; /* Remove the padding-top that was creating space */
+}
+
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    padding-top: 0; /* Also remove any top padding from the container if needed */
+}
         @media (max-width: 768px) {
     .about-container h1 {
         font-size: 2rem; /* Reduce h1 size on mobile */
@@ -32,12 +39,7 @@
         font-size: 1rem; /* Reduce paragraph text size on mobile */
         line-height: 1.5; /* Improve readability with more line spacing */
     }
-}
-        /* About page specific styles */
-        .about-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
+
         }
           /* Account dropdown styles */
         .account-icon-hover {
