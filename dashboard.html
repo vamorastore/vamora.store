@@ -6,11 +6,7 @@
     <title>Admin Orders - VAMORA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Add Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        /* Your existing CSS styles remain the same */
         body {
             font-family: 'Unbounded', sans-serif;
             margin: 0;
@@ -23,6 +19,7 @@
             max-width: 1200px;
             margin: 0 auto;
         }
+        
         h1 {
             color: #333;
             text-align: center;
@@ -405,38 +402,24 @@
     <div class="admin-container">
         <h1>Orders Management</h1>
         
-        <!-- Add login section for admin -->
-        <div id="admin-login" style="max-width: 400px; margin: 0 auto; text-align: center; display: none;">
-            <h3>Admin Login</h3>
-            <input type="password" id="admin-password" placeholder="Enter admin password" 
-                   style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
-            <button id="login-btn" style="background: black; color: white; border: none; padding: 10px 20px; 
-                    border-radius: 4px; cursor: pointer; font-family: 'Unbounded', sans-serif;">
-                Login
-            </button>
-            <p id="login-error" style="color: red; margin-top: 10px; display: none;">Incorrect password</p>
+        <div class="filter-controls">
+            <select id="status-filter">
+                <option value="all">All Statuses</option>
+                <option value="status-order-placed">Order Placed</option>
+                <option value="status-processing">Confirmed</option>
+                <option value="status-shipped">In Transmit</option>
+                <option value="status-delivered">Delivered</option>
+                <option value="status-cancelled">Cancelled</option>
+            </select>
+            
+            <input type="text" id="search-orders" placeholder="Search order ID or customer">
+            
+            <button id="refresh-orders"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <button id="clear-all-orders"><i class="fas fa-trash"></i> Clear All Orders</button>
         </div>
         
-        <div id="admin-content" style="display: none;">
-            <div class="filter-controls">
-                <select id="status-filter">
-                    <option value="all">All Statuses</option>
-                    <option value="status-order-placed">Order Placed</option>
-                    <option value="status-processing">Confirmed</option>
-                    <option value="status-shipped">In Transmit</option>
-                    <option value="status-delivered">Delivered</option>
-                    <option value="status-cancelled">Cancelled</option>
-                </select>
-                
-                <input type="text" id="search-orders" placeholder="Search order ID or customer">
-                
-                <button id="refresh-orders"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button id="clear-all-orders"><i class="fas fa-trash"></i> Clear All Orders</button>
-            </div>
-            
-            <div class="orders-list" id="orders-container">
-                <!-- Orders will be loaded here -->
-            </div>
+        <div class="orders-list" id="orders-container">
+            <!-- Orders will be loaded here -->
         </div>
     </div>
     
@@ -454,98 +437,49 @@
     </div>
     
     <script>
-        // Initialize Firebase with your config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
-            authDomain: "orderpage-cf139.firebaseapp.com",
-            projectId: "orderpage-cf139",
-            storageBucket: "orderpage-cf139.firebasestorage.app",
-            messagingSenderId: "242626860827",
-            appId: "1:242626860827:web:92d1d0b75630bc937c65be",
-            measurementId: "G-XRGTFCR75L"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        // Hardcoded admin password (in a real app, use Firebase Authentication)
-        const ADMIN_PASSWORD = "Ishan2026$1"; // CHANGE THIS
-        
         // Global variables
         let currentItemToDelete = null;
-        let orders = [];
         
-        // Check admin login status
-        function checkAdminLogin() {
-            const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-            if (isLoggedIn) {
-                document.getElementById('admin-login').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                loadAllOrders();
-            } else {
-                document.getElementById('admin-login').style.display = 'block';
-                document.getElementById('admin-content').style.display = 'none';
-            }
-        }
-        
-        // Admin login
-        document.getElementById('login-btn').addEventListener('click', function() {
-            const password = document.getElementById('admin-password').value;
-            if (password === ADMIN_PASSWORD) {
-                localStorage.setItem('adminLoggedIn', 'true');
-                checkAdminLogin();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
-        });
-        
-        // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
-            checkAdminLogin();
+            loadAllOrders();
             
-            // Set up event listeners if admin is logged in
-            if (localStorage.getItem('adminLoggedIn') === 'true') {
-                document.getElementById('refresh-orders').addEventListener('click', loadAllOrders);
-                document.getElementById('status-filter').addEventListener('change', applyFilters);
-                document.getElementById('search-orders').addEventListener('input', applyFilters);
-                document.getElementById('clear-all-orders').addEventListener('click', confirmClearAllOrders);
-                
-                // Confirm dialog buttons
-                document.getElementById('confirm-yes').addEventListener('click', deleteConfirmedItem);
-                document.getElementById('confirm-no').addEventListener('click', hideConfirmDialog);
-            }
+            // Set up event listeners
+            document.getElementById('refresh-orders').addEventListener('click', loadAllOrders);
+            document.getElementById('status-filter').addEventListener('change', applyFilters);
+            document.getElementById('search-orders').addEventListener('input', applyFilters);
+            document.getElementById('clear-all-orders').addEventListener('click', confirmClearAllOrders);
+            
+            // Confirm dialog buttons
+            document.getElementById('confirm-yes').addEventListener('click', deleteConfirmedItem);
+            document.getElementById('confirm-no').addEventListener('click', hideConfirmDialog);
         });
         
-        // Load all orders from Firestore
         function loadAllOrders() {
-            showNotification('Loading orders...');
-            
-            db.collection("orders").orderBy("date", "desc").get()
-                .then((querySnapshot) => {
-                    orders = [];
-                    querySnapshot.forEach((doc) => {
-                        const orderData = doc.data();
-                        orders.push({
-                            id: doc.id, // Firestore document ID
-                            ...orderData
-                        });
-                    });
-                    renderOrders(orders);
-                    showNotification('Orders loaded successfully!');
-                })
-                .catch((error) => {
-                    console.error("Error getting orders: ", error);
-                    showNotification('Error loading orders', 'error');
-                });
+            const allOrders = getAllOrders();
+            renderOrders(allOrders);
         }
         
-        // Apply filters to orders
+        function getAllOrders() {
+            const allOrdersData = JSON.parse(localStorage.getItem('allOrders')) || {};
+            let allOrders = [];
+            
+            for (const email in allOrdersData) {
+                if (allOrdersData[email]) {
+                    allOrders = allOrders.concat(allOrdersData[email].map(order => ({
+                        ...order,
+                        customerEmail: email
+                    })));
+                }
+            }
+            
+            return allOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+        
         function applyFilters() {
             const statusFilter = document.getElementById('status-filter').value;
             const searchQuery = document.getElementById('search-orders').value.toLowerCase();
             
-            let filteredOrders = [...orders];
+            let filteredOrders = getAllOrders();
             
             if (statusFilter !== 'all') {
                 filteredOrders = filteredOrders.filter(order => 
@@ -564,11 +498,10 @@
             renderOrders(filteredOrders);
         }
         
-        // Render orders to the page
-        function renderOrders(ordersToRender) {
+        function renderOrders(orders) {
             const ordersContainer = document.getElementById('orders-container');
             
-            if (ordersToRender.length === 0) {
+            if (orders.length === 0) {
                 ordersContainer.innerHTML = `
                     <div class="no-orders">
                         <i class="fas fa-shopping-bag fa-2x" style="color: #ddd; margin-bottom: 15px;"></i>
@@ -581,7 +514,7 @@
             
             ordersContainer.innerHTML = '';
             
-            ordersToRender.forEach(order => {
+            orders.forEach(order => {
                 const total = order.cart.reduce((sum, item) => {
                     const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
                     return sum + (price * item.quantity);
@@ -599,7 +532,7 @@
                 const orderCard = document.createElement('div');
                 orderCard.className = 'order-card';
                 orderCard.innerHTML = `
-                    <button class="delete-btn" data-order-id="${order.id}">
+                    <button class="delete-btn" data-order-id="${order.orderId}" data-customer-email="${order.customerEmail}">
                         <i class="fas fa-trash"></i>
                     </button>
                     
@@ -626,7 +559,7 @@
                     <div class="order-items">
                         ${order.cart.map((item, index) => `
                             <div class="order-item">
-                                <button class="item-delete-btn" data-order-id="${order.id}" data-item-index="${index}">
+                                <button class="item-delete-btn" data-order-id="${order.orderId}" data-item-index="${index}">
                                     <i class="fas fa-times"></i>
                                 </button>
                                 <img src="${item.image}" alt="${item.title}" class="item-image">
@@ -645,7 +578,7 @@
                     <div class="order-footer">
                         <div class="order-total">Total: ₹${total.toFixed(2)}</div>
                         <div class="item-status">
-                            <select class="status-select" data-order-id="${order.id}">
+                            <select class="status-select" data-order-id="${order.orderId}">
                                 <option value="status-order-placed" ${order.status === 'status-order-placed' ? 'selected' : ''}>Order Placed</option>
                                 <option value="status-processing" ${order.status === 'status-processing' ? 'selected' : ''}>Processing</option>
                                 <option value="status-shipped" ${order.status === 'status-shipped' ? 'selected' : ''}>Shipped</option>
@@ -656,7 +589,7 @@
                                 ${formatStatus(order.status)}
                             </span>
                         </div>
-                        <button class="save-btn" data-order-id="${order.id}">
+                        <button class="save-btn" data-order-id="${order.orderId}">
                             Save Changes
                         </button>
                     </div>
@@ -684,7 +617,8 @@
                 btn.addEventListener('click', function() {
                     currentItemToDelete = {
                         type: 'order',
-                        orderId: this.dataset.orderId
+                        orderId: this.dataset.orderId,
+                        customerEmail: this.dataset.customerEmail
                     };
                     document.querySelector('.confirm-content h3').textContent = 'Delete Order';
                     document.querySelector('.confirm-content p').textContent = 'Are you sure you want to delete this order? This action cannot be undone.';
@@ -707,111 +641,6 @@
             });
         }
         
-        // Save order status to Firestore
-        async function saveOrderStatus(orderId) {
-            const statusSelect = document.querySelector(`.status-select[data-order-id="${orderId}"]`);
-            const newStatus = statusSelect.value;
-            
-            try {
-                await db.collection("orders").doc(orderId).update({
-                    status: newStatus
-                });
-                
-                // Update the status badge immediately
-                const statusBadge = statusSelect.nextElementSibling;
-                statusBadge.className = `status-badge status-${newStatus.replace('status-', '')}`;
-                statusBadge.textContent = formatStatus(newStatus);
-                
-                // Update local orders array
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
-                }
-                
-                showNotification('Order status updated successfully!');
-                return true;
-            } catch (error) {
-                console.error("Error updating order status: ", error);
-                showNotification('Error updating order status', 'error');
-                return false;
-            }
-        }
-        
-        // Delete order from Firestore
-        async function deleteOrder(orderId) {
-            try {
-                await db.collection("orders").doc(orderId).delete();
-                
-                // Remove from local orders array
-                orders = orders.filter(o => o.id !== orderId);
-                
-                showNotification('Order deleted successfully!');
-                loadAllOrders();
-            } catch (error) {
-                console.error("Error deleting order: ", error);
-                showNotification('Error deleting order', 'error');
-            }
-        }
-        
-        // Delete item from order in Firestore
-        async function deleteItemFromOrder(orderId, itemIndex) {
-            try {
-                const orderRef = db.collection("orders").doc(orderId);
-                const orderDoc = await orderRef.get();
-                
-                if (!orderDoc.exists) {
-                    showNotification('Order not found', 'error');
-                    return;
-                }
-                
-                const orderData = orderDoc.data();
-                orderData.cart.splice(itemIndex, 1);
-                
-                // If no items left, delete the entire order
-                if (orderData.cart.length === 0) {
-                    await orderRef.delete();
-                    showNotification('Order deleted (no items left)', 'error');
-                } else {
-                    await orderRef.update({
-                        cart: orderData.cart
-                    });
-                    showNotification('Item deleted successfully!');
-                }
-                
-                // Refresh orders
-                loadAllOrders();
-            } catch (error) {
-                console.error("Error deleting item: ", error);
-                showNotification('Error deleting item', 'error');
-            }
-        }
-        
-        // Clear all orders from Firestore
-        async function clearAllOrders() {
-            try {
-                // Get all orders
-                const querySnapshot = await db.collection("orders").get();
-                
-                // Delete each order in a batch
-                const batch = db.batch();
-                querySnapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                
-                await batch.commit();
-                
-                // Clear local orders array
-                orders = [];
-                
-                showNotification('All orders have been cleared successfully!');
-                loadAllOrders();
-            } catch (error) {
-                console.error("Error clearing all orders: ", error);
-                showNotification('Error clearing all orders', 'error');
-            }
-        }
-        
-        // Confirm clear all orders
         function confirmClearAllOrders() {
             currentItemToDelete = {
                 type: 'all-orders'
@@ -821,33 +650,216 @@
             showConfirmDialog();
         }
         
-        // Show confirm dialog
         function showConfirmDialog() {
             document.getElementById('confirm-dialog').style.display = 'flex';
         }
         
-        // Hide confirm dialog
         function hideConfirmDialog() {
             document.getElementById('confirm-dialog').style.display = 'none';
             currentItemToDelete = null;
         }
         
-        // Handle confirmed deletion
         function deleteConfirmedItem() {
             if (!currentItemToDelete) return;
             
             if (currentItemToDelete.type === 'order') {
-                deleteOrder(currentItemToDelete.orderId);
+                deleteOrder();
             } else if (currentItemToDelete.type === 'item') {
-                deleteItemFromOrder(currentItemToDelete.orderId, currentItemToDelete.itemIndex);
+                deleteItemFromOrder();
             } else if (currentItemToDelete.type === 'all-orders') {
                 clearAllOrders();
             }
-            
-            hideConfirmDialog();
         }
         
-        // Format status for display
+        function deleteOrder() {
+            const { orderId, customerEmail } = currentItemToDelete;
+            const allOrdersData = JSON.parse(localStorage.getItem('allOrders')) || {};
+            
+            if (allOrdersData[customerEmail]) {
+                // Remove the order from the customer's order history
+                allOrdersData[customerEmail] = allOrdersData[customerEmail].filter(
+                    order => order.orderId !== orderId
+                );
+                
+                // Update localStorage
+                localStorage.setItem('allOrders', JSON.stringify(allOrdersData));
+                
+                // Also remove from user's orders if they exist
+                const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = allUsers.findIndex(u => u.email === customerEmail);
+                
+                if (userIndex !== -1 && allUsers[userIndex].orders) {
+                    allUsers[userIndex].orders = allUsers[userIndex].orders.filter(
+                        order => order.orderId !== orderId
+                    );
+                    localStorage.setItem('users', JSON.stringify(allUsers));
+                }
+                
+                // Update current user if they're viewing their profile
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+                if (currentUser && currentUser.email === customerEmail && currentUser.orders) {
+                    currentUser.orders = currentUser.orders.filter(
+                        order => order.orderId !== orderId
+                    );
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                }
+                
+                showNotification('Order deleted successfully!');
+                hideConfirmDialog();
+                loadAllOrders();
+            } else {
+                showNotification('Error deleting order', 'error');
+                hideConfirmDialog();
+            }
+        }
+        
+        function deleteItemFromOrder() {
+            const { orderId, itemIndex } = currentItemToDelete;
+            const allOrdersData = JSON.parse(localStorage.getItem('allOrders')) || {};
+            let itemDeleted = false;
+            
+            for (const email in allOrdersData) {
+                const userOrders = allOrdersData[email];
+                const orderIndex = userOrders.findIndex(o => o.orderId === orderId);
+                
+                if (orderIndex !== -1) {
+                    // Remove the item from the order
+                    userOrders[orderIndex].cart.splice(itemIndex, 1);
+                    
+                    // If no items left, delete the entire order
+                    if (userOrders[orderIndex].cart.length === 0) {
+                        userOrders.splice(orderIndex, 1);
+                    }
+                    
+                    // Update in allOrders
+                    localStorage.setItem('allOrders', JSON.stringify(allOrdersData));
+                    
+                    // Also update in user's orders if they exist
+                    const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+                    const userIndex = allUsers.findIndex(u => u.email === email);
+                    
+                    if (userIndex !== -1 && allUsers[userIndex].orders) {
+                        const userOrderIndex = allUsers[userIndex].orders.findIndex(o => o.orderId === orderId);
+                        if (userOrderIndex !== -1) {
+                            allUsers[userIndex].orders[userOrderIndex].cart.splice(itemIndex, 1);
+                            if (allUsers[userIndex].orders[userOrderIndex].cart.length === 0) {
+                                allUsers[userIndex].orders.splice(userOrderIndex, 1);
+                            }
+                            localStorage.setItem('users', JSON.stringify(allUsers));
+                        }
+                    }
+                    
+                    // Update current user if they're viewing their profile
+                    const currentUser = JSON.parse(localStorage.getItem('user'));
+                    if (currentUser && currentUser.email === email && currentUser.orders) {
+                        const userOrderIndex = currentUser.orders.findIndex(o => o.orderId === orderId);
+                        if (userOrderIndex !== -1) {
+                            currentUser.orders[userOrderIndex].cart.splice(itemIndex, 1);
+                            if (currentUser.orders[userOrderIndex].cart.length === 0) {
+                                currentUser.orders.splice(userOrderIndex, 1);
+                            }
+                            localStorage.setItem('user', JSON.stringify(currentUser));
+                        }
+                    }
+                    
+                    itemDeleted = true;
+                    break;
+                }
+            }
+            
+            if (itemDeleted) {
+                showNotification('Item deleted successfully!');
+                hideConfirmDialog();
+                loadAllOrders();
+            } else {
+                showNotification('Error deleting item', 'error');
+                hideConfirmDialog();
+            }
+        }
+        
+        function clearAllOrders() {
+            // Clear all orders data
+            localStorage.removeItem('allOrders');
+            
+            // Also remove orders from all user accounts
+            const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+            allUsers.forEach(user => {
+                if (user.orders) {
+                    delete user.orders;
+                }
+            });
+            localStorage.setItem('users', JSON.stringify(allUsers));
+            
+            // Update current user if logged in
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (currentUser && currentUser.orders) {
+                delete currentUser.orders;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+            
+            showNotification('All orders have been cleared successfully!');
+            hideConfirmDialog();
+            loadAllOrders();
+        }
+        
+        async function saveOrderStatus(orderId) {
+            const allOrdersData = JSON.parse(localStorage.getItem('allOrders')) || {};
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            let orderUpdated = false;
+            
+            for (const email in allOrdersData) {
+                const userOrders = allOrdersData[email];
+                const orderIndex = userOrders.findIndex(o => o.orderId === orderId);
+                
+                if (orderIndex !== -1) {
+                    const statusSelect = document.querySelector(`.status-select[data-order-id="${orderId}"]`);
+                    const newStatus = statusSelect.value;
+                    
+                    // Update order status
+                    userOrders[orderIndex].status = newStatus;
+                    
+                    // Update the status badge immediately
+                    const statusBadge = statusSelect.nextElementSibling;
+                    statusBadge.className = `status-badge status-${newStatus.replace('status-', '')}`;
+                    statusBadge.textContent = formatStatus(newStatus);
+                    
+                    // Update in allOrders
+                    localStorage.setItem('allOrders', JSON.stringify(allOrdersData));
+                    
+                    // Update in user's orders if they exist
+                    const userIndex = users.findIndex(u => u.email === email);
+                    if (userIndex !== -1 && users[userIndex].orders) {
+                        const userOrderIndex = users[userIndex].orders.findIndex(o => o.orderId === orderId);
+                        if (userOrderIndex !== -1) {
+                            users[userIndex].orders[userOrderIndex] = userOrders[orderIndex];
+                            localStorage.setItem('users', JSON.stringify(users));
+                        }
+                    }
+                    
+                    // Update in current user if they're viewing their profile
+                    const currentUser = JSON.parse(localStorage.getItem('user'));
+                    if (currentUser && currentUser.email === email && currentUser.orders) {
+                        const userOrderIndex = currentUser.orders.findIndex(o => o.orderId === orderId);
+                        if (userOrderIndex !== -1) {
+                            currentUser.orders[userOrderIndex] = userOrders[orderIndex];
+                            localStorage.setItem('user', JSON.stringify(currentUser));
+                        }
+                    }
+                    
+                    orderUpdated = true;
+                    break;
+                }
+            }
+            
+            if (orderUpdated) {
+                showNotification('Order status updated successfully!');
+                return true;
+            } else {
+                showNotification('Error updating order status', 'error');
+                return false;
+            }
+        }
+        
         function formatStatus(status) {
             if (!status) return 'Order Placed';
             return status.replace('status-', '')
@@ -856,7 +868,6 @@
                          .join(' ');
         }
         
-        // Show notification
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
