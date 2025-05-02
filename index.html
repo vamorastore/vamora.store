@@ -32,14 +32,21 @@
         font-size: 0.6875rem; /* 11px */
     }
     
-    /* View more details link */
-    .view-more-link {
+   .view-more-link {
         font-size: 0.6875rem; /* 11px */
+        white-space: nowrap;  /* Prevents text wrapping */
+        display: inline-flex; /* Keeps icon aligned */
+        align-items: center;  /* Vertically centers icon */
     }
-    
-    /* Optional: Adjust the chevron icon size to match */
-    .view-more-link i {
-        font-size: 0.5rem;
+
+    /* Reduce left margin to save space */
+    .share-section > div.ml-9 {
+        margin-left: 1.5rem; /* Reduced from ml-9 (2.25rem) */
+    }
+
+    /* Optional: Make share icon smaller */
+    .share-icon {
+        transform: scale(0.85);
     }
 }
         
@@ -1690,16 +1697,15 @@
                 </div>
                         
                         <!-- Share Button -->
-                        <div class="mt-6 flex items-center">
-                            <p class="text-sm font-medium text-gray-900 mr-3">SHARE</p>
-                            <div class="share-icon" title="Share this product">
-                                <i class="fas fa-share-alt"></i>
-                                </div>
-     <div class="ml-9">
-    <a href="p4.html" class="flex items-center text-sm font-medium text-gray-900 hover:text-black transition-colors group">
-        VIEW MORE DETAILS
-        <i class="fas fa-chevron-right ml-1 text-xs transition-transform group-hover:translate-x-1"></i>
-    </a>
+                       <div class="share-section flex items-center">
+    <p class="text-sm font-medium text-gray-900 mr-2">SHARE</p>
+    <div class="share-icon"><i class="fas fa-share-alt text-xs"></i></div>
+    <div class="ml-6"> <!-- Reduced margin -->
+        <a href="p4.html" class="view-more-link inline-flex items-center">
+            VIEW MORE DETAILS
+            <i class="fas fa-chevron-right ml-1 text-2xs"></i>
+        </a>
+    </div>
 </div>
                     </div>
                 </div>
