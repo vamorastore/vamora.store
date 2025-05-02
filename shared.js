@@ -1349,20 +1349,16 @@ function handlePaymentFailure(response) {
     localStorage.setItem("paymentFailures", JSON.stringify(paymentFailures));
 }
 
-// Save order to localStorage
-function saveOrder(paymentId, formData) {
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    const email = user.email || document.getElementById('email').value;
-    
-    // Generate the order ID (same as in thank you page)
+// In your checkout page's payment success handler:
+function saveOrderToFirestore(paymentId, formData) {
     const orderId = generateOrderId();
-    
-    const order = {
-        orderId: orderId, // Use the generated order ID
+    const orderData = {
+        orderId: orderId,
         date: new Date().toISOString(),
         status: 'status-order-placed',
         paymentId: paymentId,
-        cart: [...cart], // Copy the cart items
+        customerEmail: document.getElementById('email').value,
+        cart: [...cart],
         shippingAddress: {
             name: `${formData.firstName} ${formData.lastName}`,
             address: formData.address,
@@ -1375,24 +1371,16 @@ function saveOrder(paymentId, formData) {
         }
     };
     
-    // Save to all orders
-    const allOrders = JSON.parse(localStorage.getItem('allOrders')) || {};
-    if (!allOrders[email]) {
-        allOrders[email] = [];
-    }
-    allOrders[email].unshift(order); // Add new order at beginning
-    localStorage.setItem('allOrders', JSON.stringify(allOrders));
-    
-    // If user is logged in, update their orders
-    if (user.email) {
-        if (!user.orders) {
-            user.orders = [];
-        }
-        user.orders.unshift(order);
-        localStorage.setItem('user', JSON.stringify(user));
-    }
-    
-    return orderId; // Return the order ID for thank you page
+    // Save to Firestore
+    return db.collection("orders").add(orderData)
+        .then((docRef) => {
+            console.log("Order saved with ID: ", docRef.id);
+            return orderId;
+        })
+        .catch((error) => {
+            console.error("Error saving order: ", error);
+            return null;
+        });
 }
 
 // Place order function with Razorpay integration
