@@ -1759,10 +1759,7 @@ document.getElementById('forgot-password-modal').addEventListener('click', funct
         document.body.classList.remove('overflow-hidden');
     }
 });
-// Prevent dropdown from closing when clicking inside it
-dropdownMenu.addEventListener('click', function(event) {
-    event.stopPropagation();
-});
+
 // Event listeners
 accountIconNav.addEventListener('click', toggleDropdown);
 profileOption.addEventListener('click', showAccountInfo);
@@ -1787,53 +1784,7 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
-// Mobile account options
-const mobileProfileOption = document.getElementById('mobileProfileOption');
-const mobileLogoutOption = document.getElementById('mobileLogoutOption');
 
-if (mobileProfileOption) {
-    mobileProfileOption.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAllOpenElements();
-        showAccountInfo(e);
-    });
-}
-function checkScreenSize() {
-    if (window.innerWidth <= 768) {
-        // Mobile behavior
-        accountIconNav.removeEventListener('click', toggleDropdown);
-        accountIconNav.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (mobileMenuContent.classList.contains('active')) {
-                toggleDropdown();
-            } else {
-                toggleMobileMenu();
-                setTimeout(() => {
-                    toggleDropdown();
-                }, 10);
-            }
-        });
-    } else {
-        // Desktop behavior
-        accountIconNav.removeEventListener('click', toggleDropdown);
-        accountIconNav.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleDropdown();
-        });
-    }
-}
-
-// Run on load and resize
-window.addEventListener('load', checkScreenSize);
-window.addEventListener('resize', checkScreenSize);
-
-if (mobileLogoutOption) {
-    mobileLogoutOption.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAllOpenElements();
-        logoutUser(e);
-    });
-}
 // Initialize
 window.addEventListener('load', function() {
     setupPasswordToggles();
@@ -1887,25 +1838,25 @@ if (loginButton) {
         }
     });
 }
-// Update the mobile menu button event listener
-mobileMenuButton.addEventListener('click', function(event) {
-    event.stopPropagation();
-    toggleMobileMenu();
-});
+// Mobile account options
+const mobileProfileOption = document.getElementById('mobileProfileOption');
+const mobileLogoutOption = document.getElementById('mobileLogoutOption');
 
-// Update the account icon event listener to work on both desktop and mobile
-accountIconNav.addEventListener('click', function(event) {
-    event.stopPropagation();
-    
-    // On mobile, if mobile menu is open, just toggle dropdown
-    if (window.innerWidth <= 768 && mobileMenuContent.classList.contains('active')) {
-        toggleDropdown();
-    } else {
-        // On desktop or when mobile menu is closed
+if (mobileProfileOption) {
+    mobileProfileOption.addEventListener('click', function(e) {
+        e.preventDefault();
         closeAllOpenElements();
-        toggleDropdown();
-    }
-});
+        showAccountInfo(e);
+    });
+}
+
+if (mobileLogoutOption) {
+    mobileLogoutOption.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeAllOpenElements();
+        logoutUser(e);
+    });
+}
 
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
