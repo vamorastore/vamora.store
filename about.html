@@ -24,7 +24,15 @@
             margin: 0 auto;
             padding-top: 80px; /* Space for fixed navbar */
         }
-        
+        @media (max-width: 768px) {
+    .about-container h1 {
+        font-size: 2rem; /* Reduce h1 size on mobile */
+    }
+    .about-container p {
+        font-size: 1rem; /* Reduce paragraph text size on mobile */
+        line-height: 1.5; /* Improve readability with more line spacing */
+    }
+}
         /* About page specific styles */
         .about-container {
             max-width: 800px;
@@ -1235,7 +1243,7 @@
             </p>
             <p class="text-lg font-light mb-4">
                 Sincerely, <br>
-                <span class="font-bold">The VAMORA.STORE Team</span>
+                <span class="font-bold">The VAMORA.STORE</span>
             </p>
         </div>
     </div>
