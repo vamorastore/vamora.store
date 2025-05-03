@@ -1,5 +1,4 @@
-
-    // Your web app's Firebase configuration
+ // Your web app's Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
         authDomain: "orderpage-cf139.firebaseapp.com",
