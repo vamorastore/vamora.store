@@ -3,7 +3,7 @@
         apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
         authDomain: "vamora.store",
         projectId: "orderpage-cf139",
-        storageBucket: "orderpage-cf139.appspot.com",
+        storageBucket: "vamora.store",
         messagingSenderId: "242626860827",
         appId: "1:242626860827:web:92d1d0b75630bc937c65be",
         measurementId: "G-XRGTFCR75L"
