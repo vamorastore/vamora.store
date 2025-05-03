@@ -91,6 +91,22 @@ const addressContainer = document.getElementById('addressContainer');
 const ordersContainer = document.getElementById('ordersContainer');
 const loginButton = document.getElementById('login-button');
 
+// Show login section and hide signup section
+function showLoginSection() {
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('signup-section').classList.add('hidden');
+    document.getElementById('login-section').classList.add('bg-white');
+    document.getElementById('signup-section').classList.remove('bg-gray-50');
+}
+
+// Show signup section and hide login section
+function showSignupSection() {
+    document.getElementById('signup-section').classList.remove('hidden');
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('signup-section').classList.add('bg-gray-50');
+    document.getElementById('login-section').classList.remove('bg-white');
+}
+
 // Function to close all open elements
 function closeAllOpenElements() {
     // Close cart
@@ -541,7 +557,8 @@ function showAccountInfo(event) {
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
     } else {
         // Show login modal if user is not logged in
-        document.getElementById('auth-container').classList.add('active');
+        showAuthContainer();
+        showLoginSection(); // Always show login first
     }
 }
 
@@ -917,6 +934,13 @@ function validateName(name) {
     return name.length >= 2 && name.length <= 50;
 }
 
+function showAuthContainer() {
+    document.getElementById('auth-container').classList.add('active');
+    document.body.classList.add('overflow-hidden');
+    showLoginSection(); // Always show login first
+    resetForms();
+}
+
 function hideAuthContainer() {
     document.getElementById('auth-container').classList.remove('active');
     document.body.classList.remove('overflow-hidden');
@@ -1219,7 +1243,8 @@ function updateLoginButton() {
             loginButton.textContent = 'LOG IN';
             loginButton.onclick = function(e) {
                 e.preventDefault();
-                document.getElementById('auth-container').classList.add('active');
+                showAuthContainer();
+                showLoginSection();
             };
         }
     }
@@ -1734,8 +1759,13 @@ document.getElementById('save-new-password').addEventListener('click', async fun
 // Event Listeners
 document.getElementById('show-signup').addEventListener('click', function(event) {
     event.preventDefault();
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('signup-section').style.display = 'block';
+    showSignupSection();
+    resetForms();
+});
+
+document.getElementById('show-login').addEventListener('click', function(event) {
+    event.preventDefault();
+    showLoginSection();
     resetForms();
 });
 
@@ -1810,7 +1840,16 @@ document.getElementById('mobileLogoutOption')?.addEventListener('click', functio
 });
 
 // Main event listeners
-accountIconNav.addEventListener('click', toggleDropdown);
+accountIconNav.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.email) {
+        toggleDropdown();
+    } else {
+        showAuthContainer();
+        showLoginSection();
+    }
+});
 profileOption.addEventListener('click', showAccountInfo);
 logoutOption.addEventListener('click', logoutUser);
 editProfileIcon.addEventListener('click', showEditProfileModal);
@@ -1863,31 +1902,6 @@ window.addEventListener('load', function() {
         renderOrderSummary();
     }
 });
-
-// Show auth container function
-function showAuthContainer() {
-    document.getElementById('auth-container').classList.add('active');
-    document.getElementById('login-section').style.display = 'block';
-    document.getElementById('signup-section').style.display = 'none';
-}
-
-// Hide auth container function
-function hideAuthContainer() {
-    document.getElementById('auth-container').classList.remove('active');
-}
-
-// Update the login button click handler
-if (loginButton) {
-    loginButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.email) {
-            logoutUser(e);
-        } else {
-            showAuthContainer();
-        }
-    });
-}
 
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
