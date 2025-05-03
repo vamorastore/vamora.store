@@ -221,7 +221,7 @@
                     const user = result.user;
                     console.log('Google sign-in successful', user);
                     // Redirect or do something with the user
-                    window.location.href = "/dashboard.html"; // Change this to your desired redirect
+                    window.location.href = "index.html"; // Change this to your desired redirect
                 })
                 .catch((error) => {
                     console.error('Google sign-in error:', error);
@@ -229,25 +229,6 @@
                 });
         });
         
-        // Email/Password Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Signed in
-                    const user = userCredential.user;
-                    console.log('Email sign-in successful', user);
-                    window.location.href = "index.html"; // Change this to your desired redirect
-                })
-                .catch((error) => {
-                    console.error('Email sign-in error:', error);
-                    // Errors are handled silently as requested
-                });
-        });
     </script>
 </body>
 </html>
