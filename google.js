@@ -1,7 +1,9 @@
-type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
+ <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
             authDomain: "orderpage-cf139.firebaseapp.com",
@@ -13,25 +15,23 @@ type="module">
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        auth.languageCode = 'en';
-        const provider = new GoogleAuthProvider();
-
-        const googleLogin = document.getElementById("googleLogin"); 
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         
-        googleLogin.addEventListener("click", function() {
-            signInWithPopup(auth, provider)
+        // Google Sign-In
+        document.getElementById('googleLogin').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            auth.signInWithPopup(provider)
                 .then((result) => {
-                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    // Successful sign-in
                     const user = result.user;
-                    console.log(user);
-                    window.location.href = "";
+                    console.log('Google sign-in successful', user);
+                    // Redirect or do something with the user
+                    window.location.href = "index.html"; // Change this to your desired redirect
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.error("Error during Google sign-in:", errorCode, errorMessage);
-                    alert("Google sign-in failed: " + errorMessage);
+                    console.error('Google sign-in error:', error);
+                    // Errors are handled silently as requested
                 });
         });
