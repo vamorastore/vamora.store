@@ -1,7 +1,7 @@
  // Your web app's Firebase configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
-        authDomain: "vamora.store",
+      apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
+        authDomain: "orderpage-cf139.firebaseapp.com",
         projectId: "orderpage-cf139",
         storageBucket: "vamora.store",
         messagingSenderId: "242626860827",
