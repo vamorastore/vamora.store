@@ -19,7 +19,7 @@
         const auth = firebase.auth();
         
         // Google Sign-In
-        document.getElementById('googleLogin').addEventListener('click', () => {
+        document.getElementById('google-signin-btn').addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             
             auth.signInWithPopup(provider)
