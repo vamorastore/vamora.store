@@ -1,12 +1,12 @@
  // Your web app's Firebase configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyCPp3K-VPzT9PjhCaMGjgI-OQsASZaADJQ",
-        authDomain: "orderpage-cf139.firebaseapp.com",
-        projectId: "orderpage-cf139",
-        storageBucket: "orderpage-cf139.appspot.com",
-        messagingSenderId: "242626860827",
-        appId: "1:242626860827:web:92d1d0b75630bc937c65be",
-        measurementId: "G-XRGTFCR75L"
+       apiKey: "AIzaSyAe5eAhAI5LTYN8yI6uFN5ib-zqK_SEEt0",
+    authDomain: "vamorastore-269.firebaseapp.com",
+    projectId: "vamorastore-269",
+    storageBucket: "vamorastore-269.firebasestorage.app",
+    messagingSenderId: "842951797209",
+    appId: "1:842951797209:web:afa169d8117ebcf5aad1c8",
+    measurementId: "G-K45X0K580Q"
     };
 
     // Initialize Firebase
