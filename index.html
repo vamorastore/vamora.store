@@ -30,30 +30,34 @@
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
-        .login-success {
-    transform: translateY(-10px);
-    opacity: 0.8;
-    transition: all 0.5s ease;
-}
-
-#login-success {
-    color: #10b981;
+*
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
     font-weight: 500;
-    margin-top: 1rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    display: block !important;
-}
-
-#auth-container {
-    transition: opacity 0.3s ease;
-}
-
-#account-info-page {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(100px);
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: all 0.3s ease;
+    z-index: 1000;
 }
 
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-success {
+    background-color: #10b981;
+}
+
+.toast-error {
+    background-color: #ef4444;
+}
 #google-signin-btn {
     font-weight: 300; /* Light font weight */
     transition: all 0.3s ease;
@@ -1886,7 +1890,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Your scripts -->
-<script src="tap.js"></script>
+<script src="google.js"></script>
 
    <script>              
    
