@@ -938,6 +938,8 @@ function hideAuthContainer() {
     document.getElementById('auth-container').classList.remove('active');
     document.body.classList.remove('overflow-hidden');
     resetForms();
+    // Reset the login form styling
+    document.getElementById('login-section').classList.remove('login-success');
 }
 
 function resetForms() {
@@ -1160,19 +1162,31 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 localStorage.removeItem('rememberedUser');
             }
             
+            // Show success message
             document.getElementById('login-error').classList.add('hidden');
-            document.getElementById('login-success').classList.remove('hidden');
+            const successElement = document.getElementById('login-success');
+            successElement.textContent = 'Login successful! Redirecting...';
+            successElement.classList.remove('hidden');
             
-            // Hide success message after delay
+            // Add a class to the login form for transition effect
+            document.getElementById('login-section').classList.add('login-success');
+            
+            // Hide loading and wait a moment before redirecting
             setTimeout(() => {
-                document.getElementById('login-success').classList.add('hidden');
+                hideLoading('login-submit-button');
+                
+                // Close auth modal and show profile
                 hideAuthContainer();
-                loadAccountInfo(user.email);
+                showAccountInfo({ preventDefault: () => {} });
+                
+                // Update UI elements
                 updateLoginButton();
                 updateMobileAccountOptions();
                 
-                // Update the checkout email field
-                document.getElementById('email').value = user.email;
+                // Update the checkout email field if on checkout page
+                if (document.getElementById('email')) {
+                    document.getElementById('email').value = user.email;
+                }
             }, 1500);
         })
         .catch((error) => {
@@ -1181,8 +1195,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             
             document.getElementById('login-error').textContent = 'Invalid email or password';
             document.getElementById('login-error').classList.remove('hidden');
-        })
-        .finally(() => {
             hideLoading('login-submit-button');
         });
 });
