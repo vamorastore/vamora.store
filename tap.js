@@ -1231,9 +1231,15 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         });
 });
 
-// Google Sign In/Sign Up
+// Google Sign In/Sign Up - Updated Version
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
+        // Show loading state
+        const googleBtn = this;
+        const originalContent = googleBtn.innerHTML;
+        googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        googleBtn.disabled = true;
+
         auth.signInWithPopup(provider)
             .then((result) => {
                 // This gives you a Google Access Token
@@ -1272,20 +1278,48 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 
                 localStorage.setItem('user', JSON.stringify(userData));
                 
-                // Hide auth container
-                document.getElementById('auth-container').classList.remove('active');
-                
-                // Close modal after 1 second
-                setTimeout(() => {
-                    hideAuthContainer();
-                    // Update UI to show user is logged in
-                    loadAccountInfo(user.email);
-                    updateLoginButton();
-                    updateMobileAccountOptions();
+                // Show success message in the auth container if it's open
+                const authContainer = document.getElementById('auth-container');
+                if (authContainer.classList.contains('active')) {
+                    const successElement = document.getElementById('login-success');
+                    successElement.textContent = 'Login successful! Redirecting...';
+                    successElement.classList.remove('hidden');
                     
-                    // Update the checkout email field
+                    // Add visual feedback
+                    document.getElementById('login-section').classList.add('login-success');
+                }
+                
+                // Hide auth container
+                authContainer.classList.remove('active');
+                
+                // Show profile page with animation
+                accountInfoPage.classList.remove('hidden');
+                accountInfoPage.style.opacity = '0';
+                accountInfoPage.style.transition = 'opacity 0.5s ease';
+                
+                // Load user data into profile
+                document.getElementById('displayName').textContent = userData.name || '';
+                document.getElementById('displayEmail').textContent = user.email || '';
+                emailDisplay.value = user.email || '';
+                
+                // Load addresses and orders
+                loadAddresses(user.email);
+                loadOrders(user.email);
+                
+                // Force reflow to ensure transition works
+                void accountInfoPage.offsetWidth;
+                
+                // Fade in profile page
+                accountInfoPage.style.opacity = '1';
+                
+                // Update UI elements
+                updateLoginButton();
+                updateMobileAccountOptions();
+                
+                // Update checkout email if on checkout page
+                if (document.getElementById('email')) {
                     document.getElementById('email').value = user.email;
-                }, 1000);
+                }
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -1293,12 +1327,47 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 const email = error.customData.email;
                 const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
                 
-                document.getElementById('login-error').textContent = errorMessage;
-                document.getElementById('login-error').classList.remove('hidden');
+                // Reset button state
+                googleBtn.innerHTML = originalContent;
+                googleBtn.disabled = false;
+                
+                // Show error in auth container if it's open
+                const authContainer = document.getElementById('auth-container');
+                if (authContainer.classList.contains('active')) {
+                    document.getElementById('login-error').textContent = errorMessage;
+                    document.getElementById('login-error').classList.remove('hidden');
+                } else {
+                    // Show as toast notification if auth container isn't open
+                    showToast(errorMessage, 'error');
+                }
+            })
+            .finally(() => {
+                // Reset button state if not already done
+                if (!googleBtn.disabled) {
+                    googleBtn.innerHTML = originalContent;
+                    googleBtn.disabled = false;
+                }
             });
     });
 });
-
+// Helper function to show toast notifications
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
 // Forgot Password
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
