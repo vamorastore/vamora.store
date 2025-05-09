@@ -934,12 +934,21 @@ function showAuthContainer() {
     resetForms();
 }
 
+// Update the hideAuthContainer function
 function hideAuthContainer() {
-    document.getElementById('auth-container').classList.remove('active');
-    document.body.classList.remove('overflow-hidden');
-    resetForms();
-    // Reset the login form styling
-    document.getElementById('login-section').classList.remove('login-success');
+    const authContainer = document.getElementById('auth-container');
+    authContainer.classList.remove('active');
+    
+    // Add fade-out animation
+    authContainer.style.opacity = '1';
+    authContainer.style.transition = 'opacity 0.3s ease';
+    
+    setTimeout(() => {
+        authContainer.style.opacity = '0';
+        document.body.classList.remove('overflow-hidden');
+        resetForms();
+        document.getElementById('login-section').classList.remove('login-success');
+    }, 10);
 }
 
 function resetForms() {
@@ -1113,7 +1122,7 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         });
 });
 
-// Email/Password Login
+// Email/Password Login - Updated Version
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('login-submit-button');
@@ -1168,26 +1177,46 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             successElement.textContent = 'Login successful! Redirecting...';
             successElement.classList.remove('hidden');
             
-            // Add a class to the login form for transition effect
+            // Add visual feedback
             document.getElementById('login-section').classList.add('login-success');
             
-            // Hide loading and wait a moment before redirecting
+            // Hide loading immediately
+            hideLoading('login-submit-button');
+            
+            // Wait for animation to complete (500ms) then proceed
             setTimeout(() => {
-                hideLoading('login-submit-button');
-                
-                // Close auth modal and show profile
+                // Close auth modal
                 hideAuthContainer();
-                showAccountInfo({ preventDefault: () => {} });
+                
+                // Show profile page with animation
+                accountInfoPage.classList.remove('hidden');
+                accountInfoPage.style.opacity = '0';
+                accountInfoPage.style.transition = 'opacity 0.5s ease';
+                
+                // Load user data into profile
+                document.getElementById('displayName').textContent = userData.name || '';
+                document.getElementById('displayEmail').textContent = user.email || '';
+                emailDisplay.value = user.email || '';
+                
+                // Load addresses and orders
+                loadAddresses(user.email);
+                loadOrders(user.email);
+                
+                // Force reflow to ensure transition works
+                void accountInfoPage.offsetWidth;
+                
+                // Fade in profile page
+                accountInfoPage.style.opacity = '1';
                 
                 // Update UI elements
                 updateLoginButton();
                 updateMobileAccountOptions();
                 
-                // Update the checkout email field if on checkout page
+                // Update checkout email if on checkout page
                 if (document.getElementById('email')) {
                     document.getElementById('email').value = user.email;
                 }
-            }, 1500);
+            }, 500);
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -1196,6 +1225,9 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             document.getElementById('login-error').textContent = 'Invalid email or password';
             document.getElementById('login-error').classList.remove('hidden');
             hideLoading('login-submit-button');
+            
+            // Remove success state if there was an error
+            document.getElementById('login-section').classList.remove('login-success');
         });
 });
 
