@@ -30,6 +30,26 @@
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
+#google-signin-btn {
+    font-weight: 300; /* Light font weight */
+    transition: all 0.3s ease;
+}
+
+#google-signin-btn:hover {
+    background-color: #f8f9fa !important; /* Slightly lighter than the original hover */
+    transform: translateY(-1px); /* Small lift effect */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+#google-signin-btn:active {
+    transform: translateY(0); /* Reset lift when clicked */
+    background-color: #e9ecef !important; /* Slightly darker when pressed */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Reduced shadow */
+}
+
+#google-signin-btn span {
+    font-weight: 300; /* Ensure the text is light */
+}
 
 #auth-container.active {
     opacity: 1;
@@ -1835,9 +1855,14 @@
         </div>
     </footer>
     
-       <script src="shared.js"></script> 
-           <script src="google.js"></script>            
+<!-- Firebase and other dependencies -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<!-- Your scripts -->
+<script src="shared.js"></script>
 
    <script>              
    
@@ -2030,6 +2055,7 @@ document.getElementById('buy-now-btn').addEventListener('click', function() {
         }
     }
 });
+
 </script>
 </body>
 </html>
