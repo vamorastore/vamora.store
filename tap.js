@@ -934,21 +934,15 @@ function showAuthContainer() {
     resetForms();
 }
 
-// Update the hideAuthContainer function
 function hideAuthContainer() {
-    const authContainer = document.getElementById('auth-container');
-    authContainer.classList.remove('active');
-    
-    // Add fade-out animation
-    authContainer.style.opacity = '1';
-    authContainer.style.transition = 'opacity 0.3s ease';
-    
-    setTimeout(() => {
-        authContainer.style.opacity = '0';
-        document.body.classList.remove('overflow-hidden');
-        resetForms();
-        document.getElementById('login-section').classList.remove('login-success');
-    }, 10);
+    document.getElementById('auth-container').classList.remove('active');
+    document.body.classList.remove('overflow-hidden');
+    resetForms();
+    // Reset the login form styling
+    document.getElementById('login-section').classList.remove('login-success');
+    // Hide Google success messages
+    document.getElementById('google-login-success').classList.add('hidden');
+    document.getElementById('google-signup-success').classList.add('hidden');
 }
 
 function resetForms() {
@@ -1231,7 +1225,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         });
 });
 
-// Google Sign In/Sign Up - Updated Version
+// Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
         // Show loading state
@@ -1242,12 +1236,24 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
 
         auth.signInWithPopup(provider)
             .then((result) => {
-                // This gives you a Google Access Token
-                const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
                 const user = result.user;
                 
-                // Get user data from localStorage or create new
+                // Get the current auth section (login or signup)
+                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
+                const isLoginSection = currentAuthSection.id === 'login-section';
+                
+                // Show success message in the appropriate section
+                if (isLoginSection) {
+                    document.getElementById('google-login-success').classList.remove('hidden');
+                } else {
+                    document.getElementById('google-signup-success').classList.remove('hidden');
+                }
+                
+                // Hide other messages
+                document.getElementById('login-error').classList.add('hidden');
+                document.getElementById('signup-error').classList.add('hidden');
+                
+                // Update user data and UI (existing code)
                 let userData = JSON.parse(localStorage.getItem('user')) || {};
                 const allUsers = JSON.parse(localStorage.getItem('users')) || [];
                 const storedUser = allUsers.find(u => u.email === user.email);
@@ -1267,7 +1273,6 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                         addresses: []
                     };
                     
-                    // Add to all users if new
                     allUsers.push({
                         name: user.displayName,
                         email: user.email,
@@ -1278,96 +1283,52 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 
                 localStorage.setItem('user', JSON.stringify(userData));
                 
-                // Show success message in the auth container if it's open
-                const authContainer = document.getElementById('auth-container');
-                if (authContainer.classList.contains('active')) {
-                    const successElement = document.getElementById('login-success');
-                    successElement.textContent = 'Login successful! Redirecting...';
-                    successElement.classList.remove('hidden');
-                    
-                    // Add visual feedback
-                    document.getElementById('login-section').classList.add('login-success');
-                }
-                
-                // Hide auth container
-                authContainer.classList.remove('active');
-                
-                // Show profile page with animation
-                accountInfoPage.classList.remove('hidden');
-                accountInfoPage.style.opacity = '0';
-                accountInfoPage.style.transition = 'opacity 0.5s ease';
-                
-                // Load user data into profile
-                document.getElementById('displayName').textContent = userData.name || '';
-                document.getElementById('displayEmail').textContent = user.email || '';
-                emailDisplay.value = user.email || '';
-                
-                // Load addresses and orders
-                loadAddresses(user.email);
-                loadOrders(user.email);
-                
-                // Force reflow to ensure transition works
-                void accountInfoPage.offsetWidth;
-                
-                // Fade in profile page
-                accountInfoPage.style.opacity = '1';
-                
-                // Update UI elements
-                updateLoginButton();
-                updateMobileAccountOptions();
-                
-                // Update checkout email if on checkout page
-                if (document.getElementById('email')) {
-                    document.getElementById('email').value = user.email;
-                }
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                const email = error.customData.email;
-                const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
-                
                 // Reset button state
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
-                // Show error in auth container if it's open
-                const authContainer = document.getElementById('auth-container');
-                if (authContainer.classList.contains('active')) {
+                // Close auth modal after delay
+                setTimeout(() => {
+                    hideAuthContainer();
+                    
+                    // Show profile page
+                    accountInfoPage.classList.remove('hidden');
+                    document.getElementById('displayName').textContent = userData.name || '';
+                    document.getElementById('displayEmail').textContent = user.email || '';
+                    emailDisplay.value = user.email || '';
+                    
+                    loadAddresses(user.email);
+                    loadOrders(user.email);
+                    
+                    updateLoginButton();
+                    updateMobileAccountOptions();
+                    
+                    if (document.getElementById('email')) {
+                        document.getElementById('email').value = user.email;
+                    }
+                }, 1500);
+            })
+            .catch((error) => {
+                // Error handling (existing code)
+                googleBtn.innerHTML = originalContent;
+                googleBtn.disabled = false;
+                
+                const errorMessage = error.message;
+                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
+                const isLoginSection = currentAuthSection.id === 'login-section';
+                
+                if (isLoginSection) {
                     document.getElementById('login-error').textContent = errorMessage;
                     document.getElementById('login-error').classList.remove('hidden');
+                    document.getElementById('google-login-success').classList.add('hidden');
                 } else {
-                    // Show as toast notification if auth container isn't open
-                    showToast(errorMessage, 'error');
-                }
-            })
-            .finally(() => {
-                // Reset button state if not already done
-                if (!googleBtn.disabled) {
-                    googleBtn.innerHTML = originalContent;
-                    googleBtn.disabled = false;
+                    document.getElementById('signup-error').textContent = errorMessage;
+                    document.getElementById('signup-error').classList.remove('hidden');
+                    document.getElementById('google-signup-success').classList.add('hidden');
                 }
             });
     });
 });
-// Helper function to show toast notifications
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast-notification toast-${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(toast);
-        }, 300);
-    }, 3000);
-}
 // Forgot Password
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
