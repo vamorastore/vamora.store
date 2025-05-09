@@ -1,3 +1,20 @@
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAe5eAhAI5LTYN8yI6uFN5ib-zqK_SEEt0",
+    authDomain: "vamorastore-269.firebaseapp.com",
+    projectId: "vamorastore-269",
+    storageBucket: "vamorastore-269.appspot.com",
+    messagingSenderId: "842951797209",
+    appId: "1:842951797209:web:afa169d8117ebcf5aad1c8",
+    measurementId: "G-K45X0K580Q"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+const analytics = firebase.analytics();
+
 // Initialize user data if not exists
 if (!localStorage.getItem('user')) {
     localStorage.setItem('user', JSON.stringify({
@@ -909,31 +926,7 @@ function getStatusColor(status) {
     }
 }
 
-// Login system functions
-async function hashData(data) {
-    const encoder = new TextEncoder();
-    const dataBuffer = encoder.encode(data);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function validateEmail(email) {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(String(email).toLowerCase());
-}
-
-function validatePassword(password) {
-    return password.length >= 8 && 
-           /[A-Z]/.test(password) && 
-           /[0-9]/.test(password) && 
-           /[^A-Za-z0-9]/.test(password);
-}
-
-function validateName(name) {
-    return name.length >= 2 && name.length <= 50;
-}
-
+// Firebase Authentication Functions
 function showAuthContainer() {
     document.getElementById('auth-container').classList.add('active');
     document.body.classList.add('overflow-hidden');
@@ -989,6 +982,557 @@ function setupPasswordToggles() {
     });
 }
 
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && 
+           /[0-9]/.test(password) && 
+           /[^A-Za-z0-9]/.test(password);
+}
+
+function validateName(name) {
+    return name.length >= 2 && name.length <= 50;
+}
+
+// Email/Password Sign Up
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('signup-submit-button');
+    
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const securityQuestion = document.getElementById('security-question').value;
+    const securityAnswer = document.getElementById('security-answer').value.trim();
+
+    // Reset error messages
+    document.getElementById('signup-error').classList.add('hidden');
+    document.getElementById('email-error').classList.add('hidden');
+    document.getElementById('email-exists-error').classList.add('hidden');
+    document.getElementById('password-mismatch-error').classList.add('hidden');
+    document.getElementById('name-error').classList.add('hidden');
+
+    // Validate all fields
+    let isValid = true;
+
+    if (!validateName(name)) {
+        document.getElementById('name-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!validateEmail(email)) {
+        document.getElementById('email-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!validatePassword(password)) {
+        document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!securityQuestion || !securityAnswer) {
+        document.getElementById('signup-error').textContent = 'All fields are required';
+        document.getElementById('signup-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!isValid) {
+        hideLoading('signup-submit-button');
+        return;
+    }
+
+    // Create user with Firebase
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed up successfully
+            const user = userCredential.user;
+            
+            // Store additional user data in localStorage
+            const userData = {
+                name: name,
+                email: email,
+                securityQuestion: securityQuestion,
+                securityAnswer: securityAnswer,
+                addresses: []
+            };
+            
+            // Update user profile with display name
+            return user.updateProfile({
+                displayName: name
+            }).then(() => {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(userData));
+                
+                // Also store in the global users array
+                const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+                allUsers.push(userData);
+                localStorage.setItem('users', JSON.stringify(allUsers));
+                
+                document.getElementById('verify-email-success').classList.remove('hidden');
+                document.getElementById('signup-form').reset();
+                
+                // Auto switch to login after delay
+                setTimeout(() => {
+                    document.getElementById('signup-section').classList.add('hidden');
+                    document.getElementById('login-section').classList.remove('hidden');
+                    document.getElementById('verify-email-success').classList.add('hidden');
+                    hideAuthContainer();
+                    loadAccountInfo(email);
+                    updateLoginButton();
+                    updateMobileAccountOptions();
+                }, 2000);
+            });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            if (errorCode === 'auth/email-already-in-use') {
+                document.getElementById('email-exists-error').classList.remove('hidden');
+            } else {
+                document.getElementById('signup-error').textContent = errorMessage;
+                document.getElementById('signup-error').classList.remove('hidden');
+            }
+        })
+        .finally(() => {
+            hideLoading('signup-submit-button');
+        });
+});
+
+// Email/Password Login
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('login-submit-button');
+    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
+
+    // Reset error messages
+    document.getElementById('login-error').classList.add('hidden');
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in successfully
+            const user = userCredential.user;
+            
+            // Get user data from localStorage or create new
+            let userData = JSON.parse(localStorage.getItem('user')) || {};
+            const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const storedUser = allUsers.find(u => u.email === user.email);
+            
+            if (storedUser) {
+                userData = {
+                    ...userData,
+                    name: storedUser.name || user.displayName,
+                    email: user.email,
+                    addresses: storedUser.addresses || []
+                };
+            } else {
+                userData = {
+                    ...userData,
+                    name: user.displayName,
+                    email: user.email,
+                    addresses: []
+                };
+            }
+            
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            if (rememberMe) {
+                localStorage.setItem('rememberedUser', JSON.stringify({ 
+                    email: user.email, 
+                    name: user.displayName 
+                }));
+            } else {
+                localStorage.removeItem('rememberedUser');
+            }
+            
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('login-success').classList.remove('hidden');
+            
+            // Hide success message after delay
+            setTimeout(() => {
+                document.getElementById('login-success').classList.add('hidden');
+                hideAuthContainer();
+                loadAccountInfo(user.email);
+                updateLoginButton();
+                updateMobileAccountOptions();
+                
+                // Update the checkout email field
+                document.getElementById('email').value = user.email;
+            }, 1500);
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            document.getElementById('login-error').textContent = 'Invalid email or password';
+            document.getElementById('login-error').classList.remove('hidden');
+        })
+        .finally(() => {
+            hideLoading('login-submit-button');
+        });
+});
+
+// Google Sign In/Sign Up
+document.querySelectorAll('#google-signin-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                // This gives you a Google Access Token
+                const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+                const user = result.user;
+                
+                // Get user data from localStorage or create new
+                let userData = JSON.parse(localStorage.getItem('user')) || {};
+                const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+                const storedUser = allUsers.find(u => u.email === user.email);
+                
+                if (storedUser) {
+                    userData = {
+                        ...userData,
+                        name: storedUser.name || user.displayName,
+                        email: user.email,
+                        addresses: storedUser.addresses || []
+                    };
+                } else {
+                    userData = {
+                        ...userData,
+                        name: user.displayName,
+                        email: user.email,
+                        addresses: []
+                    };
+                    
+                    // Add to all users if new
+                    allUsers.push({
+                        name: user.displayName,
+                        email: user.email,
+                        addresses: []
+                    });
+                    localStorage.setItem('users', JSON.stringify(allUsers));
+                }
+                
+                localStorage.setItem('user', JSON.stringify(userData));
+                
+                // Hide auth container
+                document.getElementById('auth-container').classList.remove('active');
+                
+                // Close modal after 1 second
+                setTimeout(() => {
+                    hideAuthContainer();
+                    // Update UI to show user is logged in
+                    loadAccountInfo(user.email);
+                    updateLoginButton();
+                    updateMobileAccountOptions();
+                    
+                    // Update the checkout email field
+                    document.getElementById('email').value = user.email;
+                }, 1000);
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                const email = error.customData.email;
+                const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
+                
+                document.getElementById('login-error').textContent = errorMessage;
+                document.getElementById('login-error').classList.remove('hidden');
+            });
+    });
+});
+
+// Forgot Password
+document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('forgot-submit-button');
+    
+    const email = document.getElementById('forgot-email').value.trim();
+    const securityQuestion = document.getElementById('forgot-security-question').value;
+    const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
+
+    // Reset error message
+    document.getElementById('forgot-error').classList.add('hidden');
+
+    // In a real app, you would verify the security question/answer from your database
+    // For this example, we'll check against localStorage
+    const allUsers = JSON.parse(localStorage.getItem('users')) || [];
+    const storedUser = allUsers.find(user => 
+        user.email === email && 
+        user.securityQuestion === securityQuestion
+    );
+
+    if (!storedUser) {
+        document.getElementById('forgot-error').classList.remove('hidden');
+        hideLoading('forgot-submit-button');
+        return;
+    }
+
+    // Send password reset email
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            document.getElementById('forgot-error').classList.add('hidden');
+            document.getElementById('reset-password-section').classList.remove('hidden');
+        })
+        .catch((error) => {
+            document.getElementById('forgot-error').textContent = error.message;
+            document.getElementById('forgot-error').classList.remove('hidden');
+        })
+        .finally(() => {
+            hideLoading('forgot-submit-button');
+        });
+});
+
+// Save New Password
+document.getElementById('save-new-password').addEventListener('click', function() {
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    const email = document.getElementById('forgot-email').value.trim();
+
+    // Reset error message
+    document.getElementById('reset-password-mismatch').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+
+    if (!validatePassword(newPassword)) {
+        document.getElementById('reset-password-mismatch').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        return;
+    }
+
+    showLoading('save-new-password');
+
+    // Get the current user (if logged in)
+    const user = auth.currentUser;
+
+    if (user) {
+        // User is logged in, update password directly
+        user.updatePassword(newPassword)
+            .then(() => {
+                document.getElementById('reset-success').classList.remove('hidden');
+                document.getElementById('reset-password-mismatch').classList.add('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('forgot-password-modal').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    document.getElementById('forgot-password-form').reset();
+                    document.getElementById('reset-password-section').classList.add('hidden');
+                    document.getElementById('reset-success').classList.add('hidden');
+                }, 2000);
+            })
+            .catch((error) => {
+                document.getElementById('reset-password-mismatch').textContent = error.message;
+                document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            })
+            .finally(() => {
+                hideLoading('save-new-password');
+            });
+    } else {
+        // User not logged in, we've already sent reset email
+        document.getElementById('reset-success').classList.remove('hidden');
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+        
+        setTimeout(() => {
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            document.getElementById('forgot-password-form').reset();
+            document.getElementById('reset-password-section').classList.add('hidden');
+            document.getElementById('reset-success').classList.add('hidden');
+        }, 2000);
+        
+        hideLoading('save-new-password');
+    }
+});
+
+// Event Listeners
+document.getElementById('show-signup').addEventListener('click', function(event) {
+    event.preventDefault();
+    showSignupSection();
+    resetForms();
+});
+
+document.getElementById('show-login').addEventListener('click', function(event) {
+    event.preventDefault();
+    showLoginSection();
+    resetForms();
+});
+
+document.getElementById('close-forgot-password').addEventListener('click', function() {
+    document.getElementById('forgot-password-modal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    document.getElementById('forgot-password-form').reset();
+    document.getElementById('reset-password-section').classList.add('hidden');
+    document.getElementById('forgot-error').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+});
+
+document.getElementById('forgot-password-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Close the login modal first
+    hideAuthContainer();
+    // Then show the forgot password modal
+    document.getElementById('forgot-password-modal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+});
+
+// Password match validation
+document.getElementById('signup-confirm-password').addEventListener('input', function() {
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+    if (password && confirmPassword && password !== confirmPassword) {
+        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+    } else {
+        document.getElementById('password-mismatch-error').classList.add('hidden');
+    }
+});
+
+document.getElementById('confirm-new-password').addEventListener('input', function() {
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+    if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
+        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+    } else {
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+    }
+});
+
+// Close modals when clicking outside
+document.getElementById('auth-container').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideAuthContainer();
+    }
+});
+
+document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+});
+
+// Event listeners for mobile account options
+document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    showAccountInfo(e);
+    toggleMobileMenu(); // Close the mobile menu
+});
+
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    toggleMobileMenu(); // Close the mobile menu
+});
+
+// Logout function
+function logoutUser(event) {
+    event.preventDefault();
+    auth.signOut().then(() => {
+        // Clear user data
+        localStorage.setItem('user', JSON.stringify({
+            name: '',
+            email: '',
+            addresses: []
+        }));
+        
+        // Close all menus
+        dropdownMenu.classList.add('hidden');
+        mobileMenuContent.classList.remove('active');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        mobileMenuButton.querySelector('i').classList.add('fa-bars');
+        mobileMenuButton.querySelector('i').classList.remove('fa-times');
+        
+        // Clear the displayed information
+        document.getElementById('displayName').textContent = '';
+        document.getElementById('displayEmail').textContent = '';
+        emailDisplay.value = '';
+        
+        // Clear addresses and orders display
+        addressContainer.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                <p class="text-lg">No addresses saved yet</p>
+                <p class="text-sm mt-2">Please login to view your saved addresses</p>
+            </div>
+        `;
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">You haven't placed any orders yet</p>
+                <p class="text-sm mt-2">Please login to view your orders</p>
+            </div>
+        `;
+        
+        // Hide the account info page if it's visible
+        accountInfoPage.classList.add('hidden');
+        
+        // Update the login button text
+        updateLoginButton();
+        
+        // Refresh the page after a short delay to ensure all changes are applied
+        window.location.reload();
+    }).catch((error) => {
+        console.error('Logout error:', error);
+    });
+}
+
+// Update login button based on auth state
+function updateLoginButton() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (loginButton) {
+        if (user && user.email) {
+            loginButton.textContent = 'LOG OUT';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                logoutUser(e);
+            };
+        } else {
+            loginButton.textContent = 'LOG IN';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                showAuthContainer();
+                showLoginSection();
+            };
+        }
+    }
+}
+
+// Update mobile account options visibility
+function updateMobileAccountOptions() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const mobileAccountOptions = document.getElementById('mobileAccountOptions');
+    
+    if (mobileAccountOptions) {
+        if (user && user.email) {
+            mobileAccountOptions.classList.remove('hidden');
+        } else {
+            mobileAccountOptions.classList.add('hidden');
+        }
+    }
+}
+
+// Show edit profile modal
 function showEditProfileModal() {
     const user = JSON.parse(localStorage.getItem('user'));
     nameInput.value = user.name || '';
@@ -1002,10 +1546,25 @@ function saveProfile() {
     user.name = nameInput.value;
     localStorage.setItem('user', JSON.stringify(user));
     
-    document.getElementById('displayName').textContent = user.name || '';
-    editProfileModal.classList.add('hidden');
+    // Update user profile in Firebase
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        currentUser.updateProfile({
+            displayName: nameInput.value
+        }).then(() => {
+            // Profile updated!
+            document.getElementById('displayName').textContent = user.name || '';
+            editProfileModal.classList.add('hidden');
+        }).catch((error) => {
+            console.error('Error updating profile:', error);
+        });
+    } else {
+        document.getElementById('displayName').textContent = user.name || '';
+        editProfileModal.classList.add('hidden');
+    }
 }
 
+// Show add address modal
 function showAddAddressModal(event) {
     event.preventDefault();
     document.getElementById('addressForm').reset();
@@ -1180,88 +1739,6 @@ function setDefaultAddress(addressId) {
     }
     
     loadAddresses(user.email);
-}
-
-function logoutUser(event) {
-    event.preventDefault();
-    // Clear user data
-    localStorage.setItem('user', JSON.stringify({
-        name: '',
-        email: '',
-        addresses: []
-    }));
-    
-    // Close all menus
-    dropdownMenu.classList.add('hidden');
-    mobileMenuContent.classList.remove('active');
-    document.getElementById('mobileAccountOptions').classList.add('hidden');
-    mobileMenuButton.querySelector('i').classList.add('fa-bars');
-    mobileMenuButton.querySelector('i').classList.remove('fa-times');
-    
-    // Clear the displayed information
-    document.getElementById('displayName').textContent = '';
-    document.getElementById('displayEmail').textContent = '';
-    emailDisplay.value = '';
-    
-    // Clear addresses and orders display
-    addressContainer.innerHTML = `
-        <div class="text-center text-gray-500">
-            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-            <p class="text-lg">No addresses saved yet</p>
-            <p class="text-sm mt-2">Please login to view your saved addresses</p>
-        </div>
-    `;
-    ordersContainer.innerHTML = `
-        <div class="text-center py-8 text-gray-500">
-            <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-            <p class="text-lg">You haven't placed any orders yet</p>
-            <p class="text-sm mt-2">Please login to view your orders</p>
-        </div>
-    `;
-    
-    // Hide the account info page if it's visible
-    accountInfoPage.classList.add('hidden');
-    
-    // Update the login button text
-    updateLoginButton();
-    
-    // Refresh the page after a short delay to ensure all changes are applied
-    window.location.reload();
-}
-
-// Update login button based on auth state
-function updateLoginButton() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (loginButton) {
-        if (user && user.email) {
-            loginButton.textContent = 'LOG OUT';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                logoutUser(e);
-            };
-        } else {
-            loginButton.textContent = 'LOG IN';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                showAuthContainer();
-                showLoginSection();
-            };
-        }
-    }
-}
-
-// Update mobile account options visibility
-function updateMobileAccountOptions() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const mobileAccountOptions = document.getElementById('mobileAccountOptions');
-    
-    if (mobileAccountOptions) {
-        if (user && user.email) {
-            mobileAccountOptions.classList.remove('hidden');
-        } else {
-            mobileAccountOptions.classList.add('hidden');
-        }
-    }
 }
 
 // Show thank you popup with order details
@@ -1478,367 +1955,6 @@ function placeOrder() {
     });
 }
 
-// Login system event handlers
-document.getElementById('signup-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    showLoading('signup-submit-button');
-    
-    const name = document.getElementById('signup-name').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
-    const securityQuestion = document.getElementById('security-question').value;
-    const securityAnswer = document.getElementById('security-answer').value.trim();
-
-    // Reset error messages
-    document.getElementById('signup-error').classList.add('hidden');
-    document.getElementById('email-error').classList.add('hidden');
-    document.getElementById('email-exists-error').classList.add('hidden');
-    document.getElementById('password-mismatch-error').classList.add('hidden');
-    document.getElementById('name-error').classList.add('hidden');
-
-    // Validate all fields
-    let isValid = true;
-
-    if (!validateName(name)) {
-        document.getElementById('name-error').classList.remove('hidden');
-        isValid = false;
-    }
-
-    if (!validateEmail(email)) {
-        document.getElementById('email-error').classList.remove('hidden');
-        isValid = false;
-    }
-
-    if (!validatePassword(password)) {
-        document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
-        document.getElementById('password-mismatch-error').classList.remove('hidden');
-        isValid = false;
-    }
-
-    if (password !== confirmPassword) {
-        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
-        document.getElementById('password-mismatch-error').classList.remove('hidden');
-        isValid = false;
-    }
-
-    if (!securityQuestion || !securityAnswer) {
-        document.getElementById('signup-error').textContent = 'All fields are required';
-        document.getElementById('signup-error').classList.remove('hidden');
-        isValid = false;
-    }
-
-    if (!isValid) {
-        hideLoading('signup-submit-button');
-        return;
-    }
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-        const emailExists = existingUsers.some(user => user.email === email);
-
-        if (emailExists) {
-            document.getElementById('email-exists-error').classList.remove('hidden');
-            hideLoading('signup-submit-button');
-            return;
-        }
-
-        // Store user with hashed password and security answer
-        const hashedPassword = await hashData(password);
-        const hashedAnswer = await hashData(securityAnswer);
-        
-        const user = {
-            name: name,
-            email: email,
-            password: hashedPassword,
-            securityQuestion: securityQuestion,
-            securityAnswer: hashedAnswer,
-            addresses: []
-        };
-
-        existingUsers.push(user);
-        localStorage.setItem('users', JSON.stringify(existingUsers));
-        
-        // Also set as logged in user
-        localStorage.setItem('user', JSON.stringify({
-            name: name,
-            email: email,
-            addresses: []
-        }));
-        
-        document.getElementById('verify-email-success').classList.remove('hidden');
-        document.getElementById('signup-form').reset();
-        
-        // Auto switch to login after delay
-        setTimeout(() => {
-            document.getElementById('signup-section').style.display = 'none';
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('verify-email-success').classList.add('hidden');
-            hideAuthContainer();
-            loadAccountInfo(email);
-            updateLoginButton();
-            updateMobileAccountOptions();
-        }, 2000);
-    } catch (error) {
-        console.error('Error during signup:', error);
-        document.getElementById('signup-error').textContent = 'An error occurred. Please try again.';
-        document.getElementById('signup-error').classList.remove('hidden');
-    } finally {
-        hideLoading('signup-submit-button');
-    }
-});
-
-document.getElementById('login-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    showLoading('login-submit-button');
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
-
-    // Reset error messages
-    document.getElementById('login-error').classList.add('hidden');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-        const hashedPassword = await hashData(password);
-        
-        const storedUser = existingUsers.find(user => 
-            user.email === email && 
-            user.password === hashedPassword
-        );
-
-        if (storedUser) {
-            if (rememberMe) {
-                localStorage.setItem('rememberedUser', JSON.stringify({ 
-                    email: email, 
-                    name: storedUser.name 
-                }));
-            } else {
-                localStorage.removeItem('rememberedUser');
-            }
-            
-            // Store user data without password for security
-            const userData = {
-                email: email,
-                name: storedUser.name,
-                addresses: storedUser.addresses || []
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userData));
-            
-            document.getElementById('login-error').classList.add('hidden');
-            document.getElementById('login-success').classList.remove('hidden');
-            
-            // Hide success message after delay
-            setTimeout(() => {
-                document.getElementById('login-success').classList.add('hidden');
-                hideAuthContainer();
-                loadAccountInfo(email);
-                updateLoginButton();
-                updateMobileAccountOptions();
-                
-                // Update the checkout email field
-                document.getElementById('email').value = email;
-            }, 1500);
-        } else {
-            document.getElementById('login-error').classList.remove('hidden');
-        }
-    } catch (error) {
-        console.error('Error during login:', error);
-        document.getElementById('login-error').textContent = 'An error occurred. Please try again.';
-        document.getElementById('login-error').classList.remove('hidden');
-    } finally {
-        hideLoading('login-submit-button');
-    }
-});
-
-// Forgot Password Handlers
-document.getElementById('forgot-password-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    showLoading('forgot-submit-button');
-    
-    const email = document.getElementById('forgot-email').value.trim();
-    const securityQuestion = document.getElementById('forgot-security-question').value;
-    const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
-
-    // Reset error message
-    document.getElementById('forgot-error').classList.add('hidden');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-        const hashedAnswer = await hashData(securityAnswer);
-        
-        const storedUser = existingUsers.find(user => 
-            user.email === email && 
-            user.securityQuestion === securityQuestion && 
-            user.securityAnswer === hashedAnswer
-        );
-
-        if (storedUser) {
-            document.getElementById('forgot-error').classList.add('hidden');
-            document.getElementById('reset-password-section').classList.remove('hidden');
-        } else {
-            document.getElementById('forgot-error').classList.remove('hidden');
-        }
-    } catch (error) {
-        console.error('Error during password recovery:', error);
-        document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
-        document.getElementById('forgot-error').classList.remove('hidden');
-    } finally {
-        hideLoading('forgot-submit-button');
-    }
-});
-
-document.getElementById('save-new-password').addEventListener('click', async function() {
-    showLoading('save-new-password');
-    
-    const newPassword = document.getElementById('new-password').value;
-    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    const email = document.getElementById('forgot-email').value.trim();
-
-    // Reset error message
-    document.getElementById('reset-password-mismatch').classList.add('hidden');
-    document.getElementById('reset-success').classList.add('hidden');
-
-    if (!validatePassword(newPassword)) {
-        document.getElementById('reset-password-mismatch').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
-        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-        hideLoading('save-new-password');
-        return;
-    }
-
-    if (newPassword !== confirmNewPassword) {
-        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
-        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-        hideLoading('save-new-password');
-        return;
-    }
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-        const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-        const userIndex = existingUsers.findIndex(user => user.email === email);
-        const hashedPassword = await hashData(newPassword);
-
-        if (userIndex !== -1) {
-            existingUsers[userIndex].password = hashedPassword;
-            localStorage.setItem('users', JSON.stringify(existingUsers));
-            
-            document.getElementById('reset-success').classList.remove('hidden');
-            document.getElementById('reset-password-mismatch').classList.add('hidden');
-            
-            setTimeout(() => {
-                document.getElementById('forgot-password-modal').classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-                document.getElementById('forgot-password-form').reset();
-                document.getElementById('reset-password-section').classList.add('hidden');
-                document.getElementById('reset-success').classList.add('hidden');
-            }, 2000);
-        }
-    } catch (error) {
-        console.error('Error during password reset:', error);
-        document.getElementById('reset-password-mismatch').textContent = 'An error occurred. Please try again.';
-        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-    } finally {
-        hideLoading('save-new-password');
-    }
-});
-
-// Event Listeners
-document.getElementById('show-signup').addEventListener('click', function(event) {
-    event.preventDefault();
-    showSignupSection();
-    resetForms();
-});
-
-document.getElementById('show-login').addEventListener('click', function(event) {
-    event.preventDefault();
-    showLoginSection();
-    resetForms();
-});
-
-document.getElementById('close-forgot-password').addEventListener('click', function() {
-    document.getElementById('forgot-password-modal').classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-    document.getElementById('forgot-password-form').reset();
-    document.getElementById('reset-password-section').classList.add('hidden');
-    document.getElementById('forgot-error').classList.add('hidden');
-    document.getElementById('reset-success').classList.add('hidden');
-});
-
-document.getElementById('forgot-password-link').addEventListener('click', function(event) {
-    event.preventDefault();
-    // Close the login modal first
-    hideAuthContainer();
-    // Then show the forgot password modal
-    document.getElementById('forgot-password-modal').classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-});
-
-// Password match validation
-document.getElementById('signup-confirm-password').addEventListener('input', function() {
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-    if (password && confirmPassword && password !== confirmPassword) {
-        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
-        document.getElementById('password-mismatch-error').classList.remove('hidden');
-    } else {
-        document.getElementById('password-mismatch-error').classList.add('hidden');
-    }
-});
-
-document.getElementById('confirm-new-password').addEventListener('input', function() {
-    const newPassword = document.getElementById('new-password').value;
-    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-
-    if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
-        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
-        document.getElementById('reset-password-mismatch').classList.remove('hidden');
-    } else {
-        document.getElementById('reset-password-mismatch').classList.add('hidden');
-    }
-});
-
-// Close modals when clicking outside
-document.getElementById('auth-container').addEventListener('click', function(e) {
-    if (e.target === this) {
-        hideAuthContainer();
-    }
-});
-
-document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-});
-
-// Event listeners for mobile account options
-document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    showAccountInfo(e);
-    toggleMobileMenu(); // Close the mobile menu
-});
-
-document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    logoutUser(e);
-    toggleMobileMenu(); // Close the mobile menu
-});
-
 // Main event listeners
 accountIconNav.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -1885,17 +2001,34 @@ window.addEventListener('load', function() {
     }
     
     // Check if user is logged in on page load
-    const loggedInUser = JSON.parse(localStorage.getItem('user'));
-    if (loggedInUser && loggedInUser.email) {
-        loadAccountInfo(loggedInUser.email);
-        updateMobileAccountOptions();
-    } else {
-        // Still check for default address even if not logged in
-        applyDefaultAddress();
-    }
-    
-    // Initialize the login button state
-    updateLoginButton();
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // User is signed in
+            const userData = JSON.parse(localStorage.getItem('user')) || {};
+            if (!userData.email) {
+                // If we don't have user data in localStorage, create it
+                const newUserData = {
+                    name: user.displayName || '',
+                    email: user.email || '',
+                    addresses: []
+                };
+                localStorage.setItem('user', JSON.stringify(newUserData));
+            }
+            
+            loadAccountInfo(user.email);
+            updateMobileAccountOptions();
+            
+            // Update the checkout email field
+            document.getElementById('email').value = user.email;
+        } else {
+            // User is signed out
+            // Still check for default address even if not logged in
+            applyDefaultAddress();
+        }
+        
+        // Initialize the login button state
+        updateLoginButton();
+    });
     
     // Render order summary if on checkout page
     if (document.getElementById('orderSummaryItems')) {
