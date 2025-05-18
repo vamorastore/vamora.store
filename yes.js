@@ -669,47 +669,50 @@ function renderAddresses(addresses) {
             <div class="text-center text-gray-500">
                 <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
                 <p class="text-lg">No addresses saved yet</p>
-                <p class="text-sm mt-2">Add an address to get started</p>
+                <p class="text-sm mt-2">Your saved addresses will appear here</p>
             </div>
         `;
         return;
     }
 
     addressContainer.innerHTML = addresses.map(address => `
-        <div class="address-item border rounded-lg p-4 mb-4 ${address.isDefault ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}">
+        <div class="address-card ${address.isDefault ? 'default-address' : ''} bg-white p-4 rounded-lg shadow-sm mb-3">
             <div class="flex justify-between items-start">
                 <div>
-                    <h3 class="font-medium">${address.fullName}</h3>
-                    <p class="text-gray-600">${address.addressLine1}</p>
-                    ${address.addressLine2 ? `<p class="text-gray-600">${address.addressLine2}</p>` : ''}
-                    <p class="text-gray-600">${address.city}, ${address.state} ${address.postalCode}</p>
-                    <p class="text-gray-600">${address.country}</p>
-                    <p class="text-gray-600">Phone: ${address.phoneNumber}</p>
-                    <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full ${address.isDefault ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
-                        ${address.addressType === 'home' ? 'Home' : 'Work'}
-                    </span>
-                    ${address.isDefault ? '<span class="ml-2 text-xs text-blue-600">(Default)</span>' : ''}
+                    <div class="flex items-center mb-1">
+                        <span class="font-medium">${address.fullName}</span>
+                        ${address.isDefault ? 
+                            '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">${address.phoneNumber}</p>
                 </div>
                 <div class="flex space-x-2">
-                    <button onclick="editAddress('${address.id}')" class="text-blue-500 hover:text-blue-700">
+                    <button class="text-blue-500 hover:text-blue-700 icon-hover icon-hover-blue icon-click-effect" onclick="editAddress('${address.id}')">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="deleteAddress('${address.id}')" class="text-red-500 hover:text-red-700">
+                    <button class="text-gray-500 hover:text-gray-700 icon-hover icon-hover-gray icon-click-effect" onclick="setDefaultAddress('${address.id}')">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700 icon-hover icon-hover-red icon-click-effect" onclick="deleteAddress('${address.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-            ${!address.isDefault ? `
-                <div class="mt-3">
-                    <button onclick="setDefaultAddress('${address.id}')" class="text-sm text-blue-600 hover:text-blue-800">
-                        Set as default
-                    </button>
-                </div>
-            ` : ''}
+            <div class="mt-2 text-sm">
+                <p>${address.addressLine1}</p>
+                ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
+                <p>${address.city}, ${address.state} ${address.postalCode}</p>
+                <p>${address.country}</p>
+            </div>
+            <div class="mt-2 text-xs text-gray-500 capitalize">
+                ${address.addressType} address
+            </div>
         </div>
     `).join('');
+    
+    // Show the "Add Address" link
+    document.getElementById('addAddressLink').style.display = 'block';
 }
-
 async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
@@ -771,35 +774,35 @@ function renderEmptyAccountState() {
 
 async function applyDefaultAddress() {
     const user = auth.currentUser;
-    
-    if (user) {
-        try {
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            
-            if (userDoc.exists && userDoc.data().defaultAddress) {
-                const defaultAddress = userDoc.data().defaultAddress;
-                
-                const nameParts = defaultAddress.fullName.split(' ');
-                document.getElementById('first-name').value = nameParts[0] || '';
-                document.getElementById('last-name').value = nameParts.slice(1).join(' ') || '';
-                
-                document.getElementById('address').value = defaultAddress.addressLine1 || '';
-                document.getElementById('apartment').value = defaultAddress.addressLine2 || '';
-                
-                document.getElementById('city').value = defaultAddress.city || '';
-                document.getElementById('state').value = defaultAddress.state || '';
-                document.getElementById('pin-code').value = defaultAddress.postalCode || '';
-                document.getElementById('country').value = defaultAddress.country || '';
-                document.getElementById('phone').value = defaultAddress.phoneNumber || '';
-            }
-        } catch (error) {
-            console.error("Error fetching default address:", error);
-        }
+    if (!user) return;
+
+    try {
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (!userDoc.exists) return;
+
+        const defaultAddress = userDoc.data().defaultAddress;
+        if (!defaultAddress) return;
+
+        // Split full name into first and last names
+        const nameParts = defaultAddress.fullName.split(' ');
+        document.getElementById('first-name').value = nameParts[0] || '';
+        document.getElementById('last-name').value = nameParts.slice(1).join(' ') || '';
+        
+        // Address fields
+        document.getElementById('address').value = defaultAddress.addressLine1 || '';
+        document.getElementById('apartment').value = defaultAddress.addressLine2 || '';
+        
+        // Other fields
+        document.getElementById('city').value = defaultAddress.city || '';
+        document.getElementById('state').value = defaultAddress.state || '';
+        document.getElementById('pin-code').value = defaultAddress.postalCode || '';
+        document.getElementById('phone').value = defaultAddress.phoneNumber || '';
+    } catch (error) {
+        console.error("Error applying default address:", error);
     }
 }
-
 // Load addresses
-async function loadAddresses() {
+async function loadAddresses(userId) {
     const user = auth.currentUser;
     if (!user) {
         addressContainer.innerHTML = `
@@ -812,7 +815,7 @@ async function loadAddresses() {
     }
 
     try {
-        const doc = await db.collection("users").doc(user.uid).get();
+        const doc = await db.collection("users").doc(userId).get();
         if (doc.exists) {
             const userData = doc.data();
             renderAddresses(userData.addresses || []);
@@ -824,8 +827,8 @@ async function loadAddresses() {
         renderEmptyAddressState();
     }
 }
-
 // Load orders from Firestore
+// Update the loadOrders function
 async function loadOrders(userId) {
     const user = auth.currentUser;
     if (!user) {
@@ -839,6 +842,8 @@ async function loadOrders(userId) {
     }
 
     try {
+        showLoading('ordersLoading');
+        
         const querySnapshot = await db.collection("orders")
             .where("userId", "==", userId)
             .orderBy("timestamp", "desc")
@@ -855,7 +860,15 @@ async function loadOrders(userId) {
             return;
         }
 
-        const orders = querySnapshot.docs.map(doc => doc.data());
+        const orders = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                date: data.timestamp?.toDate() || new Date()
+            };
+        });
+        
         renderOrders(orders);
     } catch (error) {
         console.error("Error loading orders:", error);
@@ -863,12 +876,114 @@ async function loadOrders(userId) {
             <div class="text-center py-8 text-gray-500">
                 <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
                 <p class="text-lg">Error loading orders</p>
-                <p class="text-sm mt-2">Please try again later</p>
+                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
             </div>
         `;
+    } finally {
+        hideLoading('ordersLoading');
     }
 }
 
+// Update the renderOrders function to handle the date properly
+function renderOrders(orders) {
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId || order.id}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">${order.date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })}</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    </div>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                            order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.items.reduce((total, item) => {
+                            const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || '0');
+                            return total + (price * (item.quantity || 1));
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.items.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size}</span>
+                                <span>Qty: ${item.quantity || 1}</span>
+                                <span>${item.price || '₹0.00'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
 // Helper function to render orders
 function renderOrders(orders) {
     ordersContainer.innerHTML = orders.map(order => `
@@ -2024,16 +2139,58 @@ function updateMobileAccountOptions() {
 }
 
 // Show edit profile modal
+// Update the showEditProfileModal and saveProfile functions
 function showEditProfileModal() {
     const user = auth.currentUser;
     if (!user) return;
     
-    nameInput.value = user.displayName || '';
-    emailDisplay.value = user.email || '';
-    emailDisplay.readOnly = true;
-    editProfileModal.classList.remove('hidden');
+    // Get the current user data from Firestore
+    db.collection("users").doc(user.uid).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const userData = doc.data();
+                nameInput.value = userData.name || user.displayName || '';
+                emailDisplay.value = user.email || '';
+                emailDisplay.readOnly = true;
+                editProfileModal.classList.remove('hidden');
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading profile:", error);
+        });
 }
 
+async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    showLoading('saveProfileBtn');
+    
+    try {
+        // Update display name in Firebase Auth
+        await user.updateProfile({
+            displayName: nameInput.value
+        });
+        
+        // Update name in Firestore
+        await db.collection("users").doc(user.uid).update({
+            name: nameInput.value,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update UI
+        document.getElementById('displayName').textContent = nameInput.value;
+        editProfileModal.classList.add('hidden');
+        
+        // Show success message
+        alert('Profile updated successfully!');
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile. Please try again.");
+    } finally {
+        hideLoading('saveProfileBtn');
+    }
+}
 async function saveProfile() {
     const user = auth.currentUser;
     if (!user) return;
@@ -2080,6 +2237,7 @@ async function saveAddress(event) {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
+    // Basic validation
     if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
         !address.city || !address.state || !address.postalCode || !address.country) {
         alert('Please fill in all required fields');
@@ -2091,6 +2249,7 @@ async function saveAddress(event) {
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         
         if (isEditing) {
+            // Editing existing address
             const userDoc = await userRef.get();
             const currentAddresses = userDoc.data().addresses || [];
             
@@ -2111,7 +2270,9 @@ async function saveAddress(event) {
             
             delete document.getElementById('addressForm').dataset.editingId;
         } else {
+            // Adding new address
             if (address.isDefault) {
+                // If setting as default, update all other addresses
                 const userDoc = await userRef.get();
                 const currentAddresses = userDoc.data().addresses || [];
                 
@@ -2125,13 +2286,14 @@ async function saveAddress(event) {
                     defaultAddress: address
                 });
             } else {
+                // Just add the new address
                 await userRef.update({
                     addresses: firebase.firestore.FieldValue.arrayUnion(address)
                 });
             }
         }
 
-        await loadAddresses();
+        await loadAddresses(user.uid);
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
         
@@ -2140,7 +2302,6 @@ async function saveAddress(event) {
         alert("Failed to save address. Please try again.");
     }
 }
-
 function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
@@ -2170,13 +2331,12 @@ async function deleteAddress(addressId) {
             })
         });
         
-        await loadAddresses();
+        await loadAddresses(user.uid);
     } catch (error) {
         console.error("Error deleting address:", error);
         alert("Failed to delete address. Please try again.");
     }
 }
-
 async function setDefaultAddress(addressId) {
     const user = auth.currentUser;
     if (!user) return;
@@ -2200,12 +2360,11 @@ async function setDefaultAddress(addressId) {
             defaultAddress: defaultAddress
         });
         
-        await loadAddresses();
+        await loadAddresses(user.uid);
     } catch (error) {
         console.error("Error setting default address:", error);
     }
 }
-
 function editAddress(addressId) {
     const user = auth.currentUser;
     if (!user) return;
@@ -2235,7 +2394,6 @@ function editAddress(addressId) {
         addAddressModal.classList.remove('hidden');
     });
 }
-
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
