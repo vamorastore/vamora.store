@@ -19,78 +19,6 @@ const db = firebase.firestore();
 // Initialize cart
 let cart = [];
 
-// Auth state change handler
-auth.onAuthStateChanged(async (user) => {
-    try {
-        // Handle cart operations
-        if (user) {
-            // Merge guest cart with user's Firestore cart
-            const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-            const firestoreCart = await getOrCreateUserCart(user.uid);
-            
-            const mergedCart = mergeCarts(firestoreCart, guestCart);
-            
-            await saveCartToFirestore(user.uid, mergedCart);
-            localStorage.removeItem('guestCart');
-            cart = mergedCart;
-        } else {
-            // Load guest cart for non-authenticated users
-            cart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-        }
-
-        // Update UI elements if they exist
-        const cartListEl = document.getElementById('cartList');
-        if (cartListEl) {
-            renderCart();
-        }
-
-        // Handle user data for authenticated users
-        if (user) {
-            try {
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                
-                if (userDoc.exists) {
-                    updateUIWithUserData(user, userDoc.data());
-                    
-                    // Update email field if it exists (e.g., on checkout page)
-                    const emailField = document.getElementById('email');
-                    if (emailField) {
-                        emailField.value = user.email;
-                    }
-                } else {
-                    // Create new user document if it doesn't exist
-                    await db.collection("users").doc(user.uid).set({
-                        name: user.displayName || '',
-                        email: user.email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        addresses: []
-                    });
-                }
-            } catch (error) {
-                console.error("Error loading user data:", error);
-            }
-        } else {
-            // Apply default address for checkout page if element exists
-            if (document.getElementById('first-name')) {
-                applyDefaultAddress();
-            }
-        }
-
-        // Update authentication-related UI
-        setupResendVerification();
-        updateLoginButton();
-
-    } catch (error) {
-        console.error("Error in auth state change handler:", error);
-        // Fallback to empty cart if there's an error
-        cart = [];
-        if (document.getElementById('cartList')) {
-            renderCart();
-        }
-    }
-});
-
 // Check for existing cart on page load
 document.addEventListener('DOMContentLoaded', () => {
     const user = auth.currentUser;
@@ -2138,85 +2066,70 @@ function updateMobileAccountOptions() {
     }
 }
 
-// Show edit profile modal
-// Update the showEditProfileModal and saveProfile functions
+// Edit Profile Functionality
 function showEditProfileModal() {
     const user = auth.currentUser;
     if (!user) return;
     
-    // Get the current user data from Firestore
-    db.collection("users").doc(user.uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                const userData = doc.data();
-                nameInput.value = userData.name || user.displayName || '';
-                emailDisplay.value = user.email || '';
-                emailDisplay.readOnly = true;
-                editProfileModal.classList.remove('hidden');
-            }
-        })
-        .catch((error) => {
-            console.error("Error loading profile:", error);
-        });
+    nameInput.value = user.displayName || '';
+    emailDisplay.value = user.email || '';
+    editProfileModal.classList.remove('hidden');
 }
 
-async function saveProfile() {
+function saveProfile() {
     const user = auth.currentUser;
     if (!user) return;
 
     showLoading('saveProfileBtn');
     
-    try {
-        // Update display name in Firebase Auth
-        await user.updateProfile({
-            displayName: nameInput.value
-        });
-        
-        // Update name in Firestore
-        await db.collection("users").doc(user.uid).update({
+    // Update Firebase Auth profile
+    user.updateProfile({
+        displayName: nameInput.value
+    }).then(() => {
+        // Update Firestore user document
+        return db.collection("users").doc(user.uid).update({
             name: nameInput.value,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+    }).then(() => {
         // Update UI
         document.getElementById('displayName').textContent = nameInput.value;
         editProfileModal.classList.add('hidden');
-        
-        // Show success message
         alert('Profile updated successfully!');
-    } catch (error) {
+    }).catch((error) => {
         console.error("Error updating profile:", error);
         alert("Failed to update profile. Please try again.");
-    } finally {
+    }).finally(() => {
         hideLoading('saveProfileBtn');
-    }
-}
-async function saveProfile() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        await user.updateProfile({ displayName: nameInput.value });
-        
-        await db.collection("users").doc(user.uid).update({
-            name: nameInput.value
-        });
-
-        document.getElementById('displayName').textContent = nameInput.value;
-        editProfileModal.classList.add('hidden');
-    } catch (error) {
-        console.error("Error updating profile:", error);
-    }
+    });
 }
 
-// Show add address modal
+// Address Management
 function showAddAddressModal(event) {
     event.preventDefault();
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
+    document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
     addAddressModal.classList.remove('hidden');
 }
 
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit Profile
+    document.getElementById('editProfileIcon')?.addEventListener('click', showEditProfileModal);
+    document.getElementById('closeEditProfileModal')?.addEventListener('click', () => {
+        editProfileModal.classList.add('hidden');
+    });
+    document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
+    
+    // Address Management
+    document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
+    document.getElementById('closeAddAddressModal')?.addEventListener('click', () => {
+        addAddressModal.classList.add('hidden');
+    });
+    document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
+    document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
+});
 async function saveAddress(event) {
     event.preventDefault();
     const user = auth.currentUser;
@@ -2621,7 +2534,21 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
-
+// Update auth state handler to show/hide add address button
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Show add address button
+        const addAddressLink = document.getElementById('addAddressLink');
+        if (addAddressLink) addAddressLink.style.display = 'block';
+        
+        // Load user data
+        loadAccountInfo(user.uid);
+    } else {
+        // Hide add address button
+        const addAddressLink = document.getElementById('addAddressLink');
+        if (addAddressLink) addAddressLink.style.display = 'none';
+    }
+});
 // Unified auth state handler
 auth.onAuthStateChanged(async (user) => {
     if (user) {
@@ -2667,7 +2594,8 @@ auth.onAuthStateChanged(async (user) => {
     setupResendVerification();
     updateLoginButton();
     renderCart();
-});// New helper function to update UI with Firestore data
+});
+// New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
     // Cache DOM elements to avoid multiple queries
     const displayNameEl = document.getElementById('displayName');
