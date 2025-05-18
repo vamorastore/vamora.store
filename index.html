@@ -17,6 +17,19 @@
     padding: 0;
     background-color: #e5e5e5; /* Ensure this is set */
 }
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 #auth-container {
     position: fixed;
     top: 0;
@@ -310,7 +323,7 @@
 }
 
 
-..mobile-menu-content.active {
+.mobile-menu-content.active {
     transform: translateY(0);
     opacity: 1;
     pointer-events: all;
@@ -996,13 +1009,19 @@
                     </div>
                 </div>
                 
-                <!-- Orders Section -->
-                <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold">Your Orders</h3>
-                    <div id="ordersContainer">
-                        <!-- Orders will be displayed here -->
-                    </div>
-                </div>
+           <!-- Inside the account-info-page div, within the orders section -->
+<div class="bg-white p-4 rounded-lg shadow-md mt-4">
+    <h3 class="text-xl font-bold">Your Orders</h3>
+    <div id="ordersContainer">
+        <!-- Add the loading spinner here -->
+        <div id="ordersLoading" class="hidden">
+            <div class="flex justify-center py-8">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+        <!-- Orders will be displayed here -->
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -1423,11 +1442,11 @@
             </div>
         </div>
     </footer>
-    <!-- Firebase and other dependencies -->
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+<!-- Add these before your custom script -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
             <script src="yes.js"></script>
