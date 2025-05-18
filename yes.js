@@ -1944,12 +1944,6 @@ function resendVerification(email) {
             alert("Error checking account: " + error.message);
         });
 }// Event Listeners
-// Add to your existing event listeners
-document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
-document.getElementById('addressForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    saveAddress(e);
-});
 document.getElementById('show-signup').addEventListener('click', function(event) {
     event.preventDefault();
     showSignupSection();
@@ -2197,18 +2191,121 @@ async function saveProfile() {
         hideLoading('saveProfileBtn');
     }
 }
+async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        await user.updateProfile({ displayName: nameInput.value });
+        
+        await db.collection("users").doc(user.uid).update({
+            name: nameInput.value
+        });
+
+        document.getElementById('displayName').textContent = nameInput.value;
+        editProfileModal.classList.add('hidden');
+    } catch (error) {
+        console.error("Error updating profile:", error);
+    }
+}
+
 // Show add address modal
 function showAddAddressModal(event) {
-    if (event) event.preventDefault();
-    cancelAddress(); // This will reset the form
+    event.preventDefault();
+    document.getElementById('addressForm').reset();
+    delete document.getElementById('addressForm').dataset.editingId;
     addAddressModal.classList.remove('hidden');
 }
 
+async function saveAddress(event) {
+    event.preventDefault();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const address = {
+        fullName: document.getElementById('fullName').value.trim(),
+        phoneNumber: document.getElementById('phoneNumber').value.trim(),
+        addressLine1: document.getElementById('addressLine1').value.trim(),
+        addressLine2: document.getElementById('addressLine2').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        postalCode: document.getElementById('postalCode').value.trim(),
+        country: document.getElementById('country').value,
+        addressType: document.querySelector('input[name="addressType"]:checked').value,
+        isDefault: document.getElementById('setAsDefault').checked,
+        id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Basic validation
+    if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
+        !address.city || !address.state || !address.postalCode || !address.country) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        const userRef = db.collection("users").doc(user.uid);
+        const isEditing = document.getElementById('addressForm').dataset.editingId;
+        
+        if (isEditing) {
+            // Editing existing address
+            const userDoc = await userRef.get();
+            const currentAddresses = userDoc.data().addresses || [];
+            
+            const updatedAddresses = currentAddresses.map(addr => 
+                addr.id === isEditing ? address : addr
+            );
+            
+            if (address.isDefault) {
+                updatedAddresses.forEach(addr => {
+                    if (addr.id !== address.id) addr.isDefault = false;
+                });
+            }
+            
+            await userRef.update({
+                addresses: updatedAddresses,
+                ...(address.isDefault && { defaultAddress: address })
+            });
+            
+            delete document.getElementById('addressForm').dataset.editingId;
+        } else {
+            // Adding new address
+            if (address.isDefault) {
+                // If setting as default, update all other addresses
+                const userDoc = await userRef.get();
+                const currentAddresses = userDoc.data().addresses || [];
+                
+                const updatedAddresses = currentAddresses.map(addr => ({
+                    ...addr,
+                    isDefault: false
+                }));
+                
+                await userRef.update({
+                    addresses: [...updatedAddresses, address],
+                    defaultAddress: address
+                });
+            } else {
+                // Just add the new address
+                await userRef.update({
+                    addresses: firebase.firestore.FieldValue.arrayUnion(address)
+                });
+            }
+        }
+
+        await loadAddresses(user.uid);
+        addAddressModal.classList.add('hidden');
+        document.getElementById('addressForm').reset();
+        
+    } catch (error) {
+        console.error("Error saving address:", error);
+        alert("Failed to save address. Please try again.");
+    }
+}
 function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
     addAddressModal.classList.add('hidden');
-    document.querySelector('#addAddressModal h3').textContent = 'Add New Address'; // Reset title
 }
 
 async function deleteAddress(addressId) {
@@ -2280,7 +2377,6 @@ function editAddress(addressId) {
         const address = addresses.find(addr => addr.id === addressId);
         if (!address) return;
         
-        // Set form values
         document.getElementById('fullName').value = address.fullName;
         document.getElementById('phoneNumber').value = address.phoneNumber;
         document.getElementById('addressLine1').value = address.addressLine1;
@@ -2289,21 +2385,16 @@ function editAddress(addressId) {
         document.getElementById('state').value = address.state;
         document.getElementById('postalCode').value = address.postalCode;
         document.getElementById('country').value = address.country;
-        
-        // Set address type radio button
-        const addressTypeRadio = document.querySelector(`input[name="addressType"][value="${address.addressType}"]`);
-        if (addressTypeRadio) addressTypeRadio.checked = true;
-        
-        // Set default checkbox
+        document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
         document.getElementById('setAsDefault').checked = address.isDefault;
         
-        // Set editing mode
         document.getElementById('addressForm').dataset.editingId = addressId;
         document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
         
         addAddressModal.classList.remove('hidden');
     });
-}// Show thank you popup with order details
+}
+// Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', {
