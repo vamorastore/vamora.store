@@ -1263,19 +1263,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-document.addEventListener('DOMContentLoaded', function() {
-    // Save address form
-    document.getElementById('addressForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        saveAddress(e);
-    });
-    
-    // Save profile form
-    document.getElementById('saveProfileBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        saveProfile();
-    });
-});
+
 
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
