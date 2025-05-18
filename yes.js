@@ -1385,6 +1385,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         });
 });
 // Updated Google Sign In/Sign Up handler with Firestore
+// Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
         const googleBtn = this;
@@ -1398,19 +1399,11 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             .then((result) => {
                 const user = result.user;
                 
-                // Check if elements exist before manipulating them
-                const loginSuccessEl = document.getElementById('google-login-success');
-                const signupSuccessEl = document.getElementById('google-signup-success');
-                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
-                
-                if (currentAuthSection) {
-                    const isLoginSection = currentAuthSection.id === 'login-section';
-                    
-                    if (isLoginSection && loginSuccessEl) {
-                        loginSuccessEl.classList.remove('hidden');
-                    } else if (signupSuccessEl) {
-                        signupSuccessEl.classList.remove('hidden');
-                    }
+                // Show success message in login section
+                const loginSuccessEl = document.getElementById('login-success');
+                if (loginSuccessEl) {
+                    loginSuccessEl.textContent = 'Google login successful! Redirecting...';
+                    loginSuccessEl.classList.remove('hidden');
                 }
                 
                 // Hide error messages if they exist
@@ -1419,6 +1412,7 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 if (loginError) loginError.classList.add('hidden');
                 if (signupError) signupError.classList.add('hidden');
                 
+                // Save user data to Firestore
                 return db.collection("users").doc(user.uid).set({
                     name: user.displayName,
                     email: user.email,
@@ -1435,29 +1429,15 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
+                // Hide auth container and redirect
                 setTimeout(() => {
                     hideAuthContainer();
                     
-                    if (user) {
-                        loadAccountInfo(user.uid).then(() => {
-                            const accountInfoPage = document.getElementById('account-info-page');
-                            if (accountInfoPage) {
-                                accountInfoPage.classList.remove('hidden');
-                                
-                                const profilePicture = document.getElementById('profilePicture');
-                                if (profilePicture && user.photoURL) {
-                                    profilePicture.src = user.photoURL;
-                                }
-                            }
-                            
-                            updateLoginButton();
-                            updateMobileAccountOptions();
-                            
-                            const emailField = document.getElementById('email');
-                            if (emailField) {
-                                emailField.value = user.email;
-                            }
-                        });
+                    // Redirect to profile page or show account info
+                    if (window.location.pathname.includes('account')) {
+                        loadAccountInfo(user.uid);
+                    } else {
+                        window.location.href = '/account';
                     }
                 }, 1500);
             })
@@ -1477,22 +1457,223 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                             loginError.textContent = errorMessage;
                             loginError.classList.remove('hidden');
                         }
-                        const loginSuccess = document.getElementById('google-login-success');
-                        if (loginSuccess) loginSuccess.classList.add('hidden');
                     } else {
                         const signupError = document.getElementById('signup-error');
                         if (signupError) {
                             signupError.textContent = errorMessage;
                             signupError.classList.remove('hidden');
                         }
-                        const signupSuccess = document.getElementById('google-signup-success');
-                        if (signupSuccess) signupSuccess.classList.add('hidden');
                     }
                 }
             });
     });
 });
-// Updated Forgot Password with Firestore
+
+// Updated Email/Password Login
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('login-submit-button');
+    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
+
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.classList.add('hidden');
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Check if email is verified
+            if (!user.emailVerified) {
+                auth.signOut(); // Force logout unverified users
+                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+            }
+            
+            // Update last login time
+            return db.collection("users").doc(user.uid).update({
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                return db.collection("users").doc(user.uid).get();
+            });
+        })
+        .then((doc) => {
+            if (!doc.exists) {
+                throw new Error("User data not found");
+            }
+            
+            const user = auth.currentUser;
+            const userData = doc.data();
+            
+            // Show success message
+            const loginSuccess = document.getElementById('login-success');
+            if (loginSuccess) {
+                loginSuccess.textContent = 'Login successful! Redirecting...';
+                loginSuccess.classList.remove('hidden');
+            }
+            
+            hideLoading('login-submit-button');
+            
+            setTimeout(() => {
+                hideAuthContainer();
+                
+                // Redirect to profile page or show account info
+                if (window.location.pathname.includes('account')) {
+                    loadAccountInfo(user.uid);
+                } else {
+                    window.location.href = '/account';
+                }
+            }, 1500);
+        })
+        .catch((error) => {
+            console.error("Error handling login:", error);
+            const loginError = document.getElementById('login-error');
+            if (loginError) {
+                loginError.textContent = error.message || 'Error processing login. Please try again.';
+                loginError.classList.remove('hidden');
+            }
+            hideLoading('login-submit-button');
+        });
+});
+
+// Prevent Google-signed-in emails from signing up with email/password
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('signup-submit-button');
+    
+    const email = document.getElementById('signup-email').value.trim();
+    
+    // First check if email is already registered with Google
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.includes('google.com')) {
+                throw new Error('This email is already registered with Google. Please sign in with Google.');
+            }
+            
+            // Continue with normal signup if not a Google account
+            const name = document.getElementById('signup-name').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            const securityQuestion = document.getElementById('security-question').value;
+            const securityAnswer = document.getElementById('security-answer').value.trim();
+
+            // Reset error messages
+            document.getElementById('signup-error').classList.add('hidden');
+            document.getElementById('email-error').classList.add('hidden');
+            document.getElementById('email-exists-error').classList.add('hidden');
+            document.getElementById('password-mismatch-error').classList.add('hidden');
+            document.getElementById('name-error').classList.add('hidden');
+
+            // Validation
+            let isValid = true;
+
+            if (!validateName(name)) {
+                document.getElementById('name-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validateEmail(email)) {
+                document.getElementById('email-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validatePassword(password)) {
+                document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+                document.getElementById('password-mismatch-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+                document.getElementById('password-mismatch-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!securityQuestion || !securityAnswer) {
+                document.getElementById('signup-error').textContent = 'All fields are required';
+                document.getElementById('signup-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                hideLoading('signup-submit-button');
+                return;
+            }
+
+            // Create user and send verification email
+            return auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // Send verification email
+                    return user.sendEmailVerification().then(() => {
+                        // Update user profile with display name
+                        return user.updateProfile({
+                            displayName: name
+                        }).then(() => {
+                            // Save additional user data to Firestore
+                            return db.collection("users").doc(user.uid).set({
+                                name: name,
+                                email: email,
+                                securityQuestion: securityQuestion,
+                                securityAnswer: securityAnswer,
+                                provider: 'email',
+                                emailVerified: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                                addresses: []
+                            });
+                        });
+                    });
+                })
+                .then(() => {
+                    // Hide the form and show verification message
+                    const signupForm = document.getElementById('signup-form');
+                    const verifyEmailSuccess = document.getElementById('verify-email-success');
+                    
+                    if (signupForm) signupForm.classList.add('hidden');
+                    if (verifyEmailSuccess) {
+                        verifyEmailSuccess.classList.remove('hidden');
+                        verifyEmailSuccess.innerHTML = `
+                            <div class="text-center">
+                                <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                                <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                                <p class="mb-4">We've sent a verification link to ${email}</p>
+                                <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                                    Go to Login
+                                </button>
+                                <p class="text-sm mt-4 text-gray-600">
+                                    Didn't get the email? 
+                                    <a href="#" onclick="resendVerification('${email}')" class="text-blue-600">Resend</a>
+                                </p>
+                            </div>
+                        `;
+                    }
+                });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            if (errorCode === 'auth/email-already-in-use') {
+                const emailExistsError = document.getElementById('email-exists-error');
+                if (emailExistsError) {
+                    emailExistsError.textContent = 'This email is already registered. Please sign in instead.';
+                    emailExistsError.classList.remove('hidden');
+                }
+            } else {
+                const signupError = document.getElementById('signup-error');
+                if (signupError) {
+                    signupError.textContent = errorMessage;
+                    signupError.classList.remove('hidden');
+                }
+            }
+        })
+        .finally(() => {
+            hideLoading('signup-submit-button');
+        });
+});// Updated Forgot Password with Firestore
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
