@@ -1944,6 +1944,12 @@ function resendVerification(email) {
             alert("Error checking account: " + error.message);
         });
 }// Event Listeners
+// Add to your existing event listeners
+document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
+document.getElementById('addressForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveAddress(e);
+});
 document.getElementById('show-signup').addEventListener('click', function(event) {
     event.preventDefault();
     showSignupSection();
@@ -2211,9 +2217,8 @@ async function saveProfile() {
 
 // Show add address modal
 function showAddAddressModal(event) {
-    event.preventDefault();
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
+    if (event) event.preventDefault();
+    cancelAddress(); // This will reset the form
     addAddressModal.classList.remove('hidden');
 }
 
@@ -2222,6 +2227,7 @@ async function saveAddress(event) {
     const user = auth.currentUser;
     if (!user) return;
 
+    // Get form values
     const address = {
         fullName: document.getElementById('fullName').value.trim(),
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
@@ -2237,7 +2243,7 @@ async function saveAddress(event) {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Basic validation
+    // Validation
     if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
         !address.city || !address.state || !address.postalCode || !address.country) {
         alert('Please fill in all required fields');
@@ -2267,8 +2273,6 @@ async function saveAddress(event) {
                 addresses: updatedAddresses,
                 ...(address.isDefault && { defaultAddress: address })
             });
-            
-            delete document.getElementById('addressForm').dataset.editingId;
         } else {
             // Adding new address
             if (address.isDefault) {
@@ -2294,18 +2298,17 @@ async function saveAddress(event) {
         }
 
         await loadAddresses(user.uid);
-        addAddressModal.classList.add('hidden');
-        document.getElementById('addressForm').reset();
+        cancelAddress(); // Use cancelAddress to properly reset the form
         
     } catch (error) {
         console.error("Error saving address:", error);
         alert("Failed to save address. Please try again.");
     }
-}
-function cancelAddress() {
+}function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
     addAddressModal.classList.add('hidden');
+    document.querySelector('#addAddressModal h3').textContent = 'Add New Address'; // Reset title
 }
 
 async function deleteAddress(addressId) {
@@ -2377,6 +2380,7 @@ function editAddress(addressId) {
         const address = addresses.find(addr => addr.id === addressId);
         if (!address) return;
         
+        // Set form values
         document.getElementById('fullName').value = address.fullName;
         document.getElementById('phoneNumber').value = address.phoneNumber;
         document.getElementById('addressLine1').value = address.addressLine1;
@@ -2385,16 +2389,21 @@ function editAddress(addressId) {
         document.getElementById('state').value = address.state;
         document.getElementById('postalCode').value = address.postalCode;
         document.getElementById('country').value = address.country;
-        document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
+        
+        // Set address type radio button
+        const addressTypeRadio = document.querySelector(`input[name="addressType"][value="${address.addressType}"]`);
+        if (addressTypeRadio) addressTypeRadio.checked = true;
+        
+        // Set default checkbox
         document.getElementById('setAsDefault').checked = address.isDefault;
         
+        // Set editing mode
         document.getElementById('addressForm').dataset.editingId = addressId;
         document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
         
         addAddressModal.classList.remove('hidden');
     });
-}
-// Show thank you popup with order details
+}// Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', {
