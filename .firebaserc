@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "vamora-co-in",
-    "vamorastore": "vamora-co-in"
+    "default": "vamora-co-in"
   }
 }
