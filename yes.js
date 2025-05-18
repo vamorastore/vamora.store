@@ -1,12 +1,12 @@
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAe5eAhAI5LTYN8yI6uFN5ib-zqK_SEEt0",
-    authDomain: "vamorastore-269.firebaseapp.com",
-    projectId: "vamorastore-269",
-    storageBucket: "vamorastore-269.appspot.com",
-    messagingSenderId: "842951797209",
-    appId: "1:842951797209:web:afa169d8117ebcf5aad1c8",
-    measurementId: "G-K45X0K580Q"
+ apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+  authDomain: "vamora-co-in.firebaseapp.com",
+  projectId: "vamora-co-in",
+  storageBucket: "vamora-co-in.firebasestorage.app",
+  messagingSenderId: "613048727757",
+  appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+  measurementId: "G-8R6TDRQGS6"
 };
 
 // Initialize Firebase
@@ -14,22 +14,21 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
-const db = firebase.firestore(); // Add this line
+const db = firebase.firestore();
 
-// Initialize cart (updated for Firestore)
 // Initialize cart
 let cart = [];
 
 // Check for existing cart on page load
 document.addEventListener('DOMContentLoaded', () => {
-  const user = auth.currentUser;
-  if (!user) {
-    const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-    cart = guestCart;
-    renderCart();
-  }
-  // For logged-in users, you would typically fetch the cart from Firestore here
+    const user = auth.currentUser;
+    if (!user) {
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+        renderCart();
+    }
 });
+
 let cartOpen = false;
 let searchOpen = false;
 let dropdownOpen = false;
@@ -78,32 +77,34 @@ function showSignupSection() {
     document.getElementById('signup-section').classList.add('bg-gray-50');
     document.getElementById('login-section').classList.remove('bg-white');
 }
+
 // Helper function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
-  const cartRef = db.collection("carts").doc(userId);
-  const doc = await cartRef.get();
+    const cartRef = db.collection("carts").doc(userId);
+    const doc = await cartRef.get();
 
-  if (!doc.exists) {
-    await cartRef.set({
-      items: [],
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    return [];
-  }
-  return doc.data().items || [];
+    if (!doc.exists) {
+        await cartRef.set({
+            items: [],
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return [];
+    }
+    return doc.data().items || [];
 }
 
 // Save cart to Firestore
 async function saveCartToFirestore(userId, cartItems) {
-  try {
-    await db.collection("carts").doc(userId).set({
-      items: cartItems,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } catch (error) {
-    console.error("Error saving cart:", error);
-  }
+    try {
+        await db.collection("carts").doc(userId).set({
+            items: cartItems,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error saving cart:", error);
+    }
 }
+
 // Function to close all open elements
 function closeAllOpenElements() {
     // Close cart
@@ -157,7 +158,6 @@ enableSearch.addEventListener('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
     
-    // If search is already open, close it
     if (searchOpen) {
         searchInputContainer.style.display = 'none';
         searchInput.value = '';
@@ -166,7 +166,6 @@ enableSearch.addEventListener('click', function(e) {
         return;
     }
     
-    // Otherwise, close other elements and open search
     closeAllOpenElements();
     searchOpen = true;
     searchInputContainer.style.display = 'flex';
@@ -232,7 +231,6 @@ function displayResults(results) {
     
     searchResults.style.display = 'block';
     
-    // Add click event to results
     document.querySelectorAll('.search-result-item').forEach(item => {
         item.addEventListener('click', function() {
             const url = this.getAttribute('data-url');
@@ -257,7 +255,6 @@ document.addEventListener('keydown', function(e) {
 
 // Toggle cart function
 function toggleCart() {
-    // Close other open elements
     if (!cartOpen) {
         closeAllOpenElements();
     }
@@ -299,7 +296,6 @@ function renderCart() {
     }
 
     cart.forEach((item, index) => {
-        // Extract numeric price value
         const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
         const itemTotal = priceValue * item.quantity;
         subtotal += itemTotal;
@@ -332,93 +328,91 @@ function renderCart() {
     document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
 
-// Updated addToCart function (example)
+// Updated addToCart function
 async function addToCart(product) {
-  const user = auth.currentUser;
-  
-  // Check if item exists in cart
-  const existingItem = cart.find(item => 
-    item.id === product.id && item.size === product.size
-  );
+    const user = auth.currentUser;
+    
+    const existingItem = cart.find(item => 
+        item.id === product.id && item.size === product.size
+    );
 
-  if (existingItem) {
-    existingItem.quantity += product.quantity;
-  } else {
-    cart.push(product);
-  }
+    if (existingItem) {
+        existingItem.quantity += product.quantity;
+    } else {
+        cart.push(product);
+    }
 
-  if (user) {
-    // Logged-in user: save to Firestore
-    await saveCartToFirestore(user.uid, cart);
-  } else {
-    // Guest user: save to localStorage
-    localStorage.setItem('guestCart', JSON.stringify(cart));
-  }
-  
-  renderCart();
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
 }
+
 // Updated removeFromCart function
-async function removeFromCart(productId, size) {
-  const user = auth.currentUser;
-  
-  // Remove item from cart array
-  cart = cart.filter(item => !(item.id === productId && item.size === size));
+// Updated removeFromCart function
+async function removeFromCart(index, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const user = auth.currentUser;
+    
+    // Remove the item from the cart array
+    cart.splice(index, 1);
 
-  if (user) {
-    // Logged-in user: update Firestore
-    await saveCartToFirestore(user.uid, cart);
-  } else {
-    // Guest user: update localStorage
-    localStorage.setItem('guestCart', JSON.stringify(cart));
-  }
-  
-  renderCart();
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
+    
+    // Update cart count
+    updateCartCount();
 }
-
 async function updateCartItem(productId, size, newQuantity) {
-  const user = auth.currentUser;
-  
-  // Update quantity in cart array
-  const item = cart.find(item => item.id === productId && item.size === size);
-  if (item) {
-    item.quantity = newQuantity;
-  }
+    const user = auth.currentUser;
+    
+    const item = cart.find(item => item.id === productId && item.size === size);
+    if (item) {
+        item.quantity = newQuantity;
+    }
 
-  if (user) {
-    // Logged-in user: update Firestore
-    await saveCartToFirestore(user.uid, cart);
-  } else {
-    // Guest user: update localStorage
-    localStorage.setItem('guestCart', JSON.stringify(cart));
-  }
-  
-  renderCart();
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
 }
+
 // Updated updateQuantity function
 async function updateQuantity(index, change) {
-  const newQuantity = cart[index].quantity + change;
-  if (newQuantity < 1) return;
-  
-  cart[index].quantity = newQuantity;
-  
-  const user = auth.currentUser;
-  if (user) {
-    await saveCartToFirestore(user.uid, cart);
-  }
-  renderCart();
+    const newQuantity = cart[index].quantity + change;
+    if (newQuantity < 1) return;
+    
+    cart[index].quantity = newQuantity;
+    
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    }
+    renderCart();
 }
 
 async function proceedToCheckout() {
-  const user = auth.currentUser;
-  
-  if (!user) {
-    // Prompt login or continue as guest
-    showAuthContainer();
-    return;
-  }
+    const user = auth.currentUser;
+    
+    if (!user) {
+        showAuthContainer();
+        return;
+    }
 
-  // Cart is already in Firestore, redirect to checkout
-  window.location.href = 'checkout.html';
+    window.location.href = 'checkout.html';
 }
 
 // Function to render order summary
@@ -434,7 +428,6 @@ function renderOrderSummary() {
     }
     
     cart.forEach(item => {
-        // Extract numeric price value
         const priceValue = parseFloat(item.price.replace('₹', '').replace(',', ''));
         const itemTotal = priceValue * item.quantity;
         subtotal += itemTotal;
@@ -453,7 +446,6 @@ function renderOrderSummary() {
         orderSummaryItems.appendChild(productItem);
     });
     
-    // Update totals
     document.getElementById('orderSubtotal').textContent = `₹ ${subtotal.toFixed(2)}`;
     document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
@@ -468,7 +460,6 @@ document.addEventListener('keydown', (e) => {
 function validateCheckoutForm() {
     let isValid = true;
     
-    // Helper function to validate and highlight fields
     function validateField(fieldId, errorId) {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(errorId);
@@ -484,7 +475,6 @@ function validateCheckoutForm() {
         }
     }
     
-    // Validate all required fields (except apartment/suite)
     validateField('email', 'email-error');
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
@@ -494,7 +484,6 @@ function validateCheckoutForm() {
     validateField('pin-code', 'pin-code-error');
     validateField('phone', 'phone-error');
     
-    // Additional email validation
     const email = document.getElementById('email').value;
     if (email && !validateEmail(email)) {
         document.getElementById('email-error').textContent = 'Please enter a valid email address';
@@ -503,7 +492,6 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    // Additional phone validation
     const phone = document.getElementById('phone').value;
     if (phone && !/^\d{10}$/.test(phone)) {
         document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
@@ -512,7 +500,6 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    // Additional PIN code validation
     const pinCode = document.getElementById('pin-code').value;
     if (pinCode && !/^\d{6}$/.test(pinCode)) {
         document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
@@ -521,7 +508,6 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    // Scroll to first error if any
     if (!isValid) {
         const firstError = document.querySelector('.error-highlight');
         if (firstError) {
@@ -540,14 +526,12 @@ cartBackdrop.addEventListener('click', closeCart);
 
 // Account dropdown functionality
 function toggleDropdown() {
-    // If dropdown is already open, close it
     if (dropdownOpen) {
         dropdownMenu.classList.add('hidden');
         dropdownOpen = false;
         return;
     }
     
-    // Otherwise, close other elements and open dropdown
     closeAllOpenElements();
     dropdownOpen = true;
     dropdownMenu.classList.remove('hidden');
@@ -555,7 +539,6 @@ function toggleDropdown() {
 
 // Mobile menu toggle
 function toggleMobileMenu() {
-    // If mobile menu is already open, close it
     if (mobileMenuContent.classList.contains('active')) {
         mobileMenuContent.classList.remove('active');
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
@@ -564,15 +547,13 @@ function toggleMobileMenu() {
         return;
     }
     
-    // Otherwise, close other elements and open mobile menu
     closeAllOpenElements();
     mobileMenuContent.classList.add('active');
     mobileMenuButton.querySelector('i').classList.remove('fa-bars');
     mobileMenuButton.querySelector('i').classList.add('fa-times');
     
-    // Show account options if logged in
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user.email) {
+    const user = auth.currentUser;
+    if (user) {
         document.getElementById('mobileAccountOptions').classList.remove('hidden');
     } else {
         document.getElementById('mobileAccountOptions').classList.add('hidden');
@@ -582,33 +563,15 @@ function toggleMobileMenu() {
 // Show account info page
 function showAccountInfo(event) {
     event.preventDefault();
-    const loggedInUser = JSON.parse(localStorage.getItem('user'));
+    const user = auth.currentUser;
     
-    if (loggedInUser && loggedInUser.email) {
-        document.getElementById('displayName').textContent = loggedInUser.name || '';
-        document.getElementById('displayEmail').textContent = loggedInUser.email || '';
-        emailDisplay.value = loggedInUser.email || '';
+    if (user) {
+        document.getElementById('displayName').textContent = user.displayName || '';
+        document.getElementById('displayEmail').textContent = user.email || '';
+        emailDisplay.value = user.email || '';
         
-        if (loggedInUser.email) {
-            loadAddresses(loggedInUser.email);
-            loadOrders(loggedInUser.email);
-        } else {
-            // Clear addresses and orders if no email (logged out)
-            addressContainer.innerHTML = `
-                <div class="text-center text-gray-500">
-                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                    <p class="text-lg">No addresses saved yet</p>
-                    <p class="text-sm mt-2">Please login to view your saved addresses</p>
-                </div>
-            `;
-            ordersContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                    <p class="text-lg">You haven't placed any orders yet</p>
-                    <p class="text-sm mt-2">Please login to view your orders</p>
-                </div>
-            `;
-        }
+        loadAddresses(user.uid);
+        loadOrders(user.uid);
         
         accountInfoPage.classList.remove('hidden');
         dropdownMenu.classList.add('hidden');
@@ -617,9 +580,8 @@ function showAccountInfo(event) {
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
     } else {
-        // Show login modal if user is not logged in
         showAuthContainer();
-        showLoginSection(); // Always show login first
+        showLoginSection();
     }
 }
 
@@ -628,6 +590,7 @@ closeAccountInfoPage.addEventListener('click', function(event) {
     event.preventDefault();
     accountInfoPage.classList.add('hidden');
 });
+
 function renderAddresses(addresses) {
     if (addresses.length === 0) {
         addressContainer.innerHTML = `
@@ -674,36 +637,34 @@ function renderAddresses(addresses) {
         </div>
     `).join('');
 }
+
 async function loadAccountInfo(userId) {
-  try {
-    const user = auth.currentUser;
-    
-    if (!user) {
-      renderEmptyAccountState();
-      return;
-    }
+    try {
+        const user = auth.currentUser;
+        
+        if (!user) {
+            renderEmptyAccountState();
+            return;
+        }
 
-    // Fetch user data from Firestore
-    const userDoc = await db.collection("users").doc(userId).get();
-    
-    if (!userDoc.exists) {
-      console.warn("No user data found in Firestore");
-      renderEmptyAccountState();
-      return;
-    }
+        const userDoc = await db.collection("users").doc(userId).get();
+        
+        if (!userDoc.exists) {
+            console.warn("No user data found in Firestore");
+            renderEmptyAccountState();
+            return;
+        }
 
-    const userData = userDoc.data();
-    
-    // Update UI with Firestore data
-    updateUIWithUserData(user, userData);
-    
-  } catch (error) {
-    console.error("Error loading account info:", error);
-    renderEmptyAccountState();
-  }
+        const userData = userDoc.data();
+        updateUIWithUserData(user, userData);
+        
+    } catch (error) {
+        console.error("Error loading account info:", error);
+        renderEmptyAccountState();
+    }
 }
+
 function renderEmptyAccountState() {
-    // Clear UI for logged out state
     addressContainer.innerHTML = `
         <div class="text-center text-gray-500">
             <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
@@ -720,7 +681,6 @@ function renderEmptyAccountState() {
         </div>
     `;
     
-    // Clear any profile fields
     if (document.getElementById('displayName')) {
         document.getElementById('displayName').textContent = '';
     }
@@ -734,22 +694,18 @@ async function applyDefaultAddress() {
     
     if (user) {
         try {
-            // Get user data from Firestore
             const userDoc = await db.collection("users").doc(user.uid).get();
             
             if (userDoc.exists && userDoc.data().defaultAddress) {
                 const defaultAddress = userDoc.data().defaultAddress;
                 
-                // Split full name into first and last names
                 const nameParts = defaultAddress.fullName.split(' ');
                 document.getElementById('first-name').value = nameParts[0] || '';
                 document.getElementById('last-name').value = nameParts.slice(1).join(' ') || '';
                 
-                // Address fields
                 document.getElementById('address').value = defaultAddress.addressLine1 || '';
                 document.getElementById('apartment').value = defaultAddress.addressLine2 || '';
                 
-                // Other fields
                 document.getElementById('city').value = defaultAddress.city || '';
                 document.getElementById('state').value = defaultAddress.state || '';
                 document.getElementById('pin-code').value = defaultAddress.postalCode || '';
@@ -761,6 +717,7 @@ async function applyDefaultAddress() {
         }
     }
 }
+
 // Load addresses
 async function loadAddresses() {
     const user = auth.currentUser;
@@ -787,7 +744,7 @@ async function loadAddresses() {
         renderEmptyAddressState();
     }
 }
-// Load orders
+
 // Load orders from Firestore
 async function loadOrders(userId) {
     const user = auth.currentUser;
@@ -802,7 +759,6 @@ async function loadOrders(userId) {
     }
 
     try {
-        // Query orders for this user, ordered by timestamp descending
         const querySnapshot = await db.collection("orders")
             .where("userId", "==", userId)
             .orderBy("timestamp", "desc")
@@ -848,7 +804,6 @@ function renderOrders(orders) {
                 </div>
             </div>
             
-            <!-- Order Status Bar -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
@@ -930,6 +885,7 @@ function renderOrders(orders) {
         </div>
     `).join('');
 }
+
 // Helper function to determine the progress bar width
 function getStatusProgress(status) {
     switch(status) {
@@ -950,7 +906,6 @@ async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
     if (!saveInfoCheckbox.checked) return;
 
-    // Validate required fields
     const requiredFields = [
         'first-name', 'last-name', 'address', 
         'city', 'state', 'pin-code', 'phone'
@@ -972,7 +927,6 @@ async function saveInformation() {
         return;
     }
 
-    // Get all form values
     const address = {
         fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
         phoneNumber: document.getElementById('phone').value,
@@ -982,7 +936,7 @@ async function saveInformation() {
         state: document.getElementById('state').value,
         postalCode: document.getElementById('pin-code').value,
         country: document.getElementById('country').value,
-        addressType: 'home', // Default type
+        addressType: 'home',
         isDefault: true,
         id: Date.now().toString(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -994,10 +948,9 @@ async function saveInformation() {
         if (user) {
             const userRef = db.collection("users").doc(user.uid);
             
-            // Update the user document with the new address
             await userRef.update({
                 addresses: firebase.firestore.FieldValue.arrayUnion(address),
-                defaultAddress: address, // Store the default address in Firestore
+                defaultAddress: address,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
@@ -1010,6 +963,7 @@ async function saveInformation() {
         alert("Failed to save address. Please try again.");
     }
 }
+
 // Update the getStatusColor function to include all statuses
 function getStatusColor(status) {
     switch(status) {
@@ -1032,7 +986,7 @@ function getStatusColor(status) {
 function showAuthContainer() {
     document.getElementById('auth-container').classList.add('active');
     document.body.classList.add('overflow-hidden');
-    showLoginSection(); // Always show login first
+    showLoginSection();
     resetForms();
 }
 
@@ -1040,9 +994,7 @@ function hideAuthContainer() {
     document.getElementById('auth-container').classList.remove('active');
     document.body.classList.remove('overflow-hidden');
     resetForms();
-    // Reset the login form styling
     document.getElementById('login-section').classList.remove('login-success');
-    // Hide Google success messages
     document.getElementById('google-login-success').classList.add('hidden');
     document.getElementById('google-signup-success').classList.add('hidden');
 }
@@ -1075,19 +1027,52 @@ function hideLoading(buttonId) {
     textSpan.classList.remove('opacity-0');
 }
 
+// Setup password toggles for all password fields
+// Initialize password toggles
 function setupPasswordToggles() {
     document.querySelectorAll('.password-toggle').forEach(toggle => {
         toggle.addEventListener('click', function() {
-            const inputId = this.id.replace('toggle-', '');
+            const inputId = this.getAttribute('data-toggle');
             const input = document.getElementById(inputId);
-            const type = input.type === 'password' ? 'text' : 'password';
-            input.type = type;
-            const icon = this.querySelector('i');
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
+            if (input) {
+                // Toggle input type
+                input.type = input.type === 'password' ? 'text' : 'password';
+                
+                // Toggle eye icon
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            }
         });
     });
 }
+
+// Call this when page loads and when auth modal opens
+document.addEventListener('DOMContentLoaded', setupPasswordToggles);
+document.getElementById('auth-container').addEventListener('transitionend', function() {
+    if (this.classList.contains('active')) {
+        setupPasswordToggles();
+    }
+});
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordToggles();
+    
+    // Also call it whenever the auth container is shown
+    document.getElementById('auth-container').addEventListener('transitionend', function() {
+        if (this.classList.contains('active')) {
+            setupPasswordToggles();
+        }
+    });
+});
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordToggles();
+});
 
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -1117,107 +1102,89 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
     const securityQuestion = document.getElementById('security-question').value;
     const securityAnswer = document.getElementById('security-answer').value.trim();
 
-    // Reset error messages
     document.getElementById('signup-error').classList.add('hidden');
     document.getElementById('email-error').classList.add('hidden');
     document.getElementById('email-exists-error').classList.add('hidden');
     document.getElementById('password-mismatch-error').classList.add('hidden');
     document.getElementById('name-error').classList.add('hidden');
 
-// Validate all fields
-let isValid = true;
+    let isValid = true;
 
-if (!validateName(name)) {
-    document.getElementById('name-error').classList.remove('hidden');
-    isValid = false;
-}
+    if (!validateName(name)) {
+        document.getElementById('name-error').classList.remove('hidden');
+        isValid = false;
+    }
 
-if (!validateEmail(email)) {
-    document.getElementById('email-error').classList.remove('hidden');
-    isValid = false;
-}
+    if (!validateEmail(email)) {
+        document.getElementById('email-error').classList.remove('hidden');
+        isValid = false;
+    }
 
-if (!validatePassword(password)) {
-    document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
-    document.getElementById('password-mismatch-error').classList.remove('hidden');
-    isValid = false;
-}
+    if (!validatePassword(password)) {
+        document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
 
-if (password !== confirmPassword) {
-    document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
-    document.getElementById('password-mismatch-error').classList.remove('hidden');
-    isValid = false;
-}
+    if (password !== confirmPassword) {
+        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
 
-if (!securityQuestion || !securityAnswer) {
-    document.getElementById('signup-error').textContent = 'All fields are required';
-    document.getElementById('signup-error').classList.remove('hidden');
-    isValid = false;
-}
+    if (!securityQuestion || !securityAnswer) {
+        document.getElementById('signup-error').textContent = 'All fields are required';
+        document.getElementById('signup-error').classList.remove('hidden');
+        isValid = false;
+    }
 
-if (!isValid) {
-    hideLoading('signup-submit-button');
-    return;
-}
+    if (!isValid) {
+        hideLoading('signup-submit-button');
+        return;
+    }
 
-// Create user with Firebase
+  // Inside the signup-form submit handler
 auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
-        // Signed up successfully
         const user = userCredential.user;
         
-        // Update user profile with display name
-        return user.updateProfile({
-            displayName: name
-        }).then(() => {
-            // Save to Firestore
-            return db.collection("users").doc(user.uid).set({
-                name: name,
-                email: email,
-                securityQuestion: securityQuestion,
-                securityAnswer: securityAnswer,
-                addresses: [],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }).then(() => {
-            // Optional: Cache minimal user data in localStorage
-            localStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                name: name,
-                email: email
-            }));
-            
-            // Show success message
+        // NEW: Improved verification flow
+        return user.sendEmailVerification().then(() => {
+            // Hide the form and show verification message
+            document.getElementById('signup-form').classList.add('hidden');
             document.getElementById('verify-email-success').classList.remove('hidden');
-            document.getElementById('signup-form').reset();
             
-            // Auto switch to login after delay
-            setTimeout(() => {
-                document.getElementById('signup-section').classList.add('hidden');
-                document.getElementById('login-section').classList.remove('hidden');
-                document.getElementById('verify-email-success').classList.add('hidden');
-                hideAuthContainer();
-                loadAccountInfo(email);
-                updateLoginButton();
-                updateMobileAccountOptions();
-            }, 2000);
+            // NEW: Add a button to go to login
+            document.getElementById('verify-email-success').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                    <p class="mb-4">We've sent a verification link to ${email}</p>
+                    <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                        Go to Login
+                    </button>
+                    <p class="text-sm mt-4 text-gray-600">
+                        Didn't get the email? 
+                        <a href="#" onclick="resendVerification('${email}')" class="text-blue-600">Resend</a>
+                    </p>
+                </div>
+            `;
         });
     })
     .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        
-        if (errorCode === 'auth/email-already-in-use') {
-            document.getElementById('email-exists-error').classList.remove('hidden');
-        } else {
-            document.getElementById('signup-error').textContent = errorMessage;
-            document.getElementById('signup-error').classList.remove('hidden');
-        }
-    })
-    .finally(() => {
-        hideLoading('signup-submit-button');
-    });
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            if (errorCode === 'auth/email-already-in-use') {
+                document.getElementById('email-exists-error').classList.remove('hidden');
+            } else {
+                document.getElementById('signup-error').textContent = errorMessage;
+                document.getElementById('signup-error').classList.remove('hidden');
+            }
+        })
+        .finally(() => {
+            hideLoading('signup-submit-button');
+        });
 });
 
 // Email/Password Login - Firestore Version
@@ -1229,99 +1196,77 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const password = document.getElementById('login-password').value;
     const rememberMe = document.getElementById('remember-me').checked;
 
-    // Reset error messages
     document.getElementById('login-error').classList.add('hidden');
 
- // Inside the login form submit handler
-auth.signInWithEmailAndPassword(email, password)
-  .then(async (userCredential) => {
-    const user = userCredential.user;
-    
-    try {
-      // Get user data from Firestore
-      const doc = await db.collection("users").doc(user.uid).get();
-      
-      if (!doc.exists) {
-        throw new Error("User data not found");
-      }
-      
-      const userData = doc.data();
-      
-      // Update UI with Firestore data
-      updateUIWithUserData(user, userData);
-      
-      // Show success message
-      document.getElementById('login-error').classList.add('hidden');
-      const successElement = document.getElementById('login-success');
-      successElement.textContent = 'Login successful! Redirecting...';
-      successElement.classList.remove('hidden');
-                
-                // Add visual feedback
-                document.getElementById('login-section').classList.add('login-success');
-                
-                // Hide loading immediately
-                hideLoading('login-submit-button');
-                
-                // Wait for animation to complete (500ms) then proceed
-                setTimeout(() => {
-                    // Close auth modal
-                    hideAuthContainer();
-                    
-                    // Show profile page with animation
-                    accountInfoPage.classList.remove('hidden');
-                    accountInfoPage.style.opacity = '0';
-                    accountInfoPage.style.transition = 'opacity 0.5s ease';
-                    
-                    // Load user data into profile
-                    document.getElementById('displayName').textContent = userData.name || '';
-                    document.getElementById('displayEmail').textContent = user.email || '';
-                    emailDisplay.value = user.email || '';
-                    
-                    // Load addresses and orders
-                    loadAddresses(user.uid);
-                    loadOrders(user.uid);
-                    
-                    // Force reflow to ensure transition works
-                    void accountInfoPage.offsetWidth;
-                    
-                    // Fade in profile page
-                    accountInfoPage.style.opacity = '1';
-                    
-                    // Update UI elements
-                    updateLoginButton();
-                    updateMobileAccountOptions();
-                    
-                    // Update checkout email if on checkout page
-                    if (document.getElementById('email')) {
-                        document.getElementById('email').value = user.email;
-                    }
-                }, 500);
-                
-            } catch (error) {
-                console.error("Error handling login:", error);
-                document.getElementById('login-error').textContent = 'Error processing login. Please try again.';
-                document.getElementById('login-error').classList.remove('hidden');
-                hideLoading('login-submit-button');
-                document.getElementById('login-section').classList.remove('login-success');
+   auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        
+        // Check if email is verified
+        if (!user.emailVerified) {
+            auth.signOut(); // Force logout unverified users
+            throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+        }
+        
+        // Proceed with login if verified
+        return db.collection("users").doc(user.uid).get();
+    })
+    .then(async (doc) => {
+        if (!doc.exists) {
+            throw new Error("User data not found");
+        }
+        
+        const user = auth.currentUser;
+        const userData = doc.data();
+        updateUIWithUserData(user, userData);
+        
+        document.getElementById('login-error').classList.add('hidden');
+        const successElement = document.getElementById('login-success');
+        successElement.textContent = 'Login successful! Redirecting...';
+        successElement.classList.remove('hidden');
+        
+        document.getElementById('login-section').classList.add('login-success');
+        
+        hideLoading('login-submit-button');
+        
+        setTimeout(() => {
+            hideAuthContainer();
+            
+            accountInfoPage.classList.remove('hidden');
+            accountInfoPage.style.opacity = '0';
+            accountInfoPage.style.transition = 'opacity 0.5s ease';
+            
+            document.getElementById('displayName').textContent = userData.name || '';
+            document.getElementById('displayEmail').textContent = user.email || '';
+            emailDisplay.value = user.email || '';
+            
+            loadAddresses(user.uid);
+            loadOrders(user.uid);
+            
+            void accountInfoPage.offsetWidth;
+            
+            accountInfoPage.style.opacity = '1';
+            
+            updateLoginButton();
+            updateMobileAccountOptions();
+            
+            if (document.getElementById('email')) {
+                document.getElementById('email').value = user.email;
             }
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            
-            document.getElementById('login-error').textContent = 'Invalid email or password';
-            document.getElementById('login-error').classList.remove('hidden');
-            hideLoading('login-submit-button');
-            
-            // Remove success state if there was an error
-            document.getElementById('login-section').classList.remove('login-success');
-        });
+        }, 500);
+    })
+    .catch((error) => {
+        console.error("Error handling login:", error);
+        document.getElementById('login-error').textContent = error.message || 'Error processing login. Please try again.';
+        document.getElementById('login-error').classList.remove('hidden');
+        hideLoading('login-submit-button');
+        document.getElementById('login-section').classList.remove('login-success');
+    });
 });
 
-// Updated Google Sign In/Sign Up handler with Firestore (no localStorage)
+// Updated Google Sign In/Sign Up handler with Firestore
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
-        // Show loading state
         const googleBtn = this;
         const originalContent = googleBtn.innerHTML;
         googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
@@ -1333,22 +1278,18 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             .then((result) => {
                 const user = result.user;
                 
-                // Get the current auth section (login or signup)
                 const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
                 const isLoginSection = currentAuthSection.id === 'login-section';
                 
-                // Show success message in the appropriate section
                 if (isLoginSection) {
                     document.getElementById('google-login-success').classList.remove('hidden');
                 } else {
                     document.getElementById('google-signup-success').classList.remove('hidden');
                 }
                 
-                // Hide other messages
                 document.getElementById('login-error').classList.add('hidden');
                 document.getElementById('signup-error').classList.add('hidden');
                 
-                // Update user data in Firestore
                 return db.collection("users").doc(user.uid).set({
                     name: user.displayName,
                     email: user.email,
@@ -1362,29 +1303,22 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             .then(() => {
                 const user = auth.currentUser;
                 
-                // Reset button state
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
-                // Show success state briefly
                 setTimeout(() => {
                     hideAuthContainer();
                     
-                    // Load all user data directly from Firestore
                     loadAccountInfo(user.uid).then(() => {
-                        // Show profile page after data loads
                         accountInfoPage.classList.remove('hidden');
                         
-                        // Load profile picture if available
                         if (user.photoURL) {
                             document.getElementById('profilePicture').src = user.photoURL;
                         }
                         
-                        // Update UI elements
                         updateLoginButton();
                         updateMobileAccountOptions();
                         
-                        // Update checkout email if on checkout page
                         if (document.getElementById('email')) {
                             document.getElementById('email').value = user.email;
                         }
@@ -1392,7 +1326,6 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 }, 1500);
             })
             .catch((error) => {
-                // Error handling
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
@@ -1422,10 +1355,8 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     const securityQuestion = document.getElementById('forgot-security-question').value;
     const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
 
-    // Reset error message
     document.getElementById('forgot-error').classList.add('hidden');
 
-    // Verify security question/answer from Firestore
     auth.fetchSignInMethodsForEmail(email)
         .then(() => {
             return db.collection("users")
@@ -1446,7 +1377,6 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                 throw new Error("Security question/answer mismatch");
             }
             
-            // Send password reset email
             return auth.sendPasswordResetEmail(email);
         })
         .then(() => {
@@ -1462,13 +1392,12 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
         });
 });
 
-// Save New Password (unchanged, as it uses Firebase Auth directly)
+// Save New Password
 document.getElementById('save-new-password').addEventListener('click', function() {
     const newPassword = document.getElementById('new-password').value;
     const confirmNewPassword = document.getElementById('confirm-new-password').value;
     const email = document.getElementById('forgot-email').value.trim();
 
-    // Reset error message
     document.getElementById('reset-password-mismatch').classList.add('hidden');
     document.getElementById('reset-success').classList.add('hidden');
 
@@ -1486,11 +1415,9 @@ document.getElementById('save-new-password').addEventListener('click', function(
 
     showLoading('save-new-password');
 
-    // Get the current user (if logged in)
     const user = auth.currentUser;
 
     if (user) {
-        // User is logged in, update password directly
         user.updatePassword(newPassword)
             .then(() => {
                 document.getElementById('reset-success').classList.remove('hidden');
@@ -1512,7 +1439,6 @@ document.getElementById('save-new-password').addEventListener('click', function(
                 hideLoading('save-new-password');
             });
     } else {
-        // User not logged in, we've already sent reset email
         document.getElementById('reset-success').classList.remove('hidden');
         document.getElementById('reset-password-mismatch').classList.add('hidden');
         
@@ -1527,8 +1453,41 @@ document.getElementById('save-new-password').addEventListener('click', function(
         hideLoading('save-new-password');
     }
 });
-
-// Event Listeners (unchanged)
+// Add to your existing auth functions
+function setupResendVerification() {
+    const resendBtn = document.getElementById('resend-verification-btn');
+    const resendContainer = document.getElementById('resend-verification-container');
+    const resendSuccess = document.getElementById('resend-success');
+    
+    // Show/hide resend button based on error
+    document.getElementById('login-error').addEventListener('DOMSubtreeModified', function() {
+        if (this.textContent.includes("verify your email")) {
+            resendContainer.classList.remove('hidden');
+        } else {
+            resendContainer.classList.add('hidden');
+        }
+    });
+    
+    // Handle resend click
+    resendBtn.addEventListener('click', function() {
+        const user = auth.currentUser;
+        if (user) {
+            user.sendEmailVerification()
+                .then(() => {
+                    resendSuccess.classList.remove('hidden');
+                    setTimeout(() => resendSuccess.classList.add('hidden'), 3000);
+                })
+                .catch(error => {
+                    document.getElementById('login-error').textContent = "Failed to resend: " + error.message;
+                    document.getElementById('login-error').classList.remove('hidden');
+                });
+        } else {
+            document.getElementById('login-error').textContent = "Please enter your email and password first";
+            document.getElementById('login-error').classList.remove('hidden');
+        }
+    });
+}
+// Event Listeners
 document.getElementById('show-signup').addEventListener('click', function(event) {
     event.preventDefault();
     showSignupSection();
@@ -1544,20 +1503,30 @@ document.getElementById('show-login').addEventListener('click', function(event) 
 document.getElementById('close-forgot-password').addEventListener('click', function() {
     document.getElementById('forgot-password-modal').classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
+    
+    // Reset the form and error messages
     document.getElementById('forgot-password-form').reset();
     document.getElementById('reset-password-section').classList.add('hidden');
     document.getElementById('forgot-error').classList.add('hidden');
     document.getElementById('reset-success').classList.add('hidden');
+    
+    // Show the auth container again
+    document.getElementById('auth-container').classList.add('active');
 });
 
 document.getElementById('forgot-password-link').addEventListener('click', function(event) {
     event.preventDefault();
-    hideAuthContainer();
+    event.stopPropagation(); // Prevent event bubbling
+    
+    // Hide the auth container but keep the backdrop
+    document.getElementById('auth-container').classList.remove('active');
+    
+    // Show the forgot password modal
     document.getElementById('forgot-password-modal').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
 });
 
-// Password match validation (unchanged)
+// Password match validation
 document.getElementById('signup-confirm-password').addEventListener('input', function() {
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
@@ -1582,7 +1551,7 @@ document.getElementById('confirm-new-password').addEventListener('input', functi
     }
 });
 
-// Close modals when clicking outside (unchanged)
+// Close modals when clicking outside
 document.getElementById('auth-container').addEventListener('click', function(e) {
     if (e.target === this) {
         hideAuthContainer();
@@ -1593,10 +1562,12 @@ document.getElementById('forgot-password-modal').addEventListener('click', funct
     if (e.target === this) {
         this.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+        // Show the auth container again
+        document.getElementById('auth-container').classList.add('active');
     }
 });
 
-// Event listeners for mobile account options (unchanged)
+// Event listeners for mobile account options
 document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
     e.preventDefault();
     showAccountInfo(e);
@@ -1613,21 +1584,16 @@ document.getElementById('mobileLogoutOption')?.addEventListener('click', functio
 function logoutUser(event) {
     event.preventDefault();
     auth.signOut().then(async () => {
-       
-        
-        // Close all menus
         dropdownMenu.classList.add('hidden');
         mobileMenuContent.classList.remove('active');
         document.getElementById('mobileAccountOptions').classList.add('hidden');
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
         
-        // Clear the displayed information
         document.getElementById('displayName').textContent = '';
         document.getElementById('displayEmail').textContent = '';
         emailDisplay.value = '';
         
-        // Clear addresses and orders display
         addressContainer.innerHTML = `
             <div class="text-center text-gray-500">
                 <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
@@ -1643,48 +1609,57 @@ function logoutUser(event) {
             </div>
         `;
         
-        // Hide the account info page if it's visible
         accountInfoPage.classList.add('hidden');
         
-        // Update the login button text
         updateLoginButton();
         
-        // Refresh the page after a short delay to ensure all changes are applied
         window.location.reload();
     }).catch((error) => {
         console.error('Logout error:', error);
     });
 }
+// Global function to resend from signup page
+function resendVerification(email) {
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.length > 0) {
+                // This triggers Firebase to resend
+                auth.currentUser.sendEmailVerification()
+                    .then(() => alert("Verification email resent!"))
+                    .catch((error) => alert(error.message));
+            }
+        });
+}
 
 // Update login button based on auth state
 function updateLoginButton() {
-  const user = auth.currentUser; // Now checking auth state directly
-  
-  if (loginButton) {
-    if (user) {
-      loginButton.textContent = 'LOG OUT';
-      loginButton.onclick = function(e) {
-        e.preventDefault();
-        logoutUser(e);
-      };
-    } else {
-      loginButton.textContent = 'LOG IN';
-      loginButton.onclick = function(e) {
-        e.preventDefault();
-        showAuthContainer();
-        showLoginSection();
-      };
+    const user = auth.currentUser;
+    
+    if (loginButton) {
+        if (user) {
+            loginButton.textContent = 'LOG OUT';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                logoutUser(e);
+            };
+        } else {
+            loginButton.textContent = 'LOG IN';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                showAuthContainer();
+                showLoginSection();
+            };
+        }
     }
-  }
 }
 
 // Update mobile account options visibility
 function updateMobileAccountOptions() {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = auth.currentUser;
     const mobileAccountOptions = document.getElementById('mobileAccountOptions');
     
     if (mobileAccountOptions) {
-        if (user && user.email) {
+        if (user) {
             mobileAccountOptions.classList.remove('hidden');
         } else {
             mobileAccountOptions.classList.add('hidden');
@@ -1694,8 +1669,10 @@ function updateMobileAccountOptions() {
 
 // Show edit profile modal
 function showEditProfileModal() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    nameInput.value = user.name || '';
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    nameInput.value = user.displayName || '';
     emailDisplay.value = user.email || '';
     emailDisplay.readOnly = true;
     editProfileModal.classList.remove('hidden');
@@ -1706,15 +1683,12 @@ async function saveProfile() {
     if (!user) return;
 
     try {
-        // Update Firebase Auth profile
         await user.updateProfile({ displayName: nameInput.value });
         
-        // Update Firestore
         await db.collection("users").doc(user.uid).update({
             name: nameInput.value
         });
 
-        // Update UI
         document.getElementById('displayName').textContent = nameInput.value;
         editProfileModal.classList.add('hidden');
     } catch (error) {
@@ -1735,7 +1709,6 @@ async function saveAddress(event) {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Get all form values
     const address = {
         fullName: document.getElementById('fullName').value.trim(),
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
@@ -1747,11 +1720,10 @@ async function saveAddress(event) {
         country: document.getElementById('country').value,
         addressType: document.querySelector('input[name="addressType"]:checked').value,
         isDefault: document.getElementById('setAsDefault').checked,
-        id: isEditing || Date.now().toString(),
+        id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Basic validation
     if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
         !address.city || !address.state || !address.postalCode || !address.country) {
         alert('Please fill in all required fields');
@@ -1760,25 +1732,22 @@ async function saveAddress(event) {
 
     try {
         const userRef = db.collection("users").doc(user.uid);
+        const isEditing = document.getElementById('addressForm').dataset.editingId;
         
         if (isEditing) {
-            // For editing, we need to update the specific address in the array
             const userDoc = await userRef.get();
             const currentAddresses = userDoc.data().addresses || [];
             
-            // Find and update the address
             const updatedAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
             
-            // If this is set as default, unset any existing default
             if (address.isDefault) {
                 updatedAddresses.forEach(addr => {
                     if (addr.id !== address.id) addr.isDefault = false;
                 });
             }
             
-            // Update Firestore
             await userRef.update({
                 addresses: updatedAddresses,
                 ...(address.isDefault && { defaultAddress: address })
@@ -1786,9 +1755,7 @@ async function saveAddress(event) {
             
             delete document.getElementById('addressForm').dataset.editingId;
         } else {
-            // For new address, we add it to the array
             if (address.isDefault) {
-                // If setting as default, first unset any existing defaults
                 const userDoc = await userRef.get();
                 const currentAddresses = userDoc.data().addresses || [];
                 
@@ -1797,20 +1764,17 @@ async function saveAddress(event) {
                     isDefault: false
                 }));
                 
-                // Add the new address and update Firestore
                 await userRef.update({
                     addresses: [...updatedAddresses, address],
                     defaultAddress: address
                 });
             } else {
-                // Just add the new address
                 await userRef.update({
                     addresses: firebase.firestore.FieldValue.arrayUnion(address)
                 });
             }
         }
 
-        // Reload UI
         await loadAddresses();
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
@@ -1840,11 +1804,9 @@ async function deleteAddress(addressId) {
         const addresses = userDoc.data().addresses || [];
         const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
         
-        // Check if we're deleting the default address
         const defaultAddress = userDoc.data().defaultAddress;
         const isDeletingDefault = defaultAddress && defaultAddress.id === addressId;
         
-        // Update Firestore
         await userRef.update({
             addresses: updatedAddresses,
             ...(isDeletingDefault && { 
@@ -1887,65 +1849,39 @@ async function setDefaultAddress(addressId) {
         console.error("Error setting default address:", error);
     }
 }
-function editAddress(addressId) {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user || !user.addresses) return;
-    
-    const address = user.addresses.find(addr => addr.id === addressId);
-    if (!address) return;
-    
-    // Fill the form with the address data
-    document.getElementById('fullName').value = address.fullName;
-    document.getElementById('phoneNumber').value = address.phoneNumber;
-    document.getElementById('addressLine1').value = address.addressLine1;
-    document.getElementById('addressLine2').value = address.addressLine2 || '';
-    document.getElementById('city').value = address.city;
-    document.getElementById('state').value = address.state;
-    document.getElementById('postalCode').value = address.postalCode;
-    document.getElementById('country').value = address.country;
-    document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
-    document.getElementById('setAsDefault').checked = address.isDefault;
-    
-    // Store the address ID being edited
-    document.getElementById('addressForm').dataset.editingId = addressId;
-    
-    // Update modal title
-    document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
-    
-    addAddressModal.classList.remove('hidden');
-}
 
-async function setDefaultAddress(addressId) {
+function editAddress(addressId) {
     const user = auth.currentUser;
     if (!user) return;
-
-    try {
-        const userRef = db.collection("users").doc(user.uid);
-        const userDoc = await userRef.get();
+    
+    const userRef = db.collection("users").doc(user.uid);
+    userRef.get().then(doc => {
+        if (!doc.exists) return;
         
-        if (!userDoc.exists) return;
+        const addresses = doc.data().addresses || [];
+        const address = addresses.find(addr => addr.id === addressId);
+        if (!address) return;
         
-        const addresses = userDoc.data().addresses || [];
-        const updatedAddresses = addresses.map(addr => ({
-            ...addr,
-            isDefault: addr.id === addressId
-        }));
+        document.getElementById('fullName').value = address.fullName;
+        document.getElementById('phoneNumber').value = address.phoneNumber;
+        document.getElementById('addressLine1').value = address.addressLine1;
+        document.getElementById('addressLine2').value = address.addressLine2 || '';
+        document.getElementById('city').value = address.city;
+        document.getElementById('state').value = address.state;
+        document.getElementById('postalCode').value = address.postalCode;
+        document.getElementById('country').value = address.country;
+        document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
+        document.getElementById('setAsDefault').checked = address.isDefault;
         
-        const defaultAddress = addresses.find(addr => addr.id === addressId);
+        document.getElementById('addressForm').dataset.editingId = addressId;
+        document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
         
-        await userRef.update({
-            addresses: updatedAddresses,
-            defaultAddress: defaultAddress
-        });
-        
-        await loadAddresses();
-    } catch (error) {
-        console.error("Error setting default address:", error);
-    }
+        addAddressModal.classList.remove('hidden');
+    });
 }
+
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
-    // Format the date
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -1953,12 +1889,10 @@ function showThankYouPopup(orderDetails, orderId) {
         day: 'numeric'
     });
 
-    // Update the popup content
     document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
     document.getElementById('popupOrderId').textContent = orderId;
     document.getElementById('popupOrderDate').textContent = formattedDate;
     
-    // Update shipping address
     document.getElementById('popupFullName').textContent = `${orderDetails.firstName} ${orderDetails.lastName}`;
     document.getElementById('popupAddress1').textContent = orderDetails.address;
     document.getElementById('popupAddress2').textContent = orderDetails.apartment || '';
@@ -1966,10 +1900,8 @@ function showThankYouPopup(orderDetails, orderId) {
     document.getElementById('popupCountry').textContent = orderDetails.country;
     document.getElementById('popupPhone').textContent = orderDetails.phone;
 
-    // Show the popup
     document.getElementById('thankYouPopup').classList.add('active');
     
-    // Close the popup when clicking outside
     document.getElementById('thankYouPopup').addEventListener('click', function(e) {
         if (e.target === this) {
             this.classList.remove('active');
@@ -1979,14 +1911,11 @@ function showThankYouPopup(orderDetails, orderId) {
 
 // Handle successful payment
 function handlePaymentSuccess(response, formData) {
-    // Save the order and get the order ID
     const orderId = saveOrder(response.razorpay_payment_id, formData);
     
-    // Clear the cart
     cart = [];
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('guestCart', JSON.stringify(cart));
     
-    // Show thank you popup with order details
     showThankYouPopup(formData, orderId);
 }
 
@@ -2008,7 +1937,7 @@ function getFormData() {
 // Function to generate a unique order ID with VA prefix and 5-digit number
 function generateOrderId() {
     const prefix = "VA";
-    const randomNum = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
     return `${prefix}${randomNum}`;
 }
 
@@ -2016,20 +1945,18 @@ function generateOrderId() {
 function calculateTotalAmount() {
     let total = 0;
     cart.forEach(item => {
-        const price = parseFloat(item.price.replace(/[^\d.]/g, '')); // Extract numeric price
+        const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
         total += price * item.quantity;
     });
-    return total * 100; // Convert to paise (Razorpay expects amount in smallest currency unit)
+    return total * 100;
 }
 
 async function handlePaymentFailure(response) {
     console.error("Payment failed:", response);
     
-    // Show payment failed popup
     const popup = document.getElementById('paymentFailedPopup');
     popup.classList.add('active');
     
-    // Start countdown and refresh
     let seconds = 5;
     const countdownElement = document.getElementById('countdown');
     
@@ -2043,7 +1970,6 @@ async function handlePaymentFailure(response) {
         }
     }, 1000);
     
-    // Log payment failure to Firestore
     try {
         const user = auth.currentUser;
         await db.collection("paymentFailures").add({
@@ -2051,14 +1977,14 @@ async function handlePaymentFailure(response) {
             email: user?.email || document.getElementById('email')?.value || "unknown",
             error: response.error,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            amount: calculateTotalAmount() / 100, // Convert back to rupees
-            cart: [...cart] // Save cart items for debugging
+            amount: calculateTotalAmount() / 100,
+            cart: [...cart]
         });
     } catch (error) {
         console.error("Error logging payment failure:", error);
     }
 }
-// Save order to Firestore
+
 // Save order to Firestore (updated version)
 async function saveOrder(paymentId, formData) {
     const user = auth.currentUser;
@@ -2071,7 +1997,7 @@ async function saveOrder(paymentId, formData) {
         paymentId: paymentId,
         userId: user?.uid || "guest",
         email: user?.email || document.getElementById('email').value,
-        items: [...cart], // Copy the cart items
+        items: [...cart],
         shippingAddress: {
             name: `${formData.firstName} ${formData.lastName}`,
             address: formData.address,
@@ -2086,7 +2012,6 @@ async function saveOrder(paymentId, formData) {
     };
 
     try {
-        // Save to Firestore
         await db.collection("orders").doc(orderId).set(orderData);
         return orderId;
     } catch (error) {
@@ -2094,21 +2019,19 @@ async function saveOrder(paymentId, formData) {
         throw error;
     }
 }
+
 // Place order function with Razorpay integration
 async function placeOrder() {
-    // 1. Validate form first
     if (!validateCheckoutForm()) {
         return;
     }
 
-    // 2. Calculate total amount (in paise)
     const amount = calculateTotalAmount();
     const formData = getFormData();
 
-    // 3. Razorpay options with UPI QR disabled
     const options = {
-        key: "rzp_live_DPartLBDccSG34", // Replace with your test/live key
-        amount: amount, // Amount in paise (e.g., ₹100 = 10000 paise)
+        key: "rzp_live_DPartLBDccSG34",
+        amount: amount,
         currency: "INR",
         name: "VAMORA.STORE",
         description: "Order Payment",
@@ -2125,12 +2048,10 @@ async function placeOrder() {
         },
         handler: async function(response) {
             try {
-                // Handle successful payment
                 const orderId = await saveOrder(response.razorpay_payment_id, formData);
                 handlePaymentSuccess(response, formData, orderId);
             } catch (error) {
                 console.error("Error processing order:", error);
-                // Show error message to user
                 alert("There was an error saving your order. Please contact support with your payment ID: " + response.razorpay_payment_id);
             }
         },
@@ -2147,11 +2068,9 @@ async function placeOrder() {
         }
     };
 
-    // 4. Open Razorpay payment modal
     const rzp = new Razorpay(options);
     rzp.open();
 
-    // 5. Handle payment failure
     rzp.on('payment.failed', function(response) {
         handlePaymentFailure(response);
     });
@@ -2160,8 +2079,8 @@ async function placeOrder() {
 // Main event listeners
 accountIconNav.addEventListener('click', function(e) {
     e.stopPropagation();
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user.email) {
+    const user = auth.currentUser;
+    if (user) {
         toggleDropdown();
     } else {
         showAuthContainer();
@@ -2174,13 +2093,11 @@ editProfileIcon.addEventListener('click', showEditProfileModal);
 closeEditProfileModal.addEventListener('click', function() {
     editProfileModal.classList.add('hidden');
 });
-saveProfileBtn.addEventListener('click', saveProfile);
 addAddressLink.addEventListener('click', showAddAddressModal);
 closeAddAddressModal.addEventListener('click', function() {
     addAddressModal.classList.add('hidden');
 });
 saveAddressBtn.addEventListener('click', saveAddress);
-cancelAddressBtn.addEventListener('click', cancelAddress);
 mobileMenuButton.addEventListener('click', toggleMobileMenu);
 
 // Close dropdown when clicking outside
@@ -2193,88 +2110,91 @@ document.addEventListener('click', function(event) {
 
 // Unified auth state handler
 auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    // [1] Handle cart merging (guest → logged-in)
-    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-    const firestoreCart = await getOrCreateUserCart(user.uid);
-    
-    // Merge carts
-    const mergedCart = mergeCarts(firestoreCart, guestCart);
-    
-    // Save merged cart to Firestore and clear guest cart
-    await saveCartToFirestore(user.uid, mergedCart);
-    localStorage.removeItem('guestCart');
-    
-    // Update local cart state
-    cart = mergedCart;
-    renderCart();
-
-    // [2] Load user data from Firestore
-    try {
-      const userDoc = await db.collection("users").doc(user.uid).get();
-      
-      if (userDoc.exists) {
-        const userData = userDoc.data();
+    if (user) {
+        // Handle cart merging (guest → logged-in)
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || []);
+        const firestoreCart = await getOrCreateUserCart(user.uid);
         
-        // Handle "Remember Me" functionality
-        if (userData.rememberMe) {
-          document.getElementById('login-email').value = user.email;
-          document.getElementById('remember-me').checked = true;
+        const mergedCart = mergeCarts(firestoreCart, guestCart);
+        
+        await saveCartToFirestore(user.uid, mergedCart);
+        localStorage.removeItem('guestCart');
+        
+        cart = mergedCart;
+        renderCart();
+
+        // Load user data from Firestore
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                updateUIWithUserData(user, userData);
+                document.getElementById('email').value = user.email;
+            } else {
+                await db.collection("users").doc(user.uid).set({
+                    name: user.displayName || '',
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+        } catch (error) {
+            console.error("Error loading user data:", error);
         }
         
-        // Update UI with Firestore data
-        updateUIWithUserData(user, userData);
-        document.getElementById('email').value = user.email;
-
-      } else {
-        // Create user doc if it doesn't exist
-        await db.collection("users").doc(user.uid).set({
-          name: user.displayName || '',
-          email: user.email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-      
-    } catch (error) {
-      console.error("Error loading user data:", error);
+    } else {
+        // User is signed out - load guest cart only
+        cart = JSON.parse(localStorage.getItem('guestCart') || []);
+        applyDefaultAddress();
     }
     
-  } else {
-    // User is signed out - load guest cart only
-    cart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-    applyDefaultAddress();
-  }
-  
-  // Always update UI elements
-  updateLoginButton();
-  renderCart();
+    setupResendVerification();
+    updateLoginButton();
+    renderCart();
 });
 
 // New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
-  // Update account info page
-  if (document.getElementById('displayName')) {
-    document.getElementById('displayName').textContent = userData.name || '';
-  }
-  if (document.getElementById('displayEmail')) {
-    document.getElementById('displayEmail').textContent = user.email || '';
-  }
-  
-  // Update profile modal if open
-  if (nameInput) {
-    nameInput.value = userData.name || '';
-  }
-  if (emailDisplay) {
-    emailDisplay.value = user.email || '';
-  }
-  
-  // Load addresses and orders
-  loadAddresses(user.uid);
-  loadOrders(user.uid);
+    if (document.getElementById('displayName')) {
+        document.getElementById('displayName').textContent = userData.name || '';
+    }
+    if (document.getElementById('displayEmail')) {
+        document.getElementById('displayEmail').textContent = user.email || '';
+    }
+    
+    if (nameInput) {
+        nameInput.value = userData.name || '';
+    }
+    if (emailDisplay) {
+        emailDisplay.value = user.email || '';
+    }
+    
+    loadAddresses(user.uid);
+    loadOrders(user.uid);
 }
 
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
     document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
+}
+
+// Helper function to merge carts
+function mergeCarts(firestoreCart, guestCart) {
+    const merged = [...firestoreCart];
+    
+    guestCart.forEach(guestItem => {
+        const existingItem = merged.find(item => 
+            item.id === guestItem.id && item.size === guestItem.size
+        );
+        
+        if (existingItem) {
+            existingItem.quantity += guestItem.quantity;
+        } else {
+            merged.push(guestItem);
+        }
+    });
+    
+    return merged;
 }
