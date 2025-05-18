@@ -1,4 +1,4 @@
- // Initialize Firebase
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -21,7 +21,6 @@ let cart = [];
 
 // Auth state change handler
 auth.onAuthStateChanged(async (user) => {
-    console.log('Auth state changed, user:', user);    
     try {
         // Handle cart operations
         if (user) {
@@ -634,19 +633,15 @@ function toggleMobileMenu() {
 }
 
 // Show account info page
-// In your showAccountInfo function
 function showAccountInfo(event) {
-    console.log('Showing account info');
     event.preventDefault();
     const user = auth.currentUser;
-    console.log('Current user:', user);
     
     if (user) {
         document.getElementById('displayName').textContent = user.displayName || '';
         document.getElementById('displayEmail').textContent = user.email || '';
         emailDisplay.value = user.email || '';
         
-        console.log('Loading addresses for user:', user.uid);
         loadAddresses(user.uid);
         loadOrders(user.uid);
         
@@ -657,18 +652,17 @@ function showAccountInfo(event) {
         mobileMenuButton.querySelector('i').classList.add('fa-bars');
         mobileMenuButton.querySelector('i').classList.remove('fa-times');
     } else {
-        console.log('No user, showing auth container');
         showAuthContainer();
         showLoginSection();
     }
 }
+
 // Close account info page
 closeAccountInfoPage.addEventListener('click', function(event) {
     event.preventDefault();
     accountInfoPage.classList.add('hidden');
 });
 
-// In the renderAddresses function, update this part:
 function renderAddresses(addresses) {
     if (addresses.length === 0) {
         addressContainer.innerHTML = `
@@ -678,19 +672,48 @@ function renderAddresses(addresses) {
                 <p class="text-sm mt-2">Your saved addresses will appear here</p>
             </div>
         `;
-    } else {
-        // Render addresses list
-        addressContainer.innerHTML = addresses.map(address => `
-            <!-- Your address card HTML here -->
-        `).join('');
+        return;
     }
+
+    addressContainer.innerHTML = addresses.map(address => `
+        <div class="address-card ${address.isDefault ? 'default-address' : ''} bg-white p-4 rounded-lg shadow-sm mb-3">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="flex items-center mb-1">
+                        <span class="font-medium">${address.fullName}</span>
+                        ${address.isDefault ? 
+                            '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">${address.phoneNumber}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="text-blue-500 hover:text-blue-700 icon-hover icon-hover-blue icon-click-effect" onclick="editAddress('${address.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700 icon-hover icon-hover-gray icon-click-effect" onclick="setDefaultAddress('${address.id}')">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700 icon-hover icon-hover-red icon-click-effect" onclick="deleteAddress('${address.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 text-sm">
+                <p>${address.addressLine1}</p>
+                ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
+                <p>${address.city}, ${address.state} ${address.postalCode}</p>
+                <p>${address.country}</p>
+            </div>
+            <div class="mt-2 text-xs text-gray-500 capitalize">
+                ${address.addressType} address
+            </div>
+        </div>
+    `).join('');
     
-    // Always show the Add Address link if user is logged in
-    const user = auth.currentUser;
-    if (user && addAddressLink) {
-        addAddressLink.style.display = 'block';
-    }
-}async function loadAccountInfo(userId) {
+    // Show the "Add Address" link
+    document.getElementById('addAddressLink').style.display = 'block';
+}
+async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
         
@@ -1240,10 +1263,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-// Call this function when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    setupPasswordToggles();
+    // Save address form
+    document.getElementById('addressForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveAddress(e);
+    });
+    
+    // Save profile form
+    document.getElementById('saveProfileBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        saveProfile();
+    });
 });
 
 function validateEmail(email) {
@@ -2142,11 +2173,6 @@ function showEditProfileModal() {
             console.error("Error loading profile:", error);
         });
 }
-// Add this event listener (put it with your other event listeners)
-saveProfileBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    saveProfile();
-});
 
 async function saveProfile() {
     const user = auth.currentUser;
@@ -2170,7 +2196,7 @@ async function saveProfile() {
         document.getElementById('displayName').textContent = nameInput.value;
         editProfileModal.classList.add('hidden');
         
-        // Show success message (you can use a toast or alert)
+        // Show success message
         alert('Profile updated successfully!');
     } catch (error) {
         console.error("Error updating profile:", error);
@@ -2191,84 +2217,78 @@ async function saveAddress(event) {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Get form values
-    const address = {
-        fullName: document.getElementById('fullName').value.trim(),
-        phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        addressLine1: document.getElementById('addressLine1').value.trim(),
-        addressLine2: document.getElementById('addressLine2').value.trim(),
-        city: document.getElementById('city').value.trim(),
-        state: document.getElementById('state').value.trim(),
-        postalCode: document.getElementById('postalCode').value.trim(),
-        country: document.getElementById('country').value,
-        addressType: document.querySelector('input[name="addressType"]:checked').value,
-        isDefault: document.getElementById('setAsDefault').checked,
-        id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Validation
-    if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
-        !address.city || !address.state || !address.postalCode || !address.country) {
-        alert('Please fill in all required fields');
-        return;
-    }
+    showLoading('saveAddressBtn'); // Show loading state
 
     try {
+        // Get form values
+        const address = {
+            fullName: document.getElementById('fullName').value.trim(),
+            phoneNumber: document.getElementById('phoneNumber').value.trim(),
+            addressLine1: document.getElementById('addressLine1').value.trim(),
+            addressLine2: document.getElementById('addressLine2').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            state: document.getElementById('state').value.trim(),
+            postalCode: document.getElementById('postalCode').value.trim(),
+            country: document.getElementById('country').value,
+            addressType: document.querySelector('input[name="addressType"]:checked').value,
+            isDefault: document.getElementById('setAsDefault').checked,
+            id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // Validation
+        if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
+            !address.city || !address.state || !address.postalCode || !address.country) {
+            alert('Please fill in all required fields');
+            hideLoading('saveAddressBtn');
+            return;
+        }
+
         const userRef = db.collection("users").doc(user.uid);
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         
+        // Get current data
+        const userDoc = await userRef.get();
+        const currentAddresses = userDoc.data().addresses || [];
+        
+        let updatedAddresses = [];
+        
         if (isEditing) {
             // Editing existing address
-            const userDoc = await userRef.get();
-            const currentAddresses = userDoc.data().addresses || [];
-            
-            const updatedAddresses = currentAddresses.map(addr => 
+            updatedAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
-            
-            if (address.isDefault) {
-                updatedAddresses.forEach(addr => {
-                    if (addr.id !== address.id) addr.isDefault = false;
-                });
-            }
-            
-            await userRef.update({
-                addresses: updatedAddresses,
-                ...(address.isDefault && { defaultAddress: address })
-            });
         } else {
             // Adding new address
-            if (address.isDefault) {
-                // If setting as default, update all other addresses
-                const userDoc = await userRef.get();
-                const currentAddresses = userDoc.data().addresses || [];
-                
-                const updatedAddresses = currentAddresses.map(addr => ({
-                    ...addr,
-                    isDefault: false
-                }));
-                
-                await userRef.update({
-                    addresses: [...updatedAddresses, address],
-                    defaultAddress: address
-                });
-            } else {
-                // Just add the new address
-                await userRef.update({
-                    addresses: firebase.firestore.FieldValue.arrayUnion(address)
-                });
-            }
+            updatedAddresses = [...currentAddresses, address];
         }
-
-        await loadAddresses(user.uid);
-        cancelAddress(); // Use cancelAddress to properly reset the form
         
+        // Handle default address
+        if (address.isDefault) {
+            updatedAddresses = updatedAddresses.map(addr => ({
+                ...addr,
+                isDefault: addr.id === address.id
+            }));
+        }
+        
+        // Update Firestore
+        await userRef.update({
+            addresses: updatedAddresses,
+            ...(address.isDefault && { defaultAddress: address })
+        });
+
+        // Refresh UI
+        await loadAddresses(user.uid);
+        cancelAddress();
+        alert('Address saved successfully!');
     } catch (error) {
         console.error("Error saving address:", error);
         alert("Failed to save address. Please try again.");
+    } finally {
+        hideLoading('saveAddressBtn');
     }
-}function cancelAddress() {
+}
+function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
     addAddressModal.classList.add('hidden');
@@ -2594,7 +2614,53 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
-// New helper function to update UI with Firestore data
+
+// Unified auth state handler
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Handle cart merging (guest → logged-in)
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || []);
+        const firestoreCart = await getOrCreateUserCart(user.uid);
+        
+        const mergedCart = mergeCarts(firestoreCart, guestCart);
+        
+        await saveCartToFirestore(user.uid, mergedCart);
+        localStorage.removeItem('guestCart');
+        
+        cart = mergedCart;
+        renderCart();
+
+        // Load user data from Firestore
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                updateUIWithUserData(user, userData);
+                document.getElementById('email').value = user.email;
+            } else {
+                await db.collection("users").doc(user.uid).set({
+                    name: user.displayName || '',
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        }
+        
+    } else {
+        // User is signed out - load guest cart only
+        cart = JSON.parse(localStorage.getItem('guestCart') || []);
+        applyDefaultAddress();
+    }
+    
+    setupResendVerification();
+    updateLoginButton();
+    renderCart();
+});// New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
     // Cache DOM elements to avoid multiple queries
     const displayNameEl = document.getElementById('displayName');
