@@ -1104,21 +1104,34 @@ async function saveInformation() {
 }
 
 // Update the getStatusColor function to include all statuses
-function getStatusColor(status) {
+function getStatusColorClass(status) {
     switch(status) {
         case 'status-order-placed':
-            return 'text-blue-500';
+            return 'bg-blue-100 text-blue-800';
         case 'status-processing':
-            return 'text-yellow-500';
+            return 'bg-yellow-100 text-yellow-800';
         case 'status-shipped':
-            return 'text-purple-500';
+            return 'bg-purple-100 text-purple-800';
         case 'status-delivered':
-            return 'text-green-500';
+            return 'bg-green-100 text-green-800';
         case 'status-cancelled':
-            return 'text-red-500';
+            return 'bg-red-100 text-red-800';
         default:
-            return 'text-gray-500';
+            return 'bg-gray-100 text-gray-800';
     }
+}
+function formatStatus(status) {
+    if (!status) return 'Processing';
+    return status.replace('status-', '').replace('-', ' ').toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+function calculateOrderTotal(items) {
+    return items.reduce((total, item) => {
+        const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || 0;
+        return total + (price * (item.quantity || 1));
+    }, 0);
 }
 
 // Firebase Authentication Functions
