@@ -1024,258 +1024,6 @@ async function applyDefaultAddress() {
         console.error("Error applying default address:", error);
     }
 }
-// Load addresses
-async function loadOrders(userId) {
-    const user = auth.currentUser;
-    if (!user) {
-        ordersContainer.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                <p class="text-lg">Please sign in to view your orders</p>
-            </div>
-        `;
-        return;
-    }
-
-    try {
-        showLoading('ordersLoading');
-        
-        const querySnapshot = await db.collection("orders")
-            .where("userId", "==", userId)
-            .orderBy("timestamp", "desc")
-            .get();
-
-        if (querySnapshot.empty) {
-            ordersContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                    <p class="text-lg">You haven't placed any orders yet</p>
-                    <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
-                </div>
-            `;
-            return;
-        }
-
-        const orders = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                ...data,
-                id: doc.id,
-                date: data.timestamp?.toDate() || new Date()
-            };
-        });
-        
-        renderOrders(orders);
-    } catch (error) {
-        console.error("Error loading orders:", error);
-        ordersContainer.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
-                <p class="text-lg">Error loading orders</p>
-                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
-            </div>
-        `;
-    } finally {
-        hideLoading('ordersLoading');
-    }
-}
-
-// Update the renderOrders function to handle the date properly
-function renderOrders(orders) {
-    ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId || order.id}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">${order.date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}</span>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                    </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                            order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || '0');
-                            return total + (price * (item.quantity || 1));
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size}</span>
-                                <span>Qty: ${item.quantity || 1}</span>
-                                <span>${item.price || '₹0.00'}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
-}
-// Helper function to render orders
-function renderOrders(orders) {
-    ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                    </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                            order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${order.status.replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
-                            return total + (price * item.quantity);
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size}</span>
-                                <span>Qty: ${item.quantity}</span>
-                                <span>${item.price}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
-}
 
 // Helper function to determine the progress bar width
 function getStatusProgress(status) {
@@ -2669,7 +2417,172 @@ auth.onAuthStateChanged(async (user) => {
         const addAddressLink = document.getElementById('addAddressLink');
         if (addAddressLink) addAddressLink.style.display = 'none';
     }
+if (user) {
+        loadOrders(user.uid);
+    } else {
+        const ordersContainer = document.getElementById('ordersContainer');
+        if (ordersContainer) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">Please sign in to view your orders</p>
+                </div>
+            `;
+        }
+    }
 });
+// Load orders for the current user
+async function loadOrders(userId) {
+    const ordersContainer = document.getElementById('ordersContainer');
+    if (!ordersContainer) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">Please sign in to view your orders</p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        // Show loading state
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-2xl"></i>
+                <p class="mt-2">Loading your orders...</p>
+            </div>
+        `;
+
+        const querySnapshot = await db.collection("orders")
+            .where("email", "==", user.email)
+            .orderBy("timestamp", "desc")
+            .get();
+
+        if (querySnapshot.empty) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">You haven't placed any orders yet</p>
+                    <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
+                    <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                        Start Shopping
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        const orders = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                date: data.timestamp?.toDate() || new Date()
+            };
+        });
+
+        renderOrders(orders);
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">You haven't placed any orders yet</p>
+                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
+                <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    Start Shopping
+                </a>
+            </div>
+        `;
+    }
+}
+
+// Render orders in the UI
+function renderOrders(orders) {
+    const ordersContainer = document.getElementById('ordersContainer');
+    if (!ordersContainer) return;
+
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex flex-wrap justify-between items-center">
+                    <div class="mb-2 sm:mb-0">
+                        <span class="font-semibold">Order #:</span>
+                        <span class="ml-1 text-gray-600">${order.orderId || order.id}</span>
+                    </div>
+                    <div class="mb-2 sm:mb-0">
+                        <span class="font-semibold">Date:</span>
+                        <span class="ml-1 text-gray-600">
+                            ${order.date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            })}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusColorClass(order.status)}">
+                            ${formatStatus(order.status)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="mb-4">
+                    <h4 class="font-medium mb-2">Items:</h4>
+                    <div class="space-y-3">
+                        ${order.items.map(item => `
+                            <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                                <img src="${item.image || '/images/placeholder-product.png'}" 
+                                     alt="${item.title}" 
+                                     class="w-16 h-16 rounded mr-3 object-cover">
+                                <div class="flex-1">
+                                    <p class="font-medium">${item.title}</p>
+                                    <div class="flex flex-wrap justify-between text-sm text-gray-500 mt-1">
+                                        <span class="mr-2">Size: ${item.size}</span>
+                                        <span class="mr-2">Qty: ${item.quantity || 1}</span>
+                                        <span>${item.price || '₹0.00'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center pt-4 border-t border-gray-200">
+                    <div class="mb-2 sm:mb-0">
+                        <span class="font-semibold">Total:</span>
+                        <span class="ml-1 text-gray-600">
+                            ₹${calculateOrderTotal(order.items).toFixed(2)}
+                        </span>
+                    </div>
+                    <a href="/order/${order.orderId || order.id}" 
+                       class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 text-sm">
+                        View Order Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    if (orders.length === 0) {
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">You haven't placed any orders yet</p>
+                <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
+                <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    Start Shopping
+                </a>
+            </div>
+        `;
+    }
+}
+
 // Unified auth state handler
 auth.onAuthStateChanged(async (user) => {
     if (user) {
