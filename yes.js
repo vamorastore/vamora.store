@@ -1,3 +1,4 @@
+// your code goes here
  // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
@@ -605,9 +606,11 @@ closeAccountInfoPage.addEventListener('click', function(event) {
     accountInfoPage.classList.add('hidden');
 });
 
-// In your renderAddresses function, update the button HTML:
 function renderAddresses(addresses) {
-    if (addresses.length === 0) {
+    const addressContainer = document.getElementById('addressContainer');
+    if (!addressContainer) return;
+
+    if (!addresses || addresses.length === 0) {
         addressContainer.innerHTML = `
             <div class="text-center text-gray-500">
                 <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
@@ -654,6 +657,15 @@ function renderAddresses(addresses) {
             </div>
         </div>
     `).join('');
+
+    // Add event listeners for set default buttons
+    document.querySelectorAll('[data-action="set-default"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const addressId = this.getAttribute('data-address-id');
+            setDefaultAddress(addressId);
+        });
+    });
 }
 async function loadAccountInfo(userId) {
     try {
@@ -745,6 +757,9 @@ async function applyDefaultAddress() {
 }
 // Load addresses
 async function loadAddresses(userId) {
+    const addressContainer = document.getElementById('addressContainer');
+    if (!addressContainer) return;
+
     const user = auth.currentUser;
     if (!user) {
         addressContainer.innerHTML = `
@@ -762,14 +777,13 @@ async function loadAddresses(userId) {
             const userData = doc.data();
             renderAddresses(userData.addresses || []);
         } else {
-            renderEmptyAddressState();
+            renderAddresses([]);
         }
     } catch (error) {
         console.error("Error loading addresses:", error);
-        renderEmptyAddressState();
+        renderAddresses([]);
     }
-}
-// Load orders from Firestore
+}// Load orders from Firestore
 // Update the loadOrders function
 async function loadOrders(userId) {
     const user = auth.currentUser;
@@ -2195,7 +2209,7 @@ async function saveAddress(event) {
         fullName: document.getElementById('fullName').value.trim(),
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
         addressLine1: document.getElementById('addressLine1').value.trim(),
-        addressLine2: document.getElementById('addressLine2').value.trim() || null,
+        addressLine2: document.getElementById('addressLine2').value.trim() || '',
         city: document.getElementById('city').value.trim(),
         state: document.getElementById('state').value.trim(),
         postalCode: document.getElementById('postalCode').value.trim(),
@@ -2223,8 +2237,9 @@ async function saveAddress(event) {
 
     try {
         // Show loading state
-        document.getElementById('saveAddressBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        document.getElementById('saveAddressBtn').disabled = true;
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
 
         const userRef = db.collection("users").doc(user.uid);
         const isEditing = document.getElementById('addressForm').dataset.editingId;
@@ -2269,7 +2284,7 @@ async function saveAddress(event) {
         await userRef.set(updateData, { merge: true });
 
         // Refresh UI
-        await loadAddresses(user.uid);
+        loadAddresses(user.uid);
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
         delete document.getElementById('addressForm').dataset.editingId;
@@ -2282,8 +2297,9 @@ async function saveAddress(event) {
         showToast("Failed to save address. Please try again.", 'error');
     } finally {
         // Reset button state
-        document.getElementById('saveAddressBtn').innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
-        document.getElementById('saveAddressBtn').disabled = false;
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
+        saveBtn.disabled = false;
     }
 }
 function cancelAddress() {
@@ -2408,7 +2424,8 @@ function showThankYouPopup(orderDetails, orderId) {
     document.getElementById('popupCityStateZip').textContent = `${orderDetails.city}, ${orderDetails.state} ${orderDetails.pinCode}`;
     document.getElementById('popupCountry').textContent = orderDetails.country;
     document.getElementById('popupPhone').textContent = orderDetails.phone;
-
+// Update the form submission event listener
+document.getElementById('addressForm').addEventListener('submit', saveAddress);
     document.getElementById('thankYouPopup').classList.add('active');
     
     document.getElementById('thankYouPopup').addEventListener('click', function(e) {
@@ -2616,7 +2633,7 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
-// Update auth state handler to show/hide add address button
+// Update the auth state handler to show/hide add address button
 auth.onAuthStateChanged(async (user) => {
     if (user) {
         // Show add address button
