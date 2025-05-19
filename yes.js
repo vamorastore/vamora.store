@@ -1,4 +1,5 @@
-// Initialize Firebase
+// your code goes here
+ // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -15,7 +16,6 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
-
 // Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
@@ -25,7 +25,6 @@ db.enablePersistence()
           console.log("The current browser does not support all of the features required to enable persistence");
       }
   });
-
 // Initialize cart
 let cart = [];
 
@@ -251,6 +250,12 @@ function displayResults(results) {
 
 // Close search results when clicking outside
 document.addEventListener('click', function(e) {
+    
+    if (e.target.closest('[data-action="set-default"]')) {
+            const addressId = e.target.closest('[data-action="set-default"]').dataset.addressId;
+            setDefaultAddress(addressId);
+    }
+    
     if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
         searchResults.style.display = 'none';
     }
@@ -362,6 +367,7 @@ async function addToCart(product) {
 }
 
 // Updated removeFromCart function
+// Updated removeFromCart function
 async function removeFromCart(index, event) {
     event.preventDefault();
     event.stopPropagation();
@@ -382,7 +388,6 @@ async function removeFromCart(index, event) {
     // Update cart count
     updateCartCount();
 }
-
 async function updateCartItem(productId, size, newQuantity) {
     const user = auth.currentUser;
     
@@ -662,7 +667,6 @@ function renderAddresses(addresses) {
         });
     });
 }
-
 async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
@@ -697,7 +701,6 @@ async function loadAccountInfo(userId) {
         renderEmptyAccountState();
     }
 }
-
 function renderEmptyAccountState() {
     addressContainer.innerHTML = `
         <div class="text-center text-gray-500">
@@ -752,7 +755,6 @@ async function applyDefaultAddress() {
         console.error("Error applying default address:", error);
     }
 }
-
 // Load addresses
 async function loadAddresses(userId) {
     const addressContainer = document.getElementById('addressContainer');
@@ -794,9 +796,7 @@ async function loadAddresses(userId) {
             </div>
         `;
     }
-}
-
-// Update the loadOrders function
+}// Update the loadOrders function
 async function loadOrders(userId) {
     const user = auth.currentUser;
     if (!user) {
@@ -944,6 +944,102 @@ function renderOrders(orders) {
                                 <span>Size: ${item.size}</span>
                                 <span>Qty: ${item.quantity || 1}</span>
                                 <span>${item.price || '₹0.00'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+// Helper function to render orders
+function renderOrders(orders) {
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    </div>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                            order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${order.status.replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.items.reduce((total, item) => {
+                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
+                            return total + (price * item.quantity);
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.items.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size}</span>
+                                <span>Qty: ${item.quantity}</span>
+                                <span>${item.price}</span>
                             </div>
                         </div>
                     </div>
