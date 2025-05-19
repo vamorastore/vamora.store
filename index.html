@@ -1,1454 +1,2770 @@
- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
- body {
-    font-family: 'Unbounded', sans-serif;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #e5e5e5; /* Ensure this is set */
-}
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
+// your code goes here
+ // Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+  authDomain: "vamora-co-in.firebaseapp.com",
+  projectId: "vamora-co-in",
+  storageBucket: "vamora-co-in.appspot.com",
+  messagingSenderId: "613048727757",
+  appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+  measurementId: "G-8R6TDRQGS6"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+const analytics = firebase.analytics();
+const db = firebase.firestore();
+// Enable offline persistence
+db.enablePersistence()
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          console.log("Multiple tabs open, persistence can only be enabled in one tab at a time");
+      } else if (err.code == 'unimplemented') {
+          console.log("The current browser does not support all of the features required to enable persistence");
+      }
+  });
+// Initialize cart
+let cart = [];
+
+// Check for existing cart on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const user = auth.currentUser;
+    if (!user) {
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+        renderCart();
+    }
+});
+
+let cartOpen = false;
+let searchOpen = false;
+let dropdownOpen = false;
+
+// DOM Elements
+const cartIconNav = document.getElementById('cartIconNav');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartBackdrop = document.getElementById('cartBackdrop');
+const closeCartButton = document.getElementById('closeCartButton');
+const enableSearch = document.getElementById('enableSearch');
+const searchInputContainer = document.querySelector('.search-input-container');
+const accountIconNav = document.getElementById('accountIconNav');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const mobileMenuButton = document.getElementById('mobileMenuButton');
+const mobileMenuContent = document.getElementById('mobileMenuContent');
+const profileOption = document.getElementById('profileOption');
+const logoutOption = document.getElementById('logoutOption');
+const accountInfoPage = document.getElementById('account-info-page');
+const closeAccountInfoPage = document.getElementById('closeAccountInfoPage');
+const editProfileIcon = document.getElementById('editProfileIcon');
+const addAddressLink = document.getElementById('addAddressLink');
+const editProfileModal = document.getElementById('editProfileModal');
+const closeEditProfileModal = document.getElementById('closeEditProfileModal');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+const nameInput = document.getElementById('nameInput');
+const emailDisplay = document.getElementById('emailDisplay');
+const addAddressModal = document.getElementById('addAddressModal');
+const closeAddAddressModal = document.getElementById('closeAddAddressModal');
+const saveAddressBtn = document.getElementById('saveAddressBtn');
+const addressContainer = document.getElementById('addressContainer');
+const ordersContainer = document.getElementById('ordersContainer');
+const loginButton = document.getElementById('login-button');
+
+// Show login section and hide signup section
+function showLoginSection() {
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('signup-section').classList.add('hidden');
+    document.getElementById('login-section').classList.add('bg-white');
+    document.getElementById('signup-section').classList.remove('bg-gray-50');
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-#auth-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1100; /* Higher than other elements */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+// Show signup section and hide login section
+function showSignupSection() {
+    document.getElementById('signup-section').classList.remove('hidden');
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('signup-section').classList.add('bg-gray-50');
+    document.getElementById('login-section').classList.remove('bg-white');
 }
 
-#auth-container.active {
-    opacity: 1;
-    pointer-events: all;
+// Helper function to get or create user's cart in Firestore
+async function getOrCreateUserCart(userId) {
+    const cartRef = db.collection("carts").doc(userId);
+    const doc = await cartRef.get();
+
+    if (!doc.exists) {
+        await cartRef.set({
+            items: [],
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return [];
+    }
+    return doc.data().items || [];
 }
 
-.auth-modal {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px;
-    position: relative;
+// Save cart to Firestore
+async function saveCartToFirestore(userId, cartItems) {
+    try {
+        await db.collection("carts").doc(userId).set({
+            items: cartItems,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error saving cart:", error);
+    }
 }
 
-/* Main content container */
-.main-content {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    padding-top: 80px; /* Account for fixed navbar */
-    background-color: white;
-    min-height: calc(100vh - 80px); /* Full height minus navbar */
-    box-sizing: border-box;
-}
-
-/* About container styles */
-.about-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-/* Desktop font sizes */
-.about-container h1 {
-    font-size: 2.25rem; /* 36px */
-    margin-bottom: 1.5rem;
-    line-height: 1.3;
-}
-
-.about-container h2 {
-    font-size: 1.75rem; /* 28px */
-    margin-bottom: 1.25rem;
-    line-height: 1.3;
-}
-
-.about-container p {
-    font-size: 1rem; /* 16px */
-    margin-bottom: 2rem;
-    line-height: 1.6;
-}
-
-/* Mobile font sizes (max-width: 768px) */
-@media (max-width: 768px) {
-    .about-container {
-        padding: 1rem;
+// Function to close all open elements
+function closeAllOpenElements() {
+    // Close cart
+    if (cartOpen) {
+        cartOverlay.classList.remove('active');
+        cartBackdrop.classList.remove('active');
+        cartOpen = false;
     }
     
-    .about-container h1 {
-        font-size: 1.75rem; /* 28px */
-        margin-bottom: 1.25rem;
+    // Close search
+    if (searchOpen) {
+        searchInputContainer.style.display = 'none';
+        searchOpen = false;
     }
     
-    .about-container h2 {
-        font-size: 1.5rem; /* 24px */
-        margin-bottom: 1rem;
+    // Close dropdown menu
+    if (dropdownOpen) {
+        dropdownMenu.classList.add('hidden');
+        dropdownOpen = false;
     }
     
-    .about-container p {
-        font-size: 0.875rem; /* 14px */
-        margin-bottom: 1rem;
+    // Close mobile menu
+    if (mobileMenuContent.classList.contains('active')) {
+        mobileMenuContent.classList.remove('active');
+        mobileMenuButton.querySelector('i').classList.add('fa-bars');
+        mobileMenuButton.querySelector('i').classList.remove('fa-times');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
     }
 }
 
-/* Account dropdown styles */
-.account-icon-hover {
-    transition: all 0.2s ease;
-}
-.account-icon-hover:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-}
-.account-icon-hover:active {
-    transform: scale(0.95);
-}
-.icon-hover {
-    transition: all 0.2s ease;
-}
-.icon-hover:hover {
-    color: #3b82f6;
-    transform: scale(1.1);
-}
-.icon-hover-blue:hover {
-    color: #2563eb;
-}
-.icon-hover-gray:hover {
-    color: #6b7280;
-}
-.icon-hover-red:hover {
-    color: #dc2626;
-}
-.icon-click-effect:active {
-    transform: scale(0.85);
-}
+// Search functionality
+const searchData = [
+    { id: 1, title: "Men's T-Shirt", category: "Clothing", url: "/products/mens-tshirt" },
+    { id: 2, title: "Women's Jeans", category: "Clothing", url: "/products/womens-jeans" },
+    { id: 3, title: "Running Shoes", category: "Footwear", url: "/products/running-shoes" },
+    { id: 4, title: "Smart Watch", category: "Electronics", url: "/products/smart-watch" },
+    { id: 5, title: "Backpack", category: "Accessories", url: "/products/backpack" },
+    { id: 6, title: "Wireless Headphones", category: "Electronics", url: "/products/headphones" },
+    { id: 7, title: "Sunglasses", category: "Accessories", url: "/products/sunglasses" },
+    { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
+];
 
-/* Login modal styles */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-.loading {
-    position: relative;
-    pointer-events: none;
-}
-.loading:after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    margin: -8px 0 0 -8px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-.password-container {
-    position: relative;
-}
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 38px;
-    cursor: pointer;
-    color: #6b7280;
-    background: none;
-    border: none;
-    padding: 4px;
-    z-index: 10;
-}
-.password-input {
-    padding-right: 40px !important;
-}
+// DOM elements for search
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const closeSearch = document.getElementById('closeSearch');
+const searchButton = document.getElementById('searchButton');
 
-/* Navigation styles */
-.nav-link {
-    position: relative;
-    cursor: pointer;
-}
-.nav-link::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 3px;
-    background-color: black;
-    left: 50%;
-    bottom: -4px;
-    transition: width 0.3s ease, left 0.3s ease;
-}
-.nav-link:hover::after,
-.nav-link.active::after {
-    width: 100%;
-    left: 0;
-}
-
-.icon-separator {
-    border-left: 1px solid black;
-    height: 28px;
-    margin: 0 10px;
-}
-
-.icon {
-    font-size: 1.2rem;
-}
-
-/* Logo animation */
-.logo-container {
-    position: relative;
-    display: inline-block;
-}
-.logo-container img {
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-    height: 50px;
-    width: 60px;
-}
-.logo-container:hover img {
-    transform: rotateY(360deg);
-}
-.logo-text {
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    transform: translateY(-50%);
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.6s, left 0.6s;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-.logo-container:hover .logo-text {
-    opacity: 1;
-    left: calc(100% + 10px);
-}
-
-/* Navigation bar */
-.navbar {
-    background-color: #e5e5e5;
-    padding: 1rem 2rem;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 50;
-    height: 80px;
-    display: flex;
-    align-items: center;
-}
-
-.nav-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Mobile menu */
-.mobile-menu-button {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.mobile-menu-button:hover {
-    color: #555;
-    transform: scale(1.1);
-}
-
-.mobile-menu-button:active {
-    transform: scale(0.95);
-}
-
-.nav-links {
-    display: flex;
-    gap: 1.75rem;
-}
-
-.nav-icons {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-/* Mobile menu content */
-.mobile-menu-content {
-    display: none;
-    position: fixed;
-    top: 80px;
-    left: 0;
-    width: 100%;
-    background-color: #e5e5e5;
-    padding: 1.25rem 1.75rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 40;
-}
-
-
-.mobile-menu-content.active {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: all;
-}
-
-.mobile-menu-links {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-}
-
-.mobile-menu-social {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.75rem;
-    padding: 0.75rem 0;
-}
-
-/* Cart Overlay Styles */
-.cart-overlay {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 100%;
-    max-width: 450px;
-    height: 100%;
-    background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    transition: right 0.3s ease;
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.cart-overlay.active {
-    right: 0;
-}
-
-.overlay-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.overlay-backdrop.active {
-    opacity: 1;
-    pointer-events: all;
-}
-
-/* Account dropdown styles */
-.account-icon-hover {
-    transition: all 0.2s ease;
-}
-.account-icon-hover:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-}
-.account-icon-hover:active {
-    transform: scale(0.95);
-}
-.icon-hover {
-    transition: all 0.2s ease;
-}
-.icon-hover:hover {
-    color: #3b82f6;
-    transform: scale(1.1);
-}
-.icon-hover-blue:hover {
-    color: #2563eb;
-}
-.icon-hover-gray:hover {
-    color: #6b7280;
-}
-.icon-hover-red:hover {
-    color: #dc2626;
-}
-.icon-click-effect:active {
-    transform: scale(0.85);
-}
-
-/* Search styles */
-.search-container {
-    position: relative;
-    display: inline-block;
-}
-
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 180px;
-    max-height: 400px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    z-index: 100;
-    display: none;
-}
-
-.search-result-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.search-result-item:hover {
-    background-color: #f5f5f5;
-}
-
-.search-result-item .title {
-    font-weight: 600;
-    margin-bottom: 3px;
-    font-size: 0.9rem;
-}
-
-.search-result-item .category {
-    font-size: 0.8em;
-    color: #666;
-}
-
-.no-results {
-    padding: 10px 15px;
-    color: #666;
-    font-size: 0.9em;
-    text-align: center;
-}
-
-.search-input-container {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    display: none;
-}
-
-.search-input {
-    padding: 8px 15px;
-    padding-right: 35px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    width: 180px;
-    outline: none;
-    transition: width 0.3s;
-}
-
-.search-input:focus {
-    width: 220px;
-    border-color: #999;
-}
-
-.search-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-}
-
-.search-close {
-    position: absolute;
-    right: 35px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #999;
-}
-
-.search-close:hover {
-    color: #333;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .mobile-menu-button {
-        display: block;
-        order: 1;
+// Toggle search input
+enableSearch.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (searchOpen) {
+        searchInputContainer.style.display = 'none';
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+        searchOpen = false;
+        return;
     }
     
-    .logo-container {
-        order: 2;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    .logo-container:hover img {
-        transform: none;
-    }
-    
-    .logo-text {
-        display: none;
-    }
-    
-    .nav-icons {
-        order: 3;
-    }
-    
-    .nav-links {
-        display: none;
-    }
-    
-    .mobile-menu-links a {
-        font-size: 1rem;
-    }
-    
-    .mobile-menu-social a {
-        font-size: 1.35rem;
-    }
-    
-    .cart-overlay {
-        max-width: 100%;
-    }
-    
-    .icon {
-        font-size: 1rem;
-    }
-    
-    /* Mobile search adjustments */
-    .search-input-container {
-        position: fixed;
-        top: 80px;
-        left: 0;
-        right: 0;
-        width: 100%;
-        padding: 10px;
-        background: #e5e5e5;
-        z-index: 60;
-    }
-    
-    .search-input {
-        width: calc(100% - 50px);
-        padding: 10px 45px 10px 15px;
-    }
-    
-    .search-input:focus {
-        width: calc(100% - 50px);
-    }
-    
-    .search-results {
-        position: fixed;
-        top: 140px;
-        left: 10px;
-        right: 10px;
-        width: calc(100% - 20px);
-    }
-    
-    .search-close {
-        right: 45px;
-    }
-    
-    .search-icon {
-        right: 20px;
-    }
+    closeAllOpenElements();
+    searchOpen = true;
+    searchInputContainer.style.display = 'flex';
+    searchInput.focus();
+});
 
-    .no-results {
-        padding: 15px;
-        font-size: 1em;
-    }
+// Close search
+closeSearch.addEventListener('click', function() {
+    searchInputContainer.style.display = 'none';
+    searchInput.value = '';
+    searchResults.style.display = 'none';
+    searchOpen = false;
+});
 
-    /* Adjusted dropdown position */
-    #dropdownMenu {
-        top: 100%;
-        right: 0;
-        left: auto;
-        width: 200px;
+// Search functionality
+searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.category.toLowerCase().includes(query)
+    );
+    
+    displayResults(results);
+});
+
+// Perform search on button click
+searchButton.addEventListener('click', function() {
+    const query = searchInput.value.toLowerCase();
+    
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.category.toLowerCase().includes(query)
+    );
+    
+    displayResults(results);
+});
+
+// Display search results
+function displayResults(results) {
+    if (results.length === 0) {
+        searchResults.innerHTML = '<div class="no-results">No results found</div>';
+        searchResults.style.display = 'block';
+        return;
+    }
+    
+    searchResults.innerHTML = results.map(item => `
+        <div class="search-result-item" data-url="${item.url}">
+            <div class="title">${item.title}</div>
+            <div class="category">${item.category}</div>
+        </div>
+    `).join('');
+    
+    searchResults.style.display = 'block';
+    
+    document.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            window.location.href = url;
+        });
+    });
+}
+
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+    
+    if (e.target.closest('[data-action="set-default"]')) {
+            const addressId = e.target.closest('[data-action="set-default"]').dataset.addressId;
+            setDefaultAddress(addressId);
+    }
+    
+    if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
+        searchResults.style.display = 'none';
+    }
+});
+
+// Close search results on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        searchResults.style.display = 'none';
+    }
+});
+
+// Toggle cart function
+function toggleCart() {
+    if (!cartOpen) {
+        closeAllOpenElements();
+    }
+    
+    cartOpen = !cartOpen;
+    cartOverlay.classList.toggle('active', cartOpen);
+    cartBackdrop.classList.toggle('active', cartOpen);
+    
+    if (cartOpen) {
+        renderCart();
     }
 }
 
-@media (min-width: 769px) {
-    .nav-links {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    .nav-links a {
-        font-size: 0.875rem;
-    }
-    
-    .cart-overlay h2 {
-        font-size: 2.25rem;
-    }
-    
-    .cart-overlay .font-medium {
-        font-size: 1.125rem;
-    }
-    
-    .cart-overlay .text-lg {
-        font-size: 1.25rem;
-    }
-    
-    .cart-overlay button {
-        font-size: 1.125rem;
-        padding: 1rem;
-    }
-
-    .cart-overlay .fa-times {
-        font-size: 1.5rem;
-    }
+// Close cart function
+function closeCart() {
+    cartOpen = false;
+    cartOverlay.classList.remove('active');
+    cartBackdrop.classList.remove('active');
 }
 
-/* Footer styles */
-.footer-link {
-    position: relative;
-    cursor: pointer;
-    font-weight: 300;
-}
-.footer-link::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 1px;
-    background-color: black;
-    left: 50%;
-    bottom: -2px;
-    transition: width 0.3s ease, left 0.3s ease;
-}
-.footer-link:hover::after,
-.footer-link.active::after {
-    width: 100%;
-    left: 0;
-}
+// Updated cart rendering function
+function renderCart() {
+    const cartList = document.getElementById('cartList');
+    cartList.innerHTML = '';
+    let subtotal = 0;
 
-/* Main content container */
-.main-content {
-    flex: 1;
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    padding-top: 50px;
-    background-color: white;
-}
-
-/* Footer */
-.footer {
-    background-color: #e5e5e5;
-    padding: 1.5rem;
-    padding-bottom: 3rem;
-}
-
-.footer-container {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.footer-logo {
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.footer-social-desktop,
-.footer-social-mobile {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.footer-social-desktop a,
-.footer-social-mobile a {
-    font-size: 1rem;
-    transition: opacity 0.3s;
-}
-
-.footer-social-desktop a:hover,
-.footer-social-mobile a:hover {
-    opacity: 0.7;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    width: 100%;
-    max-width: 600px;
-}
-
-.footer-bottom {
-    border-top: 1px solid #d1d5db;
-    padding-top: 1rem;
-    text-align: center;
-    width: 100%;
-}
-
-.footer-bottom p {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .footer {
-        padding: 1rem;
-        padding-bottom: 2rem;
-    }
-    
-    .footer-social-desktop {
-        display: none;
-    }
-    
-    .footer-social-mobile {
-        display: flex;
-        margin: 1rem 0;
-    }
-    
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-    
-    .footer-link {
-        font-size: 0.6rem;
-    }
-    
-    .footer-bottom p {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-    
-    .mobile-menu-links a {
-        font-size: 0.875rem;
-    }
-    
-    .mobile-menu-social a {
-        font-size: 1rem;
-    }
-}
-
-@media (min-width: 769px) {
-    .footer-social-mobile {
-        display: none;
-    }
-    
-    .footer-social-desktop {
-        display: flex;
-    }
-    
-    .footer-link {
-        font-size: 0.7rem;
-    }
-    
-    .footer-container {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .footer-bottom p {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-        line-height: normal;
-    }
-}
-
-/* Enhanced cart styles */
-#cartList {
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.cart-item-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-right: 1rem;
-}
-
-.cart-item-details {
-    flex: 1;
-}
-
-.cart-item-price {
-    font-weight: 600;
-    white-space: nowrap;
-    margin-left: 1rem;
-}
-
-.cart-item-remove {
-    color: #ef4444;
-    cursor: pointer;
-    margin-left: 1rem;
-}
-
-@media (max-width: 768px) {
-    .product-container {
-        flex-direction: column;
-        padding: 1rem;
-        min-height: auto;
-    }
-    
-    .image-section, .details-section {
-        width: 100% !important;
-    }
-    
-    .details-section {
-        margin-left: 0 !important;
-        margin-top: 1.5rem;
-    }
-    
-    .thumbnail {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .size-button {
-        font-size: 0.65rem;
-        width: 2.2rem;
-        height: 2.2rem;
-    }
-    
-    .main-image {
-        max-height: 60vh;
-    }
-    
-    .cart-overlay {
-        max-width: 100%;
-    }
-    
-    .cart-item-image {
-        width: 60px;
-        height: 60px;
-    }
-}
-    </style>
-</head>
-<body class="min-h-screen flex flex-col">
-  <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <button class="mobile-menu-button" id="mobileMenuButton">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <div class="flex items-center logo-container">
-                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
-                <span class="logo-text">VAMORA.STORE</span>
-            </div>
-            
-            <div class="flex items-center space-x-2 nav-icons">
-                <div class="search-container">
-                    <a class="text-black nav-link" id="enableSearch">
-                        <i class="fas fa-search icon"></i>
-                    </a>
-                    <div class="search-input-container">
-                        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
-                        <span class="search-close" id="closeSearch">&times;</span>
-                        <span class="search-icon" id="searchButton">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </div>
-                    <div class="search-results" id="searchResults"></div>
-                </div>
-                <div class="icon-separator"></div>
-                <div class="relative">
-                    <div class="cursor-pointer" id="accountIconNav">
-                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
-                             alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
-                    </div>
-                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
-                        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
-                        </a>
-                        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
-                        </a>
-                    </div>
-                </div>
-
-                <div class="icon-separator"></div>
-                <a class="text-black nav-link" id="cartIconNav">
-                    <i class="fas fa-shopping-cart icon"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+    if (cart.length === 0) {
+        cartList.innerHTML = `
+            <div class="text-center py-12">
+                <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">Your cart is empty</p>
+                <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    Continue Shopping
                 </a>
             </div>
+        `;
+        document.getElementById('cartTotal').textContent = '₹ 0.00';
+        return;
+    }
 
-            <div class="nav-links">
-                <a class="text-black nav-link" href="index.html">HOME</a>
-                <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
-                <a class="text-black nav-link" href="contact.html">CONTACT</a>
+    cart.forEach((item, index) => {
+        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+        const itemTotal = priceValue * item.quantity;
+        subtotal += itemTotal;
+
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
+        cartItem.innerHTML = `
+            <div class="flex items-center">
+                <img src="${item.image}" alt="${item.title}" class="cart-item-image">
+                <div class="cart-item-details">
+                    <p class="font-medium">${item.title}</p>
+                    <p class="text-sm text-gray-500">Size: ${item.size}</p>
+                    <div class="flex items-center mt-1">
+                        <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, -1)">-</button>
+                        <span class="mx-2">${item.quantity}</span>
+                        <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, 1)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <span class="cart-item-price">${item.price}</span>
+                <button class="cart-item-remove" onclick="removeFromCart(${index}, event)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        cartList.appendChild(cartItem);
+    });
+
+    document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
+}
+
+// Updated addToCart function
+async function addToCart(product) {
+    const user = auth.currentUser;
+    
+    const existingItem = cart.find(item => 
+        item.id === product.id && item.size === product.size
+    );
+
+    if (existingItem) {
+        existingItem.quantity += product.quantity;
+    } else {
+        cart.push(product);
+    }
+
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
+}
+
+// Updated removeFromCart function
+// Updated removeFromCart function
+async function removeFromCart(index, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const user = auth.currentUser;
+    
+    // Remove the item from the cart array
+    cart.splice(index, 1);
+
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
+    
+    // Update cart count
+    updateCartCount();
+}
+async function updateCartItem(productId, size, newQuantity) {
+    const user = auth.currentUser;
+    
+    const item = cart.find(item => item.id === productId && item.size === size);
+    if (item) {
+        item.quantity = newQuantity;
+    }
+
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
+}
+
+// Updated updateQuantity function
+async function updateQuantity(index, change) {
+    const newQuantity = cart[index].quantity + change;
+    if (newQuantity < 1) return;
+    
+    cart[index].quantity = newQuantity;
+    
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    }
+    renderCart();
+}
+
+async function proceedToCheckout() {
+    const user = auth.currentUser;
+    
+    if (!user) {
+        showAuthContainer();
+        return;
+    }
+
+    window.location.href = 'checkout.html';
+}
+
+// Function to render order summary
+function renderOrderSummary() {
+    const orderSummaryItems = document.getElementById('orderSummaryItems');
+    orderSummaryItems.innerHTML = '';
+    
+    let subtotal = 0;
+    
+    if (cart.length === 0) {
+        orderSummaryItems.innerHTML = '<p class="text-sm text-gray-500">Your cart is empty</p>';
+        return;
+    }
+    
+    cart.forEach(item => {
+        const priceValue = parseFloat(item.price.replace('₹', '').replace(',', ''));
+        const itemTotal = priceValue * item.quantity;
+        subtotal += itemTotal;
+        
+        const productItem = document.createElement('div');
+        productItem.className = 'product-item';
+        productItem.innerHTML = `
+            <img src="${item.image}" alt="${item.title}" class="product-image">
+            <div class="product-details">
+                <div class="product-title">${item.title}</div>
+                <div class="product-variant">Size: ${item.size}</div>
+                <div class="product-variant">Quantity: ${item.quantity}</div>
+            </div>
+            <div class="product-price">${item.price}</div>
+        `;
+        orderSummaryItems.appendChild(productItem);
+    });
+    
+    document.getElementById('orderSubtotal').textContent = `₹ ${subtotal.toFixed(2)}`;
+    document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
+}
+
+// Close cart when pressing ESC key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && cartOpen) {
+        closeCart();
+    }
+});
+
+function validateCheckoutForm() {
+    let isValid = true;
+    
+    function validateField(fieldId, errorId) {
+        const field = document.getElementById(fieldId);
+        const errorElement = document.getElementById(errorId);
+        
+        if (!field.value.trim()) {
+            field.classList.add('error-highlight');
+            errorElement.style.display = 'block';
+            errorElement.textContent = 'This field is required';
+            isValid = false;
+        } else {
+            field.classList.remove('error-highlight');
+            errorElement.style.display = 'none';
+        }
+    }
+    
+    validateField('email', 'email-error');
+    validateField('first-name', 'first-name-error');
+    validateField('last-name', 'last-name-error');
+    validateField('address', 'address-error');
+    validateField('city', 'city-error');
+    validateField('state', 'state-error');
+    validateField('pin-code', 'pin-code-error');
+    validateField('phone', 'phone-error');
+    
+    const email = document.getElementById('email').value;
+    if (email && !validateEmail(email)) {
+        document.getElementById('email-error').textContent = 'Please enter a valid email address';
+        document.getElementById('email-error').style.display = 'block';
+        document.getElementById('email').classList.add('error-highlight');
+        isValid = false;
+    }
+    
+    const phone = document.getElementById('phone').value;
+    if (phone && !/^\d{10}$/.test(phone)) {
+        document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
+        document.getElementById('phone-error').style.display = 'block';
+        document.getElementById('phone').classList.add('error-highlight');
+        isValid = false;
+    }
+    
+    const pinCode = document.getElementById('pin-code').value;
+    if (pinCode && !/^\d{6}$/.test(pinCode)) {
+        document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
+        document.getElementById('pin-code-error').style.display = 'block';
+        document.getElementById('pin-code').classList.add('error-highlight');
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        const firstError = document.querySelector('.error-highlight');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus();
+        }
+    }
+    
+    return isValid;
+}
+
+// Cart event listeners
+cartIconNav.addEventListener('click', toggleCart);
+closeCartButton.addEventListener('click', closeCart);
+cartBackdrop.addEventListener('click', closeCart);
+
+// Account dropdown functionality
+function toggleDropdown() {
+    if (dropdownOpen) {
+        dropdownMenu.classList.add('hidden');
+        dropdownOpen = false;
+        return;
+    }
+    
+    closeAllOpenElements();
+    dropdownOpen = true;
+    dropdownMenu.classList.remove('hidden');
+}
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    if (mobileMenuContent.classList.contains('active')) {
+        mobileMenuContent.classList.remove('active');
+        mobileMenuButton.querySelector('i').classList.add('fa-bars');
+        mobileMenuButton.querySelector('i').classList.remove('fa-times');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        return;
+    }
+    
+    closeAllOpenElements();
+    mobileMenuContent.classList.add('active');
+    mobileMenuButton.querySelector('i').classList.remove('fa-bars');
+    mobileMenuButton.querySelector('i').classList.add('fa-times');
+    
+    const user = auth.currentUser;
+    if (user) {
+        document.getElementById('mobileAccountOptions').classList.remove('hidden');
+    } else {
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+    }
+}
+
+// Show account info page
+function showAccountInfo(event) {
+    event.preventDefault();
+    const user = auth.currentUser;
+    
+    if (user) {
+        document.getElementById('displayName').textContent = user.displayName || '';
+        document.getElementById('displayEmail').textContent = user.email || '';
+        emailDisplay.value = user.email || '';
+        
+        loadAddresses(user.uid);
+        loadOrders(user.uid);
+        
+        accountInfoPage.classList.remove('hidden');
+        dropdownMenu.classList.add('hidden');
+        mobileMenuContent.classList.remove('active');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        mobileMenuButton.querySelector('i').classList.add('fa-bars');
+        mobileMenuButton.querySelector('i').classList.remove('fa-times');
+    } else {
+        showAuthContainer();
+        showLoginSection();
+    }
+}
+
+// Close account info page
+closeAccountInfoPage.addEventListener('click', function(event) {
+    event.preventDefault();
+    accountInfoPage.classList.add('hidden');
+});
+
+function renderAddresses(addresses) {
+    const addressContainer = document.getElementById('addressContainer');
+    if (!addressContainer) return;
+
+    if (!addresses || addresses.length === 0) {
+        addressContainer.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                <p class="text-lg">No addresses saved yet</p>
+                <p class="text-sm mt-2">Your saved addresses will appear here</p>
+            </div>
+        `;
+        return;
+    }
+
+    addressContainer.innerHTML = addresses.map(address => `
+        <div class="address-card ${address.isDefault ? 'border-2 border-blue-500' : 'border border-gray-200'} bg-white p-4 rounded-lg shadow-sm mb-3">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="flex items-center mb-1">
+                        <span class="font-medium">${address.fullName}</span>
+                        ${address.isDefault ? 
+                            '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">${address.phoneNumber}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="text-blue-500 hover:text-blue-700" onclick="editAddress('${address.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="${address.isDefault ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-700" 
+                            data-action="set-default" 
+                            data-address-id="${address.id}">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700" onclick="deleteAddress('${address.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 text-sm">
+                <p>${address.addressLine1}</p>
+                ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
+                <p>${address.city}, ${address.state} ${address.postalCode}</p>
+                <p>${address.country}</p>
+            </div>
+            <div class="mt-2 text-xs text-gray-500 capitalize">
+                ${address.addressType} address
             </div>
         </div>
-    </nav>
+    `).join('');
 
-    <!-- Mobile Menu Content -->
-    <div class="mobile-menu-content" id="mobileMenuContent">
-        <div class="mobile-menu-links">
-         <a class="text-black nav-link" href="index.html">HOME</a>
-                <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
-                <a class="text-black nav-link" href="contact.html">CONTACT</a>
+    // Add event listeners for set default buttons
+    document.querySelectorAll('[data-action="set-default"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const addressId = this.getAttribute('data-address-id');
+            setDefaultAddress(addressId);
+        });
+    });
+}
+async function loadAccountInfo(userId) {
+    try {
+        const user = auth.currentUser;
+        
+        if (!user) {
+            renderEmptyAccountState();
+            return;
+        }
+
+        const userDoc = await db.collection("users").doc(userId).get();
+        
+        if (!userDoc.exists) {
+            // Create basic user document if it doesn't exist
+            await db.collection("users").doc(userId).set({
+                name: user.displayName || '',
+                email: user.email,
+                provider: user.providerData[0]?.providerId || 'unknown',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                addresses: []
+            });
+            
+            // Try getting the document again
+            const newUserDoc = await db.collection("users").doc(userId).get();
+            updateUIWithUserData(user, newUserDoc.data());
+        } else {
+            updateUIWithUserData(user, userDoc.data());
+        }
+        
+    } catch (error) {
+        console.error("Error loading account info:", error);
+        renderEmptyAccountState();
+    }
+}
+function renderEmptyAccountState() {
+    addressContainer.innerHTML = `
+        <div class="text-center text-gray-500">
+            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+            <p class="text-lg">No addresses saved yet</p>
+            <p class="text-sm mt-2">Please login to view your saved addresses</p>
         </div>
-        <div class="mobile-menu-social">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+    `;
+    
+    ordersContainer.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+            <p class="text-lg">You haven't placed any orders yet</p>
+            <p class="text-sm mt-2">Please login to view your orders</p>
         </div>
-    </div>
-    <!-- Cart Overlay -->
-    <div class="overlay-backdrop" id="cartBackdrop"></div>
-    <div class="cart-overlay" id="cartOverlay">
-        <div class="p-6 h-full flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold text-2xl">Your Cart</h2>
-                <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+    `;
+    
+    if (document.getElementById('displayName')) {
+        document.getElementById('displayName').textContent = '';
+    }
+    if (document.getElementById('displayEmail')) {
+        document.getElementById('displayEmail').textContent = '';
+    }
+}
+
+async function applyDefaultAddress() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (!userDoc.exists) return;
+
+        const defaultAddress = userDoc.data().defaultAddress;
+        if (!defaultAddress) return;
+
+        // Split full name into first and last names
+        const nameParts = defaultAddress.fullName.split(' ');
+        document.getElementById('first-name').value = nameParts[0] || '';
+        document.getElementById('last-name').value = nameParts.slice(1).join(' ') || '';
+        
+        // Address fields
+        document.getElementById('address').value = defaultAddress.addressLine1 || '';
+        document.getElementById('apartment').value = defaultAddress.addressLine2 || '';
+        
+        // Other fields
+        document.getElementById('city').value = defaultAddress.city || '';
+        document.getElementById('state').value = defaultAddress.state || '';
+        document.getElementById('pin-code').value = defaultAddress.postalCode || '';
+        document.getElementById('phone').value = defaultAddress.phoneNumber || '';
+    } catch (error) {
+        console.error("Error applying default address:", error);
+    }
+}
+// Load addresses
+async function loadAddresses(userId) {
+    const addressContainer = document.getElementById('addressContainer');
+    if (!addressContainer) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+        addressContainer.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                <p class="text-lg">Please sign in to view addresses</p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const doc = await db.collection("users").doc(userId).get();
+        if (doc.exists) {
+            const userData = doc.data();
+            renderAddresses(userData.addresses || []);
+        } else {
+            renderAddresses([]);
+        }
+    } catch (error) {
+        console.error("Error loading addresses:", error);
+        renderAddresses([]);
+    }
+}// Load orders from Firestore
+// Update the loadOrders function
+async function loadOrders(userId) {
+    const user = auth.currentUser;
+    if (!user) {
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">Please sign in to view your orders</p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        showLoading('ordersLoading');
+        
+        const querySnapshot = await db.collection("orders")
+            .where("userId", "==", userId)
+            .orderBy("timestamp", "desc")
+            .get();
+
+        if (querySnapshot.empty) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">You haven't placed any orders yet</p>
+                    <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
+                </div>
+            `;
+            return;
+        }
+
+        const orders = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                date: data.timestamp?.toDate() || new Date()
+            };
+        });
+        
+        renderOrders(orders);
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
+                <p class="text-lg">Error loading orders</p>
+                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
+            </div>
+        `;
+    } finally {
+        hideLoading('ordersLoading');
+    }
+}
+
+// Update the renderOrders function to handle the date properly
+function renderOrders(orders) {
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId || order.id}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">${order.date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })}</span>
+                </div>
             </div>
             
-            <div id="cartContainer" class="flex-grow overflow-y-auto">
-                <div id="cartList" class="divide-y divide-gray-200"></div>
-            </div>
-            
-            <div class="border-t border-gray-200 pt-4 mt-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <span class="font-medium">Total:</span>
-                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
                 </div>
-                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
-                    Proceed to Checkout
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Account Info Page (hidden by default) -->
-    <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
-        <div class="max-w-4xl mx-auto p-6">
-            <div class="bg-white p-6 rounded-lg shadow-md relative">
-                <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
-                    <i class="fas fa-times"></i>
-                </button>
-                <h2 class="text-2xl font-bold mb-4">Account Information</h2>
-                <div class="mb-4">
-                    <div class="flex items-center mb-2">
-                        <span class="font-semibold">Name</span>
-                        <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
                     </div>
-                    <p id="displayName"></p>
-                </div>
-                <div class="mb-4">
-                    <span class="font-semibold">Email</span>
-                    <p id="displayEmail"></p>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow-md">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-semibold">Address</span>
-                        <a href="#" class="text-blue-500" id="addAddressLink" style="display: none;">
-                            <i class="fas fa-plus-circle"></i> Add
-                        </a>
-                    </div>
-                    <div id="addressContainer" class="bg-gray-100 p-4 rounded-lg min-h-[200px] flex flex-col items-center justify-center">
-                        <div class="text-center text-gray-500">
-                            <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                            <p class="text-lg">No addresses saved yet</p>
-                            <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                            order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
                 </div>
-                
-           <!-- Inside the account-info-page div, within the orders section -->
-<div class="bg-white p-4 rounded-lg shadow-md mt-4">
-    <h3 class="text-xl font-bold">Your Orders</h3>
-    <div id="ordersContainer">
-        <!-- Add the loading spinner here -->
-        <div id="ordersLoading" class="hidden">
-            <div class="flex justify-center py-8">
-                <div class="loading-spinner"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.items.reduce((total, item) => {
+                            const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || '0');
+                            return total + (price * (item.quantity || 1));
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.items.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size}</span>
+                                <span>Qty: ${item.quantity || 1}</span>
+                                <span>${item.price || '₹0.00'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>
-        <!-- Orders will be displayed here -->
-    </div>
-</div>
+    `).join('');
+}
+// Helper function to render orders
+function renderOrders(orders) {
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    </div>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
+                            order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
+                            order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
+                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${order.status.replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.items.reduce((total, item) => {
+                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
+                            return total + (price * item.quantity);
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.items.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size}</span>
+                                <span>Qty: ${item.quantity}</span>
+                                <span>${item.price}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>
-    </div>
+    `).join('');
+}
 
-   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
-<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Edit Profile</h3>
-            <button id="closeEditProfileModal" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Name</label>
-            <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Email</label>
-            <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
-        </div>
-        <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            <i class="fas fa-save mr-2"></i> Save Changes
-        </button>
-    </div>
-</div>
+// Helper function to determine the progress bar width
+function getStatusProgress(status) {
+    switch(status) {
+        case 'status-order-placed':
+            return 'bg-blue-500 w-1/4';
+        case 'status-processing':
+            return 'bg-blue-500 w-2/4';
+        case 'status-shipped':
+            return 'bg-blue-500 w-3/4';
+        case 'status-delivered':
+            return 'bg-blue-500 w-full';
+        default:
+            return 'bg-blue-500 w-1/4';
+    }
+}
 
-<!-- Enhanced Add Address Modal (move this inside the account-info-page div) -->
-<div id="addAddressModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto font-unbounded">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Edit Address</h3>
-            <button id="closeAddAddressModal" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <form id="addressForm" class="space-y-4">
-            <!-- Full Name -->
-            <div>
-                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
-                <input type="text" id="fullName" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- Phone Number -->
-            <div>
-                <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
-                <input type="tel" id="phoneNumber" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- Address Line 1 -->
-            <div>
-                <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1* (Street address, P.O. box)</label>
-                <input type="text" id="addressLine1" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- Address Line 2 -->
-            <div>
-                <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
-                <input type="text" id="addressLine2" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- City -->
-            <div>
-                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                <input type="text" id="city" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- State/District -->
-            <div>
-                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
-                <input type="text" id="state" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- Postal/Zip Code -->
-            <div>
-                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code*</label>
-                <input type="text" id="postalCode" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <!-- Country -->
-            <div>
-                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                <select id="country" required 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Select Country</option>
-                    <option value="India">India</option>
-                    <option value="United States">United States</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            
-            <!-- Address Type -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
-                <div class="flex space-x-4">
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="addressType" value="home" checked 
-                               class="form-radio h-4 w-4 text-blue-600">
-                        <span class="ml-2">Home</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="addressType" value="work" 
-                               class="form-radio h-4 w-4 text-blue-600">
-                        <span class="ml-2">Work</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="addressType" value="other" 
-                               class="form-radio h-4 w-4 text-blue-600">
-                        <span class="ml-2">Other</span>
-                    </label>
-                </div>
-            </div>
-            
-            <!-- Set as Default -->
-            <div class="flex items-center">
-                <input type="checkbox" id="setAsDefault" 
-                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                <label for="setAsDefault" class="ml-2 block text-sm text-gray-700">
-                    Set as default address
-                </label>
-            </div>
-            
-            <!-- Form Actions -->
-            <div class="flex justify-end space-x-3 pt-4">
-                <button type="button" id="cancelAddressBtn" 
-                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-times mr-2"></i> Cancel
-                </button>
-                <button type="submit" id="saveAddressBtn" 
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                    <i class="fas fa-save mr-2"></i> Save Address
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+async function saveInformation() {
+    const saveInfoCheckbox = document.getElementById('save-info');
+    if (!saveInfoCheckbox.checked) return;
 
-<!-- Login/Signup Modal -->
-<div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-        <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
-            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
-            
-            <form id="login-form">
-                <div class="mb-4">
-                    <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                </div>
-                <div class="mb-4 password-container">
-    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-    <button type="button" class="password-toggle" data-toggle="login-password">
-        <i class="far fa-eye"></i>
-    </button>
-</div>
-                <div class="mb-4 flex items-center justify-between">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
-                        <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
-                    </label>
-                    <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
-                    <span id="login-button-text">Log In</span>
-                </button>
-            </form>
-            
-            <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
-            <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
-            
-<div id="resend-verification-container" class="hidden mt-4 text-center">
-    <p class="text-sm text-gray-600">Didn't receive the email?</p>
-    <button 
-        id="resend-verification-btn" 
-        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-    >
-        Resend Verification Email
-    </button>
-    <p id="resend-success" class="hidden text-green-600 text-sm mt-1">
-        <i class="fas fa-check-circle"></i> Email sent!
-    </p>
-</div>
-            <div class="flex items-center my-4">
-                <div class="flex-grow border-t border-gray-300"></div>
-                <span class="mx-4 text-gray-500 text-sm">or</span>
-                <div class="flex-grow border-t border-gray-300"></div>
-            </div>
-            
-            <!-- Google Sign In Button at the bottom -->
-            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
-                <span class="text-gray-500 font-medium"> Log in with Google </span>
-            </button>
-            
-            <div class="mt-4 sm:mt-6 text-center">
-                <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
-            </div>
-        </div>
-        
-        <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
-            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
-            
-            <!-- Google Sign Up Button -->
-       
-            <form id="signup-form">
-                <div class="mb-4">
-                    <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
-                    <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
-                    <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
-                </div>
-                <div class="mb-4">
-                    <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                    <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                    <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
-                    <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
-                </div>
-               <div class="mb-4 password-container">
-    <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-    <button type="button" class="password-toggle" data-toggle="signup-password">
-        <i class="far fa-eye"></i>
-    </button>
-    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-</div>
-<div class="mb-4 password-container">
-    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
-    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
-    <button type="button" class="password-toggle" data-toggle="signup-confirm-password">
-        <i class="far fa-eye"></i>
-    </button>
-                    <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                </div>
-                <div class="mb-4">
-                    <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
-                    <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        <option value="">Select a security question</option>
-                        <option value="pet">What is the name of your first pet?</option>
-                        <option value="school">What is the name of your elementary school?</option>
-                        <option value="city">In what city were you born?</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
-                    <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
-                    <span id="signup-button-text">Sign Up</span>
-                </button>
-                 <div class="flex items-center my-4">
-                <div class="flex-grow border-t border-gray-300"></div>
-                <span class="mx-4 text-gray-500 text-sm">or</span>
-                <div class="flex-grow border-t border-gray-300"></div>
-            </div>
-            
-            <!-- Google Sign In Button at the bottom -->
-            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
-                <span class="text-gray-500 font-medium"> Sign up with Google </span>
-            </button>
-            </form>
-            <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
-            <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
-            <div class="mt-4 sm:mt-6 text-center">
-                <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
-            </div>
-        </div>
-    </div>
-</div>
-
-    <!-- Forgot Password Modal -->
-    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
-            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
-            <form id="forgot-password-form">
-                <div class="mb-4">
-                    <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
-                    <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
-                    <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                        <option value="">Select a security question</option>
-                        <option value="pet">What is the name of your first pet?</option>
-                        <option value="school">What is the name of your elementary school?</option>
-                        <option value="city">In what city were you born?</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
-                    <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
-                    <span id="forgot-button-text">Submit</span>
-                </button>
-            </form>
-            <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
-            <div id="reset-password-section" class="hidden">
-                <div class="mb-4 mt-6 password-container">
-                    <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
-                    <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                </div>
-                <div class="mb-4 password-container">
-                    <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
-                    <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
-                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
-                        <i class="far fa-eye"></i>
-                    </button>
-                    <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                </div>
-                <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
-                    <span id="save-password-button-text">Save Changes</span>
-                </button>
-                <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
-            </div>
-        </div>
-    </div>
+    const requiredFields = [
+        'first-name', 'last-name', 'address', 
+        'city', 'state', 'pin-code', 'phone'
+    ];
     
- <div class="main-content">
-            <div class="main-content">
-        <!-- About Page Content -->
-        <div class="about-container">
-            <h1 class="text-4xl font-light mb-4">About Us</h1>
-            <p class="text-lg font-light mb-4">
-                Welcome to VAMORA.STORE, your number one source for all things fashion. We're dedicated to giving you the very best of our products, with a focus on dependability, customer service, and uniqueness.
-            </p>
-            <p class="text-lg font-light mb-4">
-                Founded in 2024, VAMORA.STORE has come a long way from its beginnings. When we first started out, our passion for providing the best equipment for our fellow fashion enthusiasts drove us to do intense research, and gave us the impetus to turn hard work and inspiration into a booming online store. We now serve customers all over the world, and are thrilled to be a part of the eco-friendly wing of the fashion industry.
-            </p>
-            <p class="text-lg font-light mb-4">
-                We hope you enjoy our products as much as we enjoy offering them to you. If you have any questions or comments, please don't hesitate to contact us.
-            </p>
-            <p class="text-lg font-light mb-4">
-                Sincerely, <br>
-                <span class="font-bold">The VAMORA.STORE</span>
-            </p>
-        </div>
-    </div>
-         
-     <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <!-- Centered logo -->
-            <div class="footer-logo">
-                <div class="flex items-center justify-center logo-container">
-                    <img alt="Company logo" class="h-10 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
-                </div>
-            </div>
-            
-                       <!-- Social icons - shown on desktop, hidden on mobile -->
-            <div class="footer-social-desktop">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
-            </div>
-            
-            <!-- Footer links grid -->
-            <div class="footer-grid">
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="mailto:vamora.co.in@gmail.com">EMAIL</a>
-                </div>
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
-                </div>
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="track.html">ORDER TRACK</a>
-                </div>
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
-                </div>
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
-                </div>
-                <div class="flex flex-col items-center">
-                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
-                </div>
-            </div>
-            
-            <!-- Social icons - shown on mobile, hidden on desktop -->
-            <div class="footer-social-mobile">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
-                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
-            </div>
-            
-            <div class="footer-bottom">
-                <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
-                    <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
-                    <span>
-                    <a class="footer-link" href="refund.html" style="font-size: 0.5rem;"> . REFUND POLICY</a>
-                    
-                    <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
-                    </span>
-                    <span>
-                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
-                    
-                    <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
-                    </span>
-                </p>
-            </div>
-        </div>
-    </footer>
-<!-- Add these before your custom script -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    let isValid = true;
+    
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field.value.trim()) {
+            field.classList.add('error-highlight');
+            isValid = false;
+        }
+    });
+    
+    if (!isValid) {
+        alert('Please fill all required fields before saving');
+        saveInfoCheckbox.checked = false;
+        return;
+    }
 
-            <script src="yes.js"></script>
-</body>
-</html>
+    const address = {
+        fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
+        phoneNumber: document.getElementById('phone').value,
+        addressLine1: document.getElementById('address').value,
+        addressLine2: document.getElementById('apartment').value || '',
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        postalCode: document.getElementById('pin-code').value,
+        country: document.getElementById('country').value,
+        addressType: 'home',
+        isDefault: true,
+        id: Date.now().toString(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+     try {
+        const user = auth.currentUser;
+        
+        if (user) {
+            const userRef = db.collection("users").doc(user.uid);
+            
+            await userRef.update({
+                addresses: firebase.firestore.FieldValue.arrayUnion(address),
+                defaultAddress: address,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            alert('Address saved as default for future checkouts');
+        } else {
+            alert('Please sign in to save addresses permanently');
+        }
+    } catch (error) {
+        console.error("Error saving address:", error);
+        alert("Failed to save address. Please try again.");
+    }
+}
+
+// Update the getStatusColor function to include all statuses
+function getStatusColor(status) {
+    switch(status) {
+        case 'status-order-placed':
+            return 'text-blue-500';
+        case 'status-processing':
+            return 'text-yellow-500';
+        case 'status-shipped':
+            return 'text-purple-500';
+        case 'status-delivered':
+            return 'text-green-500';
+        case 'status-cancelled':
+            return 'text-red-500';
+        default:
+            return 'text-gray-500';
+    }
+}
+
+// Firebase Authentication Functions
+function showAuthContainer() {
+    document.getElementById('auth-container').classList.add('active');
+    document.body.classList.add('overflow-hidden');
+    showLoginSection();
+    resetForms();
+}
+
+function hideAuthContainer() {
+    document.getElementById('auth-container').classList.remove('active');
+    document.body.classList.remove('overflow-hidden');
+    resetForms();
+    document.getElementById('login-section').classList.remove('login-success');
+    document.getElementById('google-login-success').classList.add('hidden');
+    document.getElementById('google-signup-success').classList.add('hidden');
+}
+
+function resetForms() {
+    document.getElementById('login-form').reset();
+    document.getElementById('signup-form').reset();
+    document.getElementById('login-error').classList.add('hidden');
+    document.getElementById('login-success').classList.add('hidden');
+    document.getElementById('signup-error').classList.add('hidden');
+    document.getElementById('email-error').classList.add('hidden');
+    document.getElementById('email-exists-error').classList.add('hidden');
+    document.getElementById('password-mismatch-error').classList.add('hidden');
+    document.getElementById('name-error').classList.add('hidden');
+}
+
+function showLoading(buttonId) {
+    const button = document.getElementById(buttonId);
+    const textSpan = button.querySelector('span');
+    button.disabled = true;
+    button.classList.add('loading');
+    textSpan.classList.add('opacity-0');
+}
+
+function hideLoading(buttonId) {
+    const button = document.getElementById(buttonId);
+    const textSpan = button.querySelector('span');
+    button.disabled = false;
+    button.classList.remove('loading');
+    textSpan.classList.remove('opacity-0');
+}
+
+// Setup password toggles for all password fields
+// Initialize password toggles
+function setupPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const inputId = this.getAttribute('data-toggle');
+            const input = document.getElementById(inputId);
+            if (input) {
+                // Toggle input type
+                input.type = input.type === 'password' ? 'text' : 'password';
+                
+                // Toggle eye icon
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            }
+        });
+    });
+}
+
+// Call this when page loads and when auth modal opens
+document.addEventListener('DOMContentLoaded', setupPasswordToggles);
+document.getElementById('auth-container').addEventListener('transitionend', function() {
+    if (this.classList.contains('active')) {
+        setupPasswordToggles();
+    }
+});
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordToggles();
+    
+    // Also call it whenever the auth container is shown
+    document.getElementById('auth-container').addEventListener('transitionend', function() {
+        if (this.classList.contains('active')) {
+            setupPasswordToggles();
+        }
+    });
+});
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordToggles();
+});
+
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && 
+           /[0-9]/.test(password) && 
+           /[^A-Za-z0-9]/.test(password);
+}
+
+function validateName(name) {
+    return name.length >= 2 && name.length <= 50;
+}
+
+// Email/Password Sign Up
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('signup-submit-button');
+    
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const securityQuestion = document.getElementById('security-question').value;
+    const securityAnswer = document.getElementById('security-answer').value.trim();
+
+    // Reset error messages
+    document.getElementById('signup-error').classList.add('hidden');
+    document.getElementById('email-error').classList.add('hidden');
+    document.getElementById('email-exists-error').classList.add('hidden');
+    document.getElementById('password-mismatch-error').classList.add('hidden');
+    document.getElementById('name-error').classList.add('hidden');
+
+    // Validation
+    let isValid = true;
+
+    if (!validateName(name)) {
+        document.getElementById('name-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!validateEmail(email)) {
+        document.getElementById('email-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!validatePassword(password)) {
+        document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!securityQuestion || !securityAnswer) {
+        document.getElementById('signup-error').textContent = 'All fields are required';
+        document.getElementById('signup-error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!isValid) {
+        hideLoading('signup-submit-button');
+        return;
+    }
+
+    // Create user and send verification email
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Send verification email
+            return user.sendEmailVerification().then(() => {
+                // Update user profile with display name
+                return user.updateProfile({
+                    displayName: name
+                }).then(() => {
+                    // Save additional user data to Firestore
+                    return db.collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        securityQuestion: securityQuestion,
+                        securityAnswer: securityAnswer,
+                        provider: 'email',
+                        emailVerified: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                        addresses: []
+                    });
+                });
+            });
+        })
+        .then(() => {
+            // Hide the form and show verification message
+            const signupForm = document.getElementById('signup-form');
+            const verifyEmailSuccess = document.getElementById('verify-email-success');
+            
+            if (signupForm) signupForm.classList.add('hidden');
+            if (verifyEmailSuccess) {
+                verifyEmailSuccess.classList.remove('hidden');
+                verifyEmailSuccess.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                        <p class="mb-4">We've sent a verification link to ${email}</p>
+                        <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                            Go to Login
+                        </button>
+                        <p class="text-sm mt-4 text-gray-600">
+                            Didn't get the email? 
+                            <a href="#" onclick="resendVerification('${email}')" class="text-blue-600">Resend</a>
+                        </p>
+                    </div>
+                `;
+            }
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            if (errorCode === 'auth/email-already-in-use') {
+                const emailExistsError = document.getElementById('email-exists-error');
+                if (emailExistsError) emailExistsError.classList.remove('hidden');
+            } else {
+                const signupError = document.getElementById('signup-error');
+                if (signupError) {
+                    signupError.textContent = errorMessage;
+                    signupError.classList.remove('hidden');
+                }
+            }
+        })
+        .finally(() => {
+            hideLoading('signup-submit-button');
+        });
+});
+// Email/Password Login - Firestore Version
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('login-submit-button');
+    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
+
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.classList.add('hidden');
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Check if email is verified
+            if (!user.emailVerified) {
+                auth.signOut(); // Force logout unverified users
+                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+            }
+            
+            // Update last login time
+            return db.collection("users").doc(user.uid).update({
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                return db.collection("users").doc(user.uid).get();
+            });
+        })
+        .then((doc) => {
+            if (!doc.exists) {
+                throw new Error("User data not found");
+            }
+            
+            const user = auth.currentUser;
+            const userData = doc.data();
+            
+            // Update UI elements if they exist
+            const loginSuccess = document.getElementById('login-success');
+            if (loginSuccess) {
+                loginSuccess.textContent = 'Login successful! Redirecting...';
+                loginSuccess.classList.remove('hidden');
+            }
+            
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) loginSection.classList.add('login-success');
+            
+            hideLoading('login-submit-button');
+            
+            setTimeout(() => {
+                hideAuthContainer();
+                
+                // Update account info page if it exists
+                const accountInfoPage = document.getElementById('account-info-page');
+                if (accountInfoPage) {
+                    accountInfoPage.classList.remove('hidden');
+                    
+                    const displayName = document.getElementById('displayName');
+                    if (displayName) displayName.textContent = userData.name || '';
+                    
+                    const displayEmail = document.getElementById('displayEmail');
+                    if (displayEmail) displayEmail.textContent = user.email || '';
+                    
+                    const emailDisplay = document.getElementById('emailDisplay');
+                    if (emailDisplay) emailDisplay.value = user.email || '';
+                    
+                    loadAddresses(user.uid);
+                    loadOrders(user.uid);
+                }
+                
+                updateLoginButton();
+                updateMobileAccountOptions();
+                
+                const emailField = document.getElementById('email');
+                if (emailField) emailField.value = user.email;
+            }, 500);
+        })
+        .catch((error) => {
+            console.error("Error handling login:", error);
+            const loginError = document.getElementById('login-error');
+            if (loginError) {
+                loginError.textContent = error.message || 'Error processing login. Please try again.';
+                loginError.classList.remove('hidden');
+            }
+            hideLoading('login-submit-button');
+            
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) loginSection.classList.remove('login-success');
+        });
+});
+// Updated Google Sign In/Sign Up handler with Firestore
+// Updated Google Sign In/Sign Up handler
+document.querySelectorAll('#google-signin-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const googleBtn = this;
+        const originalContent = googleBtn.innerHTML;
+        googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        googleBtn.disabled = true;
+
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user;
+                
+                // Show success message in login section
+                const loginSuccessEl = document.getElementById('login-success');
+                if (loginSuccessEl) {
+                    loginSuccessEl.textContent = 'Google login successful! Redirecting...';
+                    loginSuccessEl.classList.remove('hidden');
+                }
+                
+                // Hide error messages if they exist
+                const loginError = document.getElementById('login-error');
+                const signupError = document.getElementById('signup-error');
+                if (loginError) loginError.classList.add('hidden');
+                if (signupError) signupError.classList.add('hidden');
+                
+                // Save user data to Firestore
+                return db.collection("users").doc(user.uid).set({
+                    name: user.displayName,
+                    email: user.email,
+                    provider: 'google',
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    photoURL: user.photoURL || null,
+                    addresses: []
+                }, { merge: true });
+            })
+            .then(() => {
+                const user = auth.currentUser;
+                
+                googleBtn.innerHTML = originalContent;
+                googleBtn.disabled = false;
+                
+                // Hide auth container and redirect
+                setTimeout(() => {
+                    hideAuthContainer();
+                    
+                    // Redirect to profile page or show account info
+                    if (window.location.pathname.includes('account')) {
+                        loadAccountInfo(user.uid);
+                    } else {
+                        window.location.href = '/account';
+                    }
+                }, 1500);
+            })
+            .catch((error) => {
+                googleBtn.innerHTML = originalContent;
+                googleBtn.disabled = false;
+                
+                const errorMessage = error.message;
+                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
+                
+                if (currentAuthSection) {
+                    const isLoginSection = currentAuthSection.id === 'login-section';
+                    
+                    if (isLoginSection) {
+                        const loginError = document.getElementById('login-error');
+                        if (loginError) {
+                            loginError.textContent = errorMessage;
+                            loginError.classList.remove('hidden');
+                        }
+                    } else {
+                        const signupError = document.getElementById('signup-error');
+                        if (signupError) {
+                            signupError.textContent = errorMessage;
+                            signupError.classList.remove('hidden');
+                        }
+                    }
+                }
+            });
+    });
+});
+
+// Updated Email/Password Login
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('login-submit-button');
+    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
+
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.classList.add('hidden');
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Check if email is verified
+            if (!user.emailVerified) {
+                auth.signOut(); // Force logout unverified users
+                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+            }
+            
+            // Update last login time
+            return db.collection("users").doc(user.uid).update({
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                return db.collection("users").doc(user.uid).get();
+            });
+        })
+        .then((doc) => {
+            if (!doc.exists) {
+                throw new Error("User data not found");
+            }
+            
+            const user = auth.currentUser;
+            const userData = doc.data();
+            
+            // Show success message
+            const loginSuccess = document.getElementById('login-success');
+            if (loginSuccess) {
+                loginSuccess.textContent = 'Login successful! Redirecting...';
+                loginSuccess.classList.remove('hidden');
+            }
+            
+            hideLoading('login-submit-button');
+            
+            setTimeout(() => {
+                hideAuthContainer();
+                
+                // Redirect to profile page or show account info
+                if (window.location.pathname.includes('account')) {
+                    loadAccountInfo(user.uid);
+                } else {
+                    window.location.href = '/account';
+                }
+            }, 1500);
+        })
+        .catch((error) => {
+            console.error("Error handling login:", error);
+            const loginError = document.getElementById('login-error');
+            if (loginError) {
+                loginError.textContent = error.message || 'Error processing login. Please try again.';
+                loginError.classList.remove('hidden');
+            }
+            hideLoading('login-submit-button');
+        });
+});
+
+// Prevent Google-signed-in emails from signing up with email/password
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('signup-submit-button');
+    
+    const email = document.getElementById('signup-email').value.trim();
+    
+    // First check if email is already registered with Google
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.includes('google.com')) {
+                throw new Error('This email is already registered with Google. Please sign in with Google.');
+            }
+            
+            // Continue with normal signup if not a Google account
+            const name = document.getElementById('signup-name').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            const securityQuestion = document.getElementById('security-question').value;
+            const securityAnswer = document.getElementById('security-answer').value.trim();
+
+            // Reset error messages
+            document.getElementById('signup-error').classList.add('hidden');
+            document.getElementById('email-error').classList.add('hidden');
+            document.getElementById('email-exists-error').classList.add('hidden');
+            document.getElementById('password-mismatch-error').classList.add('hidden');
+            document.getElementById('name-error').classList.add('hidden');
+
+            // Validation
+            let isValid = true;
+
+            if (!validateName(name)) {
+                document.getElementById('name-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validateEmail(email)) {
+                document.getElementById('email-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validatePassword(password)) {
+                document.getElementById('password-mismatch-error').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+                document.getElementById('password-mismatch-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+                document.getElementById('password-mismatch-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!securityQuestion || !securityAnswer) {
+                document.getElementById('signup-error').textContent = 'All fields are required';
+                document.getElementById('signup-error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                hideLoading('signup-submit-button');
+                return;
+            }
+
+            // Create user and send verification email
+            return auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // Send verification email
+                    return user.sendEmailVerification().then(() => {
+                        // Update user profile with display name
+                        return user.updateProfile({
+                            displayName: name
+                        }).then(() => {
+                            // Save additional user data to Firestore
+                            return db.collection("users").doc(user.uid).set({
+                                name: name,
+                                email: email,
+                                securityQuestion: securityQuestion,
+                                securityAnswer: securityAnswer,
+                                provider: 'email',
+                                emailVerified: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                                addresses: []
+                            });
+                        });
+                    });
+                })
+                .then(() => {
+                    // Hide the form and show verification message
+                    const signupForm = document.getElementById('signup-form');
+                    const verifyEmailSuccess = document.getElementById('verify-email-success');
+                    
+                    if (signupForm) signupForm.classList.add('hidden');
+                    if (verifyEmailSuccess) {
+                        verifyEmailSuccess.classList.remove('hidden');
+                        verifyEmailSuccess.innerHTML = `
+                            <div class="text-center">
+                                <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                                <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                                <p class="mb-4">We've sent a verification link to ${email}</p>
+                                <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                                    Go to Login
+                                </button>
+                                <p class="text-sm mt-4 text-gray-600">
+                                    Didn't get the email? 
+                                    <a href="#" onclick="resendVerification('${email}')" class="text-blue-600">Resend</a>
+                                </p>
+                            </div>
+                        `;
+                    }
+                });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            
+            if (errorCode === 'auth/email-already-in-use') {
+                const emailExistsError = document.getElementById('email-exists-error');
+                if (emailExistsError) {
+                    emailExistsError.textContent = 'This email is already registered. Please sign in instead.';
+                    emailExistsError.classList.remove('hidden');
+                }
+            } else {
+                const signupError = document.getElementById('signup-error');
+                if (signupError) {
+                    signupError.textContent = errorMessage;
+                    signupError.classList.remove('hidden');
+                }
+            }
+        })
+        .finally(() => {
+            hideLoading('signup-submit-button');
+        });
+});// Updated Forgot Password with Firestore
+document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showLoading('forgot-submit-button');
+    
+    const email = document.getElementById('forgot-email').value.trim();
+    const securityQuestion = document.getElementById('forgot-security-question').value;
+    const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
+
+    document.getElementById('forgot-error').classList.add('hidden');
+
+    auth.fetchSignInMethodsForEmail(email)
+        .then(() => {
+            return db.collection("users")
+                .where("email", "==", email)
+                .limit(1)
+                .get();
+        })
+        .then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                throw new Error("User not found");
+            }
+            
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+            
+            if (userData.securityQuestion !== securityQuestion || 
+                userData.securityAnswer !== securityAnswer) {
+                throw new Error("Security question/answer mismatch");
+            }
+            
+            return auth.sendPasswordResetEmail(email);
+        })
+        .then(() => {
+            document.getElementById('forgot-error').classList.add('hidden');
+            document.getElementById('reset-password-section').classList.remove('hidden');
+        })
+        .catch((error) => {
+            document.getElementById('forgot-error').textContent = error.message;
+            document.getElementById('forgot-error').classList.remove('hidden');
+        })
+        .finally(() => {
+            hideLoading('forgot-submit-button');
+        });
+});
+
+// Save New Password
+document.getElementById('save-new-password').addEventListener('click', function() {
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    const email = document.getElementById('forgot-email').value.trim();
+
+    document.getElementById('reset-password-mismatch').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+
+    if (!validatePassword(newPassword)) {
+        document.getElementById('reset-password-mismatch').textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        return;
+    }
+
+    showLoading('save-new-password');
+
+    const user = auth.currentUser;
+
+    if (user) {
+        user.updatePassword(newPassword)
+            .then(() => {
+                document.getElementById('reset-success').classList.remove('hidden');
+                document.getElementById('reset-password-mismatch').classList.add('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('forgot-password-modal').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    document.getElementById('forgot-password-form').reset();
+                    document.getElementById('reset-password-section').classList.add('hidden');
+                    document.getElementById('reset-success').classList.add('hidden');
+                }, 2000);
+            })
+            .catch((error) => {
+                document.getElementById('reset-password-mismatch').textContent = error.message;
+                document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            })
+            .finally(() => {
+                hideLoading('save-new-password');
+            });
+    } else {
+        document.getElementById('reset-success').classList.remove('hidden');
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+        
+        setTimeout(() => {
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            document.getElementById('forgot-password-form').reset();
+            document.getElementById('reset-password-section').classList.add('hidden');
+            document.getElementById('reset-success').classList.add('hidden');
+        }, 2000);
+        
+        hideLoading('save-new-password');
+    }
+});
+// Add to your existing auth functions
+function resendVerification(email) {
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.length > 0) {
+                const user = auth.currentUser;
+                if (user) {
+                    return user.sendEmailVerification()
+                        .then(() => {
+                            alert("Verification email resent! Please check your inbox.");
+                        })
+                        .catch((error) => {
+                            alert("Error resending verification: " + error.message);
+                        });
+                } else {
+                    // For users who aren't currently signed in
+                    return auth.signInWithEmailAndPassword(email, "temporary-password")
+                        .then((userCredential) => {
+                            return userCredential.user.sendEmailVerification()
+                                .then(() => {
+                                    auth.signOut(); // Sign out immediately after sending
+                                    alert("Verification email resent! Please check your inbox.");
+                                });
+                        })
+                        .catch((error) => {
+                            if (error.code === 'auth/wrong-password') {
+                                // This is expected since we used a dummy password
+                                // Try to send the verification anyway
+                                auth.currentUser.sendEmailVerification()
+                                    .then(() => {
+                                        auth.signOut();
+                                        alert("Verification email resent! Please check your inbox.");
+                                    })
+                                    .catch((sendError) => {
+                                        alert("Error resending verification: " + sendError.message);
+                                    });
+                            } else {
+                                alert("Error resending verification: " + error.message);
+                            }
+                        });
+                }
+            } else {
+                alert("No account found with this email.");
+            }
+        })
+        .catch((error) => {
+            alert("Error checking account: " + error.message);
+        });
+}// Event Listeners
+document.getElementById('show-signup').addEventListener('click', function(event) {
+    event.preventDefault();
+    showSignupSection();
+    resetForms();
+});
+
+document.getElementById('show-login').addEventListener('click', function(event) {
+    event.preventDefault();
+    showLoginSection();
+    resetForms();
+});
+
+document.getElementById('close-forgot-password').addEventListener('click', function() {
+    document.getElementById('forgot-password-modal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    
+    // Reset the form and error messages
+    document.getElementById('forgot-password-form').reset();
+    document.getElementById('reset-password-section').classList.add('hidden');
+    document.getElementById('forgot-error').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+    
+    // Show the auth container again
+    document.getElementById('auth-container').classList.add('active');
+});
+
+document.getElementById('forgot-password-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation(); // Prevent event bubbling
+    
+    // Hide the auth container but keep the backdrop
+    document.getElementById('auth-container').classList.remove('active');
+    
+    // Show the forgot password modal
+    document.getElementById('forgot-password-modal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+});
+
+// Password match validation
+document.getElementById('signup-confirm-password').addEventListener('input', function() {
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+    if (password && confirmPassword && password !== confirmPassword) {
+        document.getElementById('password-mismatch-error').textContent = 'Passwords do not match';
+        document.getElementById('password-mismatch-error').classList.remove('hidden');
+    } else {
+        document.getElementById('password-mismatch-error').classList.add('hidden');
+    }
+});
+
+document.getElementById('confirm-new-password').addEventListener('input', function() {
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+    if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
+        document.getElementById('reset-password-mismatch').textContent = 'Passwords do not match';
+        document.getElementById('reset-password-mismatch').classList.remove('hidden');
+    } else {
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+    }
+});
+
+// Close modals when clicking outside
+document.getElementById('auth-container').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideAuthContainer();
+    }
+});
+
+document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        // Show the auth container again
+        document.getElementById('auth-container').classList.add('active');
+    }
+});
+
+// Event listeners for mobile account options
+document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    showAccountInfo(e);
+    toggleMobileMenu();
+});
+
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    toggleMobileMenu();
+});
+
+// Logout function
+function logoutUser(event) {
+    if (event) event.preventDefault();
+    
+    auth.signOut().then(async () => {
+        if (dropdownMenu) dropdownMenu.classList.add('hidden');
+        if (mobileMenuContent) mobileMenuContent.classList.remove('active');
+        
+        const mobileAccountOptions = document.getElementById('mobileAccountOptions');
+        if (mobileAccountOptions) mobileAccountOptions.classList.add('hidden');
+        
+        if (mobileMenuButton) {
+            const icon = mobileMenuButton.querySelector('i');
+            if (icon) {
+                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times');
+            }
+        }
+        
+        // Only try to clear account info if on account page
+        if (document.getElementById('displayName')) {
+            document.getElementById('displayName').textContent = '';
+            document.getElementById('displayEmail').textContent = '';
+            emailDisplay.value = '';
+            
+            addressContainer.innerHTML = `
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                    <p class="text-lg">No addresses saved yet</p>
+                    <p class="text-sm mt-2">Please login to view your saved addresses</p>
+                </div>
+            `;
+            
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">You haven't placed any orders yet</p>
+                    <p class="text-sm mt-2">Please login to view your orders</p>
+                </div>
+            `;
+            
+            if (accountInfoPage) accountInfoPage.classList.add('hidden');
+        }
+        
+        updateLoginButton();
+        
+        // Reload only if on account page
+        if (window.location.pathname.includes('account')) {
+            window.location.reload();
+        }
+    }).catch((error) => {
+        console.error('Logout error:', error);
+    });
+}
+// Global function to resend from signup page
+function resendVerification(email) {
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.length > 0) {
+                // This triggers Firebase to resend
+                auth.currentUser.sendEmailVerification()
+                    .then(() => alert("Verification email resent!"))
+                    .catch((error) => alert(error.message));
+            }
+        });
+}
+
+// Update login button based on auth state
+function updateLoginButton() {
+    const user = auth.currentUser;
+    
+    if (loginButton) {
+        if (user) {
+            loginButton.textContent = 'LOG OUT';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                logoutUser(e);
+            };
+        } else {
+            loginButton.textContent = 'LOG IN';
+            loginButton.onclick = function(e) {
+                e.preventDefault();
+                showAuthContainer();
+                showLoginSection();
+            };
+        }
+    }
+}
+// Update mobile account options visibility
+function updateMobileAccountOptions() {
+    const user = auth.currentUser;
+    const mobileAccountOptions = document.getElementById('mobileAccountOptions');
+    
+    if (mobileAccountOptions) {
+        if (user) {
+            mobileAccountOptions.classList.remove('hidden');
+        } else {
+            mobileAccountOptions.classList.add('hidden');
+        }
+    }
+}
+
+// Edit Profile Functionality
+function showEditProfileModal() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    nameInput.value = user.displayName || '';
+    emailDisplay.value = user.email || '';
+    editProfileModal.classList.remove('hidden');
+}
+
+// Update the saveProfile function
+async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please sign in to update your profile');
+        return;
+    }
+
+    const newName = nameInput.value.trim();
+    if (!newName) {
+        alert('Please enter a valid name');
+        return;
+    }
+
+    // Check if name actually changed
+    if (newName === user.displayName) {
+        editProfileModal.classList.add('hidden');
+        return;
+    }
+
+    try {
+        // Show loading state
+        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        document.getElementById('saveProfileBtn').disabled = true;
+
+        // Update Firebase Auth profile
+        await user.updateProfile({
+            displayName: newName
+        });
+
+        // Update Firestore user document
+        await db.collection("users").doc(user.uid).update({
+            name: newName,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update UI
+        document.getElementById('displayName').textContent = newName;
+        editProfileModal.classList.add('hidden');
+        
+        // Show success toast/message
+        showToast('Profile updated successfully!');
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        showToast(`Failed to update profile: ${error.message}`, 'error');
+    } finally {
+        // Reset button state
+        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+        document.getElementById('saveProfileBtn').disabled = false;
+    }
+}
+
+// Add this helper function for toast notifications
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+// Address Management
+function showAddAddressModal(event) {
+    event.preventDefault();
+    document.getElementById('addressForm').reset();
+    delete document.getElementById('addressForm').dataset.editingId;
+    document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
+    addAddressModal.classList.remove('hidden');
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit Profile
+    document.getElementById('editProfileIcon')?.addEventListener('click', showEditProfileModal);
+    document.getElementById('closeEditProfileModal')?.addEventListener('click', () => {
+        editProfileModal.classList.add('hidden');
+    });
+    document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
+    
+    // Address Management
+    document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
+    document.getElementById('closeAddAddressModal')?.addEventListener('click', () => {
+        addAddressModal.classList.add('hidden');
+    });
+    document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
+    document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
+});
+// Update the saveAddress function
+async function saveAddress(event) {
+    event.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+        showToast('Please sign in to save addresses', 'error');
+        return;
+    }
+
+    // Get form values
+    const address = {
+        fullName: document.getElementById('fullName').value.trim(),
+        phoneNumber: document.getElementById('phoneNumber').value.trim(),
+        addressLine1: document.getElementById('addressLine1').value.trim(),
+        addressLine2: document.getElementById('addressLine2').value.trim() || '',
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        postalCode: document.getElementById('postalCode').value.trim(),
+        country: document.getElementById('country').value,
+        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
+        isDefault: document.getElementById('setAsDefault').checked,
+        id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Validation
+    const errors = [];
+    if (!address.fullName) errors.push('Full name is required');
+    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
+    if (!address.addressLine1) errors.push('Address line 1 is required');
+    if (!address.city) errors.push('City is required');
+    if (!address.state) errors.push('State is required');
+    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
+    if (!address.country) errors.push('Country is required');
+
+    if (errors.length > 0) {
+        showToast(errors.join(', '), 'error');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        const userRef = db.collection("users").doc(user.uid);
+        const isEditing = document.getElementById('addressForm').dataset.editingId;
+        
+        // Get current addresses
+        const userDoc = await userRef.get();
+        let currentAddresses = userDoc.data()?.addresses || [];
+        
+        // Handle default address logic
+        if (address.isDefault) {
+            currentAddresses = currentAddresses.map(addr => ({
+                ...addr,
+                isDefault: false
+            }));
+        }
+
+        // Update or add the address
+        if (isEditing) {
+            currentAddresses = currentAddresses.map(addr => 
+                addr.id === isEditing ? address : addr
+            );
+        } else {
+            // If this is the first address, make it default
+            if (currentAddresses.length === 0) {
+                address.isDefault = true;
+            }
+            currentAddresses.push(address);
+        }
+
+        // Prepare update data
+        const updateData = {
+            addresses: currentAddresses,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // If this is the default address, update that field
+        if (address.isDefault) {
+            updateData.defaultAddress = address;
+        }
+
+        // Save to Firestore
+        await userRef.set(updateData, { merge: true });
+
+        // Refresh UI
+        loadAddresses(user.uid);
+        addAddressModal.classList.add('hidden');
+        document.getElementById('addressForm').reset();
+        delete document.getElementById('addressForm').dataset.editingId;
+        
+        // Show success message
+        showToast('Address saved successfully!');
+        
+    } catch (error) {
+        console.error("Error saving address:", error);
+        showToast("Failed to save address. Please try again.", 'error');
+    } finally {
+        // Reset button state
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
+        saveBtn.disabled = false;
+    }
+}
+function cancelAddress() {
+    document.getElementById('addressForm').reset();
+    delete document.getElementById('addressForm').dataset.editingId;
+    addAddressModal.classList.add('hidden');
+}
+
+async function deleteAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userRef = db.collection("users").doc(user.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) return;
+        
+        const addresses = userDoc.data().addresses || [];
+        const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
+        
+        const defaultAddress = userDoc.data().defaultAddress;
+        const isDeletingDefault = defaultAddress && defaultAddress.id === addressId;
+        
+        await userRef.update({
+            addresses: updatedAddresses,
+            ...(isDeletingDefault && { 
+                defaultAddress: updatedAddresses.length > 0 ? updatedAddresses[0] : null 
+            })
+        });
+        
+        await loadAddresses(user.uid);
+    } catch (error) {
+        console.error("Error deleting address:", error);
+        alert("Failed to delete address. Please try again.");
+    }
+}
+// Update the setDefaultAddress function
+async function setDefaultAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userRef = db.collection("users").doc(user.uid);
+        
+        // First get current addresses
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) return;
+        
+        const addresses = userDoc.data().addresses || [];
+        const addressToSetDefault = addresses.find(addr => addr.id === addressId);
+        
+        if (!addressToSetDefault) {
+            showToast('Address not found', 'error');
+            return;
+        }
+
+        // Update all addresses to set this one as default
+        const updatedAddresses = addresses.map(addr => ({
+            ...addr,
+            isDefault: addr.id === addressId
+        }));
+        
+        await userRef.update({
+            addresses: updatedAddresses,
+            defaultAddress: addressToSetDefault,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await loadAddresses(user.uid);
+        showToast('Default address updated successfully!');
+    } catch (error) {
+        console.error("Error setting default address:", error);
+        showToast('Failed to set default address', 'error');
+    }
+}
+function editAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const userRef = db.collection("users").doc(user.uid);
+    userRef.get().then(doc => {
+        if (!doc.exists) return;
+        
+        const addresses = doc.data().addresses || [];
+        const address = addresses.find(addr => addr.id === addressId);
+        if (!address) return;
+        
+        document.getElementById('fullName').value = address.fullName;
+        document.getElementById('phoneNumber').value = address.phoneNumber;
+        document.getElementById('addressLine1').value = address.addressLine1;
+        document.getElementById('addressLine2').value = address.addressLine2 || '';
+        document.getElementById('city').value = address.city;
+        document.getElementById('state').value = address.state;
+        document.getElementById('postalCode').value = address.postalCode;
+        document.getElementById('country').value = address.country;
+        document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
+        document.getElementById('setAsDefault').checked = address.isDefault;
+        
+        document.getElementById('addressForm').dataset.editingId = addressId;
+        document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
+        
+        addAddressModal.classList.remove('hidden');
+    });
+}
+// Show thank you popup with order details
+function showThankYouPopup(orderDetails, orderId) {
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
+    document.getElementById('popupOrderId').textContent = orderId;
+    document.getElementById('popupOrderDate').textContent = formattedDate;
+    
+    document.getElementById('popupFullName').textContent = `${orderDetails.firstName} ${orderDetails.lastName}`;
+    document.getElementById('popupAddress1').textContent = orderDetails.address;
+    document.getElementById('popupAddress2').textContent = orderDetails.apartment || '';
+    document.getElementById('popupCityStateZip').textContent = `${orderDetails.city}, ${orderDetails.state} ${orderDetails.pinCode}`;
+    document.getElementById('popupCountry').textContent = orderDetails.country;
+    document.getElementById('popupPhone').textContent = orderDetails.phone;
+// Update the form submission event listener
+document.getElementById('addressForm').addEventListener('submit', saveAddress);
+    document.getElementById('thankYouPopup').classList.add('active');
+    
+    document.getElementById('thankYouPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+        }
+    });
+}
+
+// Handle successful payment
+function handlePaymentSuccess(response, formData) {
+    const orderId = saveOrder(response.razorpay_payment_id, formData);
+    
+    cart = [];
+    localStorage.setItem('guestCart', JSON.stringify(cart));
+    
+    showThankYouPopup(formData, orderId);
+}
+
+// Get form data from checkout form
+function getFormData() {
+    return {
+        firstName: document.getElementById('first-name').value,
+        lastName: document.getElementById('last-name').value,
+        address: document.getElementById('address').value,
+        apartment: document.getElementById('apartment').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        pinCode: document.getElementById('pin-code').value,
+        country: document.getElementById('country').value,
+        phone: document.getElementById('phone').value
+    };
+}
+
+// Function to generate a unique order ID with VA prefix and 5-digit number
+function generateOrderId() {
+    const prefix = "VA";
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    return `${prefix}${randomNum}`;
+}
+
+// Function to calculate the total amount from the cart
+function calculateTotalAmount() {
+    let total = 0;
+    cart.forEach(item => {
+        const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+        total += price * item.quantity;
+    });
+    return total * 100;
+}
+
+async function handlePaymentFailure(response) {
+    console.error("Payment failed:", response);
+    
+    const popup = document.getElementById('paymentFailedPopup');
+    popup.classList.add('active');
+    
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdown = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(countdown);
+            window.location.reload();
+        }
+    }, 1000);
+    
+    try {
+        const user = auth.currentUser;
+        await db.collection("paymentFailures").add({
+            userId: user?.uid || "guest",
+            email: user?.email || document.getElementById('email')?.value || "unknown",
+            error: response.error,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            amount: calculateTotalAmount() / 100,
+            cart: [...cart]
+        });
+    } catch (error) {
+        console.error("Error logging payment failure:", error);
+    }
+}
+
+// Save order to Firestore (updated version)
+async function saveOrder(paymentId, formData) {
+    const user = auth.currentUser;
+    const orderId = generateOrderId();
+    
+    const orderData = {
+        orderId: orderId,
+        date: new Date().toISOString(),
+        status: 'pending',
+        paymentId: paymentId,
+        userId: user?.uid || "guest",
+        email: user?.email || document.getElementById('email').value,
+        items: [...cart],
+        shippingAddress: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            address: formData.address,
+            apartment: formData.apartment || '',
+            city: formData.city,
+            state: formData.state,
+            postalCode: formData.pinCode,
+            country: formData.country,
+            phone: formData.phone
+        },
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        await db.collection("orders").doc(orderId).set(orderData);
+        return orderId;
+    } catch (error) {
+        console.error("Error saving order:", error);
+        throw error;
+    }
+}
+
+// Place order function with Razorpay integration
+async function placeOrder() {
+    if (!validateCheckoutForm()) {
+        return;
+    }
+
+    const amount = calculateTotalAmount();
+    const formData = getFormData();
+
+    const options = {
+        key: "rzp_live_DPartLBDccSG34",
+        amount: amount,
+        currency: "INR",
+        name: "VAMORA.STORE",
+        description: "Order Payment",
+        prefill: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            contact: formData.phone
+        },
+        notes: {
+            address: `${formData.address}, ${formData.pinCode}`
+        },
+        theme: {
+            color: "#000000"
+        },
+        handler: async function(response) {
+            try {
+                const orderId = await saveOrder(response.razorpay_payment_id, formData);
+                handlePaymentSuccess(response, formData, orderId);
+            } catch (error) {
+                console.error("Error processing order:", error);
+                alert("There was an error saving your order. Please contact support with your payment ID: " + response.razorpay_payment_id);
+            }
+        },
+        method: {
+            netbanking: true,
+            card: true,
+            wallet: true,
+            upi: true,
+            paylater: true
+        },
+        upi: {
+            flow: "collect",
+            vpa: ""
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+    rzp.on('payment.failed', function(response) {
+        handlePaymentFailure(response);
+    });
+}
+
+// Main event listeners
+accountIconNav.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const user = auth.currentUser;
+    if (user) {
+        toggleDropdown();
+    } else {
+        showAuthContainer();
+        showLoginSection();
+    }
+});
+profileOption.addEventListener('click', showAccountInfo);
+logoutOption.addEventListener('click', logoutUser);
+editProfileIcon.addEventListener('click', showEditProfileModal);
+closeEditProfileModal.addEventListener('click', function() {
+    editProfileModal.classList.add('hidden');
+});
+addAddressLink.addEventListener('click', showAddAddressModal);
+closeAddAddressModal.addEventListener('click', function() {
+    addAddressModal.classList.add('hidden');
+});
+saveAddressBtn.addEventListener('click', saveAddress);
+mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    if (!accountIconNav.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.add('hidden');
+        dropdownOpen = false;
+    }
+});
+// Update the auth state handler to show/hide add address button
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Show add address button
+        const addAddressLink = document.getElementById('addAddressLink');
+        if (addAddressLink) addAddressLink.style.display = 'block';
+        
+        // Load user data
+        loadAccountInfo(user.uid);
+    } else {
+        // Hide add address button
+        const addAddressLink = document.getElementById('addAddressLink');
+        if (addAddressLink) addAddressLink.style.display = 'none';
+    }
+});
+// Unified auth state handler
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Handle cart merging (guest → logged-in)
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || []);
+        const firestoreCart = await getOrCreateUserCart(user.uid);
+        
+        const mergedCart = mergeCarts(firestoreCart, guestCart);
+        
+        await saveCartToFirestore(user.uid, mergedCart);
+        localStorage.removeItem('guestCart');
+        
+        cart = mergedCart;
+        renderCart();
+
+        // Load user data from Firestore
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                updateUIWithUserData(user, userData);
+                document.getElementById('email').value = user.email;
+            } else {
+                await db.collection("users").doc(user.uid).set({
+                    name: user.displayName || '',
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        }
+        
+    } else {
+        // User is signed out - load guest cart only
+        cart = JSON.parse(localStorage.getItem('guestCart') || []);
+        applyDefaultAddress();
+    }
+    
+    setupResendVerification();
+    updateLoginButton();
+    renderCart();
+});
+// New helper function to update UI with Firestore data
+function updateUIWithUserData(user, userData) {
+    // Cache DOM elements to avoid multiple queries
+    const displayNameEl = document.getElementById('displayName');
+    const displayEmailEl = document.getElementById('displayEmail');
+    
+    // Update display name if element exists
+    if (displayNameEl) {
+        displayNameEl.textContent = userData?.name || user?.displayName || '';
+    }
+    
+    // Update display email if element exists
+    if (displayEmailEl) {
+        displayEmailEl.textContent = user?.email || '';
+    }
+    
+    // Update form inputs if they exist
+    if (nameInput) {
+        nameInput.value = userData?.name || user?.displayName || '';
+    }
+    if (emailDisplay) {
+        emailDisplay.value = user?.email || '';
+        if (emailDisplay.readOnly !== undefined) {
+            emailDisplay.readOnly = true; // Keep email read-only in forms
+        }
+    }
+    
+    // Only load addresses/orders if user exists and is authenticated
+    if (user && user.uid) {
+        try {
+            loadAddresses(user.uid);
+            loadOrders(user.uid);
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        }
+    }
+}
+
+// Update the Pay Now button event listener with better error handling
+const checkoutBtn = document.querySelector('.checkout-btn');
+if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        try {
+            placeOrder();
+        } catch (error) {
+            console.error("Checkout error:", error);
+            alert("There was an error processing your order. Please try again.");
+        }
+    });
+}
+// Update the Pay Now button event listener
+if (document.querySelector('.checkout-btn')) {
+    document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
+}
+
+// Helper function to merge carts
+function mergeCarts(firestoreCart, guestCart) {
+    const merged = [...firestoreCart];
+    
+    guestCart.forEach(guestItem => {
+        const existingItem = merged.find(item => 
+            item.id === guestItem.id && item.size === guestItem.size
+        );
+        
+        if (existingItem) {
+            existingItem.quantity += guestItem.quantity;
+        } else {
+            merged.push(guestItem);
+        }
+    });
+    
+    return merged;
+}
