@@ -249,6 +249,12 @@ function displayResults(results) {
 
 // Close search results when clicking outside
 document.addEventListener('click', function(e) {
+    
+    if (e.target.closest('[data-action="set-default"]')) {
+            const addressId = e.target.closest('[data-action="set-default"]').dataset.addressId;
+            setDefaultAddress(addressId);
+    }
+    
     if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
         searchResults.style.display = 'none';
     }
@@ -599,6 +605,7 @@ closeAccountInfoPage.addEventListener('click', function(event) {
     accountInfoPage.classList.add('hidden');
 });
 
+// In your renderAddresses function, update the button HTML:
 function renderAddresses(addresses) {
     if (addresses.length === 0) {
         addressContainer.innerHTML = `
@@ -612,7 +619,7 @@ function renderAddresses(addresses) {
     }
 
     addressContainer.innerHTML = addresses.map(address => `
-        <div class="address-card ${address.isDefault ? 'default-address' : ''} bg-white p-4 rounded-lg shadow-sm mb-3">
+        <div class="address-card ${address.isDefault ? 'border-2 border-blue-500' : 'border border-gray-200'} bg-white p-4 rounded-lg shadow-sm mb-3">
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center mb-1">
@@ -623,13 +630,15 @@ function renderAddresses(addresses) {
                     <p class="text-sm text-gray-600">${address.phoneNumber}</p>
                 </div>
                 <div class="flex space-x-2">
-                    <button class="text-blue-500 hover:text-blue-700 icon-hover icon-hover-blue icon-click-effect" onclick="editAddress('${address.id}')">
+                    <button class="text-blue-500 hover:text-blue-700" onclick="editAddress('${address.id}')">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="text-gray-500 hover:text-gray-700 icon-hover icon-hover-gray icon-click-effect" onclick="setDefaultAddress('${address.id}')">
+                    <button class="${address.isDefault ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-700" 
+                            data-action="set-default" 
+                            data-address-id="${address.id}">
                         <i class="fas fa-check-circle"></i>
                     </button>
-                    <button class="text-red-500 hover:text-red-700 icon-hover icon-hover-red icon-click-effect" onclick="deleteAddress('${address.id}')">
+                    <button class="text-red-500 hover:text-red-700" onclick="deleteAddress('${address.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -645,9 +654,6 @@ function renderAddresses(addresses) {
             </div>
         </div>
     `).join('');
-    
-    // Show the "Add Address" link
-    document.getElementById('addAddressLink').style.display = 'block';
 }
 async function loadAccountInfo(userId) {
     try {
@@ -2084,6 +2090,7 @@ function showEditProfileModal() {
     editProfileModal.classList.remove('hidden');
 }
 
+// Update the saveProfile function
 async function saveProfile() {
     const user = auth.currentUser;
     if (!user) {
@@ -2103,9 +2110,11 @@ async function saveProfile() {
         return;
     }
 
-    showLoading('saveProfileBtn');
-    
     try {
+        // Show loading state
+        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        document.getElementById('saveProfileBtn').disabled = true;
+
         // Update Firebase Auth profile
         await user.updateProfile({
             displayName: newName
@@ -2120,13 +2129,31 @@ async function saveProfile() {
         // Update UI
         document.getElementById('displayName').textContent = newName;
         editProfileModal.classList.add('hidden');
-        alert('Profile updated successfully!');
+        
+        // Show success toast/message
+        showToast('Profile updated successfully!');
     } catch (error) {
         console.error("Error updating profile:", error);
-        alert(`Failed to update profile: ${error.message}`);
+        showToast(`Failed to update profile: ${error.message}`, 'error');
     } finally {
-        hideLoading('saveProfileBtn');
+        // Reset button state
+        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+        document.getElementById('saveProfileBtn').disabled = false;
     }
+}
+
+// Add this helper function for toast notifications
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
 }
 // Address Management
 function showAddAddressModal(event) {
@@ -2154,11 +2181,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
     document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
 });
+// Update the saveAddress function
 async function saveAddress(event) {
     event.preventDefault();
     const user = auth.currentUser;
     if (!user) {
-        alert('Please sign in to save addresses');
+        showToast('Please sign in to save addresses', 'error');
         return;
     }
 
@@ -2167,90 +2195,72 @@ async function saveAddress(event) {
         fullName: document.getElementById('fullName').value.trim(),
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
         addressLine1: document.getElementById('addressLine1').value.trim(),
-        addressLine2: document.getElementById('addressLine2').value.trim(),
+        addressLine2: document.getElementById('addressLine2').value.trim() || null,
         city: document.getElementById('city').value.trim(),
         state: document.getElementById('state').value.trim(),
         postalCode: document.getElementById('postalCode').value.trim(),
         country: document.getElementById('country').value,
         addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
         isDefault: document.getElementById('setAsDefault').checked,
-        id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
+        id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     // Validation
-    if (!address.fullName) {
-        alert('Please enter your full name');
-        return;
-    }
-    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) {
-        alert('Please enter a valid 10-digit phone number');
-        return;
-    }
-    if (!address.addressLine1) {
-        alert('Please enter your address');
-        return;
-    }
-    if (!address.city) {
-        alert('Please enter your city');
-        return;
-    }
-    if (!address.state) {
-        alert('Please enter your state');
-        return;
-    }
-    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) {
-        alert('Please enter a valid 6-digit postal code');
-        return;
-    }
-    if (!address.country) {
-        alert('Please select your country');
+    const errors = [];
+    if (!address.fullName) errors.push('Full name is required');
+    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
+    if (!address.addressLine1) errors.push('Address line 1 is required');
+    if (!address.city) errors.push('City is required');
+    if (!address.state) errors.push('State is required');
+    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
+    if (!address.country) errors.push('Country is required');
+
+    if (errors.length > 0) {
+        showToast(errors.join(', '), 'error');
         return;
     }
 
     try {
+        // Show loading state
+        document.getElementById('saveAddressBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        document.getElementById('saveAddressBtn').disabled = true;
+
         const userRef = db.collection("users").doc(user.uid);
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         
         // Get current addresses
         const userDoc = await userRef.get();
-        const currentAddresses = userDoc.data()?.addresses || [];
+        let currentAddresses = userDoc.data()?.addresses || [];
         
-        let updatedAddresses;
-        
+        // Handle default address logic
+        if (address.isDefault) {
+            currentAddresses = currentAddresses.map(addr => ({
+                ...addr,
+                isDefault: false
+            }));
+        }
+
+        // Update or add the address
         if (isEditing) {
-            // Editing existing address
-            updatedAddresses = currentAddresses.map(addr => 
+            currentAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
-            
-            // If setting as default, update all other addresses
-            if (address.isDefault) {
-                updatedAddresses = updatedAddresses.map(addr => ({
-                    ...addr,
-                    isDefault: addr.id === address.id
-                }));
-            }
         } else {
-            // Adding new address
-            updatedAddresses = [...currentAddresses, address];
-            
-            // If setting as default, update all other addresses
-            if (address.isDefault) {
-                updatedAddresses = updatedAddresses.map(addr => ({
-                    ...addr,
-                    isDefault: addr.id === address.id
-                }));
+            // If this is the first address, make it default
+            if (currentAddresses.length === 0) {
+                address.isDefault = true;
             }
+            currentAddresses.push(address);
         }
 
         // Prepare update data
         const updateData = {
-            addresses: updatedAddresses,
+            addresses: currentAddresses,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // If this is the default address, update that field too
+        // If this is the default address, update that field
         if (address.isDefault) {
             updateData.defaultAddress = address;
         }
@@ -2264,9 +2274,16 @@ async function saveAddress(event) {
         document.getElementById('addressForm').reset();
         delete document.getElementById('addressForm').dataset.editingId;
         
+        // Show success message
+        showToast('Address saved successfully!');
+        
     } catch (error) {
         console.error("Error saving address:", error);
-        alert("Failed to save address. Please check your internet connection and try again.");
+        showToast("Failed to save address. Please try again.", 'error');
+    } finally {
+        // Reset button state
+        document.getElementById('saveAddressBtn').innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
+        document.getElementById('saveAddressBtn').disabled = false;
     }
 }
 function cancelAddress() {
@@ -2304,32 +2321,43 @@ async function deleteAddress(addressId) {
         alert("Failed to delete address. Please try again.");
     }
 }
+// Update the setDefaultAddress function
 async function setDefaultAddress(addressId) {
     const user = auth.currentUser;
     if (!user) return;
 
     try {
         const userRef = db.collection("users").doc(user.uid);
-        const userDoc = await userRef.get();
         
+        // First get current addresses
+        const userDoc = await userRef.get();
         if (!userDoc.exists) return;
         
         const addresses = userDoc.data().addresses || [];
+        const addressToSetDefault = addresses.find(addr => addr.id === addressId);
+        
+        if (!addressToSetDefault) {
+            showToast('Address not found', 'error');
+            return;
+        }
+
+        // Update all addresses to set this one as default
         const updatedAddresses = addresses.map(addr => ({
             ...addr,
             isDefault: addr.id === addressId
         }));
         
-        const defaultAddress = addresses.find(addr => addr.id === addressId);
-        
         await userRef.update({
             addresses: updatedAddresses,
-            defaultAddress: defaultAddress
+            defaultAddress: addressToSetDefault,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         await loadAddresses(user.uid);
+        showToast('Default address updated successfully!');
     } catch (error) {
         console.error("Error setting default address:", error);
+        showToast('Failed to set default address', 'error');
     }
 }
 function editAddress(addressId) {
