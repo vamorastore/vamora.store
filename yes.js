@@ -1,4 +1,4 @@
-// Initialize Firebase
+ // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -15,7 +15,15 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
-
+// Enable offline persistence
+db.enablePersistence()
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          console.log("Multiple tabs open, persistence can only be enabled in one tab at a time");
+      } else if (err.code == 'unimplemented') {
+          console.log("The current browser does not support all of the features required to enable persistence");
+      }
+  });
 // Initialize cart
 let cart = [];
 
@@ -2076,34 +2084,50 @@ function showEditProfileModal() {
     editProfileModal.classList.remove('hidden');
 }
 
-function saveProfile() {
+async function saveProfile() {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        alert('Please sign in to update your profile');
+        return;
+    }
+
+    const newName = nameInput.value.trim();
+    if (!newName) {
+        alert('Please enter a valid name');
+        return;
+    }
+
+    // Check if name actually changed
+    if (newName === user.displayName) {
+        editProfileModal.classList.add('hidden');
+        return;
+    }
 
     showLoading('saveProfileBtn');
     
-    // Update Firebase Auth profile
-    user.updateProfile({
-        displayName: nameInput.value
-    }).then(() => {
+    try {
+        // Update Firebase Auth profile
+        await user.updateProfile({
+            displayName: newName
+        });
+
         // Update Firestore user document
-        return db.collection("users").doc(user.uid).update({
-            name: nameInput.value,
+        await db.collection("users").doc(user.uid).update({
+            name: newName,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }).then(() => {
+
         // Update UI
-        document.getElementById('displayName').textContent = nameInput.value;
+        document.getElementById('displayName').textContent = newName;
         editProfileModal.classList.add('hidden');
         alert('Profile updated successfully!');
-    }).catch((error) => {
+    } catch (error) {
         console.error("Error updating profile:", error);
-        alert("Failed to update profile. Please try again.");
-    }).finally(() => {
+        alert(`Failed to update profile: ${error.message}`);
+    } finally {
         hideLoading('saveProfileBtn');
-    });
+    }
 }
-
 // Address Management
 function showAddAddressModal(event) {
     event.preventDefault();
@@ -2133,8 +2157,12 @@ document.addEventListener('DOMContentLoaded', function() {
 async function saveAddress(event) {
     event.preventDefault();
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        alert('Please sign in to save addresses');
+        return;
+    }
 
+    // Get form values
     const address = {
         fullName: document.getElementById('fullName').value.trim(),
         phoneNumber: document.getElementById('phoneNumber').value.trim(),
@@ -2144,16 +2172,39 @@ async function saveAddress(event) {
         state: document.getElementById('state').value.trim(),
         postalCode: document.getElementById('postalCode').value.trim(),
         country: document.getElementById('country').value,
-        addressType: document.querySelector('input[name="addressType"]:checked').value,
+        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
         isDefault: document.getElementById('setAsDefault').checked,
         id: document.getElementById('addressForm').dataset.editingId || Date.now().toString(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Basic validation
-    if (!address.fullName || !address.phoneNumber || !address.addressLine1 || 
-        !address.city || !address.state || !address.postalCode || !address.country) {
-        alert('Please fill in all required fields');
+    // Validation
+    if (!address.fullName) {
+        alert('Please enter your full name');
+        return;
+    }
+    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) {
+        alert('Please enter a valid 10-digit phone number');
+        return;
+    }
+    if (!address.addressLine1) {
+        alert('Please enter your address');
+        return;
+    }
+    if (!address.city) {
+        alert('Please enter your city');
+        return;
+    }
+    if (!address.state) {
+        alert('Please enter your state');
+        return;
+    }
+    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) {
+        alert('Please enter a valid 6-digit postal code');
+        return;
+    }
+    if (!address.country) {
+        alert('Please select your country');
         return;
     }
 
@@ -2161,58 +2212,61 @@ async function saveAddress(event) {
         const userRef = db.collection("users").doc(user.uid);
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         
+        // Get current addresses
+        const userDoc = await userRef.get();
+        const currentAddresses = userDoc.data()?.addresses || [];
+        
+        let updatedAddresses;
+        
         if (isEditing) {
             // Editing existing address
-            const userDoc = await userRef.get();
-            const currentAddresses = userDoc.data().addresses || [];
-            
-            const updatedAddresses = currentAddresses.map(addr => 
+            updatedAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
             
+            // If setting as default, update all other addresses
             if (address.isDefault) {
-                updatedAddresses.forEach(addr => {
-                    if (addr.id !== address.id) addr.isDefault = false;
-                });
+                updatedAddresses = updatedAddresses.map(addr => ({
+                    ...addr,
+                    isDefault: addr.id === address.id
+                }));
             }
-            
-            await userRef.update({
-                addresses: updatedAddresses,
-                ...(address.isDefault && { defaultAddress: address })
-            });
-            
-            delete document.getElementById('addressForm').dataset.editingId;
         } else {
             // Adding new address
+            updatedAddresses = [...currentAddresses, address];
+            
+            // If setting as default, update all other addresses
             if (address.isDefault) {
-                // If setting as default, update all other addresses
-                const userDoc = await userRef.get();
-                const currentAddresses = userDoc.data().addresses || [];
-                
-                const updatedAddresses = currentAddresses.map(addr => ({
+                updatedAddresses = updatedAddresses.map(addr => ({
                     ...addr,
-                    isDefault: false
+                    isDefault: addr.id === address.id
                 }));
-                
-                await userRef.update({
-                    addresses: [...updatedAddresses, address],
-                    defaultAddress: address
-                });
-            } else {
-                // Just add the new address
-                await userRef.update({
-                    addresses: firebase.firestore.FieldValue.arrayUnion(address)
-                });
             }
         }
 
+        // Prepare update data
+        const updateData = {
+            addresses: updatedAddresses,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // If this is the default address, update that field too
+        if (address.isDefault) {
+            updateData.defaultAddress = address;
+        }
+
+        // Save to Firestore
+        await userRef.set(updateData, { merge: true });
+
+        // Refresh UI
         await loadAddresses(user.uid);
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
+        delete document.getElementById('addressForm').dataset.editingId;
         
     } catch (error) {
         console.error("Error saving address:", error);
-        alert("Failed to save address. Please try again.");
+        alert("Failed to save address. Please check your internet connection and try again.");
     }
 }
 function cancelAddress() {
