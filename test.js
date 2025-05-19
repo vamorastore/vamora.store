@@ -1120,6 +1120,7 @@ function getStatusColorClass(status) {
             return 'bg-gray-100 text-gray-800';
     }
 }
+
 function formatStatus(status) {
     if (!status) return 'Processing';
     return status.replace('status-', '').replace('-', ' ').toLowerCase()
@@ -1127,18 +1128,12 @@ function formatStatus(status) {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 }
-function calculateOrderTotal(items) {
-    return items.reduce((total, item) => {
-        const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || 0;
-        return total + (price * (item.quantity || 1));
-    }, 0);
-}
 
 // Firebase Authentication Functions
 function showAuthContainer() {
     document.getElementById('auth-container').classList.add('active');
     document.body.classList.add('overflow-hidden');
-    showLoginSection();
+   showLoginSection();
     resetForms();
 }
 
