@@ -667,6 +667,261 @@ function renderAddresses(addresses) {
         });
     });
 }
+// Address Management
+function showAddAddressModal(event) {
+    event.preventDefault();
+    document.getElementById('addressForm').reset();
+    delete document.getElementById('addressForm').dataset.editingId;
+    document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
+    addAddressModal.classList.remove('hidden');
+}
+
+async function saveAddress(event) {
+    event.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+        showToast('Please sign in to save addresses', 'error');
+        return;
+    }
+
+    // Get form values
+    const address = {
+        fullName: document.getElementById('fullName').value.trim(),
+        phoneNumber: document.getElementById('phoneNumber').value.trim(),
+        addressLine1: document.getElementById('addressLine1').value.trim(),
+        addressLine2: document.getElementById('addressLine2').value.trim() || '',
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        postalCode: document.getElementById('postalCode').value.trim(),
+        country: document.getElementById('country').value,
+        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
+        isDefault: document.getElementById('setAsDefault').checked,
+        id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Validation
+    const errors = [];
+    if (!address.fullName) errors.push('Full name is required');
+    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
+    if (!address.addressLine1) errors.push('Address line 1 is required');
+    if (!address.city) errors.push('City is required');
+    if (!address.state) errors.push('State is required');
+    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
+    if (!address.country) errors.push('Country is required');
+
+    if (errors.length > 0) {
+        showToast(errors.join(', '), 'error');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        const userRef = db.collection("users").doc(user.uid);
+        
+        // Get current addresses
+        const userDoc = await userRef.get();
+        let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
+
+        // Handle default address logic
+        if (address.isDefault) {
+            currentAddresses = currentAddresses.map(addr => ({
+                ...addr,
+                isDefault: false
+            }));
+        }
+
+        // Check if we're editing an existing address
+        const isEditing = document.getElementById('addressForm').dataset.editingId;
+        if (isEditing) {
+            // Update existing address
+            currentAddresses = currentAddresses.map(addr => 
+                addr.id === isEditing ? address : addr
+            );
+        } else {
+            // Add new address - if it's the first address, make it default
+            if (currentAddresses.length === 0) {
+                address.isDefault = true;
+            }
+            currentAddresses.push(address);
+        }
+
+        // Prepare update data
+        const updateData = {
+            addresses: currentAddresses,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // If this is the default address, update that field
+        if (address.isDefault) {
+            updateData.defaultAddress = address;
+        }
+
+        // Save to Firestore
+        await userRef.set(updateData, { merge: true });
+
+        // Refresh UI
+        await loadAddresses(user.uid);
+        addAddressModal.classList.add('hidden');
+        document.getElementById('addressForm').reset();
+        delete document.getElementById('addressForm').dataset.editingId;
+        
+        // Show success message
+        showToast('Address saved successfully!');
+        
+    } catch (error) {
+        console.error("Error saving address:", error);
+        showToast("Failed to save address. Please try again.", 'error');
+    } finally {
+        // Reset button state
+        const saveBtn = document.getElementById('saveAddressBtn');
+        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
+        saveBtn.disabled = false;
+    }
+}
+
+function cancelAddress() {
+    document.getElementById('addressForm').reset();
+    delete document.getElementById('addressForm').dataset.editingId;
+    addAddressModal.classList.add('hidden');
+}
+
+async function deleteAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userRef = db.collection("users").doc(user.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) return;
+        
+        const addresses = userDoc.data().addresses || [];
+        const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
+        
+        const defaultAddress = userDoc.data().defaultAddress;
+        const isDeletingDefault = defaultAddress && defaultAddress.id === addressId;
+        
+        await userRef.update({
+            addresses: updatedAddresses,
+            ...(isDeletingDefault && { 
+                defaultAddress: updatedAddresses.length > 0 ? updatedAddresses[0] : null 
+            }),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await loadAddresses(user.uid);
+        showToast('Address deleted successfully!');
+    } catch (error) {
+        console.error("Error deleting address:", error);
+        showToast("Failed to delete address. Please try again.", 'error');
+    }
+}
+
+async function setDefaultAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userRef = db.collection("users").doc(user.uid);
+        
+        // First get current addresses
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) return;
+        
+        const addresses = userDoc.data().addresses || [];
+        const addressToSetDefault = addresses.find(addr => addr.id === addressId);
+        
+        if (!addressToSetDefault) {
+            showToast('Address not found', 'error');
+            return;
+        }
+
+        // Update all addresses to set this one as default
+        const updatedAddresses = addresses.map(addr => ({
+            ...addr,
+            isDefault: addr.id === addressId
+        }));
+        
+        await userRef.update({
+            addresses: updatedAddresses,
+            defaultAddress: addressToSetDefault,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await loadAddresses(user.uid);
+        showToast('Default address updated successfully!');
+    } catch (error) {
+        console.error("Error setting default address:", error);
+        showToast('Failed to set default address', 'error');
+    }
+}
+
+function editAddress(addressId) {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const userRef = db.collection("users").doc(user.uid);
+    userRef.get().then(doc => {
+        if (!doc.exists) return;
+        
+        const addresses = doc.data().addresses || [];
+        const address = addresses.find(addr => addr.id === addressId);
+        if (!address) return;
+        
+        // Populate form fields
+        document.getElementById('fullName').value = address.fullName;
+        document.getElementById('phoneNumber').value = address.phoneNumber;
+        document.getElementById('addressLine1').value = address.addressLine1;
+        document.getElementById('addressLine2').value = address.addressLine2 || '';
+        document.getElementById('city').value = address.city;
+        document.getElementById('state').value = address.state;
+        document.getElementById('postalCode').value = address.postalCode;
+        document.getElementById('country').value = address.country;
+        
+        // Set address type radio button
+        const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
+        addressTypeRadios.forEach(radio => {
+            radio.checked = (radio.value === address.addressType);
+        });
+        
+        document.getElementById('setAsDefault').checked = address.isDefault || false;
+        
+        // Set editing ID
+        document.getElementById('addressForm').dataset.editingId = addressId;
+        document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
+        
+        addAddressModal.classList.remove('hidden');
+    }).catch(error => {
+        console.error("Error loading address for editing:", error);
+        showToast('Failed to load address for editing', 'error');
+    });
+}
+
+// Event Listeners for Address Management
+document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
+document.getElementById('closeAddAddressModal')?.addEventListener('click', cancelAddress);
+document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
+document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
+document.getElementById('addressForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveAddress(e);
+});
+
+// Initialize address form
+function initAddressForm() {
+    const addressForm = document.getElementById('addressForm');
+    if (addressForm) {
+        addressForm.reset();
+    }
+}
+
+// Call init on DOM ready
+document.addEventListener('DOMContentLoaded', initAddressForm);
 async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
@@ -2182,13 +2437,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 // Address Management
-function showAddAddressModal(event) {
-    event.preventDefault();
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
-    document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
-    addAddressModal.classList.remove('hidden');
-}
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -2200,223 +2448,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
     
     // Address Management
-    document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
     document.getElementById('closeAddAddressModal')?.addEventListener('click', () => {
         addAddressModal.classList.add('hidden');
     });
-    document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
-    document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
 });
-async function saveAddress(event) {
-    event.preventDefault();
-    const user = auth.currentUser;
-    if (!user) {
-        showToast('Please sign in to save addresses', 'error');
-        return;
-    }
 
-    // Get form values
-    const address = {
-        fullName: document.getElementById('fullName').value.trim(),
-        phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        addressLine1: document.getElementById('addressLine1').value.trim(),
-        addressLine2: document.getElementById('addressLine2').value.trim() || '',
-        city: document.getElementById('city').value.trim(),
-        state: document.getElementById('state').value.trim(),
-        postalCode: document.getElementById('postalCode').value.trim(),
-        country: document.getElementById('country').value,
-        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
-        isDefault: document.getElementById('setAsDefault').checked,
-        id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Validation
-    const errors = [];
-    if (!address.fullName) errors.push('Full name is required');
-    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
-    if (!address.addressLine1) errors.push('Address line 1 is required');
-    if (!address.city) errors.push('City is required');
-    if (!address.state) errors.push('State is required');
-    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
-    if (!address.country) errors.push('Country is required');
-
-    if (errors.length > 0) {
-        showToast(errors.join(', '), 'error');
-        return;
-    }
-
-    try {
-        // Show loading state
-        const saveBtn = document.getElementById('saveAddressBtn');
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        saveBtn.disabled = true;
-
-        const userRef = db.collection("users").doc(user.uid);
-        
-        // Get current addresses
-        const userDoc = await userRef.get();
-        let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
-
-        // Handle default address logic
-        if (address.isDefault) {
-            currentAddresses = currentAddresses.map(addr => ({
-                ...addr,
-                isDefault: false
-            }));
-        }
-
-        // Check if we're editing an existing address
-        const isEditing = document.getElementById('addressForm').dataset.editingId;
-        if (isEditing) {
-            // Update existing address
-            currentAddresses = currentAddresses.map(addr => 
-                addr.id === isEditing ? address : addr
-            );
-        } else {
-            // Add new address - if it's the first address, make it default
-            if (currentAddresses.length === 0) {
-                address.isDefault = true;
-            }
-            currentAddresses.push(address);
-        }
-
-        // Prepare update data
-        const updateData = {
-            addresses: currentAddresses,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        // If this is the default address, update that field
-        if (address.isDefault) {
-            updateData.defaultAddress = address;
-        }
-
-        // Save to Firestore
-        await userRef.set(updateData, { merge: true });
-
-        // Refresh UI
-        loadAddresses(user.uid);
-        addAddressModal.classList.add('hidden');
-        document.getElementById('addressForm').reset();
-        delete document.getElementById('addressForm').dataset.editingId;
-        
-        // Show success message
-        showToast('Address saved successfully!');
-        
-    } catch (error) {
-        console.error("Error saving address:", error);
-        showToast("Failed to save address. Please try again.", 'error');
-    } finally {
-        // Reset button state
-        const saveBtn = document.getElementById('saveAddressBtn');
-        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
-        saveBtn.disabled = false;
-    }
-}
-function cancelAddress() {
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
-    addAddressModal.classList.add('hidden');
-}
-
-async function deleteAddress(addressId) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const userRef = db.collection("users").doc(user.uid);
-        const userDoc = await userRef.get();
-        
-        if (!userDoc.exists) return;
-        
-        const addresses = userDoc.data().addresses || [];
-        const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
-        
-        const defaultAddress = userDoc.data().defaultAddress;
-        const isDeletingDefault = defaultAddress && defaultAddress.id === addressId;
-        
-        await userRef.update({
-            addresses: updatedAddresses,
-            ...(isDeletingDefault && { 
-                defaultAddress: updatedAddresses.length > 0 ? updatedAddresses[0] : null 
-            })
-        });
-        
-        await loadAddresses(user.uid);
-    } catch (error) {
-        console.error("Error deleting address:", error);
-        alert("Failed to delete address. Please try again.");
-    }
-}
 // Update the setDefaultAddress function
-async function setDefaultAddress(addressId) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const userRef = db.collection("users").doc(user.uid);
-        
-        // First get current addresses
-        const userDoc = await userRef.get();
-        if (!userDoc.exists) return;
-        
-        const addresses = userDoc.data().addresses || [];
-        const addressToSetDefault = addresses.find(addr => addr.id === addressId);
-        
-        if (!addressToSetDefault) {
-            showToast('Address not found', 'error');
-            return;
-        }
-
-        // Update all addresses to set this one as default
-        const updatedAddresses = addresses.map(addr => ({
-            ...addr,
-            isDefault: addr.id === addressId
-        }));
-        
-        await userRef.update({
-            addresses: updatedAddresses,
-            defaultAddress: addressToSetDefault,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        await loadAddresses(user.uid);
-        showToast('Default address updated successfully!');
-    } catch (error) {
-        console.error("Error setting default address:", error);
-        showToast('Failed to set default address', 'error');
-    }
-}
-function editAddress(addressId) {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const userRef = db.collection("users").doc(user.uid);
-    userRef.get().then(doc => {
-        if (!doc.exists) return;
-        
-        const addresses = doc.data().addresses || [];
-        const address = addresses.find(addr => addr.id === addressId);
-        if (!address) return;
-        
-        document.getElementById('fullName').value = address.fullName;
-        document.getElementById('phoneNumber').value = address.phoneNumber;
-        document.getElementById('addressLine1').value = address.addressLine1;
-        document.getElementById('addressLine2').value = address.addressLine2 || '';
-        document.getElementById('city').value = address.city;
-        document.getElementById('state').value = address.state;
-        document.getElementById('postalCode').value = address.postalCode;
-        document.getElementById('country').value = address.country;
-        document.querySelector(`input[name="addressType"][value="${address.addressType}"]`).checked = true;
-        document.getElementById('setAsDefault').checked = address.isDefault;
-        
-        document.getElementById('addressForm').dataset.editingId = addressId;
-        document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
-        
-        addAddressModal.classList.remove('hidden');
-    });
-}
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
