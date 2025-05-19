@@ -606,10 +606,15 @@ closeAccountInfoPage.addEventListener('click', function(event) {
 });
 
 // In your renderAddresses function, update the button HTML:
+// Update the renderAddresses function to properly display saved addresses
 function renderAddresses(addresses) {
-    if (addresses.length === 0) {
+    const addressContainer = document.getElementById('addressContainer');
+    
+    if (!addressContainer) return;
+
+    if (!addresses || addresses.length === 0) {
         addressContainer.innerHTML = `
-            <div class="text-center text-gray-500">
+            <div class="text-center text-gray-500 py-8">
                 <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
                 <p class="text-lg">No addresses saved yet</p>
                 <p class="text-sm mt-2">Your saved addresses will appear here</p>
@@ -619,7 +624,7 @@ function renderAddresses(addresses) {
     }
 
     addressContainer.innerHTML = addresses.map(address => `
-        <div class="address-card ${address.isDefault ? 'border-2 border-blue-500' : 'border border-gray-200'} bg-white p-4 rounded-lg shadow-sm mb-3">
+        <div class="address-card ${address.isDefault ? 'border-2 border-blue-500 bg-blue-50' : 'border border-gray-200'} bg-white p-4 rounded-lg shadow-sm mb-3">
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center mb-1">
@@ -635,7 +640,8 @@ function renderAddresses(addresses) {
                     </button>
                     <button class="${address.isDefault ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-700" 
                             data-action="set-default" 
-                            data-address-id="${address.id}">
+                            data-address-id="${address.id}"
+                            ${address.isDefault ? 'disabled' : ''}>
                         <i class="fas fa-check-circle"></i>
                     </button>
                     <button class="text-red-500 hover:text-red-700" onclick="deleteAddress('${address.id}')">
@@ -654,6 +660,14 @@ function renderAddresses(addresses) {
             </div>
         </div>
     `).join('');
+
+    // Add event listeners for set default buttons
+    document.querySelectorAll('[data-action="set-default"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const addressId = this.dataset.addressId;
+            setDefaultAddress(addressId);
+        });
+    });
 }
 async function loadAccountInfo(userId) {
     try {
@@ -743,16 +757,19 @@ async function applyDefaultAddress() {
         console.error("Error applying default address:", error);
     }
 }
-// Load addresses
+// Update the loadAddresses function
 async function loadAddresses(userId) {
     const user = auth.currentUser;
     if (!user) {
-        addressContainer.innerHTML = `
-            <div class="text-center text-gray-500">
-                <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                <p class="text-lg">Please sign in to view addresses</p>
-            </div>
-        `;
+        const addressContainer = document.getElementById('addressContainer');
+        if (addressContainer) {
+            addressContainer.innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                    <p class="text-lg">Please sign in to view addresses</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -762,14 +779,13 @@ async function loadAddresses(userId) {
             const userData = doc.data();
             renderAddresses(userData.addresses || []);
         } else {
-            renderEmptyAddressState();
+            renderAddresses([]);
         }
     } catch (error) {
         console.error("Error loading addresses:", error);
-        renderEmptyAddressState();
+        renderAddresses([]);
     }
-}
-// Load orders from Firestore
+}// Load orders from Firestore
 // Update the loadOrders function
 async function loadOrders(userId) {
     const user = auth.currentUser;
@@ -2156,14 +2172,32 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 // Address Management
+// Update the showAddAddressModal function
 function showAddAddressModal(event) {
-    event.preventDefault();
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
+    if (event) event.preventDefault();
+    
+    // Reset form
+    const addressForm = document.getElementById('addressForm');
+    addressForm.reset();
+    delete addressForm.dataset.editingId;
+    
+    // Update modal title
     document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
+    
+    // Hide set as default checkbox if this is the first address
+    const user = auth.currentUser;
+    if (user) {
+        db.collection("users").doc(user.uid).get()
+            .then(doc => {
+                const hasAddresses = doc.exists && doc.data().addresses && doc.data().addresses.length > 0;
+                document.getElementById('setAsDefaultContainer').style.display = hasAddresses ? 'block' : 'none';
+                document.getElementById('setAsDefault').checked = !hasAddresses;
+            });
+    }
+    
+    // Show modal
     addAddressModal.classList.remove('hidden');
 }
-
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Edit Profile
@@ -2182,6 +2216,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
 });
 // Update the saveAddress function
+// Update the saveAddress function to handle default addresses
 async function saveAddress(event) {
     event.preventDefault();
     const user = auth.currentUser;
@@ -2239,6 +2274,9 @@ async function saveAddress(event) {
                 ...addr,
                 isDefault: false
             }));
+        } else if (currentAddresses.length === 0) {
+            // If this is the first address, make it default
+            address.isDefault = true;
         }
 
         // Update or add the address
@@ -2247,10 +2285,6 @@ async function saveAddress(event) {
                 addr.id === isEditing ? address : addr
             );
         } else {
-            // If this is the first address, make it default
-            if (currentAddresses.length === 0) {
-                address.isDefault = true;
-            }
             currentAddresses.push(address);
         }
 
@@ -2263,6 +2297,11 @@ async function saveAddress(event) {
         // If this is the default address, update that field
         if (address.isDefault) {
             updateData.defaultAddress = address;
+        } else if (userDoc.data()?.defaultAddress?.id === address.id) {
+            // If we're editing the current default address and it's no longer default
+            // Find the first address to make default (or leave it null)
+            const firstAddress = currentAddresses.length > 0 ? currentAddresses[0] : null;
+            updateData.defaultAddress = firstAddress;
         }
 
         // Save to Firestore
