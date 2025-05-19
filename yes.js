@@ -760,31 +760,43 @@ async function loadAddresses(userId) {
     const addressContainer = document.getElementById('addressContainer');
     if (!addressContainer) return;
 
-    const user = auth.currentUser;
-    if (!user) {
-        addressContainer.innerHTML = `
-            <div class="text-center text-gray-500">
-                <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                <p class="text-lg">Please sign in to view addresses</p>
-            </div>
-        `;
-        return;
-    }
-
     try {
         const doc = await db.collection("users").doc(userId).get();
         if (doc.exists) {
             const userData = doc.data();
-            renderAddresses(userData.addresses || []);
+            const addresses = userData.addresses || [];
+            
+            if (addresses.length === 0) {
+                addressContainer.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                        <p class="text-lg">No addresses saved yet</p>
+                        <p class="text-sm mt-2">Add your first address below</p>
+                    </div>
+                `;
+            } else {
+                renderAddresses(addresses);
+            }
         } else {
-            renderAddresses([]);
+            addressContainer.innerHTML = `
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
+                    <p class="text-lg">No addresses saved yet</p>
+                    <p class="text-sm mt-2">Add your first address below</p>
+                </div>
+            `;
         }
     } catch (error) {
         console.error("Error loading addresses:", error);
-        renderAddresses([]);
+        addressContainer.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+                <p class="text-lg">Error loading addresses</p>
+                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
+            </div>
+        `;
     }
-}// Load orders from Firestore
-// Update the loadOrders function
+}// Update the loadOrders function
 async function loadOrders(userId) {
     const user = auth.currentUser;
     if (!user) {
@@ -2195,7 +2207,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
     document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
 });
-// Update the saveAddress function
 async function saveAddress(event) {
     event.preventDefault();
     const user = auth.currentUser;
@@ -2242,12 +2253,11 @@ async function saveAddress(event) {
         saveBtn.disabled = true;
 
         const userRef = db.collection("users").doc(user.uid);
-        const isEditing = document.getElementById('addressForm').dataset.editingId;
         
         // Get current addresses
         const userDoc = await userRef.get();
-        let currentAddresses = userDoc.data()?.addresses || [];
-        
+        let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
+
         // Handle default address logic
         if (address.isDefault) {
             currentAddresses = currentAddresses.map(addr => ({
@@ -2256,13 +2266,15 @@ async function saveAddress(event) {
             }));
         }
 
-        // Update or add the address
+        // Check if we're editing an existing address
+        const isEditing = document.getElementById('addressForm').dataset.editingId;
         if (isEditing) {
+            // Update existing address
             currentAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
         } else {
-            // If this is the first address, make it default
+            // Add new address - if it's the first address, make it default
             if (currentAddresses.length === 0) {
                 address.isDefault = true;
             }
