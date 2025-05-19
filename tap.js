@@ -1,12 +1,12 @@
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAe5eAhAI5LTYN8yI6uFN5ib-zqK_SEEt0",
-    authDomain: "vamorastore-269.firebaseapp.com",
-    projectId: "vamorastore-269",
-    storageBucket: "vamorastore-269.appspot.com",
-    messagingSenderId: "842951797209",
-    appId: "1:842951797209:web:afa169d8117ebcf5aad1c8",
-    measurementId: "G-K45X0K580Q"
+  apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+  authDomain: "vamora-co-in.firebaseapp.com",
+  projectId: "vamora-co-in",
+  storageBucket: "vamora-co-in.appspot.com",
+  messagingSenderId: "613048727757",
+  appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+  measurementId: "G-8R6TDRQGS6"
 };
 
 // Initialize Firebase
