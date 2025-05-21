@@ -1442,6 +1442,8 @@
                     <button class="button" type="submit">
                         <span>Send</span>
                     </button>
+                    <!-- Add this div inside your contact form, right after the button -->
+<div id="contactSuccessMessage" class="hidden text-green-600 ml-4"></div>
                 </div>
             </form>
         </div>
@@ -1520,10 +1522,14 @@
 // Contact Form Submission Handler
 document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
+    const successMessage = document.getElementById('contactSuccessMessage');
     
     if (contactForm) {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Hide any previous success message
+            successMessage.classList.add('hidden');
             
             // Get form values
             const name = document.getElementById('grid-first-name').value.trim();
@@ -1552,7 +1558,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // User is logged in - proceed with submission
             const submitButton = contactForm.querySelector('button[type="submit"]');
-            const originalButtonHTML = submitButton.innerHTML; // Store the original HTML
+            const originalButtonHTML = submitButton.innerHTML;
             
             try {
                 // Show loading state
@@ -1569,11 +1575,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     status: 'new'
                 });
                 
-                // Show success message
-                alert('Thank you for your message! We will get back to you soon.');
+                // Show success message next to button
+                successMessage.textContent = 'Thank you for your message! We will get back to you soon.';
+                successMessage.classList.remove('hidden');
                 
                 // Reset form
                 contactForm.reset();
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.add('hidden');
+                }, 5000);
+                
             } catch (error) {
                 console.error('Error submitting contact form:', error);
                 alert('There was an error submitting your message. Please try again.');
