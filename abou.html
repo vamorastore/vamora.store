@@ -34,6 +34,68 @@
 #google-login-success, #google-signup-success {
     transition: all 0.3s ease;
 }
+/* Share Button Hover Effects */
+.share-icon {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.share-icon:hover {
+    background-color: #e5e5e5;
+    transform: scale(1.1);
+}
+
+.share-icon:active {
+    transform: scale(0.95);
+    background-color: #d1d1d1;
+}
+
+/* View More Details Link Styling */
+.view-more-link {
+    color: #000;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.view-more-link:hover {
+    color: #555;
+}
+
+.view-more-link:hover::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background-color: #555;
+    left: 0;
+    bottom: 0;
+    transform: scaleX(1);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease;
+}
+
+.view-more-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background-color: #555;
+    left: 0;
+    bottom: 0;
+    transform: scaleX(0);
+    transform-origin: bottom left;
+    transition: transform 0.3s ease;
+}
+
+.view-more-link i {
+    transition: transform 0.3s ease;
+}
+
+.view-more-link:hover i {
+    transform: translateX(3px);
+}
 
 /* Animation for the success message */
 @keyframes fadeIn {
@@ -1876,56 +1938,21 @@
     </footer>
     
 <!-- Firebase and other dependencies -->
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Your scripts -->
 <script src="tap.js"></script>
 
-   <script>              
-   
-   // Add to cart functionality
-document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-    const selectedSize = document.querySelector('.size-button.selected');
-    if (!selectedSize) {
-        alert('Please select a size');
-        return;
-    }
-    
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
-    
-    const product = {
-        title: document.querySelector('h8').textContent,
-        size: selectedSize.textContent,
-        price: productPrice,
-        quantity: quantity,
-        image: document.querySelector('.main-image').src
-    };
- 
-    // Check if item already exists in cart with same size
-    const existingItemIndex = cart.findIndex(item => 
-        item.title === product.title && item.size === product.size
-    );
-    
-    if (existingItemIndex !== -1) {
-        // Update quantity if item already exists
-        cart[existingItemIndex].quantity += product.quantity;
-    } else {
-        // Add new item to cart
-        cart.push(product);
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Open cart
-    toggleCart();
-});
-
-
+<script>
+// Product Page Script
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize cart from localStorage or empty array
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
     // Size buttons selection
     const sizeButtons = document.querySelectorAll('.size-button');
     sizeButtons.forEach(button => {
@@ -1967,51 +1994,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.value < 1) this.value = 1;
     });
     
-document.getElementById('buy-now-btn').addEventListener('click', function() {
-    // First perform the same add-to-cart logic
-    const selectedSize = document.querySelector('.size-button.selected');
-    if (!selectedSize) {
-        alert('Please select a size');
-        return;
-    }
-    
-    const quantity = parseInt(document.getElementById('product-quantity').value);
-    const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
-    
-    const product = {
-        title: document.querySelector('h8').textContent,
-        size: selectedSize.textContent,
-        price: productPrice,
-        quantity: quantity,
-        image: document.querySelector('.main-image').src
-    };
- 
-    // Check if item already exists in cart with same size
-    const existingItemIndex = cart.findIndex(item => 
-        item.title === product.title && item.size === product.size
-    );
-    
-    if (existingItemIndex !== -1) {
-        // Update quantity if item already exists
-        cart[existingItemIndex].quantity += product.quantity;
-    } else {
-        // Add new item to cart
-        cart.push(product);
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Then redirect to checkout page
-    window.location.href = 'checkout.html'; // Change this to your checkout page URL
-});
-
     // Share functionality
     const shareButton = document.querySelector('.share-icon');
     shareButton.addEventListener('click', function() {
         if (navigator.share) {
             navigator.share({
-                title: "DE.ORIGIN T-shirt",
-                text: "Check out this product!",
+                title: document.querySelector('h8').textContent,
+                text: "Check out this product from VAMORA.STORE",
                 url: window.location.href
             }).catch(err => {
                 console.log('Error sharing:', err);
@@ -2023,59 +2012,325 @@ document.getElementById('buy-now-btn').addEventListener('click', function() {
     });
 
     function fallbackShare() {
-        navigator.clipboard.writeText(window.location.href)
-            .then(() => {
-                alert('Link copied to clipboard!');
-            })
-            .catch(err => {
-                console.error('Could not copy text: ', err);
-                prompt('Copy this link:', window.location.href);
-            });
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
     }
 
-    // Add to cart functionality - now properly integrated with shared.js
-    const addToCartBtn = document.getElementById('add-to-cart-btn');
-    addToCartBtn.addEventListener('click', function() {
-        // Get cart from localStorage or initialize if it doesn't exist
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    // View More Details redirect
+    const viewMoreLink = document.querySelector('.view-more-link');
+    if (viewMoreLink) {
+        viewMoreLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'p4.html'; // Change to your product details page
+        });
+    }
+
+    // Add to cart functionality
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
         
-        const productName = document.querySelector('h8').textContent;
-        const productPrice = document.querySelector('.text-2xl.font-bold').textContent;
-        const selectedSize = document.querySelector('.size-button.selected').textContent;
         const quantity = parseInt(document.getElementById('product-quantity').value);
+        const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
+        const productTitle = document.querySelector('h8').textContent;
         const productImage = document.querySelector('.main-image').src;
         
-          // Check if item already exists in cart with same size
-            const existingItemIndex = cart.findIndex(item => 
-                item.title === product.title && item.size === product.size
-            );
-            
-            if (existingItemIndex !== -1) {
-                // Update quantity if item already exists
-                cart[existingItemIndex].quantity += product.quantity;
-            } else {
-                // Add new item to cart
-                cart.push(product);
-            }
-            
+        const product = {
+            id: generateProductId(productTitle), // Generate a unique ID based on title
+            title: productTitle,
+            size: selectedSize.textContent,
+            price: productPrice,
+            quantity: quantity,
+            image: productImage
+        };
+     
+        // Check if item already exists in cart with same size
+        const existingItemIndex = cart.findIndex(item => 
+            item.id === product.id && item.size === product.size
+        );
+        
+        if (existingItemIndex !== -1) {
+            // Update quantity if item already exists
+            cart[existingItemIndex].quantity += product.quantity;
+        } else {
+            // Add new item to cart
+            cart.push(product);
+        }
+        
+        // Save to Firebase if user is logged in, otherwise to localStorage
+        const user = firebase.auth().currentUser;
+        if (user) {
+            saveCartToFirestore(user.uid, cart).then(() => {
+                updateCartCount();
+                showAddToCartSuccess();
+                openCartAndRenderItems(); // Open cart after adding item
+            });
+        } else {
             localStorage.setItem('cart', JSON.stringify(cart));
-            
-            // Open cart
-            toggleCart();
-        });
+            updateCartCount();
+            showAddToCartSuccess();
+            openCartAndRenderItems(); // Open cart after adding item
+        }
+    });
 
-    // Function to update cart count in navbar
+    // Buy Now functionality (modified to skip cart count update)
+    document.getElementById('buy-now-btn').addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        
+        const quantity = parseInt(document.getElementById('product-quantity').value);
+        const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
+        const productTitle = document.querySelector('h8').textContent;
+        const productImage = document.querySelector('.main-image').src;
+        
+        // Create a temporary cart for buy now flow
+        const tempCart = [{
+            id: generateProductId(productTitle),
+            title: productTitle,
+            size: selectedSize.textContent,
+            price: productPrice,
+            quantity: quantity,
+            image: productImage
+        }];
+        
+        // Save to Firebase if user is logged in, otherwise to localStorage
+        const user = firebase.auth().currentUser;
+        if (user) {
+            // Save temporary cart without updating the main cart
+            firebase.firestore().collection("carts").doc(user.uid).set({
+                items: tempCart,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                window.location.href = 'checkout.html';
+            }).catch(error => {
+                console.error("Error saving temp cart:", error);
+                // Fallback to localStorage
+                localStorage.setItem('tempCart', JSON.stringify(tempCart));
+                window.location.href = 'checkout.html';
+            });
+        } else {
+            // Use a separate key for temporary buy now cart
+            localStorage.setItem('tempCart', JSON.stringify(tempCart));
+            window.location.href = 'checkout.html';
+        }
+    });
+
+    // Helper function to generate product ID
+    function generateProductId(title) {
+        return title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    }
+
+    // Update cart count in navbar
     function updateCartCount() {
         const cartCountElement = document.getElementById('cart-count');
         if (cartCountElement) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
             cartCountElement.textContent = totalItems;
             cartCountElement.classList.toggle('hidden', totalItems === 0);
         }
     }
-});
 
+    // Show success message when adding to cart
+    function showAddToCartSuccess() {
+        const button = document.getElementById('add-to-cart-btn');
+        const originalText = button.textContent;
+        
+        button.textContent = 'ADDED TO CART!';
+
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.backgroundColor = '';
+        }, 2000);
+    }
+
+    // Function to open cart and render items
+    function openCartAndRenderItems() {
+        // Open the cart overlay
+        document.getElementById('cartOverlay').classList.add('active');
+        document.getElementById('cartBackdrop').classList.add('active');
+        
+        // Render the cart items
+        renderCartItems();
+    }
+
+    // Function to render cart items in the overlay
+    function renderCartItems() {
+        const cartList = document.getElementById('cartList');
+        if (!cartList) return;
+        
+        cartList.innerHTML = '';
+        
+        if (cart.length === 0) {
+            cartList.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Your cart is empty</p>
+                </div>
+            `;
+            document.getElementById('cartTotal').textContent = '₹ 0.00';
+            return;
+        }
+        
+        let subtotal = 0;
+        
+        cart.forEach((item, index) => {
+            const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
+            const itemTotal = priceValue * item.quantity;
+            subtotal += itemTotal;
+            
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.innerHTML = `
+                <div class="flex items-center">
+                    <img src="${item.image}" alt="${item.title}" class="cart-item-image">
+                    <div class="cart-item-details">
+                        <p class="font-medium">${item.title}</p>
+                        <p class="text-sm text-gray-500">Size: ${item.size}</p>
+                        <div class="flex items-center mt-1">
+                            <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, -1)">-</button>
+                            <span class="mx-2">${item.quantity}</span>
+                            <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="cart-item-price">${item.price}</span>
+                    <button class="cart-item-remove" onclick="removeFromCart(${index}, event)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            cartList.appendChild(cartItem);
+        });
+        
+        document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
+    }
+
+    // Save cart to Firestore
+    async function saveCartToFirestore(userId, cartItems) {
+        try {
+            await firebase.firestore().collection("carts").doc(userId).set({
+                items: cartItems,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error saving cart:", error);
+            // Fallback to localStorage if Firestore fails
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+        }
+    }
+
+    // Initialize cart count on page load
+    updateCartCount();
+
+    // Listen for auth state changes to sync cart
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            // User is signed in - merge localStorage cart with Firestore cart
+            try {
+                const doc = await firebase.firestore().collection("carts").doc(user.uid).get();
+                const firestoreCart = doc.exists ? doc.data().items : [];
+                
+                // Merge carts (Firestore cart takes precedence)
+                const mergedCart = mergeCarts(firestoreCart, cart);
+                cart = mergedCart;
+                
+                // Save merged cart to Firestore
+                await saveCartToFirestore(user.uid, mergedCart);
+                
+                // Clear localStorage cart
+                localStorage.removeItem('cart');
+                
+                // Update UI
+                updateCartCount();
+            } catch (error) {
+                console.error("Error syncing carts:", error);
+            }
+        } else {
+            // User is signed out - load from localStorage
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            updateCartCount();
+        }
+    });
+
+    // Helper function to merge carts
+    function mergeCarts(firestoreCart, localCart) {
+        const merged = [...firestoreCart];
+        
+        localCart.forEach(localItem => {
+            const existingItem = merged.find(item => 
+                item.id === localItem.id && item.size === localItem.size
+            );
+            
+            if (existingItem) {
+                existingItem.quantity += localItem.quantity;
+            } else {
+                merged.push(localItem);
+            }
+        });
+        
+        return merged;
+    }
+
+    // Add global functions for cart operations
+    window.updateQuantity = function(index, change) {
+        const newQuantity = cart[index].quantity + change;
+        if (newQuantity < 1) return;
+        
+        cart[index].quantity = newQuantity;
+        
+        const user = firebase.auth().currentUser;
+        if (user) {
+            saveCartToFirestore(user.uid, cart);
+        } else {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        
+        updateCartCount();
+        renderCartItems();
+    };
+
+    window.removeFromCart = function(index, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        cart.splice(index, 1);
+        
+        const user = firebase.auth().currentUser;
+        if (user) {
+            saveCartToFirestore(user.uid, cart);
+        } else {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        
+        updateCartCount();
+        renderCartItems();
+    };
+
+    window.proceedToCheckout = function() {
+        const user = firebase.auth().currentUser;
+        
+        if (!user) {
+            // Show auth modal if not logged in
+            document.getElementById('auth-container').classList.add('active');
+            document.body.classList.add('overflow-hidden');
+            return;
+        }
+
+        window.location.href = 'checkout.html';
+    };
+});
 </script>
 </body>
 </html>
