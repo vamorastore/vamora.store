@@ -1443,7 +1443,7 @@
                         <span>Send</span>
                     </button>
                     <!-- Add this div inside your contact form, right after the button -->
-<div id="contactSuccessMessage" class="hidden text-green-600 ml-4"></div>
+ <div id="contactSuccessMessage" class="hidden text-green-600 ml-3 whitespace-nowrap text-sm"></div>                
                 </div>
             </form>
         </div>
@@ -1519,7 +1519,6 @@
     <script src="yes.js"></script>
     
     <script>
-// Contact Form Submission Handler
 document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
     const successMessage = document.getElementById('contactSuccessMessage');
@@ -1528,7 +1527,7 @@ document.addEventListener('DOMContentLoaded', function() {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Hide any previous success message
+            // Hide any previous message
             successMessage.classList.add('hidden');
             
             // Get form values
@@ -1550,13 +1549,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const user = auth.currentUser;
             
             if (!user) {
-                // User is not logged in - show auth modal
                 showAuthContainer();
                 showLoginSection();
                 return;
             }
             
-            // User is logged in - proceed with submission
             const submitButton = contactForm.querySelector('button[type="submit"]');
             const originalButtonHTML = submitButton.innerHTML;
             
@@ -1565,7 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 submitButton.disabled = true;
                 
-                // Save contact form data to Firestore
                 await db.collection('contactSubmissions').add({
                     userId: user.uid,
                     name: name,
@@ -1575,23 +1571,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     status: 'new'
                 });
                 
-                // Show success message next to button
-                successMessage.textContent = 'Thank you for your message! We will get back to you soon.';
+                // Show inline success message
+                successMessage.textContent = 'Thank you! We'll respond soon.';
                 successMessage.classList.remove('hidden');
                 
-                // Reset form
                 contactForm.reset();
                 
-                // Hide message after 5 seconds
                 setTimeout(() => {
                     successMessage.classList.add('hidden');
                 }, 5000);
                 
             } catch (error) {
-                console.error('Error submitting contact form:', error);
-                alert('There was an error submitting your message. Please try again.');
+                console.error('Error:', error);
+                alert('Error submitting message. Please try again.');
             } finally {
-                // Restore button state
                 submitButton.innerHTML = originalButtonHTML;
                 submitButton.disabled = false;
             }
