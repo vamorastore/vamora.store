@@ -1438,13 +1438,14 @@
                         <textarea class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-message" rows="5" placeholder="Your Message" required></textarea>
                     </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <button class="button" type="submit">
-                        <span>Send</span>
-                    </button>
-                    <!-- Add this div inside your contact form, right after the button -->
- <div id="contactSuccessMessage" class="hidden text-green-600 ml-3 whitespace-nowrap text-sm"></div>                
-                </div>
+                <div class="flex items-center justify-start">
+    <button class="button" type="submit">
+        <span>Send</span>
+    </button>
+    <div id="contactSuccessMessage" class="hidden ml-3 text-green-600 text-sm font-medium whitespace-nowrap">
+        Thank you! We'll respond soon.
+    </div>
+</div>
             </form>
         </div>
     </div>
@@ -1523,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
     const successMessage = document.getElementById('contactSuccessMessage');
     
-    if (contactForm) {
+    if (contactForm && successMessage) {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -1562,6 +1563,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 submitButton.disabled = true;
                 
+                // Save to Firestore
                 await db.collection('contactSubmissions').add({
                     userId: user.uid,
                     name: name,
@@ -1571,20 +1573,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     status: 'new'
                 });
                 
-                // Show inline success message
-                successMessage.textContent = 'Thank you! We'll respond soon.';
+                // Show success message
                 successMessage.classList.remove('hidden');
                 
+                // Reset form
                 contactForm.reset();
                 
+                // Hide message after 5 seconds
                 setTimeout(() => {
                     successMessage.classList.add('hidden');
                 }, 5000);
                 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error submitting message. Please try again.');
+                console.error('Error submitting contact form:', error);
+                alert('There was an error submitting your message. Please try again.');
             } finally {
+                // Restore button state
                 submitButton.innerHTML = originalButtonHTML;
                 submitButton.disabled = false;
             }
