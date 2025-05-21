@@ -1508,7 +1508,117 @@
             </div>
         </div>
     </footer>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <script src="shared.js"></script>
+    <script src="yes.js"></script>
+    
+    <script>
+// Contact Form Submission Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('grid-first-name').value.trim();
+            const email = document.getElementById('grid-email').value.trim();
+            const message = document.getElementById('grid-message').value.trim();
+            
+            // Basic validation
+            if (!name || !email || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            const user = auth.currentUser;
+            
+            if (!user) {
+                // User is not logged in - show auth modal
+                showAuthContainer();
+                showLoginSection();
+                return;
+            }
+            
+            // User is logged in - proceed with submission
+            try {
+                // Show loading state
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitButton.disabled = true;
+                
+                // Save contact form data to Firestore
+                await db.collection('contactSubmissions').add({
+                    userId: user.uid,
+                    name: name,
+                    email: email,
+                    message: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'new'
+                });
+                
+                // Show success message
+                alert('Thank you for your message! We will get back to you soon.');
+                
+                // Reset form
+                contactForm.reset();
+            } catch (error) {
+                console.error('Error submitting contact form:', error);
+                alert('There was an error submitting your message. Please try again.');
+            } finally {
+                // Restore button state
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    }
+});
+
+// Helper function to validate email (reusing from yes.js)
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+}
+
+// Listen for auth state changes to handle form submission after login
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // If user just logged in after trying to submit the contact form
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm && contactForm.dataset.pendingSubmission === 'true') {
+            // Remove the pending flag
+            delete contactForm.dataset.pendingSubmission;
+            // Trigger form submission
+            contactForm.dispatchEvent(new Event('submit'));
+        }
+    }
+});
+
+// Modify the contact form submission to handle pending submissions
+document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+    const user = auth.currentUser;
+    if (!user) {
+        e.preventDefault();
+        // Set a flag that we have a pending submission
+        this.dataset.pendingSubmission = 'true';
+        // Show auth modal
+        showAuthContainer();
+        showLoginSection();
+    }
+});
+</script>
+    
 </body>
 </html>
