@@ -1551,10 +1551,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // User is logged in - proceed with submission
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const originalButtonHTML = submitButton.innerHTML; // Store the original HTML
+            
             try {
                 // Show loading state
-                const submitButton = contactForm.querySelector('button[type="submit"]');
-                const originalText = submitButton.innerHTML;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 submitButton.disabled = true;
                 
@@ -1578,44 +1579,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('There was an error submitting your message. Please try again.');
             } finally {
                 // Restore button state
-                const submitButton = contactForm.querySelector('button[type="submit"]');
-                submitButton.innerHTML = originalText;
+                submitButton.innerHTML = originalButtonHTML;
                 submitButton.disabled = false;
             }
         });
-    }
-});
-
-// Helper function to validate email (reusing from yes.js)
-function validateEmail(email) {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(String(email).toLowerCase());
-}
-
-// Listen for auth state changes to handle form submission after login
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        // If user just logged in after trying to submit the contact form
-        const contactForm = document.getElementById('contactForm');
-        if (contactForm && contactForm.dataset.pendingSubmission === 'true') {
-            // Remove the pending flag
-            delete contactForm.dataset.pendingSubmission;
-            // Trigger form submission
-            contactForm.dispatchEvent(new Event('submit'));
-        }
-    }
-});
-
-// Modify the contact form submission to handle pending submissions
-document.getElementById('contactForm')?.addEventListener('submit', function(e) {
-    const user = auth.currentUser;
-    if (!user) {
-        e.preventDefault();
-        // Set a flag that we have a pending submission
-        this.dataset.pendingSubmission = 'true';
-        // Show auth modal
-        showAuthContainer();
-        showLoginSection();
     }
 });
 </script>
