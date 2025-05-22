@@ -167,20 +167,18 @@
             }
             
             // Authentication state listener
-// In the same admin dashboard page, find the auth.onAuthStateChanged listener
-// Replace it with this:
 
-// Replace the existing auth.onAuthStateChanged listener with this:
 auth.onAuthStateChanged(async user => {
     if (!user) {
         // User not logged in - show Google Sign-In
         showGoogleSignIn();
     } else {
         // Check if user signed in with Google
-        if (user.providerData.some(provider => provider.providerId === 'google.com')) {
-            const isAdmin = await checkAdminStatus(user.uid);
-            if (isAdmin) {
+         if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+            // Special case for vamora.co.in@gmail.com
+            if (user.email === 'vamora.co.in@gmail.com') {
                 loadSubmissions('all');
+                return;
             } else {
                 showError("You don't have admin privileges");
                 setTimeout(() => auth.signOut(), 3000);
@@ -256,23 +254,25 @@ function showGoogleSignIn() {
             errorContainer.classList.remove('hidden');
         }
         
+// Replace your checkAdminStatus function with this:
 async function checkAdminStatus(uid) {
     try {
-        const doc = await db.collection('admins').doc(uid).get();
-        if (!doc.exists) {
-            // If not admin, redirect or show error
-            showError("You don't have admin privileges");
-            auth.signOut();
-            return false;
+        const user = auth.currentUser;
+        
+        // First check if it's the specific email
+        if (user.email === 'vamora.co.in@gmail.com') {
+            return true;
         }
-        return true;
+        
+        // Fallback to admin collection check
+        const doc = await db.collection('admins').doc(uid).get();
+        return doc.exists;
+        
     } catch (error) {
-        console.error("Admin check failed:", error);
-        showError("Error checking admin status");
+        console.error("Admin check error:", error);
         return false;
     }
-}        
-// In the same admin dashboard page, replace the existing loadSubmissions function:
+}// In the same admin dashboard page, replace the existing loadSubmissions function:
 
 async function loadSubmissions(filter) {
     try {
