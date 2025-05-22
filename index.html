@@ -16,174 +16,163 @@
             margin: 0 auto;
             padding: 2rem;
         }
-        /* Add this to your existing styles */
-#googleSignInBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 20px auto; /* centers the button horizontally */
-    width: fit-content; /* prevents it from stretching full width */
-}
-
-/* Auth Modal */
-.auth-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  transition: opacity 0.3s;
-}
-
-.auth-modal.fade-out {
-  opacity: 0;
-}
-
-.auth-modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.google-signin-btn {
-  background: #4285F4;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.auth-error {
-  color: #dc2626;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-
-/* Submission Cards */
-.submission-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.submission-header {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.user-info h3 {
-  margin: 0;
-  font-size: 1.25rem;
-}
-
-.meta-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status-new { background: #dbeafe; color: #1e40af; }
-.status-read { background: #dcfce7; color: #166534; }
-.status-archived { background: #f3f4f6; color: #6b7280; }
-
-.submission-message {
-  padding: 1rem 0;
-  margin: 1rem 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-  white-space: pre-line;
-}
-
-.submission-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.mark-read { background: #dcfce7; color: #166534; }
-.delete { background: #fee2e2; color: #b91c1c; }
-
-/* Loading spinner for sign-in */
-.signin-loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
         
+        #googleSignInBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+
+        .auth-modal.fade-out {
+            opacity: 0;
+        }
+
+        .auth-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .google-signin-btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-error {
+            color: #dc2626;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Submission Cards */
         .submission-card {
-            background-color: white;
+            background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             transition: transform 0.2s;
         }
-        
+
         .submission-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        
-        .status-new {
-            background-color: #dbeafe;
-            color: #1e40af;
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
-        
-        .status-read {
-            background-color: #dcfce7;
+
+        .user-info h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .meta-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-read { background: #dcfce7; color: #166534; }
+        .status-archived { background: #f3f4f6; color: #6b7280; }
+
+        .submission-message {
+            padding: 1rem 0;
+            margin: 1rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            white-space: pre-line;
+        }
+
+        .submission-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .mark-read { 
+            background: #dcfce7; 
             color: #166534;
+            border-color: #bbf7d0;
         }
-        
-        .status-archived {
-            background-color: #f3f4f6;
-            color: #6b7280;
+        .mark-read:hover {
+            background: #bbf7d0;
         }
-        
+
+        .delete { 
+            background: #fee2e2; 
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+        .delete:hover {
+            background: #fecaca;
+        }
+
         .filter-btn {
             transition: all 0.2s;
         }
@@ -200,10 +189,28 @@
             border-radius: 0.5rem;
             margin-bottom: 1rem;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen">
-    <nav class="bg-gray-800 text-white p-4">
+    <nav class="bg-gray-800 text-white p-4 hidden" id="navBar">
         <div class="container mx-auto flex justify-between items-center">
             <div class="text-xl font-bold">Admin Dashboard</div>
             <div>
@@ -214,7 +221,7 @@
         </div>
     </nav>
     
-    <div class="container mx-auto py-8">
+    <div class="container mx-auto py-8 hidden" id="mainContent">
         <div id="errorContainer" class="hidden"></div>
         
         <h1 class="text-3xl font-bold mb-8">Contact Form Submissions</h1>
@@ -250,297 +257,308 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
     <script>
- // Firebase Initialization
-const firebaseConfig = {
-  apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-  authDomain: "vamora-co-in.firebaseapp.com",
-  projectId: "vamora-co-in",
-  storageBucket: "vamora-co-in.appspot.com",
-  messagingSenderId: "613048727757",
-  appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
-  measurementId: "G-8R6TDRQGS6"
-};
+        // Firebase Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+            authDomain: "vamora-co-in.firebaseapp.com",
+            projectId: "vamora-co-in",
+            storageBucket: "vamora-co-in.appspot.com",
+            messagingSenderId: "613048727757",
+            appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+            measurementId: "G-8R6TDRQGS6"
+        };
 
-try {
-  firebase.initializeApp(firebaseConfig);
-} catch (error) {
-  console.error("Firebase initialization error:", error);
-}
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-let authModal = null;
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let authModal = null;
 
-// Improved Auth State Handler
-auth.onAuthStateChanged(async user => {
-  // Always close modal first (if open)
-  closeAuthModal();
-  
-  if (!user) {
-    // No user - show sign-in modal
-    showGoogleSignIn();
-    return;
-  }
-  
-  // Verify Google authentication
-  const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
-  if (!isGoogleUser) {
-    handleUnauthorized("Please sign in with Google");
-    return;
-  }
-  
-  try {
-    // Check admin status
-    const hasAccess = user.email === 'vamora.co.in@gmail.com' || 
-                     await checkAdminStatus(user.uid);
-    
-    if (hasAccess) {
-      loadSubmissions('all');
-    } else {
-      handleUnauthorized("You don't have admin privileges");
-    }
-  } catch (error) {
-    console.error("Auth verification failed:", error);
-    handleUnauthorized("Error verifying access");
-  }
-});
+        // Main Auth State Handler
+        auth.onAuthStateChanged(async user => {
+            // Always close modal first (if open)
+            closeAuthModal();
+            
+            if (!user) {
+                // Hide dashboard content
+                document.getElementById('navBar').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+                // Show sign-in modal
+                showGoogleSignIn();
+                return;
+            }
+            
+            // Verify Google authentication
+            const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+            if (!isGoogleUser) {
+                handleUnauthorized("Please sign in with Google");
+                return;
+            }
+            
+            try {
+                // Check admin status
+                const hasAccess = user.email === 'vamora.co.in@gmail.com' || 
+                                await checkAdminStatus(user.uid);
+                
+                if (hasAccess) {
+                    // Show dashboard content
+                    document.getElementById('navBar').classList.remove('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    initializePage();
+                    loadSubmissions('all');
+                } else {
+                    handleUnauthorized("You don't have admin privileges");
+                }
+            } catch (error) {
+                console.error("Auth verification failed:", error);
+                handleUnauthorized("Error verifying access");
+            }
+        });
 
-// Enhanced unauthorized handler
-function handleUnauthorized(message) {
-  showError(message);
-  
-  // Show sign-in modal again if not already shown
-  if (!authModal) {
-    showGoogleSignIn();
-  }
-  
-  // Sign out after delay
-  setTimeout(() => {
-    auth.signOut().catch(error => {
-      console.error("Sign out error:", error);
-    });
-  }, 3000);
-}
+        // Admin Verification
+        async function checkAdminStatus(uid) {
+            try {
+                const user = auth.currentUser;
+                if (user.email === 'vamora.co.in@gmail.com') return true;
+                
+                const doc = await db.collection('admins').doc(uid).get();
+                return doc.exists;
+            } catch (error) {
+                console.error("Admin check error:", error);
+                return false;
+            }
+        }
 
-// Modified Google Sign-In function
-function showGoogleSignIn() {
-  if (authModal) return; // Already showing
-  
-  authModal = document.createElement('div');
-  authModal.className = 'auth-modal';
-  authModal.innerHTML = `
-    <div class="auth-modal-content">
-      <h2>Admin Login Required</h2>
-      <p>Restricted Access: Admin Login</p>
-      <button id="googleSignInBtn" class="google-signin-btn">
-        <i class="fab fa-google"></i> Sign in with Google
-      </button>
-      <div id="authError" class="auth-error hidden"></div>
-    </div>
-  `;
-  
-  document.body.appendChild(authModal);
+        // Enhanced unauthorized handler
+        function handleUnauthorized(message) {
+            showError(message);
+            
+            // Show sign-in modal again if not already shown
+            if (!authModal) {
+                showGoogleSignIn();
+            }
+            
+            // Sign out after delay
+            setTimeout(() => {
+                auth.signOut().catch(error => {
+                    console.error("Sign out error:", error);
+                });
+            }, 3000);
+        }
 
-  // Enhanced sign-in handler
-  document.getElementById('googleSignInBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('googleSignInBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-    
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      await auth.signInWithPopup(provider);
-      // Success - auth state handler will take over
-    } catch (error) {
-      document.getElementById('authError').textContent = error.message;
-      document.getElementById('authError').classList.remove('hidden');
-      btn.innerHTML = '<i class="fab fa-google"></i> Try Again';
-      btn.disabled = false;
-    }
-  });
-  
-  // Modal close handlers
-  authModal.addEventListener('click', (e) => {
-    if (e.target === authModal) closeAuthModal();
-  });
-  
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAuthModal();
-  });
-}
+        // Google Sign-In function
+        function showGoogleSignIn() {
+            if (authModal) return; // Already showing
+            
+            authModal = document.createElement('div');
+            authModal.className = 'auth-modal';
+            authModal.innerHTML = `
+                <div class="auth-modal-content">
+                    <h2 class="text-xl font-bold mb-2">Admin Login Required</h2>
+                    <p class="mb-4">Restricted Access: Admin Login</p>
+                    <button id="googleSignInBtn" class="google-signin-btn">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </button>
+                    <div id="authError" class="auth-error hidden mt-4"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(authModal);
 
-// Clean modal close function
-function closeAuthModal() {
-  if (authModal) {
-    authModal.classList.add('fade-out');
-    setTimeout(() => {
-      authModal.remove();
-      authModal = null;
-    }, 300);
-  }
-}
-// Admin Verification
-async function checkAdminStatus(uid) {
-  try {
-    const user = auth.currentUser;
-    if (user.email === 'vamora.co.in@gmail.com') return true;
-    
-    const doc = await db.collection('admins').doc(uid).get();
-    return doc.exists;
-  } catch (error) {
-    console.error("Admin check error:", error);
-    return false;
-  }
-}
+            // Enhanced sign-in handler
+            document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('googleSignInBtn');
+                const errorEl = document.getElementById('authError');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
+                errorEl.classList.add('hidden');
+                
+                try {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    await auth.signInWithPopup(provider);
+                    // Success - auth state handler will take over
+                } catch (error) {
+                    errorEl.textContent = error.message;
+                    errorEl.classList.remove('hidden');
+                    btn.innerHTML = '<i class="fab fa-google"></i> Try Again';
+                    btn.disabled = false;
+                }
+            });
+            
+            // Modal close handlers
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) closeAuthModal();
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeAuthModal();
+            });
+        }
 
-// Main Auth State Handler
-auth.onAuthStateChanged(async user => {
-  if (!user) {
-    showGoogleSignIn();
-  } else {
-    closeAuthModal();
-    
-    // Special access for vamora.co.in@gmail.com
-    if (user.email === 'vamora.co.in@gmail.com') {
-      loadSubmissions('all');
-      return;
-    }
-    
-    // Normal admin flow for others
-    if (user.providerData.some(p => p.providerId === 'google.com')) {
-      const isAdmin = await checkAdminStatus(user.uid);
-      isAdmin ? loadSubmissions('all') : handleUnauthorized();
-    } else {
-      handleUnauthorized();
-    }
-  }
-});
+        // Clean modal close function
+        function closeAuthModal() {
+            if (authModal) {
+                authModal.classList.add('fade-out');
+                setTimeout(() => {
+                    authModal.remove();
+                    authModal = null;
+                }, 300);
+            }
+        }
 
-function handleUnauthorized() {
-  showError("You don't have admin privileges");
-  setTimeout(() => auth.signOut(), 3000);
-}
+        // Initialize page components and event listeners
+        function initializePage() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => 
+                        b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadSubmissions(btn.dataset.filter);
+                });
+            });
+            
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.submission-card').forEach(card => {
+                    card.style.display = card.textContent.toLowerCase().includes(term) 
+                        ? 'block' 
+                        : 'none';
+                });
+            });
 
-// Submission Loading
-async function loadSubmissions(filter) {
-  try {
-    document.getElementById('loadingIndicator').classList.remove('hidden');
-    
-    let query = db.collection('contactSubmissions').orderBy('timestamp', 'desc');
-    if (filter !== 'all') query = query.where('status', '==', filter);
-    
-    const snapshot = await query.get();
-    
-    if (snapshot.empty) {
-      document.getElementById('noResults').classList.remove('hidden');
-    } else {
-      let html = '';
-      snapshot.forEach(doc => {
-        html += createSubmissionCard(doc.id, doc.data());
-      });
-      document.getElementById('submissionsList').innerHTML = html;
-      setupEventListeners();
-    }
-  } catch (error) {
-    showError("Failed to load submissions: " + error.message);
-  } finally {
-    document.getElementById('loadingIndicator').classList.add('hidden');
-  }
-}
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth.signOut().catch(error => {
+                    showError("Logout failed: " + error.message);
+                });
+            });
 
-// Card Creation
-function createSubmissionCard(id, data) {
-  const date = data.timestamp?.toDate() || new Date();
-  return `
-    <div class="submission-card" data-id="${id}">
-      <div class="submission-header">
-        <div class="user-info">
-          <h3>${escapeHtml(data.name || 'No name')}</h3>
-          <p>${escapeHtml(data.email || 'No email')}</p>
-        </div>
-        <div class="meta-info">
-          <span class="status-badge ${data.status || 'new'}">
-            ${data.status || 'new'}
-          </span>
-          <span>${date.toLocaleString()}</span>
-        </div>
-      </div>
-      <div class="submission-message">
-        ${escapeHtml(data.message || 'No message')}
-      </div>
-      <div class="submission-actions">
-        ${data.status !== 'read' ? `
-          <button class="btn mark-read" data-id="${id}">
-            <i class="fas fa-check"></i> Mark Read
-          </button>
-        ` : ''}
-        <button class="btn delete" data-id="${id}">
-          <i class="fas fa-trash"></i> Delete
-        </button>
-      </div>
-    </div>
-  `;
-}
+            // Event delegation for dynamic buttons
+            document.getElementById('submissionsList').addEventListener('click', async (e) => {
+                const target = e.target.closest('.mark-read, .delete');
+                if (!target) return;
+                
+                const id = target.dataset.id;
+                const card = target.closest('.submission-card');
+                
+                try {
+                    // Add click effect
+                    target.style.transform = 'scale(0.95)';
+                    setTimeout(() => { target.style.transform = ''; }, 200);
+                    
+                    if (target.classList.contains('mark-read')) {
+                        await db.collection('contactSubmissions').doc(id).update({ status: 'read' });
+                        card.querySelector('.status-badge').className = 'status-badge read';
+                        card.querySelector('.status-badge').textContent = 'read';
+                        target.remove();
+                    } 
+                    else if (target.classList.contains('delete')) {
+                        if (confirm('Are you sure you want to delete this submission?')) {
+                            await db.collection('contactSubmissions').doc(id).delete();
+                            card.style.opacity = '0';
+                            setTimeout(() => card.remove(), 300);
+                        }
+                    }
+                    
+                    // Update the active filter view
+                    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                    if (activeFilter !== 'all') {
+                        if (target.classList.contains('delete')) {
+                            // If deleted, no need to check filter
+                        } else if (activeFilter !== 'read' && target.classList.contains('mark-read')) {
+                            card.style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    showError(`Operation failed: ${error.message}`);
+                }
+            });
+        }
 
-// Helper Functions
-function escapeHtml(unsafe) {
-  return unsafe.replace(/[&<"'>]/g, m => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;',
-    '"': '&quot;', "'": '&#039;'
-  }[m]));
-}
+        // Submission Loading
+        async function loadSubmissions(filter) {
+            try {
+                document.getElementById('loadingIndicator').classList.remove('hidden');
+                document.getElementById('noResults').classList.add('hidden');
+                
+                let query = db.collection('contactSubmissions').orderBy('timestamp', 'desc');
+                if (filter !== 'all') query = query.where('status', '==', filter);
+                
+                const snapshot = await query.get();
+                
+                if (snapshot.empty) {
+                    document.getElementById('noResults').classList.remove('hidden');
+                    document.getElementById('submissionsList').innerHTML = '';
+                } else {
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        html += createSubmissionCard(doc.id, doc.data());
+                    });
+                    document.getElementById('submissionsList').innerHTML = html;
+                }
+            } catch (error) {
+                showError("Failed to load submissions: " + error.message);
+            } finally {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+            }
+        }
 
-function showError(message) {
-  const el = document.getElementById('errorContainer');
-  el.innerHTML = `<div class="error-message">${message}</div>`;
-  el.classList.remove('hidden');
-}
+        // Card Creation
+        function createSubmissionCard(id, data) {
+            const date = data.timestamp?.toDate() || new Date();
+            return `
+                <div class="submission-card" data-id="${id}">
+                    <div class="submission-header">
+                        <div class="user-info">
+                            <h3>${escapeHtml(data.name || 'No name')}</h3>
+                            <p>${escapeHtml(data.email || 'No email')}</p>
+                        </div>
+                        <div class="meta-info">
+                            <span class="status-badge ${data.status || 'new'}">
+                                ${data.status || 'new'}
+                            </span>
+                            <span>${date.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="submission-message">
+                        ${escapeHtml(data.message || 'No message')}
+                    </div>
+                    <div class="submission-actions">
+                        ${data.status !== 'read' ? `
+                            <button class="btn mark-read" data-id="${id}">
+                                <i class="fas fa-check"></i> Mark Read
+                            </button>
+                        ` : ''}
+                        <button class="btn delete" data-id="${id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  // Filter buttons
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => 
-        b.classList.remove('active'));
-      btn.classList.add('active');
-      loadSubmissions(btn.dataset.filter);
-    });
-  });
-  
-  // Search functionality
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll('.submission-card').forEach(card => {
-      card.style.display = card.textContent.toLowerCase().includes(term) 
-        ? 'block' 
-        : 'none';
-    });
-  });
-});
+        // Helper Functions
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<"'>]/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;',
+                '"': '&quot;', "'": '&#039;'
+            }[m]));
+        }
 
-// Event Listeners Setup
-function setupEventListeners() {
-  document.querySelectorAll('.mark-read').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      await db.collection('contactSubmissions')
-        .doc(btn.dataset.id)
-        .update({ status: 'read' });
-      loadSubmissions(document.querySelector('.filter-btn.active').dataset.filter);
-    });
-  });
-
-  document.querySelectorAll('.delete').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (confirm('Delete this submission?')) {
-        await db.collection('contactSubmissions')
-          .doc(btn.dataset.id)
-          .delete();
-        loadSubmissions(document.querySelector('.filter-btn.active').dataset.filter);
-      }
-    });
-  });
-}
+        function showError(message) {
+            const el = document.getElementById('errorContainer');
+            el.innerHTML = `<div class="error-message">${message}</div>`;
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+            }, 5000);
+        }
     </script>
 </body>
 </html>
