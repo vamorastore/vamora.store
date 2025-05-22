@@ -271,16 +271,67 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 let authModal = null;
 
-// Authentication Flow
+// Improved Auth State Handler
+auth.onAuthStateChanged(async user => {
+  // Always close modal first (if open)
+  closeAuthModal();
+  
+  if (!user) {
+    // No user - show sign-in modal
+    showGoogleSignIn();
+    return;
+  }
+  
+  // Verify Google authentication
+  const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+  if (!isGoogleUser) {
+    handleUnauthorized("Please sign in with Google");
+    return;
+  }
+  
+  try {
+    // Check admin status
+    const hasAccess = user.email === 'vamora.co.in@gmail.com' || 
+                     await checkAdminStatus(user.uid);
+    
+    if (hasAccess) {
+      loadSubmissions('all');
+    } else {
+      handleUnauthorized("You don't have admin privileges");
+    }
+  } catch (error) {
+    console.error("Auth verification failed:", error);
+    handleUnauthorized("Error verifying access");
+  }
+});
+
+// Enhanced unauthorized handler
+function handleUnauthorized(message) {
+  showError(message);
+  
+  // Show sign-in modal again if not already shown
+  if (!authModal) {
+    showGoogleSignIn();
+  }
+  
+  // Sign out after delay
+  setTimeout(() => {
+    auth.signOut().catch(error => {
+      console.error("Sign out error:", error);
+    });
+  }, 3000);
+}
+
+// Modified Google Sign-In function
 function showGoogleSignIn() {
-  if (authModal) authModal.remove();
+  if (authModal) return; // Already showing
   
   authModal = document.createElement('div');
   authModal.className = 'auth-modal';
   authModal.innerHTML = `
     <div class="auth-modal-content">
       <h2>Admin Login Required</h2>
-      <p>Please sign in with your Google account</p>
+      <p>Restricted Access: Admin Login</p>
       <button id="googleSignInBtn" class="google-signin-btn">
         <i class="fab fa-google"></i> Sign in with Google
       </button>
@@ -289,23 +340,26 @@ function showGoogleSignIn() {
   `;
   
   document.body.appendChild(authModal);
-  
-  // Sign-in handler
-  document.getElementById('googleSignInBtn').addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    document.getElementById('googleSignInBtn').innerHTML = 
-      '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-    
-    auth.signInWithPopup(provider)
-      .catch(error => {
-        document.getElementById('authError').textContent = error.message;
-        document.getElementById('authError').classList.remove('hidden');
-        document.getElementById('googleSignInBtn').innerHTML = 
-          '<i class="fab fa-google"></i> Sign in with Google';
-      });
-  });
 
-  // Close handlers
+  // Enhanced sign-in handler
+  document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('googleSignInBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await auth.signInWithPopup(provider);
+      // Success - auth state handler will take over
+    } catch (error) {
+      document.getElementById('authError').textContent = error.message;
+      document.getElementById('authError').classList.remove('hidden');
+      btn.innerHTML = '<i class="fab fa-google"></i> Try Again';
+      btn.disabled = false;
+    }
+  });
+  
+  // Modal close handlers
   authModal.addEventListener('click', (e) => {
     if (e.target === authModal) closeAuthModal();
   });
@@ -315,6 +369,7 @@ function showGoogleSignIn() {
   });
 }
 
+// Clean modal close function
 function closeAuthModal() {
   if (authModal) {
     authModal.classList.add('fade-out');
@@ -324,7 +379,6 @@ function closeAuthModal() {
     }, 300);
   }
 }
-
 // Admin Verification
 async function checkAdminStatus(uid) {
   try {
