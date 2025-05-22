@@ -1554,7 +1554,7 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <!-- Navigation Bar -->
+<!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -1585,7 +1585,7 @@
                     <div class="cursor-pointer" id="accountIconNav">
                         <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
                              alt="Account" 
-                             class="account-icon-hover w-5 h-5 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
                     </div>
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
                         <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
@@ -1600,7 +1600,7 @@
                 <div class="icon-separator"></div>
                 <a class="text-black nav-link" id="cartIconNav">
                     <i class="fas fa-shopping-cart icon"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-6 w-6 flex items-center justify-center hidden">0</span>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
             </div>
 
@@ -1622,86 +1622,10 @@
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                  <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
-    
-    <!-- Thank You Popup -->
-<!-- Thank You Popup -->
-<div class="thank-you-popup" id="thankYouPopup">
-    <div class="thank-you-content">
-        <div class="flex-1 overflow-y-auto no-scrollbar">
-            <div class="thank-you-header">
-                <div class="flex justify-center mb-4 p-2 rounded-lg bg-gray-800 w-60 mx-auto">
-                    <dotlottie-player src="https://lottie.host/e7292dc1-a6cc-474a-aa14-67bb4fab68f5/OPdASwNN78.lottie" 
-                        background="transparent" speed="1" style="width: 240px; height: 240px;" 
-                        loop autoplay></dotlottie-player>
-                </div>
-                <h1 class="thank-you-title">Thank You for Your Order!</h1>
-                <p class="thank-you-subtitle">Your order <span id="thankYouOrderId" class="font-semibold"></span> has been confirmed.</p>
-            </div>
-            
-            <div class="order-details">
-                <div class="order-detail-row">
-                    <span class="order-detail-label">Order Number:</span>
-                    <span class="order-detail-value" id="popupOrderId"></span>
-                </div>
-                <div class="order-detail-row">
-                    <span class="order-detail-label">Date:</span>
-                    <span class="order-detail-value" id="popupOrderDate"></span>
-                </div>
-                <div class="order-detail-row">
-                    <span class="order-detail-label">Status:</span>
-                    <span class="order-detail-value text-green-600">Order Placed</span>
-                </div>
-            </div>
-            
-            <div class="status-tracker">
-                <div class="status-labels">
-                    <span class="active">Placed</span>
-                    <span>Processed</span>
-                    <span>Shipped</span>
-                    <span>Delivered</span>
-                </div>
-                <div class="status-bar">
-                    <div class="status-progress"></div>
-                </div>
-                <div class="status-dots">
-                    <div class="status-dot active">
-                        <i class="fas fa-check text-xs"></i>
-                    </div>
-                    <div class="status-dot inactive">
-                        <i class="fas fa-box-open text-xs"></i>
-                    </div>
-                    <div class="status-dot inactive">
-                        <i class="fas fa-truck text-xs"></i>
-                    </div>
-                    <div class="status-dot inactive">
-                        <i class="fas fa-home text-xs"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="shipping-address">
-                <h3>Shipping Address</h3>
-                <address class="not-italic">
-                    <p id="popupFullName"></p>
-                    <p id="popupAddress1"></p>
-                    <p id="popupAddress2"></p>
-                    <p id="popupCityStateZip"></p>
-                    <p id="popupCountry"></p>
-                    <p id="popupPhone" class="mt-2"></p>
-                </address>
-            </div>
-        </div>
-        
-        <div class="thank-you-actions">
-            <button class="continue-shopping-btn" onclick="window.location.href='/'">Continue Shopping</button>
-        </div>
-    </div>
-</div>
-
     <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
@@ -1785,11 +1709,11 @@
             </button>
         </div>
         <div class="mb-4">
-            <label for="nameInput" class="block text-gray-700 mb-2">Name</label>
+            <label class="block text-gray-700 mb-2">Name</label>
             <input type="text" id="nameInput" class="w-full px-3 py-2 border rounded">
         </div>
         <div class="mb-4">
-            <label for="emailDisplay" class="block text-gray-700 mb-2">Email</label>
+            <label class="block text-gray-700 mb-2">Email</label>
             <input type="email" id="emailDisplay" class="w-full px-3 py-2 border rounded" readonly>
         </div>
         <button id="saveProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
@@ -1834,6 +1758,20 @@
             <div>
                 <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Apartment, suite, unit, building, floor, etc.)</label>
                 <input type="text" id="addressLine2" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- City -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                <input type="text" id="city" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- State/District -->
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/District*</label>
+                <input type="text" id="state" required 
                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
@@ -1905,108 +1843,137 @@
     </div>
 </div>
 
-    <!-- Login/Signup Modal -->
-<div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">        
+  <!-- Login/Signup Modal -->
+<div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
             <i class="fas fa-times"></i>
         </button>
         <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
             <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
+            
             <form id="login-form">
-                    <div class="mb-4">
-                        <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-                        <button type="button" class="password-toggle" id="toggle-login-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="mb-4 flex items-center justify-between">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
-                            <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
-                        </label>
-                        <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
-                        <span id="login-button-text">Log In</span>
-                    </button>
-                </form>
-                <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
-                <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
+                <div class="mb-4">
+                    <label for="login-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
                 </div>
+                <div class="mb-4 password-container">
+                    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" id="toggle-login-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                <div class="mb-4 flex items-center justify-between">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
+                        <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
+                    </label>
+                    <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
+                    <span id="login-button-text">Log In</span>
+                </button>
+            </form>
+            
+            <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
+            <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+            
+            <div class="flex items-center my-4">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="mx-4 text-gray-500 text-sm">or</span>
+                <div class="flex-grow border-t border-gray-300"></div>
             </div>
-            <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
-                <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
-                <form id="signup-form">
-                    <div class="mb-4">
-                        <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
-                        <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
-                        <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
-                        <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
-                        <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
-                        <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-                        <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-                    </div>
-                    <div class="mb-4 password-container">
-                        <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
-                        <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
-                            <i class="far fa-eye"></i>
-                        </button>
-                        <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
-                    </div>
-                    <div class="mb-4">
-                        <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
-                        <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
-                            <option value="">Select a security question</option>
-                            <option value="pet">What is the name of your first pet?</option>
-                            <option value="school">What is the name of your elementary school?</option>
-                            <option value="city">In what city were you born?</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
-                        <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
-                        <span id="signup-button-text">Sign Up</span>
-                    </button>
-                </form>
-                <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
-                <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
-                <div class="mt-4 sm:mt-6 text-center">
-                    <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
+            
+            <!-- Google Sign In Button at the bottom -->
+            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
+                <span class="text-gray-500 font-medium"> Log in with Google </span>
+            </button>
+            
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
+            </div>
+        </div>
+        
+        <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
+            
+            <!-- Google Sign Up Button -->
+       
+            <form id="signup-form">
+                <div class="mb-4">
+                    <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
+                    <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
+                    <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
                 </div>
+                <div class="mb-4">
+                    <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                    <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
+                    <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
+                    <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                        <option value="">Select a security question</option>
+                        <option value="pet">What is the name of your first pet?</option>
+                        <option value="school">What is the name of your elementary school?</option>
+                        <option value="city">In what city were you born?</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
+                    <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
+                    <span id="signup-button-text">Sign Up</span>
+                </button>
+                 <div class="flex items-center my-4">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="mx-4 text-gray-500 text-sm">or</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+            
+            <!-- Google Sign In Button at the bottom -->
+            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
+                <span class="text-gray-500 font-medium"> Sign up with Google </span>
+            </button>
+            </form>
+            <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
+            <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Forgot Password Modal -->
     <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
-        <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-            
-            <i class="fas fa-times"></i>
-        </button>
-        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
-        <form id="forgot-password-form">
+        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
+            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
+            <form id="forgot-password-form">
                 <div class="mb-4">
                     <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
                     <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
@@ -2052,7 +2019,82 @@
                 <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
             </div>
         </div>
+    </div> 
+    
+    <!-- Thank You Popup -->
+<!-- Thank You Popup -->
+<div class="thank-you-popup" id="thankYouPopup">
+    <div class="thank-you-content">
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+            <div class="thank-you-header">
+                <div class="flex justify-center mb-4 p-2 rounded-lg bg-gray-800 w-60 mx-auto">
+                    <dotlottie-player src="https://lottie.host/e7292dc1-a6cc-474a-aa14-67bb4fab68f5/OPdASwNN78.lottie" 
+                        background="transparent" speed="1" style="width: 240px; height: 240px;" 
+                        loop autoplay></dotlottie-player>
+                </div>
+                <h1 class="thank-you-title">Thank You for Your Order!</h1>
+                <p class="thank-you-subtitle">Your order <span id="thankYouOrderId" class="font-semibold"></span> has been confirmed.</p>
+            </div>
+            
+            <div class="order-details">
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Order Number:</span>
+                    <span class="order-detail-value" id="popupOrderId"></span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Date:</span>
+                    <span class="order-detail-value" id="popupOrderDate"></span>
+                </div>
+                <div class="order-detail-row">
+                    <span class="order-detail-label">Status:</span>
+                    <span class="order-detail-value text-green-600">Order Placed</span>
+                </div>
+            </div>
+            
+            <div class="status-tracker">
+                <div class="status-labels">
+                    <span class="active">Placed</span>
+                    <span>Processed</span>
+                    <span>Shipped</span>
+                    <span>Delivered</span>
+                </div>
+                <div class="status-bar">
+                    <div class="status-progress"></div>
+                </div>
+                <div class="status-dots">
+                    <div class="status-dot active">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                    <div class="status-dot inactive">
+                        <i class="fas fa-box-open text-xs"></i>
+                    </div>
+                    <div class="status-dot inactive">
+                        <i class="fas fa-truck text-xs"></i>
+                    </div>
+                    <div class="status-dot inactive">
+                        <i class="fas fa-home text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="shipping-address">
+                <h3>Shipping Address</h3>
+                <address class="not-italic">
+                    <p id="popupFullName"></p>
+                    <p id="popupAddress1"></p>
+                    <p id="popupAddress2"></p>
+                    <p id="popupCityStateZip"></p>
+                    <p id="popupCountry"></p>
+                    <p id="popupPhone" class="mt-2"></p>
+                </address>
+            </div>
+        </div>
+        
+        <div class="thank-you-actions">
+            <button class="continue-shopping-btn" onclick="window.location.href='/'">Continue Shopping</button>
+        </div>
     </div>
+</div>
     
  <div class="main-content">
           <div class="checkout-container">
@@ -2350,6 +2392,5 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
             <script src="shared.js"></script>
-            <script> </script>
 </body>
 </html>
