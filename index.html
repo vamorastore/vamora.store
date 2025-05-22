@@ -320,20 +320,24 @@
         });
 
         // Admin Verification
-        async function checkAdminStatus(uid) {
-            try {
-                const user = auth.currentUser;
-                if (user.email === 'vamora.co.in@gmail.com') return true;
-                
-                const doc = await db.collection('admins').doc(uid).get();
-                return doc.exists;
-            } catch (error) {
-                console.error("Admin check error:", error);
-                return false;
-            }
+async function checkAdminStatus(uid) {
+    try {
+        const user = auth.currentUser;
+        console.log("Checking admin status for:", user.email, uid);
+        
+        if (user.email === 'vamora.co.in@gmail.com') {
+            console.log("Primary admin detected");
+            return true;
         }
-
-        // Enhanced unauthorized handler
+        
+        const doc = await db.collection('admins').doc(uid).get();
+        console.log("Admin document exists:", doc.exists);
+        return doc.exists;
+    } catch (error) {
+        console.error("Admin check error:", error);
+        return false;
+    }
+}        // Enhanced unauthorized handler
         function handleUnauthorized(message) {
             showError(message);
             
@@ -440,46 +444,49 @@
             });
 
             // Event delegation for dynamic buttons
-            document.getElementById('submissionsList').addEventListener('click', async (e) => {
-                const target = e.target.closest('.mark-read, .delete');
-                if (!target) return;
-                
-                const id = target.dataset.id;
-                const card = target.closest('.submission-card');
-                
-                try {
-                    // Add click effect
-                    target.style.transform = 'scale(0.95)';
-                    setTimeout(() => { target.style.transform = ''; }, 200);
-                    
-                    if (target.classList.contains('mark-read')) {
-                        await db.collection('contactSubmissions').doc(id).update({ status: 'read' });
-                        card.querySelector('.status-badge').className = 'status-badge read';
-                        card.querySelector('.status-badge').textContent = 'read';
-                        target.remove();
-                    } 
-                    else if (target.classList.contains('delete')) {
-                        if (confirm('Are you sure you want to delete this submission?')) {
-                            await db.collection('contactSubmissions').doc(id).delete();
-                            card.style.opacity = '0';
-                            setTimeout(() => card.remove(), 300);
-                        }
-                    }
-                    
-                    // Update the active filter view
-                    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-                    if (activeFilter !== 'all') {
-                        if (target.classList.contains('delete')) {
-                            // If deleted, no need to check filter
-                        } else if (activeFilter !== 'read' && target.classList.contains('mark-read')) {
-                            card.style.display = 'none';
-                        }
-                    }
-                } catch (error) {
-                    showError(`Operation failed: ${error.message}`);
-                }
-            });
+document.getElementById('submissionsList').addEventListener('click', async (e) => {
+    const target = e.target.closest('.mark-read, .delete');
+    if (!target) return;
+    
+    const id = target.dataset.id;
+    const card = target.closest('.submission-card');
+    
+    try {
+        // Add click effect
+        target.style.transform = 'scale(0.95)';
+        setTimeout(() => { target.style.transform = ''; }, 200);
+        
+        if (target.classList.contains('mark-read')) {
+            await db.collection('contactSubmissions').doc(id).update({ status: 'read' });
+            card.querySelector('.status-badge').className = 'status-badge status-read';
+            card.querySelector('.status-badge').textContent = 'read';
+            target.remove();
+        } 
+        else if (target.classList.contains('delete')) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                await db.collection('contactSubmissions').doc(id).delete();
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            }
         }
+        
+        // Update the active filter view
+        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        if (activeFilter !== 'all') {
+            if (target.classList.contains('delete')) {
+                // If deleted, no need to check filter
+            } else if (activeFilter !== 'read' && target.classList.contains('mark-read')) {
+                card.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        if (error.code === 'permission-denied') {
+            showError("You don't have permission to perform this action");
+        } else {
+            showError(`Operation failed: ${error.message}`);
+        }
+    }
+});        }
 
         // Submission Loading
         async function loadSubmissions(filter) {
