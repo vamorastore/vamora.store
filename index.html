@@ -140,20 +140,68 @@
             }
             
             // Authentication state listener
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'login.html';
-                } else {
-                    checkAdminStatus(user.uid).then(() => {
-                        loadSubmissions('all');
-                    }).catch(error => {
-                        showError("Authentication error: " + error.message);
-                        auth.signOut();
-                    });
-                }
+// In the same admin dashboard page, find the auth.onAuthStateChanged listener
+// Replace it with this:
+
+// Replace the existing auth.onAuthStateChanged listener with this:
+auth.onAuthStateChanged(async user => {
+    if (!user) {
+        // User not logged in - show Google Sign-In
+        showGoogleSignIn();
+    } else {
+        // Check if user signed in with Google
+        if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+            const isAdmin = await checkAdminStatus(user.uid);
+            if (isAdmin) {
+                loadSubmissions('all');
+            } else {
+                showError("You don't have admin privileges");
+                setTimeout(() => auth.signOut(), 3000);
+            }
+        } else {
+            // Not a Google user - force sign out and show Google Sign-In
+            auth.signOut();
+            showGoogleSignIn();
+        }
+    }
+});
+
+function showGoogleSignIn() {
+    // Create a modal for Google Sign-In
+    const authModal = document.createElement('div');
+    authModal.style.position = 'fixed';
+    authModal.style.top = '0';
+    authModal.style.left = '0';
+    authModal.style.width = '100%';
+    authModal.style.height = '100%';
+    authModal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    authModal.style.display = 'flex';
+    authModal.style.justifyContent = 'center';
+    authModal.style.alignItems = 'center';
+    authModal.style.zIndex = '1000';
+    
+    authModal.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 8px; text-align: center;">
+            <h2>Admin Login Required</h2>
+            <p>Please sign in with your Google account</p>
+            <button id="googleSignInBtn" style="background: #4285F4; color: white; 
+                    border: none; padding: 10px 20px; border-radius: 4px; 
+                    font-size: 16px; cursor: pointer;">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(authModal);
+    
+    document.getElementById('googleSignInBtn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+            .catch(error => {
+                showError("Sign in failed: " + error.message);
             });
-            
-            // Logout button
+    });
+}            // Logout button
             document.getElementById('logoutBtn').addEventListener('click', () => {
                 auth.signOut().then(() => {
                     window.location.href = 'login.html';
@@ -181,51 +229,59 @@
             errorContainer.classList.remove('hidden');
         }
         
-        async function checkAdminStatus(uid) {
-            try {
-                const doc = await db.collection('admins').doc(uid).get();
-                if (!doc.exists) {
-                    throw new Error("User is not an admin");
-                }
-            } catch (error) {
-                console.error("Admin check failed:", error);
-                window.location.href = 'unauthorized.html';
-                throw error;
-            }
+async function checkAdminStatus(uid) {
+    try {
+        const doc = await db.collection('admins').doc(uid).get();
+        if (!doc.exists) {
+            // If not admin, redirect or show error
+            showError("You don't have admin privileges");
+            auth.signOut();
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error("Admin check failed:", error);
+        showError("Error checking admin status");
+        return false;
+    }
+}        
+// In the same admin dashboard page, replace the existing loadSubmissions function:
+
+async function loadSubmissions(filter) {
+    try {
+        document.getElementById('submissionsList').innerHTML = '';
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+        document.getElementById('noResults').classList.add('hidden');
+        
+        let query = db.collection('contactSubmissions').orderBy('timestamp', 'desc');
+        
+        if (filter !== 'all') {
+            query = query.where('status', '==', filter);
         }
         
-        function loadSubmissions(filter) {
-            document.getElementById('submissionsList').innerHTML = '';
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.getElementById('noResults').classList.add('hidden');
-            
-            let query = db.collection('contactSubmissions').orderBy('timestamp', 'desc');
-            
-            if (filter !== 'all') {
-                query = query.where('status', '==', filter);
-            }
-            
-            query.get().then(snapshot => {
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                
-                if (snapshot.empty) {
-                    document.getElementById('noResults').classList.remove('hidden');
-                    return;
-                }
-                
-                let submissionsHTML = '';
-                snapshot.forEach(doc => {
-                    submissionsHTML += createSubmissionCard(doc.id, doc.data());
-                });
-                
-                document.getElementById('submissionsList').innerHTML = submissionsHTML;
-                setupEventListeners();
-            }).catch(error => {
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                showError("Failed to load submissions: " + error.message);
-            });
+        const snapshot = await query.get();
+        
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        
+        if (snapshot.empty) {
+            document.getElementById('noResults').classList.remove('hidden');
+            return;
         }
         
+        let submissionsHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            submissionsHTML += createSubmissionCard(doc.id, data);
+        });
+        
+        document.getElementById('submissionsList').innerHTML = submissionsHTML;
+        setupEventListeners();
+    } catch (error) {
+        console.error("Error loading submissions:", error);
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        showError("Failed to load submissions: " + error.message);
+    }
+}        
         function filterSubmissions(searchTerm) {
             const cards = document.querySelectorAll('.submission-card');
             let hasResults = false;
