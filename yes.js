@@ -24,18 +24,6 @@ db.enablePersistence()
           console.log("The current browser does not support all of the features required to enable persistence");
       }
   });
-// Initialize cart
-let cart = [];
-
-// Check for existing cart on page load
-document.addEventListener('DOMContentLoaded', () => {
-    const user = auth.currentUser;
-    if (!user) {
-        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-        cart = guestCart;
-        renderCart();
-    }
-});
 
 let cartOpen = false;
 let searchOpen = false;
@@ -85,7 +73,20 @@ function showSignupSection() {
     document.getElementById('signup-section').classList.add('bg-gray-50');
     document.getElementById('login-section').classList.remove('bg-white');
 }
+// Function to open the cart
+function openCart() {
+    document.getElementById('cartOverlay').classList.add('active');
+    document.getElementById('cartBackdrop').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    updateCartDisplay();
+}
 
+// Function to close the cart
+function closeCart() {
+    document.getElementById('cartOverlay').classList.remove('active');
+    document.getElementById('cartBackdrop').classList.remove('active');
+    document.body.style.overflow = '';
+}
 // Helper function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
@@ -342,51 +343,6 @@ function renderCart() {
     document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
 
-// Updated addToCart function
-async function addToCart(product) {
-    const user = auth.currentUser;
-    
-    const existingItem = cart.find(item => 
-        item.id === product.id && item.size === product.size
-    );
-
-    if (existingItem) {
-        existingItem.quantity += product.quantity;
-    } else {
-        cart.push(product);
-    }
-
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    } else {
-        localStorage.setItem('guestCart', JSON.stringify(cart));
-    }
-    
-    renderCart();
-}
-
-// Updated removeFromCart function
-// Updated removeFromCart function
-async function removeFromCart(index, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const user = auth.currentUser;
-    
-    // Remove the item from the cart array
-    cart.splice(index, 1);
-
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    } else {
-        localStorage.setItem('guestCart', JSON.stringify(cart));
-    }
-    
-    renderCart();
-    
-    // Update cart count
-    updateCartCount();
-}
 async function updateCartItem(productId, size, newQuantity) {
     const user = auth.currentUser;
     
@@ -403,21 +359,6 @@ async function updateCartItem(productId, size, newQuantity) {
     
     renderCart();
 }
-
-// Updated updateQuantity function
-async function updateQuantity(index, change) {
-    const newQuantity = cart[index].quantity + change;
-    if (newQuantity < 1) return;
-    
-    cart[index].quantity = newQuantity;
-    
-    const user = auth.currentUser;
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    }
-    renderCart();
-}
-
 async function proceedToCheckout() {
     const user = auth.currentUser;
     
@@ -2797,20 +2738,170 @@ if (checkoutBtn) {
 if (document.querySelector('.checkout-btn')) {
     document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
 }
+// Initialize cart as a global variable
+let cart = [];
 
-// Helper function to merge carts
-function mergeCarts(firestoreCart, guestCart) {
-    const merged = [...firestoreCart];
+// Function to update cart count in navbar
+function updateCartCount() {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.classList.toggle('hidden', totalItems === 0);
+    }
+}
+
+// Unified function to add to cart
+async function addToCart(product) {
+    const user = auth.currentUser;
     
-    guestCart.forEach(guestItem => {
-        const existingItem = merged.find(item => 
-            item.id === guestItem.id && item.size === guestItem.size
+    const existingItem = cart.find(item => 
+        item.id === product.id && item.size === product.size
+    );
+
+    if (existingItem) {
+        existingItem.quantity += product.quantity;
+    } else {
+        cart.push(product);
+    }
+
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    updateCartCount();
+    renderCart();
+}
+
+// Unified function to remove from cart
+async function removeFromCart(index, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    cart.splice(index, 1);
+
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    updateCartCount();
+    renderCart();
+}
+
+// Unified function to update quantity
+async function updateQuantity(index, change) {
+    const newQuantity = cart[index].quantity + change;
+    if (newQuantity < 1) return;
+    
+    cart[index].quantity = newQuantity;
+    
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    updateCartCount();
+    renderCart();
+}
+
+// Initialize cart on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const user = auth.currentUser;
+    if (user) {
+        // Load from Firestore
+        getOrCreateUserCart(user.uid).then(firestoreCart => {
+            cart = firestoreCart;
+            updateCartCount();
+            renderCart();
+        });
+    } else {
+        // Load from localStorage
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+        updateCartCount();
+        renderCart();
+    }
+});
+
+// Auth state change handler for cart sync
+auth.onAuthStateChanged(async (user) => {
+    const addAddressLink = document.getElementById('addAddressLink');
+
+    if (user) {
+        // Show add address button
+        if (addAddressLink) addAddressLink.style.display = 'block';
+
+        // Handle cart merging (guest → logged-in)
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        const firestoreCart = await getOrCreateUserCart(user.uid);
+        const mergedCart = mergeCarts(firestoreCart, guestCart);
+        cart = mergedCart;
+
+        await saveCartToFirestore(user.uid, mergedCart);
+        localStorage.removeItem('guestCart');
+
+        // Load account info
+        loadAccountInfo(user.uid);
+
+        // Load user data from Firestore
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                updateUIWithUserData(user, userData);
+                document.getElementById('email').value = user.email;
+            } else {
+                await db.collection("users").doc(user.uid).set({
+                    name: user.displayName || '',
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        }
+
+    } else {
+        // Hide add address button
+        if (addAddressLink) addAddressLink.style.display = 'none';
+
+        // Load guest cart
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+
+        applyDefaultAddress();
+    }
+
+    // Common actions
+    setupResendVerification();
+    updateLoginButton();
+    updateCartCount();
+    renderCart();
+});
+
+function mergeCarts(primaryCart, secondaryCart) {
+    const merged = [...primaryCart];
+    
+    secondaryCart.forEach(item => {
+        const existingItem = merged.find(i => 
+            i.id === item.id && i.size === item.size
         );
         
         if (existingItem) {
-            existingItem.quantity += guestItem.quantity;
+            existingItem.quantity += item.quantity;
         } else {
-            merged.push(guestItem);
+            merged.push(item);
         }
     });
     
