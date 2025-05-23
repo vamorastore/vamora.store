@@ -35,8 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
         cart = guestCart;
         renderCart();
     }
+    
+    // Add this check for checkout page
+    if (window.location.pathname.includes('checkout')) {
+        renderOrderSummary();
+    }
 });
-
 let cartOpen = false;
 let searchOpen = false;
 let dropdownOpen = false;
@@ -343,6 +347,22 @@ function renderCart() {
 }
 
 // Updated addToCart function
+async function updateCartItem(productId, size, newQuantity) {
+    const user = auth.currentUser;
+    
+    const item = cart.find(item => item.id === productId && item.size === size);
+    if (item) {
+        item.quantity = newQuantity;
+    }
+
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    renderCart();
+}
 async function addToCart(product) {
     const user = auth.currentUser;
     
@@ -363,17 +383,16 @@ async function addToCart(product) {
     }
     
     renderCart();
+    renderOrderSummary(); // Add this line
+    updateCartCount();
 }
 
-// Updated removeFromCart function
-// Updated removeFromCart function
 async function removeFromCart(index, event) {
     event.preventDefault();
     event.stopPropagation();
     
     const user = auth.currentUser;
     
-    // Remove the item from the cart array
     cart.splice(index, 1);
 
     if (user) {
@@ -383,28 +402,10 @@ async function removeFromCart(index, event) {
     }
     
     renderCart();
-    
-    // Update cart count
+    renderOrderSummary(); // Add this line
     updateCartCount();
 }
-async function updateCartItem(productId, size, newQuantity) {
-    const user = auth.currentUser;
-    
-    const item = cart.find(item => item.id === productId && item.size === size);
-    if (item) {
-        item.quantity = newQuantity;
-    }
 
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    } else {
-        localStorage.setItem('guestCart', JSON.stringify(cart));
-    }
-    
-    renderCart();
-}
-
-// Updated updateQuantity function
 async function updateQuantity(index, change) {
     const newQuantity = cart[index].quantity + change;
     if (newQuantity < 1) return;
@@ -415,9 +416,10 @@ async function updateQuantity(index, change) {
     if (user) {
         await saveCartToFirestore(user.uid, cart);
     }
+    
     renderCart();
+    renderOrderSummary(); // Add this line
 }
-
 async function proceedToCheckout() {
     const user = auth.currentUser;
     
@@ -426,12 +428,9 @@ async function proceedToCheckout() {
         return;
     }
 
-    // Save cart to sessionStorage before redirecting
-    sessionStorage.setItem('checkoutCart', JSON.stringify(cart));
-    
-    // Redirect to checkout page
     window.location.href = 'checkout.html';
 }
+
 // Function to render order summary
 function renderOrderSummary() {
     const orderSummaryItems = document.getElementById('orderSummaryItems');
@@ -441,24 +440,31 @@ function renderOrderSummary() {
     
     if (cart.length === 0) {
         orderSummaryItems.innerHTML = '<p class="text-sm text-gray-500">Your cart is empty</p>';
+        document.getElementById('orderSubtotal').textContent = '₹ 0.00';
+        document.getElementById('orderGrandTotal').textContent = '₹ 0.00';
         return;
     }
     
     cart.forEach(item => {
-        const priceValue = parseFloat(item.price.replace('₹', '').replace(',', ''));
+        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
         const itemTotal = priceValue * item.quantity;
         subtotal += itemTotal;
         
         const productItem = document.createElement('div');
-        productItem.className = 'product-item';
+        productItem.className = 'order-summary-item';
         productItem.innerHTML = `
-            <img src="${item.image}" alt="${item.title}" class="product-image">
-            <div class="product-details">
-                <div class="product-title">${item.title}</div>
-                <div class="product-variant">Size: ${item.size}</div>
-                <div class="product-variant">Quantity: ${item.quantity}</div>
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex items-start">
+                    <img src="${item.image}" alt="${item.title}" 
+                         class="w-16 h-16 object-cover rounded mr-3">
+                    <div>
+                        <p class="font-medium text-sm">${item.title}</p>
+                        <p class="text-xs text-gray-500">Size: ${item.size}</p>
+                        <p class="text-xs text-gray-500">Qty: ${item.quantity}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-medium">₹${(priceValue * item.quantity).toFixed(2)}</span>
             </div>
-            <div class="product-price">${item.price}</div>
         `;
         orderSummaryItems.appendChild(productItem);
     });
@@ -466,7 +472,6 @@ function renderOrderSummary() {
     document.getElementById('orderSubtotal').textContent = `₹ ${subtotal.toFixed(2)}`;
     document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
-
 // Close cart when pressing ESC key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && cartOpen) {
@@ -2510,56 +2515,6 @@ function getFormData() {
         phone: document.getElementById('phone').value
     };
 }
-document.addEventListener('DOMContentLoaded', function() {
-    // Get cart from sessionStorage
-    const checkoutCart = JSON.parse(sessionStorage.getItem('checkoutCart')) || [];
-    
-    // Display order summary
-    renderOrderSummary(checkoutCart);
-    
-    // Clear the sessionStorage after use
-    sessionStorage.removeItem('checkoutCart');
-});
-
-function renderOrderSummary(cartItems) {
-    const orderSummaryItems = document.getElementById('orderSummaryItems');
-    let subtotal = 0;
-    
-    if (!cartItems || cartItems.length === 0) {
-        orderSummaryItems.innerHTML = '<p class="text-sm text-gray-500">Your cart is empty</p>';
-        return;
-    }
-    
-    orderSummaryItems.innerHTML = cartItems.map(item => {
-        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-        const itemTotal = priceValue * item.quantity;
-        subtotal += itemTotal;
-        
-        return `
-            <div class="product-item flex items-center py-4 border-b border-gray-100">
-                <img src="${item.image}" alt="${item.title}" 
-                     class="w-16 h-16 object-cover rounded mr-4">
-                <div class="flex-1">
-                    <h4 class="font-medium">${item.title}</h4>
-                    <div class="text-sm text-gray-500">
-                        <span>Size: ${item.size}</span>
-                        <span class="mx-2">•</span>
-                        <span>Qty: ${item.quantity}</span>
-                    </div>
-                </div>
-                <div class="font-medium">₹${itemTotal.toFixed(2)}</div>
-            </div>
-        `;
-    }).join('');
-    
-    // Update totals
-    document.getElementById('orderSubtotal').textContent = `₹${subtotal.toFixed(2)}`;
-    document.getElementById('orderTotal').textContent = `₹${subtotal.toFixed(2)}`;
-    document.getElementById('orderGrandTotal').textContent = `₹${subtotal.toFixed(2)}`;
-    
-    // Store cart in global variable for payment processing
-    window.cart = cartItems;
-}
 
 // Function to generate a unique order ID with VA prefix and 5-digit number
 function generateOrderId() {
@@ -2570,15 +2525,14 @@ function generateOrderId() {
 
 // Function to calculate the total amount from the cart
 function calculateTotalAmount() {
-    if (!window.cart) return 0;
-    
     let total = 0;
-    window.cart.forEach(item => {
+    cart.forEach(item => {
         const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
         total += price * item.quantity;
     });
-    return total * 100; // Razorpay expects amount in paise
+    return total * 100;
 }
+
 async function handlePaymentFailure(response) {
     console.error("Payment failed:", response);
     
@@ -2674,21 +2628,25 @@ async function placeOrder() {
         theme: {
             color: "#000000"
         },
-handler: async function(response) {
+        handler: async function(response) {
             try {
                 const orderId = await saveOrder(response.razorpay_payment_id, formData);
                 handlePaymentSuccess(response, formData, orderId);
-                
-                // Clear cart after successful payment
-                if (auth.currentUser) {
-                    await db.collection("carts").doc(auth.currentUser.uid).delete();
-                }
-                sessionStorage.removeItem('guestCart');
-                localStorage.removeItem('guestCart');
             } catch (error) {
                 console.error("Error processing order:", error);
-                alert("There was an error saving your order. Please contact support.");
+                alert("There was an error saving your order. Please contact support with your payment ID: " + response.razorpay_payment_id);
             }
+        },
+        method: {
+            netbanking: true,
+            card: true,
+            wallet: true,
+            upi: true,
+            paylater: true
+        },
+        upi: {
+            flow: "collect",
+            vpa: ""
         }
     };
 
