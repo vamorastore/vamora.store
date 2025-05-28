@@ -1,0 +1,68 @@
+@media (max-width: 768px) {
+    /* Adjust account icon size to match other icons */
+    .nav-icons .account-icon-hover {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Adjust the dropdown menu position */
+    #dropdownMenu {
+        top: 100%;
+        right: 0;
+        left: auto;
+        width: 200px;
+    }
+}
+/* Navbar logo */
+.logo-container img {
+    height: 80px; /* Increased from 50px */
+    width: 90px; /* Increased from 60px */
+}
+
+/* Footer logo */
+.footer-logo .logo-container img {
+    height: 80px; /* Increased size */
+    width: 90px;  /* Increased size */
+}
+
+@media (max-width: 768px) {
+    /* Keep larger size on mobile */
+    .logo-container img {
+        height: 80px;
+        width: 90px;
+    }
+    
+    .footer-logo .logo-container img {
+        height: 80px;
+        width: 90px;
+    }
+}
+@media (max-width: 767px) {
+    /* Make size guide image smaller */
+    #size-guide-container img {
+        max-width: 80%;
+        margin: 0 auto;
+        display: block;
+    }
+    
+    /* Adjust size guide button text */
+    #size-guide-btn {
+        font-size: 0.7rem;
+    }
+}
+@media (max-width: 768px) {
+    /* Adjust navbar height to accommodate larger logo */
+    .navbar {
+        height: 90px;
+    }
+    
+    /* Adjust mobile menu position */
+    .mobile-menu-content {
+        top: 90px;
+    }
+    
+    /* Ensure account dropdown is visible */
+    #dropdownMenu {
+        z-index: 60;
+    }
+}
