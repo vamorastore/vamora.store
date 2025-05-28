@@ -1624,7 +1624,7 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             loadAccountInfo(user.uid);
         }
         
-        updateLoginButton();
+        updateLoginButtons();
         updateMobileAccountOptions();
     }, 1000);
 })
@@ -1711,7 +1711,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             loadAccountInfo(user.uid);
         }
         
-        updateLoginButton();
+        updateLoginButtons();
         updateMobileAccountOptions();
         
         // Update checkout email field if it exists
@@ -2158,7 +2158,7 @@ function logoutUser(event) {
             if (accountInfoPage) accountInfoPage.classList.add('hidden');
         }
         
-        updateLoginButton();
+        updateLoginButtons();
         
         // Reload only if on account page
         if (window.location.pathname.includes('account')) {
@@ -2182,28 +2182,30 @@ function resendVerification(email) {
 }
 
 // Update login button based on auth state
-function updateLoginButton() {
+function updateLoginButtons() {
     const user = auth.currentUser;
-    const loginButton = document.getElementById('login-button');
+    const navLoginButton = document.getElementById('login-button');
+    const pageLoginButton = document.getElementById('profile-login-button'); // Add this ID to your page login button
     
-    if (loginButton) {
+    [navLoginButton, pageLoginButton].forEach(button => {
+        if (!button) return;
+        
         if (user) {
-            loginButton.textContent = 'LOG OUT';
-            loginButton.onclick = function(e) {
+            button.textContent = 'LOG OUT';
+            button.onclick = function(e) {
                 e.preventDefault();
                 logoutUser(e);
             };
         } else {
-            loginButton.textContent = 'LOG IN';
-            loginButton.onclick = function(e) {
+            button.textContent = 'LOG IN';
+            button.onclick = function(e) {
                 e.preventDefault();
                 showAuthContainer();
                 showLoginSection();
             };
         }
-    }
-}// Update mobile account options visibility
-function updateMobileAccountOptions() {
+    });
+}function updateMobileAccountOptions() {
     const user = auth.currentUser;
     const mobileAccountOptions = document.getElementById('mobileAccountOptions');
     
@@ -2743,7 +2745,7 @@ auth.onAuthStateChanged(async (user) => {
 
     // Common actions
     setupResendVerification();
-    updateLoginButton();
+    updateLoginButtons();
     updateCartCount();
     renderCart();
 });
