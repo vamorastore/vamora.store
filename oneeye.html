@@ -1907,7 +1907,35 @@ document.addEventListener('DOMContentLoaded', function() {
         let value = parseInt(quantityInput.value);
         quantityInput.value = value + 1;
     });
+    
+// Open cart function
+function openCart() {
+    document.getElementById('cartOverlay').classList.add('active');
+    document.getElementById('cartBackdrop').classList.add('active');
+    updateCartDisplay();
+}
 
+// Close cart function
+function closeCart() {
+    document.getElementById('cartOverlay').classList.remove('active');
+    document.getElementById('cartBackdrop').classList.remove('active');
+}
+
+// Event listeners
+document.getElementById('cartIconNav').addEventListener('click', function(e) {
+    e.preventDefault();
+    openCart();
+});
+
+document.getElementById('closeCartButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    closeCart();
+});
+
+document.getElementById('cartBackdrop').addEventListener('click', function(e) {
+    e.preventDefault();
+    closeCart();
+});
     // Add to cart button
     document.getElementById('add-to-cart-btn').addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
