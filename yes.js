@@ -1642,7 +1642,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                     loadOrders(user.uid);
                 }
                 
-                updateLoginButton();
                 updateMobileAccountOptions();
                 
                 const emailField = document.getElementById('email');
@@ -2241,8 +2240,7 @@ function logoutUser(event) {
             if (accountInfoPage) accountInfoPage.classList.add('hidden');
         }
         
-        updateLoginButton();
-        
+
         // Reload only if on account page
         if (window.location.pathname.includes('account')) {
             window.location.reload();
@@ -2264,27 +2262,6 @@ function resendVerification(email) {
         });
 }
 
-// Update login button based on auth state
-function updateLoginButton() {
-    const user = auth.currentUser;
-    
-    if (loginButton) {
-        if (user) {
-            loginButton.textContent = 'LOG OUT';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                logoutUser(e);
-            };
-        } else {
-            loginButton.textContent = 'LOG IN';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                showAuthContainer();
-                showLoginSection();
-            };
-        }
-    }
-}
 // Update mobile account options visibility
 function updateMobileAccountOptions() {
     const user = auth.currentUser;
@@ -2826,7 +2803,6 @@ auth.onAuthStateChanged(async (user) => {
 
     // Common actions
     setupResendVerification();
-    updateLoginButton();
     updateCartCount();
     renderCart();
 });
