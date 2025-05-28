@@ -1346,15 +1346,21 @@ function showAuthContainer() {
     resetForms();
 }
 
+// Updated hideAuthContainer function
 function hideAuthContainer() {
     document.getElementById('auth-container').classList.remove('active');
     document.body.classList.remove('overflow-hidden');
     resetForms();
+    
+    // Ensure all success messages are hidden
     document.getElementById('login-section').classList.remove('login-success');
     document.getElementById('google-login-success').classList.add('hidden');
     document.getElementById('google-signup-success').classList.add('hidden');
+    
+    // Reset the form displays
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('signup-section').classList.add('hidden');
 }
-
 function resetForms() {
     document.getElementById('login-form').reset();
     document.getElementById('signup-form').reset();
@@ -1585,7 +1591,8 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 const user = result.user;
                 
                 // Immediately update UI to show success
-                googleBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                document.getElementById('google-login-success').classList.remove('hidden');
+                document.getElementById('login-section').classList.add('hidden');
                 
                 // Return Firestore update promise
                 return db.collection("users").doc(user.uid).set({
@@ -1598,11 +1605,14 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             })
             .then(() => {
                 // Hide auth container after short delay
-                setTimeout(() => {
-                    hideAuthContainer();
-                    googleBtn.innerHTML = originalContent;
-                    googleBtn.disabled = false;
-                }, 1000);
+               // In the Google sign-in success handler
+setTimeout(() => {
+    hideAuthContainer();
+    // Optional: Redirect to account page if not already there
+    if (!window.location.pathname.includes('account')) {
+        window.location.href = '/account';
+    }
+}, 2000);
             })
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
@@ -1641,15 +1651,15 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             }).catch(console.error);
             
             // Hide auth after short delay
-            setTimeout(() => {
-                hideAuthContainer();
-                button.innerHTML = originalContent;
-                button.disabled = false;
-                
-                if (window.location.pathname.includes('account')) {
-                    loadAccountInfo(user.uid);
-                }
-            }, 1000);
+setTimeout(() => {
+    hideAuthContainer();
+    
+    // Optional: Redirect to account page if not already there
+    if (!window.location.pathname.includes('account')) {
+        window.location.href = '/account';
+    }
+}, 2000);
+
         })
         .catch((error) => {
             button.innerHTML = originalContent;
@@ -2679,16 +2689,26 @@ auth.onAuthStateChanged(async (user) => {
     const addAddressLink = document.getElementById('addAddressLink');
 
     if (user) {
+        // Hide auth form if visible
+        hideAuthContainer();
+
         // Show "Add Address" link
         if (addAddressLink) addAddressLink.style.display = 'block';
 
-        // Load account info
-        loadAccountInfo(user.uid);
+        // Conditionally load account info only on account page
+        if (window.location.pathname.includes('account')) {
+            loadAccountInfo(user.uid);
+        }
 
-        // Update or create user data in Firestore
+        // Update user data in Firestore (lastLogin only)
+        await db.collection("users").doc(user.uid).set({
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // Also ensure user doc is initialized or updated
         updateUserData(user).catch(console.error);
 
-        // Handle guest cart merge into Firestore cart
+        // Handle cart merge (guest → logged-in)
         mergeCartsIfNeeded(user).catch(console.error);
 
         // Load and update UI with user data
@@ -2714,6 +2734,8 @@ auth.onAuthStateChanged(async (user) => {
         }
 
     } else {
+        // User is signed out
+
         // Hide "Add Address" link
         if (addAddressLink) addAddressLink.style.display = 'none';
 
@@ -2732,7 +2754,6 @@ auth.onAuthStateChanged(async (user) => {
     updateCartCount();
     renderCart();
 });
-
 
 function mergeCarts(primaryCart, secondaryCart) {
     const merged = [...primaryCart];
