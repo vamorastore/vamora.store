@@ -1572,97 +1572,6 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
             hideLoading('signup-submit-button');
         });
 });
-// Email/Password Login - Firestore Version
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    showLoading('login-submit-button');
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
-
-    const loginError = document.getElementById('login-error');
-    if (loginError) loginError.classList.add('hidden');
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Check if email is verified
-            if (!user.emailVerified) {
-                auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
-            }
-            
-            // Update last login time
-            return db.collection("users").doc(user.uid).update({
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
-            });
-        })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
-            
-            const user = auth.currentUser;
-            const userData = doc.data();
-            
-            // Update UI elements if they exist
-            const loginSuccess = document.getElementById('login-success');
-            if (loginSuccess) {
-                loginSuccess.textContent = 'Login successful! Redirecting...';
-                loginSuccess.classList.remove('hidden');
-            }
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.add('login-success');
-            
-            hideLoading('login-submit-button');
-            
-            setTimeout(() => {
-                hideAuthContainer();
-                
-                // Update account info page if it exists
-                const accountInfoPage = document.getElementById('account-info-page');
-                if (accountInfoPage) {
-                    accountInfoPage.classList.remove('hidden');
-                    
-                    const displayName = document.getElementById('displayName');
-                    if (displayName) displayName.textContent = userData.name || '';
-                    
-                    const displayEmail = document.getElementById('displayEmail');
-                    if (displayEmail) displayEmail.textContent = user.email || '';
-                    
-                    const emailDisplay = document.getElementById('emailDisplay');
-                    if (emailDisplay) emailDisplay.value = user.email || '';
-                    
-                    loadAddresses(user.uid);
-                    loadOrders(user.uid);
-                }
-                
-                updateLoginButton();
-                updateMobileAccountOptions();
-                
-                const emailField = document.getElementById('email');
-                if (emailField) emailField.value = user.email;
-            }, 500);
-        })
-        .catch((error) => {
-            console.error("Error handling login:", error);
-            const loginError = document.getElementById('login-error');
-            if (loginError) {
-                loginError.textContent = error.message || 'Error processing login. Please try again.';
-                loginError.classList.remove('hidden');
-            }
-            hideLoading('login-submit-button');
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.remove('login-success');
-        });
-});
-// Updated Google Sign In/Sign Up handler with Firestore
 // Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1702,22 +1611,23 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 }, { merge: true });
             })
             .then(() => {
-                const user = auth.currentUser;
-                
-                googleBtn.innerHTML = originalContent;
-                googleBtn.disabled = false;
-                
-                // Hide auth container and redirect
-           setTimeout(() => {
-    hideAuthContainer();
+    const user = auth.currentUser;
     
-    // Just update the UI without redirecting
-    if (window.location.pathname.includes('account')) {
-        loadAccountInfo(user.uid);
-    }
-    // No else clause - stays on current page
-}, 1500);
-            })
+    googleBtn.innerHTML = originalContent;
+    googleBtn.disabled = false;
+    
+    setTimeout(() => {
+        hideAuthContainer();
+        
+        // Update UI without redirecting
+        if (window.location.pathname.includes('account')) {
+            loadAccountInfo(user.uid);
+        }
+        
+        updateLoginButton();
+        updateMobileAccountOptions();
+    }, 1000);
+})
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
@@ -1775,33 +1685,40 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 return db.collection("users").doc(user.uid).get();
             });
         })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
-            
-            const user = auth.currentUser;
-            const userData = doc.data();
-            
-            // Show success message
-            const loginSuccess = document.getElementById('login-success');
-            if (loginSuccess) {
-                loginSuccess.textContent = 'Login successful! Redirecting...';
-                loginSuccess.classList.remove('hidden');
-            }
-            
-            hideLoading('login-submit-button');
-            
-            setTimeout(() => {
-    hideAuthContainer();
-    
-    // Just update the UI without redirecting
-    if (window.location.pathname.includes('account')) {
-        loadAccountInfo(user.uid);
+// Updated login success handler
+.then((doc) => {
+    if (!doc.exists) {
+        throw new Error("User data not found");
     }
-    // No else clause - stays on current page
-}, 1500);
-        })
+    
+    const user = auth.currentUser;
+    const userData = doc.data();
+    
+    // Show success message
+    const loginSuccess = document.getElementById('login-success');
+    if (loginSuccess) {
+        loginSuccess.textContent = 'Login successful!';
+        loginSuccess.classList.remove('hidden');
+    }
+    
+    hideLoading('login-submit-button');
+    
+    setTimeout(() => {
+        hideAuthContainer();
+        
+        // Update UI elements without redirecting
+        if (window.location.pathname.includes('account')) {
+            loadAccountInfo(user.uid);
+        }
+        
+        updateLoginButton();
+        updateMobileAccountOptions();
+        
+        // Update checkout email field if it exists
+        const emailField = document.getElementById('email');
+        if (emailField) emailField.value = user.email;
+    }, 1000);
+})
         .catch((error) => {
             console.error("Error handling login:", error);
             const loginError = document.getElementById('login-error');
@@ -2267,6 +2184,7 @@ function resendVerification(email) {
 // Update login button based on auth state
 function updateLoginButton() {
     const user = auth.currentUser;
+    const loginButton = document.getElementById('login-button');
     
     if (loginButton) {
         if (user) {
@@ -2284,8 +2202,7 @@ function updateLoginButton() {
             };
         }
     }
-}
-// Update mobile account options visibility
+}// Update mobile account options visibility
 function updateMobileAccountOptions() {
     const user = auth.currentUser;
     const mobileAccountOptions = document.getElementById('mobileAccountOptions');
