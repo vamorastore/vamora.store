@@ -2046,7 +2046,7 @@
 // Product Page Script
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize cart from localStorage or empty array
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('guestCart')) || [];
     
     // Size buttons selection
     const sizeButtons = document.querySelectorAll('.size-button');
@@ -2139,7 +2139,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productImage = document.querySelector('.main-image').src;
         
         const product = {
-            id: generateProductId(productTitle), // Generate a unique ID based on title
+            id: window.location.pathname, // Consistent ID generation with second script
             title: productTitle,
             size: selectedSize.textContent,
             price: productPrice,
@@ -2169,7 +2169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 openCartAndRenderItems(); // Open cart after adding item
             });
         } else {
-            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('guestCart', JSON.stringify(cart)); // Consistent key with second script
             updateCartCount();
             showAddToCartSuccess();
             openCartAndRenderItems(); // Open cart after adding item
@@ -2191,7 +2191,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create a temporary cart for buy now flow
         const tempCart = [{
-            id: generateProductId(productTitle),
+            id: window.location.pathname, // Consistent ID generation
             title: productTitle,
             size: selectedSize.textContent,
             price: productPrice,
@@ -2210,21 +2210,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'checkout.html';
             }).catch(error => {
                 console.error("Error saving temp cart:", error);
-                // Fallback to localStorage
-                localStorage.setItem('tempCart', JSON.stringify(tempCart));
+                // Fallback to localStorage with consistent key
+                localStorage.setItem('guestTempCart', JSON.stringify(tempCart));
                 window.location.href = 'checkout.html';
             });
         } else {
             // Use a separate key for temporary buy now cart
-            localStorage.setItem('tempCart', JSON.stringify(tempCart));
+            localStorage.setItem('guestTempCart', JSON.stringify(tempCart));
             window.location.href = 'checkout.html';
         }
     });
-
-    // Helper function to generate product ID
-    function generateProductId(title) {
-        return title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-    }
 
     // Update cart count in navbar
     function updateCartCount() {
@@ -2321,8 +2316,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } catch (error) {
             console.error("Error saving cart:", error);
-            // Fallback to localStorage if Firestore fails
-            localStorage.setItem('cart', JSON.stringify(cartItems));
+            // Fallback to localStorage with consistent key
+            localStorage.setItem('guestCart', JSON.stringify(cartItems));
         }
     }
 
@@ -2337,24 +2332,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 const doc = await firebase.firestore().collection("carts").doc(user.uid).get();
                 const firestoreCart = doc.exists ? doc.data().items : [];
                 
+                // Get current guest cart
+                const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+                
                 // Merge carts (Firestore cart takes precedence)
-                const mergedCart = mergeCarts(firestoreCart, cart);
+                const mergedCart = mergeCarts(firestoreCart, guestCart);
                 cart = mergedCart;
                 
                 // Save merged cart to Firestore
                 await saveCartToFirestore(user.uid, mergedCart);
                 
                 // Clear localStorage cart
-                localStorage.removeItem('cart');
+                localStorage.removeItem('guestCart');
                 
                 // Update UI
                 updateCartCount();
+                if (document.getElementById('cartOverlay').classList.contains('active')) {
+                    renderCartItems();
+                }
             } catch (error) {
                 console.error("Error syncing carts:", error);
             }
         } else {
             // User is signed out - load from localStorage
-            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = JSON.parse(localStorage.getItem('guestCart')) || [];
             updateCartCount();
         }
     });
@@ -2389,7 +2390,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (user) {
             saveCartToFirestore(user.uid, cart);
         } else {
-            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('guestCart', JSON.stringify(cart));
         }
         
         updateCartCount();
@@ -2406,7 +2407,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (user) {
             saveCartToFirestore(user.uid, cart);
         } else {
-            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('guestCart', JSON.stringify(cart));
         }
         
         updateCartCount();
@@ -2425,6 +2426,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
         window.location.href = 'checkout.html';
     };
+
+    // Open cart function
+    window.openCart = function() {
+        document.getElementById('cartOverlay').classList.add('active');
+        document.getElementById('cartBackdrop').classList.add('active');
+        renderCartItems();
+    };
+
+    // Close cart function
+    window.closeCart = function() {
+        document.getElementById('cartOverlay').classList.remove('active');
+        document.getElementById('cartBackdrop').classList.remove('active');
+    };
+
+    // Event listeners for cart buttons
+    document.getElementById('cartIconNav').addEventListener('click', function(e) {
+        e.preventDefault();
+        openCart();
+    });
+
+    document.getElementById('closeCartButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        closeCart();
+    });
+
+    document.getElementById('cartBackdrop').addEventListener('click', function(e) {
+        e.preventDefault();
+        closeCart();
+    });
 });
 </script>
 </body>
