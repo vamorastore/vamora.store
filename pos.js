@@ -56,8 +56,6 @@ const closeAddAddressModal = document.getElementById('closeAddAddressModal');
 const saveAddressBtn = document.getElementById('saveAddressBtn');
 const addressContainer = document.getElementById('addressContainer');
 const ordersContainer = document.getElementById('ordersContainer');
-const loginButton = document.getElementById('login-button');
-
 // Show login section and hide signup section
 function showLoginSection() {
     document.getElementById('login-section').classList.remove('hidden');
@@ -1572,75 +1570,6 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
             hideLoading('signup-submit-button');
         });
 });
-// Email/Password Login - Firestore Version
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    showLoading('login-submit-button');
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
-
-    const loginError = document.getElementById('login-error');
-    if (loginError) loginError.classList.add('hidden');
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Check if email is verified
-            if (!user.emailVerified) {
-                auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
-            }
-            
-            // Update last login time
-            return db.collection("users").doc(user.uid).update({
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
-            });
-        })
-        .then((doc) => {
-    if (!doc.exists) {
-        throw new Error("User data not found");
-    }
-    
-    const user = auth.currentUser;
-    const userData = doc.data();
-    
-    // Show success message
-    const loginSuccess = document.getElementById('login-success');
-    if (loginSuccess) {
-        loginSuccess.textContent = 'Login successful!';
-        loginSuccess.classList.remove('hidden');
-    }
-    
-    hideLoading('login-submit-button');
-    
-    setTimeout(() => {
-        hideAuthContainer();
-        
-        // Just update the UI without redirecting
-        if (window.location.pathname.includes('account')) {
-            loadAccountInfo(user.uid);
-        }
-        // No else clause - stays on current page
-    }, 1500);
-})
-        .catch((error) => {
-            console.error("Error handling login:", error);
-            const loginError = document.getElementById('login-error');
-            if (loginError) {
-                loginError.textContent = error.message || 'Error processing login. Please try again.';
-                loginError.classList.remove('hidden');
-            }
-            hideLoading('login-submit-button');
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.remove('login-success');
-        });
-});
 // Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1655,141 +1584,98 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             .then((result) => {
                 const user = result.user;
                 
-                // Show success message in login section
-                const loginSuccessEl = document.getElementById('login-success');
-                if (loginSuccessEl) {
-                    loginSuccessEl.textContent = 'Google login successful! Redirecting...';
-                    loginSuccessEl.classList.remove('hidden');
-                }
+                // Immediately update UI to show success
+                googleBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
                 
-                // Hide error messages if they exist
-                const loginError = document.getElementById('login-error');
-                const signupError = document.getElementById('signup-error');
-                if (loginError) loginError.classList.add('hidden');
-                if (signupError) signupError.classList.add('hidden');
-                
-                // Save user data to Firestore
+                // Return Firestore update promise
                 return db.collection("users").doc(user.uid).set({
                     name: user.displayName,
                     email: user.email,
                     provider: 'google',
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    photoURL: user.photoURL || null,
-                    addresses: []
+                    photoURL: user.photoURL || null
                 }, { merge: true });
             })
-            then(() => {
-    const user = auth.currentUser;
-    
-    googleBtn.innerHTML = originalContent;
-    googleBtn.disabled = false;
-    
-    // Hide auth container and update UI
-    setTimeout(() => {
-        hideAuthContainer();
-        
-        // Update UI without redirecting
-        if (window.location.pathname.includes('account')) {
-            loadAccountInfo(user.uid);
-        }
-        // No else clause - stays on current page
-    }, 1500);
-})
+            .then(() => {
+                // Hide auth container after short delay
+                setTimeout(() => {
+                    hideAuthContainer();
+                    googleBtn.innerHTML = originalContent;
+                    googleBtn.disabled = false;
+                }, 1000);
+            })
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
-                
-                const errorMessage = error.message;
-                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
-                
-                if (currentAuthSection) {
-                    const isLoginSection = currentAuthSection.id === 'login-section';
-                    
-                    if (isLoginSection) {
-                        const loginError = document.getElementById('login-error');
-                        if (loginError) {
-                            loginError.textContent = errorMessage;
-                            loginError.classList.remove('hidden');
-                        }
-                    } else {
-                        const signupError = document.getElementById('signup-error');
-                        if (signupError) {
-                            signupError.textContent = errorMessage;
-                            signupError.classList.remove('hidden');
-                        }
-                    }
-                }
+                showAuthError(error.message);
             });
     });
 });
-
 // Updated Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    showLoading('login-submit-button');
+    const button = document.getElementById('login-submit-button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    button.disabled = true;
     
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
-
-    const loginError = document.getElementById('login-error');
-    if (loginError) loginError.classList.add('hidden');
 
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
             
-            // Check if email is verified
+            // Check email verification
             if (!user.emailVerified) {
-                auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+                auth.signOut();
+                throw new Error("Please verify your email first.");
             }
             
-            // Update last login time
-            return db.collection("users").doc(user.uid).update({
+            // Show immediate success feedback
+            button.innerHTML = '<i class="fas fa-check"></i> Success!';
+            
+            // Update last login time (non-blocking)
+            db.collection("users").doc(user.uid).update({
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
-            });
-        })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
+            }).catch(console.error);
             
-            const user = auth.currentUser;
-            const userData = doc.data();
-            
-            // Show success message
-            const loginSuccess = document.getElementById('login-success');
-            if (loginSuccess) {
-                loginSuccess.textContent = 'Login successful! Redirecting...';
-                loginSuccess.classList.remove('hidden');
-            }
-            
-            hideLoading('login-submit-button');
-            
+            // Hide auth after short delay
             setTimeout(() => {
-    hideAuthContainer();
-    
-    // Just update the UI without redirecting
-    if (window.location.pathname.includes('account')) {
-        loadAccountInfo(user.uid);
-    }
-    // No else clause - stays on current page
-}, 1500);
+                hideAuthContainer();
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                
+                if (window.location.pathname.includes('account')) {
+                    loadAccountInfo(user.uid);
+                }
+            }, 1000);
         })
         .catch((error) => {
-            console.error("Error handling login:", error);
-            const loginError = document.getElementById('login-error');
-            if (loginError) {
-                loginError.textContent = error.message || 'Error processing login. Please try again.';
-                loginError.classList.remove('hidden');
-            }
-            hideLoading('login-submit-button');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+            showAuthError(error.message);
         });
 });
+//HELPER FUNCTIONS
+function showAuthError(message) {
+    const errorEl = document.getElementById('login-error') || 
+                   document.getElementById('signup-error') || 
+                   document.getElementById('auth-error');
+    
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    }
+}
+
+function resetAuthButton(buttonId) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = false;
+        button.innerHTML = button.querySelector('span').textContent;
+    }
+}
 
 // Prevent Google-signed-in emails from signing up with email/password
 document.getElementById('signup-form').addEventListener('submit', function(e) {
@@ -2250,8 +2136,6 @@ function logoutUser(event) {
             if (accountInfoPage) accountInfoPage.classList.add('hidden');
         }
         
-        updateLoginButton();
-        
         // Reload only if on account page
         if (window.location.pathname.includes('account')) {
             window.location.reload();
@@ -2285,28 +2169,7 @@ function resendVerification(email) {
             }
         });
 }
-
-// Update login button based on auth state
-function updateLoginButton() {
-    const user = auth.currentUser;
-    
-    if (loginButton) {
-        if (user) {
-            loginButton.textContent = 'LOG OUT';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                logoutUser(e);
-            };
-        } else {
-            loginButton.textContent = 'LOG IN';
-            loginButton.onclick = function(e) {
-                e.preventDefault();
-                showAuthContainer();
-                showLoginSection();
-            };
-        }
-    }
-}// Update mobile account options visibility
+// Update mobile account options visibility
 function updateMobileAccountOptions() {
     const user = auth.currentUser;
     const mobileAccountOptions = document.getElementById('mobileAccountOptions');
@@ -2680,7 +2543,23 @@ function updateUIWithUserData(user, userData) {
         }
     }
 }
-
+async function updateUserData(user) {
+    const userRef = db.collection("users").doc(user.uid);
+    const doc = await userRef.get();
+    
+    if (!doc.exists) {
+        await userRef.set({
+            name: user.displayName || '',
+            email: user.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } else {
+        await userRef.update({
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+}
 // Update the Pay Now button event listener with better error handling
 const checkoutBtn = document.querySelector('.checkout-btn');
 if (checkoutBtn) {
@@ -2794,25 +2673,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Auth state change handler for cart sync
 auth.onAuthStateChanged(async (user) => {
+    // Update auth-based UI immediately
+    updateAuthUI(user);
+
     const addAddressLink = document.getElementById('addAddressLink');
 
     if (user) {
-        // Show add address button
+        // Show "Add Address" link
         if (addAddressLink) addAddressLink.style.display = 'block';
 
         // Load account info
         loadAccountInfo(user.uid);
 
-        // Handle cart merging (guest → logged-in)
-        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-        const firestoreCart = await getOrCreateUserCart(user.uid);
-        const mergedCart = mergeCarts(firestoreCart, guestCart);
-        cart = mergedCart;
+        // Update or create user data in Firestore
+        updateUserData(user).catch(console.error);
 
-        await saveCartToFirestore(user.uid, mergedCart);
-        localStorage.removeItem('guestCart');
+        // Handle guest cart merge into Firestore cart
+        mergeCartsIfNeeded(user).catch(console.error);
 
-        // Load user data from Firestore
+        // Load and update UI with user data
         try {
             const userDoc = await db.collection("users").doc(user.uid).get();
 
@@ -2835,8 +2714,11 @@ auth.onAuthStateChanged(async (user) => {
         }
 
     } else {
-        // Hide add address button
+        // Hide "Add Address" link
         if (addAddressLink) addAddressLink.style.display = 'none';
+
+        // Handle guest state
+        handleGuestState();
 
         // Load guest cart
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
@@ -2847,10 +2729,10 @@ auth.onAuthStateChanged(async (user) => {
 
     // Common actions
     setupResendVerification();
-    updateLoginButton();
     updateCartCount();
     renderCart();
 });
+
 
 function mergeCarts(primaryCart, secondaryCart) {
     const merged = [...primaryCart];
