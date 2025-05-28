@@ -1,4 +1,4 @@
-// Initialize Firebase
+ // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -15,7 +15,6 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
-
 // Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
@@ -302,7 +301,7 @@ function renderCart() {
             <div class="text-center py-12">
                 <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
                 <p class="text-gray-500">Your cart is empty</p>
-                <a href="shop.html" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors">
+                <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
                     Continue Shopping
                 </a>
             </div>
@@ -1709,16 +1708,15 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 googleBtn.disabled = false;
                 
                 // Hide auth container and redirect
-                setTimeout(() => {
-                    hideAuthContainer();
-                    
-                    // Redirect to profile page or show account info
-                    if (window.location.pathname.includes('account')) {
-                        loadAccountInfo(user.uid);
-                    } else {
-                        window.location.href = '/account';
-                    }
-                }, 1500);
+           setTimeout(() => {
+    hideAuthContainer();
+    
+    // Just update the UI without redirecting
+    if (window.location.pathname.includes('account')) {
+        loadAccountInfo(user.uid);
+    }
+    // No else clause - stays on current page
+}, 1500);
             })
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
@@ -1795,15 +1793,14 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             hideLoading('login-submit-button');
             
             setTimeout(() => {
-                hideAuthContainer();
-                
-                // Redirect to profile page or show account info
-                if (window.location.pathname.includes('account')) {
-                    loadAccountInfo(user.uid);
-                } else {
-                    window.location.href = '/account';
-                }
-            }, 1500);
+    hideAuthContainer();
+    
+    // Just update the UI without redirecting
+    if (window.location.pathname.includes('account')) {
+        loadAccountInfo(user.uid);
+    }
+    // No else clause - stays on current page
+}, 1500);
         })
         .catch((error) => {
             console.error("Error handling login:", error);
@@ -2268,33 +2265,25 @@ function resendVerification(email) {
 }
 
 // Update login button based on auth state
-function updateAllLoginButtons() {
+function updateLoginButton() {
     const user = auth.currentUser;
-    const loginButtons = [
-        document.getElementById('login-button'), // Navbar login
-        document.getElementById('mobile-login-button'), // Mobile menu login
-        document.getElementById('profile-login-button'), // Profile page login
-        document.getElementById('checkout-login-button') // Checkout login
-    ];
-
-    loginButtons.forEach(button => {
-        if (!button) return;
-        
+    
+    if (loginButton) {
         if (user) {
-            button.textContent = 'LOG OUT';
-            button.onclick = function(e) {
+            loginButton.textContent = 'LOG OUT';
+            loginButton.onclick = function(e) {
                 e.preventDefault();
                 logoutUser(e);
             };
         } else {
-            button.textContent = 'LOG IN';
-            button.onclick = function(e) {
+            loginButton.textContent = 'LOG IN';
+            loginButton.onclick = function(e) {
                 e.preventDefault();
                 showAuthContainer();
                 showLoginSection();
             };
         }
-    });
+    }
 }
 // Update mobile account options visibility
 function updateMobileAccountOptions() {
@@ -2632,66 +2621,7 @@ document.addEventListener('click', function(event) {
     }
 });
 // Update the auth state handler to show/hide add address button
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Show add address button
-        const addAddressLink = document.getElementById('addAddressLink');
-        if (addAddressLink) addAddressLink.style.display = 'block';
-        
-        // Load user data
-        loadAccountInfo(user.uid);
-    } else {
-        // Hide add address button
-        const addAddressLink = document.getElementById('addAddressLink');
-        if (addAddressLink) addAddressLink.style.display = 'none';
-    }
-});
-// Unified auth state handler
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Handle cart merging (guest → logged-in)
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || []);
-        const firestoreCart = await getOrCreateUserCart(user.uid);
-        
-        const mergedCart = mergeCarts(firestoreCart, guestCart);
-        
-        await saveCartToFirestore(user.uid, mergedCart);
-        localStorage.removeItem('guestCart');
-        
-        cart = mergedCart;
-        renderCart();
 
-        // Load user data from Firestore
-        try {
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                updateUIWithUserData(user, userData);
-                document.getElementById('email').value = user.email;
-            } else {
-                await db.collection("users").doc(user.uid).set({
-                    name: user.displayName || '',
-                    email: user.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-            
-        } catch (error) {
-            console.error("Error loading user data:", error);
-        }
-        
-    } else {
-        // User is signed out - load guest cart only
-        cart = JSON.parse(localStorage.getItem('guestCart') || []);
-        applyDefaultAddress();
-    }
-    
-    setupResendVerification();
-    updateLoginButton();
-    renderCart();
-});
 // New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
     // Cache DOM elements to avoid multiple queries
@@ -2849,6 +2779,9 @@ auth.onAuthStateChanged(async (user) => {
         // Show add address button
         if (addAddressLink) addAddressLink.style.display = 'block';
 
+        // Load account info
+        loadAccountInfo(user.uid);
+
         // Handle cart merging (guest → logged-in)
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         const firestoreCart = await getOrCreateUserCart(user.uid);
@@ -2858,9 +2791,6 @@ auth.onAuthStateChanged(async (user) => {
         await saveCartToFirestore(user.uid, mergedCart);
         localStorage.removeItem('guestCart');
 
-        // Load account info
-        loadAccountInfo(user.uid);
-
         // Load user data from Firestore
         try {
             const userDoc = await db.collection("users").doc(user.uid).get();
@@ -2868,7 +2798,9 @@ auth.onAuthStateChanged(async (user) => {
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 updateUIWithUserData(user, userData);
-                document.getElementById('email').value = user.email;
+
+                const emailInput = document.getElementById('email');
+                if (emailInput) emailInput.value = user.email;
             } else {
                 await db.collection("users").doc(user.uid).set({
                     name: user.displayName || '',
@@ -2894,7 +2826,7 @@ auth.onAuthStateChanged(async (user) => {
 
     // Common actions
     setupResendVerification();
-    updateAllLoginButtons();
+    updateLoginButton();
     updateCartCount();
     renderCart();
 });
