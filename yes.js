@@ -2623,66 +2623,7 @@ document.addEventListener('click', function(event) {
     }
 });
 // Update the auth state handler to show/hide add address button
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Show add address button
-        const addAddressLink = document.getElementById('addAddressLink');
-        if (addAddressLink) addAddressLink.style.display = 'block';
-        
-        // Load user data
-        loadAccountInfo(user.uid);
-    } else {
-        // Hide add address button
-        const addAddressLink = document.getElementById('addAddressLink');
-        if (addAddressLink) addAddressLink.style.display = 'none';
-    }
-});
-// Unified auth state handler
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Handle cart merging (guest → logged-in)
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || []);
-        const firestoreCart = await getOrCreateUserCart(user.uid);
-        
-        const mergedCart = mergeCarts(firestoreCart, guestCart);
-        
-        await saveCartToFirestore(user.uid, mergedCart);
-        localStorage.removeItem('guestCart');
-        
-        cart = mergedCart;
-        renderCart();
 
-        // Load user data from Firestore
-        try {
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                updateUIWithUserData(user, userData);
-                document.getElementById('email').value = user.email;
-            } else {
-                await db.collection("users").doc(user.uid).set({
-                    name: user.displayName || '',
-                    email: user.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-            
-        } catch (error) {
-            console.error("Error loading user data:", error);
-        }
-        
-    } else {
-        // User is signed out - load guest cart only
-        cart = JSON.parse(localStorage.getItem('guestCart') || []);
-        applyDefaultAddress();
-    }
-    
-    setupResendVerification();
-    updateLoginButton();
-    renderCart();
-});
 // New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
     // Cache DOM elements to avoid multiple queries
@@ -2840,6 +2781,9 @@ auth.onAuthStateChanged(async (user) => {
         // Show add address button
         if (addAddressLink) addAddressLink.style.display = 'block';
 
+        // Load account info
+        loadAccountInfo(user.uid);
+
         // Handle cart merging (guest → logged-in)
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         const firestoreCart = await getOrCreateUserCart(user.uid);
@@ -2849,9 +2793,6 @@ auth.onAuthStateChanged(async (user) => {
         await saveCartToFirestore(user.uid, mergedCart);
         localStorage.removeItem('guestCart');
 
-        // Load account info
-        loadAccountInfo(user.uid);
-
         // Load user data from Firestore
         try {
             const userDoc = await db.collection("users").doc(user.uid).get();
@@ -2859,7 +2800,9 @@ auth.onAuthStateChanged(async (user) => {
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 updateUIWithUserData(user, userData);
-                document.getElementById('email').value = user.email;
+
+                const emailInput = document.getElementById('email');
+                if (emailInput) emailInput.value = user.email;
             } else {
                 await db.collection("users").doc(user.uid).set({
                     name: user.displayName || '',
