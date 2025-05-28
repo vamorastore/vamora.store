@@ -1708,16 +1708,15 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 googleBtn.disabled = false;
                 
                 // Hide auth container and redirect
-                setTimeout(() => {
-                    hideAuthContainer();
-                    
-                    // Redirect to profile page or show account info
-                    if (window.location.pathname.includes('account')) {
-                        loadAccountInfo(user.uid);
-                    } else {
-                        window.location.href = '/account';
-                    }
-                }, 1500);
+           setTimeout(() => {
+    hideAuthContainer();
+    
+    // Just update the UI without redirecting
+    if (window.location.pathname.includes('account')) {
+        loadAccountInfo(user.uid);
+    }
+    // No else clause - stays on current page
+}, 1500);
             })
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
@@ -1794,15 +1793,14 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             hideLoading('login-submit-button');
             
             setTimeout(() => {
-                hideAuthContainer();
-                
-                // Redirect to profile page or show account info
-                if (window.location.pathname.includes('account')) {
-                    loadAccountInfo(user.uid);
-                } else {
-                    window.location.href = '/account';
-                }
-            }, 1500);
+    hideAuthContainer();
+    
+    // Just update the UI without redirecting
+    if (window.location.pathname.includes('account')) {
+        loadAccountInfo(user.uid);
+    }
+    // No else clause - stays on current page
+}, 1500);
         })
         .catch((error) => {
             console.error("Error handling login:", error);
