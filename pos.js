@@ -1,4 +1,4 @@
- // Initialize Firebase
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -15,6 +15,7 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
+
 // Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
@@ -2267,25 +2268,33 @@ function resendVerification(email) {
 }
 
 // Update login button based on auth state
-function updateLoginButton() {
+function updateAllLoginButtons() {
     const user = auth.currentUser;
-    
-    if (loginButton) {
+    const loginButtons = [
+        document.getElementById('login-button'), // Navbar login
+        document.getElementById('mobile-login-button'), // Mobile menu login
+        document.getElementById('profile-login-button'), // Profile page login
+        document.getElementById('checkout-login-button') // Checkout login
+    ];
+
+    loginButtons.forEach(button => {
+        if (!button) return;
+        
         if (user) {
-            loginButton.textContent = 'LOG OUT';
-            loginButton.onclick = function(e) {
+            button.textContent = 'LOG OUT';
+            button.onclick = function(e) {
                 e.preventDefault();
                 logoutUser(e);
             };
         } else {
-            loginButton.textContent = 'LOG IN';
-            loginButton.onclick = function(e) {
+            button.textContent = 'LOG IN';
+            button.onclick = function(e) {
                 e.preventDefault();
                 showAuthContainer();
                 showLoginSection();
             };
         }
-    }
+    });
 }
 // Update mobile account options visibility
 function updateMobileAccountOptions() {
@@ -2885,7 +2894,7 @@ auth.onAuthStateChanged(async (user) => {
 
     // Common actions
     setupResendVerification();
-    updateLoginButton();
+    updateAllLoginButtons();
     updateCartCount();
     renderCart();
 });
