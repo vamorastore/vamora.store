@@ -2747,7 +2747,7 @@ function updateCartCount() {
     if (cartCountElement) {
         const totalItems = cart.reduce((total, item) => total + (item.quantity || 1), 0);
         cartCountElement.textContent = totalItems;
-        cartCountElement.classList.toggle('hidden', totalItems === 0);
+        cartCountElement.setAttribute('data-count', totalItems);
     }
 }
 
