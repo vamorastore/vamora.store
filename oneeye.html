@@ -1136,7 +1136,7 @@
             </button>
             
             <div class="flex items-center logo-container">
-                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://media-hosting.imagekit.io/57a79640510a4ff0/vamora.png?Expires=1837897542&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=QkL74gCaBuN~AToq3beDuhfdO~cKOgikij8ylI8~YZn23B~-0-97W5k2lILxR6JH-kYE13sXT20s8dDYw7Bd6BAeqpO87qpxQ4i2fLyJeZOzJKquT~sqbkrYOZ~-HSTi2FgIOuAGnQRLZQJSWFynKk6gZf1c3M1lQ0O6uKTGQ8rMBXQ8vCfaaBb2kz~aOy2Ba2t86W4B6ypKCMRlBKcLoKJ5e0ykjBN58KBklMEfbZDM5eywdTs2XYhtfp7bcWghzLLbpJGyD585JBDVgF6gMV2KLnbvoW18cdXQOfyiLNNxt-UbJxIQUi6U5GNU-qHdrLaKvynAhNLWA0hWed6tkA__"/>
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
                 <span class="logo-text">VAMORA.STORE</span>
             </div>
             
@@ -1157,9 +1157,9 @@
                 <div class="icon-separator"></div>
                 <div class="relative">
                     <div class="cursor-pointer" id="accountIconNav">
-                        <img src="https://media-hosting.imagekit.io/d99cf977640d43ed/screenshot_1743184701137.png?Expires=1837792703&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=f4Kl9KwYS3vEnTdVWqJsHIi~97c-HXYq-TrcBuxVqt3uL-tLxngx9xHYHPYYqgym~iYvxzXRuCnGqcsIMa7bo0ej7eXvZhdxZA6qmOXrOpp0m8PVkaMYOZ-4Jr3nHmtX2rzKrBFG7y0q6aUr8HUfJuUGS8BMPR1ZlxAuuSzmoppImADqsR5VA5AOUFHEwLvPlRYyuJUqLu5Y-Pp7C6TGqo7fVStP2jrvg9HRQRxaLDmIiJXegzn5Ecgu59-Z-tXgtBQ9vv~39hxCg4EC5HikCRaf9hbWjHcQchWPsoof7RCPmknony22lhqvCIQqE~2hu-Sziuci4Ph4JlN5uT~d7A__" 
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/309035_user_account_human_person_icon.png?updatedAt=1748440169995" 
                              alt="Account" 
-                             class="account-icon-hover w-6 h-6 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                             class="account-icon-hover w-8 h-8 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
                     </div>
                     <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
                         <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
@@ -1179,9 +1179,9 @@
             </div>
 
             <div class="nav-links">
-                <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link active" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
             </div>
         </div>
@@ -1190,16 +1190,17 @@
     <!-- Mobile Menu Content -->
     <div class="mobile-menu-content" id="mobileMenuContent">
         <div class="mobile-menu-links">
-         <a class="text-black nav-link" href="index.html">HOME</a>
+         <a class="text-black nav-link active" href="index.html">HOME</a>
                 <a class="text-black nav-link" href="shop.html">SHOP</a>
-                <a class="text-black nav-link active" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
                 <a class="text-black nav-link" href="contact.html">CONTACT</a>
         </div>
         <div class="mobile-menu-social">
-                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                  <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
+
     <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
@@ -1226,7 +1227,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Account Info Page (hidden by default) -->
     <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
         <div class="max-w-4xl mx-auto p-6">
@@ -1262,19 +1263,13 @@
                     </div>
                 </div>
                 
-           <!-- Inside the account-info-page div, within the orders section -->
-<div class="bg-white p-4 rounded-lg shadow-md mt-4">
-    <h3 class="text-xl font-bold">Your Orders</h3>
-    <div id="ordersContainer">
-        <!-- Add the loading spinner here -->
-        <div id="ordersLoading" class="hidden">
-            <div class="flex justify-center py-8">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-        <!-- Orders will be displayed here -->
-    </div>
-</div>
+                <!-- Orders Section -->
+                <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                    <h3 class="text-xl font-bold">Your Orders</h3>
+                    <div id="ordersContainer">
+                        <!-- Orders will be displayed here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1423,7 +1418,7 @@
     </div>
 </div>
 
-<!-- Login/Signup Modal -->
+    <!-- Login/Signup Modal -->
 <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
@@ -1438,12 +1433,12 @@
                     <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
                 </div>
                 <div class="mb-4 password-container">
-    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-    <button type="button" class="password-toggle" data-toggle="login-password">
-        <i class="far fa-eye"></i>
-    </button>
-</div>
+                    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" id="toggle-login-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
                 <div class="mb-4 flex items-center justify-between">
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
@@ -1459,18 +1454,6 @@
             <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
             <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
             
-<div id="resend-verification-container" class="hidden mt-4 text-center">
-    <p class="text-sm text-gray-600">Didn't receive the email?</p>
-    <button 
-        id="resend-verification-btn" 
-        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-    >
-        Resend Verification Email
-    </button>
-    <p id="resend-success" class="hidden text-green-600 text-sm mt-1">
-        <i class="fas fa-check-circle"></i> Email sent!
-    </p>
-</div>
             <div class="flex items-center my-4">
                 <div class="flex-grow border-t border-gray-300"></div>
                 <span class="mx-4 text-gray-500 text-sm">or</span>
@@ -1491,6 +1474,12 @@
         <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
             <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
             
+            <!-- In the login-section div -->
+<p id="google-login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+
+<!-- In the signup-section div -->
+<p id="google-signup-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful!</p>
+
             <!-- Google Sign Up Button -->
        
             <form id="signup-form">
@@ -1505,20 +1494,20 @@
                     <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
                     <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
                 </div>
-               <div class="mb-4 password-container">
-    <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
-    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
-    <button type="button" class="password-toggle" data-toggle="signup-password">
-        <i class="far fa-eye"></i>
-    </button>
-    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
-</div>
-<div class="mb-4 password-container">
-    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
-    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
-    <button type="button" class="password-toggle" data-toggle="signup-confirm-password">
-        <i class="far fa-eye"></i>
-    </button>
+                <div class="mb-4 password-container">
+                    <label for="signup-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-signup-confirm-password">
+                        <i class="far fa-eye"></i>
+                    </button>
                     <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
                 </div>
                 <div class="mb-4">
