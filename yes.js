@@ -2805,6 +2805,51 @@ auth.onAuthStateChanged(async (user) => {
     setupResendVerification();
     updateCartCount();
     renderCart();
+    updateCheckoutAuthButton(user);
+
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutAuthButton = document.getElementById('checkoutAuthButton');
+
+    function updateCheckoutAuthButton(user) {
+        if (checkoutAuthButton) {
+            if (user) {
+                checkoutAuthButton.textContent = 'LOG OUT.';
+                checkoutAuthButton.classList.remove('text-blue-600', 'hover:text-blue-800');
+                checkoutAuthButton.classList.add('text-red-600', 'hover:text-red-800');
+            } else {
+                checkoutAuthButton.textContent = 'LOG IN.';
+                checkoutAuthButton.classList.remove('text-red-600', 'hover:text-red-800');
+                checkoutAuthButton.classList.add('text-blue-600', 'hover:text-blue-800');
+            }
+        }
+    }
+
+    if (checkoutAuthButton) {
+        checkoutAuthButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const user = auth.currentUser;
+
+            if (user) {
+                if (confirm('Are you sure you want to log out?')) {
+                    logoutUser();
+                }
+            } else {
+                showAuthContainer();
+                showLoginSection();
+            }
+        });
+
+        checkoutAuthButton.addEventListener('mouseenter', () => checkoutAuthButton.classList.add('underline'));
+        checkoutAuthButton.addEventListener('mouseleave', () => checkoutAuthButton.classList.remove('underline'));
+        checkoutAuthButton.addEventListener('mousedown', () => checkoutAuthButton.classList.add('opacity-75'));
+        checkoutAuthButton.addEventListener('mouseup', () => checkoutAuthButton.classList.remove('opacity-75'));
+        checkoutAuthButton.addEventListener('mouseout', () => checkoutAuthButton.classList.remove('opacity-75'));
+    }
+
+    auth.onAuthStateChanged((user) => {
+        updateCheckoutAuthButton(user);
+    });
 });
 
 function mergeCarts(primaryCart, secondaryCart) {
