@@ -2814,11 +2814,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateCheckoutAuthButton(user) {
         if (checkoutAuthButton) {
             if (user) {
-                checkoutAuthButton.textContent = 'LOG OUT.';
+                checkoutAuthButton.textContent = 'LOG OUT';
                 checkoutAuthButton.classList.remove('text-blue-600', 'hover:text-blue-800');
                 checkoutAuthButton.classList.add('text-red-600', 'hover:text-red-800');
             } else {
-                checkoutAuthButton.textContent = 'LOG IN.';
+                checkoutAuthButton.textContent = 'LOG IN';
                 checkoutAuthButton.classList.remove('text-red-600', 'hover:text-red-800');
                 checkoutAuthButton.classList.add('text-blue-600', 'hover:text-blue-800');
             }
