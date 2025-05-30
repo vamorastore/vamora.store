@@ -2799,7 +2799,7 @@ auth.onAuthStateChanged(async (user) => {
 
         // Show add address link if on account page
         if (onAccountPage && addAddressLink) {
-            addAddressLink.style.display = 'block';
+            addAddressLink.style.display = 'block'; // Or 'inline-block' depending on your styling
         }
 
         // Set email field as read-only
