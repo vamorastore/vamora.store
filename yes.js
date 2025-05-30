@@ -415,6 +415,7 @@ document.addEventListener('keydown', (e) => {
 function validateCheckoutForm() {
     let isValid = true;
     
+    // Helper function to validate a field
     function validateField(fieldId, errorId) {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(errorId);
@@ -430,6 +431,7 @@ function validateCheckoutForm() {
         }
     }
     
+    // Validate all required fields
     validateField('email', 'email-error');
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
@@ -439,6 +441,7 @@ function validateCheckoutForm() {
     validateField('pin-code', 'pin-code-error');
     validateField('phone', 'phone-error');
     
+    // Additional validation for email format
     const email = document.getElementById('email').value;
     if (email && !validateEmail(email)) {
         document.getElementById('email-error').textContent = 'Please enter a valid email address';
@@ -447,6 +450,7 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
+    // Additional validation for phone number
     const phone = document.getElementById('phone').value;
     if (phone && !/^\d{10}$/.test(phone)) {
         document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
@@ -455,6 +459,7 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
+    // Additional validation for PIN code
     const pinCode = document.getElementById('pin-code').value;
     if (pinCode && !/^\d{6}$/.test(pinCode)) {
         document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
@@ -463,17 +468,8 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    if (!isValid) {
-        const firstError = document.querySelector('.error-highlight');
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstError.focus();
-        }
-    }
-    
     return isValid;
 }
-
 // Cart event listeners
 cartIconNav.addEventListener('click', toggleCart);
 closeCartButton.addEventListener('click', closeCart);
@@ -923,6 +919,13 @@ function renderEmptyAccountState() {
 
 async function applyDefaultAddress() {
     const user = auth.currentUser;
+      const emailInput = document.getElementById('email');
+    
+    if (user && emailInput) {
+        emailInput.value = user.email;
+        emailInput.readOnly = true;
+        emailInput.classList.add('bg-gray-100');
+    }
     if (!user) return;
 
     try {
@@ -1270,23 +1273,15 @@ async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
     if (!saveInfoCheckbox.checked) return;
 
-    const requiredFields = [
-        'first-name', 'last-name', 'address', 
-        'city', 'state', 'pin-code', 'phone'
-    ];
-    
-    let isValid = true;
-    
-    requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (!field.value.trim()) {
-            field.classList.add('error-highlight');
-            isValid = false;
-        }
-    });
-    
-    if (!isValid) {
-        alert('Please fill all required fields before saving');
+    // First validate all fields
+    if (!validateCheckoutForm()) {
+        saveInfoCheckbox.checked = false;
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please sign in to save addresses');
         saveInfoCheckbox.checked = false;
         return;
     }
@@ -1302,32 +1297,49 @@ async function saveInformation() {
         country: document.getElementById('country').value,
         addressType: 'home',
         isDefault: true,
-        id: Date.now().toString(),
+        id: `addr_${Date.now()}`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-     try {
-        const user = auth.currentUser;
+    try {
+        const userRef = db.collection("users").doc(user.uid);
         
-        if (user) {
-            const userRef = db.collection("users").doc(user.uid);
-            
-            await userRef.update({
-                addresses: firebase.firestore.FieldValue.arrayUnion(address),
-                defaultAddress: address,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            alert('Address saved as default for future checkouts');
+        // Get current addresses first
+        const userDoc = await userRef.get();
+        let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
+        
+        // If this is the first address, make it default
+        if (currentAddresses.length === 0) {
+            address.isDefault = true;
         } else {
-            alert('Please sign in to save addresses permanently');
+            // If there are existing addresses, unset any existing default
+            currentAddresses = currentAddresses.map(addr => ({
+                ...addr,
+                isDefault: false
+            }));
+            address.isDefault = true;
         }
+        
+        // Add the new address
+        currentAddresses.push(address);
+        
+        // Update Firestore
+        await userRef.update({
+            addresses: currentAddresses,
+            defaultAddress: address,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast('Address saved as default for future checkouts');
+        
+        // Reload addresses to show the new one
+        await loadAddresses(user.uid);
+        
     } catch (error) {
         console.error("Error saving address:", error);
-        alert("Failed to save address. Please try again.");
+        showToast("Failed to save address. Please try again.", 'error');
     }
 }
-
 // Update the getStatusColor function to include all statuses
 function getStatusColor(status) {
     switch(status) {
@@ -2610,21 +2622,26 @@ document.addEventListener('click', function(event) {
 
 // New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
-    // Cache DOM elements to avoid multiple queries
+    // Cache DOM elements
     const displayNameEl = document.getElementById('displayName');
     const displayEmailEl = document.getElementById('displayEmail');
+    const emailInput = document.getElementById('email');
     
-    // Update display name if element exists
+    // Assuming these inputs exist on your form — define or query them accordingly
+    const nameInput = document.getElementById('nameInput');      // add this in your HTML if missing
+    const emailDisplay = document.getElementById('emailDisplay'); // add this in your HTML if missing
+
+    // Update display name
     if (displayNameEl) {
         displayNameEl.textContent = userData?.name || user?.displayName || '';
     }
-    
-    // Update display email if element exists
+
+    // Update display email
     if (displayEmailEl) {
         displayEmailEl.textContent = user?.email || '';
     }
-    
-    // Update form inputs if they exist
+
+    // Update form inputs
     if (nameInput) {
         nameInput.value = userData?.name || user?.displayName || '';
     }
@@ -2634,8 +2651,19 @@ function updateUIWithUserData(user, userData) {
             emailDisplay.readOnly = true; // Keep email read-only in forms
         }
     }
-    
-    // Only load addresses/orders if user exists and is authenticated
+
+    // Update main email input with read-only and styling
+    if (emailInput) {
+        emailInput.value = user?.email || '';
+        emailInput.readOnly = !!user;  // read-only if user exists
+        if (user) {
+            emailInput.classList.add('bg-gray-100'); // styling to indicate read-only
+        } else {
+            emailInput.classList.remove('bg-gray-100');
+        }
+    }
+
+    // Load addresses and orders if user is authenticated
     if (user && user.uid) {
         try {
             loadAddresses(user.uid);
@@ -2758,39 +2786,50 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Auth state change handler for cart sync
+// Unified auth state change handler
 auth.onAuthStateChanged(async (user) => {
     const addAddressLink = document.getElementById('addAddressLink');
-    
-// Only proceed with orders logic if we're on the account page
-    if (!window.location.pathname.includes('account')) {
-        return;
-    }
+    const emailInput = document.getElementById('email');
+
+    // Only proceed with orders logic if we're on the account page
+    const onAccountPage = window.location.pathname.includes('account');
+
     if (user) {
-        // Show add address button
-        if (addAddressLink) addAddressLink.style.display = 'block';
+        // ===== Logged-in user logic =====
 
-        // Load account info
-        loadAccountInfo(user.uid);
+        // Show add address link if on account page
+        if (onAccountPage && addAddressLink) {
+            addAddressLink.style.display = 'block';
+        }
 
-        // Handle cart merging (guest → logged-in)
-        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-        const firestoreCart = await getOrCreateUserCart(user.uid);
-        const mergedCart = mergeCarts(firestoreCart, guestCart);
-        cart = mergedCart;
+        // Set email field as read-only
+        if (emailInput) {
+            emailInput.value = user.email;
+            emailInput.readOnly = true;
+            emailInput.classList.add('bg-gray-100'); // Optional visual cue
+        }
 
-        await saveCartToFirestore(user.uid, mergedCart);
-        localStorage.removeItem('guestCart');
+        // Load account info if on account page
+        if (onAccountPage) {
+            loadAccountInfo(user.uid);
 
-        // Load user data from Firestore
+            // Handle guest → logged-in cart sync
+            const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+            const firestoreCart = await getOrCreateUserCart(user.uid);
+            const mergedCart = mergeCarts(firestoreCart, guestCart);
+            cart = mergedCart;
+
+            await saveCartToFirestore(user.uid, mergedCart);
+            localStorage.removeItem('guestCart');
+        }
+
+        // Load or create Firestore user data
         try {
             const userDoc = await db.collection("users").doc(user.uid).get();
 
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 updateUIWithUserData(user, userData);
-
-                const emailInput = document.getElementById('email');
-                if (emailInput) emailInput.value = user.email;
             } else {
                 await db.collection("users").doc(user.uid).set({
                     name: user.displayName || '',
@@ -2804,21 +2843,30 @@ auth.onAuthStateChanged(async (user) => {
         }
 
     } else {
-        // Hide add address button
-        if (addAddressLink) addAddressLink.style.display = 'none';
+        // ===== Guest user logic =====
+
+        // Hide add address button if on account page
+        if (onAccountPage && addAddressLink) {
+            addAddressLink.style.display = 'none';
+        }
+
+        // Reset email input field
+        if (emailInput) {
+            emailInput.value = '';
+            emailInput.readOnly = false;
+            emailInput.classList.remove('bg-gray-100');
+        }
 
         // Load guest cart
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         cart = guestCart;
 
-        applyDefaultAddress();
+        // Apply default address if needed
+        if (onAccountPage) {
+            applyDefaultAddress();
+        }
     }
-
-    // Common actions
-    setupResendVerification();
-    updateCartCount();
-    renderCart();
-    updateCheckoutAuthButton(user);
+        updateEmailField(user);
 
 });
 
