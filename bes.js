@@ -484,7 +484,6 @@ function logoutUser(event) {
         console.error('Logout error:', error);
     });
 }
-
 // Address functions
 function renderAddresses(addresses) {
     if (!addressContainer) return;
@@ -546,7 +545,6 @@ function renderAddresses(addresses) {
     });
 }
 
-// Add this to your loadAddresses function
 async function loadAddresses(userId) {
     console.log('Loading addresses for user:', userId);
     if (!addressContainer) {
@@ -781,6 +779,7 @@ async function saveAddress(event) {
         saveBtn.disabled = false;
     }
 }
+
 function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
@@ -897,7 +896,6 @@ function editAddress(addressId) {
         showToast('Failed to load address for editing', 'error');
     });
 }
-
 // Order functions
 function getStatusColor(status) {
     switch(status) {
