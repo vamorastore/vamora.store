@@ -1324,7 +1324,25 @@ async function saveInformation() {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
+        // Show success notification
         showToast('Address saved as default for future checkouts');
+        
+        // Additional notification specifically about the address
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg bg-green-500 text-white animate-bounce';
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>Address saved successfully!</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
         
     } catch (error) {
         console.error("Error saving address:", error);
