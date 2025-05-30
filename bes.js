@@ -546,16 +546,25 @@ function renderAddresses(addresses) {
     });
 }
 
+// Add this to your loadAddresses function
 async function loadAddresses(userId) {
-    if (!addressContainer) return;
+    console.log('Loading addresses for user:', userId);
+    if (!addressContainer) {
+        console.error('Address container not found');
+        return;
+    }
 
     try {
         const doc = await db.collection("users").doc(userId).get();
+        console.log('Firestore document:', doc.exists ? doc.data() : 'Does not exist');
+        
         if (doc.exists) {
             const userData = doc.data();
             const addresses = userData.addresses || [];
+            console.log('Loaded addresses:', addresses);
             
             if (addresses.length === 0) {
+                console.log('No addresses found');
                 addressContainer.innerHTML = `
                     <div class="text-center text-gray-500">
                         <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
@@ -567,6 +576,7 @@ async function loadAddresses(userId) {
                 renderAddresses(addresses);
             }
         } else {
+            console.log('User document does not exist');
             addressContainer.innerHTML = `
                 <div class="text-center text-gray-500">
                     <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
@@ -603,45 +613,57 @@ async function saveAddress(event) {
         return;
     }
 
-    const address = {
-        fullName: document.getElementById('fullName').value.trim(),
-        phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        addressLine1: document.getElementById('addressLine1').value.trim(),
-        addressLine2: document.getElementById('addressLine2').value.trim() || '',
-        city: document.getElementById('city').value.trim(),
-        state: document.getElementById('state').value.trim(),
-        postalCode: document.getElementById('postalCode').value.trim(),
-        country: document.getElementById('country').value,
-        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
-        isDefault: document.getElementById('setAsDefault').checked,
-        id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Validation
-    const errors = [];
-    if (!address.fullName) errors.push('Full name is required');
-    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
-    if (!address.addressLine1) errors.push('Address line 1 is required');
-    if (!address.city) errors.push('City is required');
-    if (!address.state) errors.push('State is required');
-    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
-    if (!address.country) errors.push('Country is required');
-
-    if (errors.length > 0) {
-        showToast(errors.join(', '), 'error');
-        return;
-    }
-
     try {
+        // Get form values
+        const address = {
+            fullName: document.getElementById('fullName').value.trim(),
+            phoneNumber: document.getElementById('phoneNumber').value.trim(),
+            addressLine1: document.getElementById('addressLine1').value.trim(),
+            addressLine2: document.getElementById('addressLine2').value.trim() || '',
+            city: document.getElementById('city').value.trim(),
+            state: document.getElementById('state').value.trim(),
+            postalCode: document.getElementById('postalCode').value.trim(),
+            country: document.getElementById('country').value,
+            addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
+            isDefault: document.getElementById('setAsDefault').checked,
+            id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // Validate mandatory fields
+        const errors = [];
+        if (!address.fullName) errors.push('Full name is required');
+        if (!address.phoneNumber) errors.push('Phone number is required');
+        if (!address.addressLine1) errors.push('Address line 1 is required');
+        if (!address.city) errors.push('City is required');
+        if (!address.state) errors.push('State is required');
+        if (!address.postalCode) errors.push('Postal code is required');
+        if (!address.country) errors.push('Country is required');
+
+        // Additional validation rules
+        if (address.phoneNumber && !/^\d{10}$/.test(address.phoneNumber)) {
+            errors.push('Phone number must be 10 digits');
+        }
+        if (address.postalCode && !/^\d{6}$/.test(address.postalCode)) {
+            errors.push('Postal code must be 6 digits');
+        }
+
+        if (errors.length > 0) {
+            showToast(errors.join(', '), 'error');
+            return;
+        }
+
+        // Show loading state
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
 
+        // Get current addresses
         const userRef = db.collection("users").doc(user.uid);
         const userDoc = await userRef.get();
         let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
 
+        // If saving as default, unset all other defaults
         if (address.isDefault) {
             currentAddresses = currentAddresses.map(addr => ({
                 ...addr,
@@ -649,45 +671,55 @@ async function saveAddress(event) {
             }));
         }
 
+        // If this is the first address, make it default regardless of checkbox
+        if (currentAddresses.length === 0) {
+            address.isDefault = true;
+        }
+
+        // Check if we're editing an existing address
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         if (isEditing) {
+            // Update existing address
             currentAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
         } else {
-            if (currentAddresses.length === 0) {
-                address.isDefault = true;
-            }
+            // Add new address
             currentAddresses.push(address);
         }
 
+        // Prepare update data
         const updateData = {
             addresses: currentAddresses,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
+        // If this is the default address, update that field too
         if (address.isDefault) {
             updateData.defaultAddress = address;
         }
 
+        // Save to Firestore
         await userRef.set(updateData, { merge: true });
+
+        // Update UI and reset form
         await loadAddresses(user.uid);
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
         delete document.getElementById('addressForm').dataset.editingId;
         
+        // Show success message
         showToast('Address saved successfully!');
-        
     } catch (error) {
         console.error("Error saving address:", error);
         showToast("Failed to save address. Please try again.", 'error');
     } finally {
+        // Reset button state
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
         saveBtn.disabled = false;
     }
 }
-
 function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
@@ -728,12 +760,18 @@ async function deleteAddress(addressId) {
 
 async function setDefaultAddress(addressId) {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        showToast('Please sign in to set default address', 'error');
+        return;
+    }
 
     try {
         const userRef = db.collection("users").doc(user.uid);
         const userDoc = await userRef.get();
-        if (!userDoc.exists) return;
+        if (!userDoc.exists) {
+            showToast('User data not found', 'error');
+            return;
+        }
         
         const addresses = userDoc.data().addresses || [];
         const addressToSetDefault = addresses.find(addr => addr.id === addressId);
@@ -743,6 +781,7 @@ async function setDefaultAddress(addressId) {
             return;
         }
 
+        // Update all addresses to set isDefault correctly
         const updatedAddresses = addresses.map(addr => ({
             ...addr,
             isDefault: addr.id === addressId
@@ -1185,9 +1224,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeAddAddressModal) closeAddAddressModal.addEventListener('click', cancelAddress);
     if (saveAddressBtn) saveAddressBtn.addEventListener('click', saveAddress);
     if (document.getElementById('addressForm')) {
-        document.getElementById('addressForm').addEventListener('submit', saveAddress);
+        document.getElementById('addressForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveAddress(e);
+        });
     }
 
+    // Set default address buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-action="set-default"]')) {
+            e.preventDefault();
+            const addressId = e.target.closest('[data-action="set-default"]').getAttribute('data-address-id');
+            setDefaultAddress(addressId);
+        }
+    });
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         if (!accountIconNav?.contains(event.target) && !dropdownMenu?.contains(event.target)) {
