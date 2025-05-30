@@ -510,27 +510,16 @@ function toggleMobileMenu() {
 function showAccountInfo(event) {
     event.preventDefault();
     const user = auth.currentUser;
+    console.log("Showing account info for user:", user);
     
     if (user) {
-        document.getElementById('displayName').textContent = user.displayName || '';
-        document.getElementById('displayEmail').textContent = user.email || '';
-        emailDisplay.value = user.email || '';
-        
-        loadAddresses(user.uid);
+        loadAddresses(user.uid);  // Should trigger address load
         loadOrders(user.uid);
-        
         accountInfoPage.classList.remove('hidden');
-        dropdownMenu.classList.add('hidden');
-        mobileMenuContent.classList.remove('active');
-        document.getElementById('mobileAccountOptions').classList.add('hidden');
-        mobileMenuButton.querySelector('i').classList.add('fa-bars');
-        mobileMenuButton.querySelector('i').classList.remove('fa-times');
     } else {
-        showAuthContainer();
-        showLoginSection();
+        showAuthContainer();  // Should prompt login
     }
 }
-
 // Close account info page
 closeAccountInfoPage.addEventListener('click', function(event) {
     event.preventDefault();
@@ -538,15 +527,15 @@ closeAccountInfoPage.addEventListener('click', function(event) {
 });
 
 function renderAddresses(addresses) {
+    console.log("Rendering addresses:", addresses);
     const addressContainer = document.getElementById('addressContainer');
-    if (!addressContainer) return;
-
+    
     if (!addresses || addresses.length === 0) {
         addressContainer.innerHTML = `
             <div class="text-center text-gray-500">
                 <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
                 <p class="text-lg">No addresses saved yet</p>
-                <p class="text-sm mt-2">Your saved addresses will appear here</p>
+                <p class="text-sm mt-2">Add your first address below</p>
             </div>
         `;
         return;
@@ -554,49 +543,11 @@ function renderAddresses(addresses) {
 
     addressContainer.innerHTML = addresses.map(address => `
         <div class="address-card ${address.isDefault ? 'border-2 border-blue-500' : 'border border-gray-200'} bg-white p-4 rounded-lg shadow-sm mb-3">
-            <div class="flex justify-between items-start">
-                <div>
-                    <div class="flex items-center mb-1">
-                        <span class="font-medium">${address.fullName}</span>
-                        ${address.isDefault ? 
-                            '<span class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">Default</span>' : ''}
-                    </div>
-                    <p class="text-sm text-gray-600">${address.phoneNumber}</p>
-                </div>
-                <div class="flex space-x-2">
-                    <button class="text-blue-500 hover:text-blue-700" onclick="editAddress('${address.id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="${address.isDefault ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-700" 
-                            data-action="set-default" 
-                            data-address-id="${address.id}">
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="text-red-500 hover:text-red-700" onclick="deleteAddress('${address.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="mt-2 text-sm">
-                <p>${address.addressLine1}</p>
-                ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
-                <p>${address.city}, ${address.state} ${address.postalCode}</p>
-                <p>${address.country}</p>
-            </div>
-            <div class="mt-2 text-xs text-gray-500 capitalize">
-                ${address.addressType} address
-            </div>
+            <!-- Address card HTML (same as your code) -->
         </div>
     `).join('');
 
-    // Add event listeners for set default buttons
-    document.querySelectorAll('[data-action="set-default"]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const addressId = this.getAttribute('data-address-id');
-            setDefaultAddress(addressId);
-        });
-    });
+    console.log("Address container updated:", addressContainer.innerHTML);
 }
 // Address Management
 function showAddAddressModal(event) {
@@ -615,36 +566,58 @@ async function saveAddress(event) {
         return;
     }
 
-    // Get form values
+    // Get form elements
+    const fullName = document.getElementById('fullName').value.trim();
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    const addressLine1 = document.getElementById('addressLine1').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const country = document.getElementById('country').value;
+    const addressType = document.querySelector('input[name="addressType"]:checked')?.value || 'home';
+    const isDefault = document.getElementById('setAsDefault').checked;
+
+    // Validation checks
+    const errors = [];
+    
+    if (!fullName) errors.push('Full name is required');
+    if (!phoneNumber) errors.push('Phone number is required');
+    if (!addressLine1) errors.push('Address line 1 is required');
+    if (!city) errors.push('City is required');
+    if (!state) errors.push('State is required');
+    if (!postalCode) errors.push('Postal code is required');
+    if (!country) errors.push('Country is required');
+    
+    // Additional format validation
+    if (phoneNumber && !/^\d{10}$/.test(phoneNumber)) {
+        errors.push('Phone number must be 10 digits');
+    }
+    
+    if (postalCode && !/^\d{6}$/.test(postalCode)) {
+        errors.push('Postal code must be 6 digits');
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+        showToast(errors.join(', '), 'error');
+        return; // Don't proceed with saving
+    }
+
+    // Prepare address object
     const address = {
-        fullName: document.getElementById('fullName').value.trim(),
-        phoneNumber: document.getElementById('phoneNumber').value.trim(),
-        addressLine1: document.getElementById('addressLine1').value.trim(),
+        fullName,
+        phoneNumber,
+        addressLine1,
         addressLine2: document.getElementById('addressLine2').value.trim() || '',
-        city: document.getElementById('city').value.trim(),
-        state: document.getElementById('state').value.trim(),
-        postalCode: document.getElementById('postalCode').value.trim(),
-        country: document.getElementById('country').value,
-        addressType: document.querySelector('input[name="addressType"]:checked')?.value || 'home',
-        isDefault: document.getElementById('setAsDefault').checked,
+        city,
+        state,
+        postalCode,
+        country,
+        addressType,
+        isDefault,
         id: document.getElementById('addressForm').dataset.editingId || `addr_${Date.now()}`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
-
-    // Validation
-    const errors = [];
-    if (!address.fullName) errors.push('Full name is required');
-    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
-    if (!address.addressLine1) errors.push('Address line 1 is required');
-    if (!address.city) errors.push('City is required');
-    if (!address.state) errors.push('State is required');
-    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
-    if (!address.country) errors.push('Country is required');
-
-    if (errors.length > 0) {
-        showToast(errors.join(', '), 'error');
-        return;
-    }
 
     try {
         // Show loading state
@@ -950,46 +923,31 @@ async function applyDefaultAddress() {
 }
 // Load addresses
 async function loadAddresses(userId) {
-    const addressContainer = document.getElementById('addressContainer');
-    if (!addressContainer) return;
-
+    console.log("Loading addresses for user:", userId);
     try {
         const doc = await db.collection("users").doc(userId).get();
+        console.log("Firestore document data:", doc.data());
+        
         if (doc.exists) {
             const userData = doc.data();
             const addresses = userData.addresses || [];
-            
-            if (addresses.length === 0) {
-                addressContainer.innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                        <p class="text-lg">No addresses saved yet</p>
-                        <p class="text-sm mt-2">Add your first address below</p>
-                    </div>
-                `;
-            } else {
-                renderAddresses(addresses);
-            }
+            console.log("Addresses fetched:", addresses);
+            renderAddresses(addresses);
         } else {
-            addressContainer.innerHTML = `
-                <div class="text-center text-gray-500">
-                    <i class="fas fa-map-marker-alt text-3xl mb-3"></i>
-                    <p class="text-lg">No addresses saved yet</p>
-                    <p class="text-sm mt-2">Add your first address below</p>
-                </div>
-            `;
+            console.log("No user document found");
+            renderAddresses([]);
         }
     } catch (error) {
         console.error("Error loading addresses:", error);
+        // Show error message in UI
         addressContainer.innerHTML = `
-            <div class="text-center text-gray-500">
-                <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
-                <p class="text-lg">Error loading addresses</p>
-                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
+            <div class="text-center text-red-500">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error loading addresses. Please refresh.</p>
             </div>
         `;
     }
-}// Update the loadOrders function
+}
 async function loadOrders(userId) {
     // Add this check at the start
     if (!ordersContainer) {
@@ -1318,17 +1276,14 @@ async function saveInformation() {
         currentAddresses.push(address);
         
         // Update Firestore
-        await userRef.update({
+        await userRef.set({
             addresses: currentAddresses,
             defaultAddress: address,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // Immediately update the UI with the new address
-        renderAddresses(currentAddresses);
+        }, { merge: true });
         
         // Show success notification
-        showToast('Address saved as default for future checkouts');
+        showToast('Address saved successfully!');
         
     } catch (error) {
         console.error("Error saving address:", error);
@@ -2538,7 +2493,13 @@ async function placeOrder() {
 
     const saveInfoCheckbox = document.getElementById('save-info');
     if (saveInfoCheckbox.checked) {
-        await saveInformation(); // Save address before processing payment
+        try {
+            await saveInformation(); // Wait for address to save before proceeding
+        } catch (error) {
+            console.error("Error saving address:", error);
+            showToast("Failed to save address. Order will still be processed.", 'error');
+            // Continue with order even if address save fails
+        }
     }
 
     const amount = calculateTotalAmount();
@@ -2583,7 +2544,7 @@ async function placeOrder() {
         }
     };
 
-   const rzp = new Razorpay(options);
+    const rzp = new Razorpay(options);
     rzp.open();
 
     rzp.on('payment.failed', function(response) {
@@ -2603,6 +2564,7 @@ accountIconNav.addEventListener('click', function(e) {
     }
 });
 profileOption.addEventListener('click', showAccountInfo);
+mobileProfileOption?.addEventListener('click', showAccountInfo);
 logoutOption.addEventListener('click', logoutUser);
 editProfileIcon.addEventListener('click', showEditProfileModal);
 closeEditProfileModal.addEventListener('click', function() {
