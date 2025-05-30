@@ -2215,6 +2215,9 @@ function logoutUser(event) {
             }
         }
         
+        // Update the auth button
+        updateAuthButton(null);
+        
         // Only try to clear account info if on account page
         if (document.getElementById('displayName')) {
             document.getElementById('displayName').textContent = '';
@@ -2849,8 +2852,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     auth.onAuthStateChanged((user) => {
         updateCheckoutAuthButton(user);
+            updateAuthButton(user);
     });
 });
+// Function to toggle auth state (login/logout)
+function toggleAuthState() {
+    const user = auth.currentUser;
+    const authText = document.getElementById('auth-state-text');
+    
+    if (user) {
+        // User is logged in, so log them out
+        if (confirm('Are you sure you want to log out?')) {
+            logoutUser();
+        }
+    } else {
+        // User is logged out, show login form
+        showAuthContainer();
+        showLoginSection();
+    }
+}
+
+// Update auth button text based on user state
+function updateAuthButton(user) {
+    const authText = document.getElementById('auth-state-text');
+    const loginButton = document.getElementById('login-button');
+    
+    if (authText && loginButton) {
+        if (user) {
+            authText.textContent = 'LOG OUT';
+            loginButton.classList.add('logout-button'); // Optional: add a different style
+            loginButton.classList.remove('login-button');
+        } else {
+            authText.textContent = 'LOG IN';
+            loginButton.classList.add('login-button');
+            loginButton.classList.remove('logout-button');
+        }
+    }
+}
 
 function mergeCarts(primaryCart, secondaryCart) {
     const merged = [...primaryCart];
