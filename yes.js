@@ -2785,13 +2785,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Auth state change handler for cart sync
-// Unified auth state change handler
 auth.onAuthStateChanged(async (user) => {
     const addAddressLink = document.getElementById('addAddressLink');
     const emailInput = document.getElementById('email');
-
-    // Only proceed with orders logic if we're on the account page
     const onAccountPage = window.location.pathname.includes('account');
 
     if (user) {
@@ -2806,14 +2802,14 @@ auth.onAuthStateChanged(async (user) => {
         if (emailInput) {
             emailInput.value = user.email;
             emailInput.readOnly = true;
-            emailInput.classList.add('bg-gray-100'); // Optional visual cue
+            emailInput.classList.add('bg-gray-100');
         }
 
-        // Load account info if on account page
+        // Load account info & sync cart if on account page
         if (onAccountPage) {
             loadAccountInfo(user.uid);
 
-            // Handle guest → logged-in cart sync
+            // Guest → Logged-in cart sync
             const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
             const firestoreCart = await getOrCreateUserCart(user.uid);
             const mergedCart = mergeCarts(firestoreCart, guestCart);
@@ -2823,10 +2819,9 @@ auth.onAuthStateChanged(async (user) => {
             localStorage.removeItem('guestCart');
         }
 
-        // Load or create Firestore user data
+        // Load or create Firestore user profile
         try {
             const userDoc = await db.collection("users").doc(user.uid).get();
-
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 updateUIWithUserData(user, userData);
@@ -2845,7 +2840,7 @@ auth.onAuthStateChanged(async (user) => {
     } else {
         // ===== Guest user logic =====
 
-        // Hide add address button if on account page
+        // Hide add address link if on account page
         if (onAccountPage && addAddressLink) {
             addAddressLink.style.display = 'none';
         }
@@ -2866,9 +2861,13 @@ auth.onAuthStateChanged(async (user) => {
             applyDefaultAddress();
         }
     }
-        updateEmailField(user);
 
+    // Always update email field, if function exists
+    if (typeof updateEmailField === 'function') {
+        updateEmailField(user);
+    }
 });
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
