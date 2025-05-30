@@ -2867,17 +2867,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function getElementOrThrow(selector) {
-    const el = document.querySelector(selector);
-    if (!el) {
-        throw new Error(`Element not found: ${selector}`);
-    }
-    return el;
-}
-
-// Usage:
-const ordersContainer = getElementOrThrow('#ordersContainer');
-
 // Function to toggle auth state (login/logout)
 function toggleAuthState() {
     const user = auth.currentUser;
