@@ -414,13 +414,19 @@ document.addEventListener('keydown', (e) => {
 
 function validateCheckoutForm() {
     let isValid = true;
-    
-    // Helper function to validate a field
+
     function validateField(fieldId, errorId) {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(errorId);
-        
-        if (!field.value.trim()) {
+
+        let value = '';
+        if (field.tagName === 'SELECT') {
+            value = field.options[field.selectedIndex].value;
+        } else {
+            value = field.value.trim();
+        }
+
+        if (!value) {
             field.classList.add('error-highlight');
             errorElement.style.display = 'block';
             errorElement.textContent = 'This field is required';
@@ -430,47 +436,36 @@ function validateCheckoutForm() {
             errorElement.style.display = 'none';
         }
     }
-    
-    // Validate all required fields
-    validateField('email', 'email-error');
+
+    // Only validate mandatory fields
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
     validateField('address', 'address-error');
-    validateField('city', 'city-error');
-    validateField('state', 'state-error');
+    // validateField('city', 'city-error');   <-- Not required now
+    // validateField('state', 'state-error'); <-- Not required now
     validateField('pin-code', 'pin-code-error');
     validateField('phone', 'phone-error');
-    
-    // Additional validation for email format
-    const email = document.getElementById('email').value;
-    if (email && !validateEmail(email)) {
-        document.getElementById('email-error').textContent = 'Please enter a valid email address';
-        document.getElementById('email-error').style.display = 'block';
-        document.getElementById('email').classList.add('error-highlight');
-        isValid = false;
-    }
-    
-    // Additional validation for phone number
-    const phone = document.getElementById('phone').value;
+
+    // Additional phone number validation
+    const phone = document.getElementById('phone').value.trim();
     if (phone && !/^\d{10}$/.test(phone)) {
         document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
         document.getElementById('phone-error').style.display = 'block';
         document.getElementById('phone').classList.add('error-highlight');
         isValid = false;
     }
-    
-    // Additional validation for PIN code
-    const pinCode = document.getElementById('pin-code').value;
+
+    // Additional PIN code validation
+    const pinCode = document.getElementById('pin-code').value.trim();
     if (pinCode && !/^\d{6}$/.test(pinCode)) {
         document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
         document.getElementById('pin-code-error').style.display = 'block';
         document.getElementById('pin-code').classList.add('error-highlight');
         isValid = false;
     }
-    
+
     return isValid;
 }
-// Cart event listeners
 cartIconNav.addEventListener('click', toggleCart);
 closeCartButton.addEventListener('click', closeCart);
 cartBackdrop.addEventListener('click', closeCart);
@@ -1286,39 +1281,38 @@ async function saveInformation() {
         return;
     }
 
-    const address = {
-        fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
-        phoneNumber: document.getElementById('phone').value,
-        addressLine1: document.getElementById('address').value,
-        addressLine2: document.getElementById('apartment').value || '',
-        city: document.getElementById('city').value,
-        state: document.getElementById('state').value,
-        postalCode: document.getElementById('pin-code').value,
-        country: document.getElementById('country').value,
-        addressType: 'home',
-        isDefault: true,
-        id: `addr_${Date.now()}`,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
     try {
+        // Show loading state
+        saveInfoCheckbox.disabled = true;
+        saveInfoCheckbox.nextElementSibling.textContent = 'Saving...';
+
+        // Prepare address data from checkout form
+        const address = {
+            fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
+            phoneNumber: document.getElementById('phone').value,
+            addressLine1: document.getElementById('address').value,
+            addressLine2: document.getElementById('apartment').value || '',
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            postalCode: document.getElementById('pin-code').value,
+            country: document.getElementById('country').value,
+            addressType: 'home', // Default type
+            isDefault: true, // Make this the default address
+            id: `addr_${Date.now()}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
         const userRef = db.collection("users").doc(user.uid);
         
         // Get current addresses first
         const userDoc = await userRef.get();
         let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
         
-        // If this is the first address, make it default
-        if (currentAddresses.length === 0) {
-            address.isDefault = true;
-        } else {
-            // If there are existing addresses, unset any existing default
-            currentAddresses = currentAddresses.map(addr => ({
-                ...addr,
-                isDefault: false
-            }));
-            address.isDefault = true;
-        }
+        // If there are existing addresses, unset any existing default
+        currentAddresses = currentAddresses.map(addr => ({
+            ...addr,
+            isDefault: false
+        }));
         
         // Add the new address
         currentAddresses.push(address);
@@ -1332,12 +1326,13 @@ async function saveInformation() {
         
         showToast('Address saved as default for future checkouts');
         
-        // Reload addresses to show the new one
-        await loadAddresses(user.uid);
-        
     } catch (error) {
         console.error("Error saving address:", error);
         showToast("Failed to save address. Please try again.", 'error');
+        saveInfoCheckbox.checked = false;
+    } finally {
+        saveInfoCheckbox.disabled = false;
+        saveInfoCheckbox.nextElementSibling.textContent = 'Save this information for next time';
     }
 }
 // Update the getStatusColor function to include all statuses
@@ -2537,6 +2532,11 @@ async function placeOrder() {
         return;
     }
 
+    const saveInfoCheckbox = document.getElementById('save-info');
+    if (saveInfoCheckbox.checked) {
+        await saveInformation(); // Save address before processing payment
+    }
+
     const amount = calculateTotalAmount();
     const formData = getFormData();
 
@@ -2579,7 +2579,7 @@ async function placeOrder() {
         }
     };
 
-    const rzp = new Razorpay(options);
+   const rzp = new Razorpay(options);
     rzp.open();
 
     rzp.on('payment.failed', function(response) {
