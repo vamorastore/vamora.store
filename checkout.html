@@ -62,7 +62,25 @@
     font-size: 14px;
     font-weight: 500;
 }
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
 
+.animate-bounce {
+    animation: bounce 1s;
+}
+
+.transition-opacity {
+    transition-property: opacity;
+}
 .order-total {
     font-weight: 600;
     color: #111827;
