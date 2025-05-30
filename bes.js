@@ -630,26 +630,100 @@ async function saveAddress(event) {
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Validate mandatory fields
+        // Validate mandatory fields with specific error highlighting
         const errors = [];
-        if (!address.fullName) errors.push('Full name is required');
-        if (!address.phoneNumber) errors.push('Phone number is required');
-        if (!address.addressLine1) errors.push('Address line 1 is required');
-        if (!address.city) errors.push('City is required');
-        if (!address.state) errors.push('State is required');
-        if (!address.postalCode) errors.push('Postal code is required');
-        if (!address.country) errors.push('Country is required');
+        const errorFields = {};
+        
+        if (!address.fullName) {
+            errors.push('Full name');
+            errorFields.fullName = true;
+        }
+        if (!address.phoneNumber) {
+            errors.push('Phone number');
+            errorFields.phoneNumber = true;
+        }
+        if (!address.addressLine1) {
+            errors.push('Address line 1');
+            errorFields.addressLine1 = true;
+        }
+        if (!address.city) {
+            errors.push('City');
+            errorFields.city = true;
+        }
+        if (!address.state) {
+            errors.push('State');
+            errorFields.state = true;
+        }
+        if (!address.postalCode) {
+            errors.push('Postal code');
+            errorFields.postalCode = true;
+        }
+        if (!address.country) {
+            errors.push('Country');
+            errorFields.country = true;
+        }
+
+        // Highlight error fields
+        Object.keys(errorFields).forEach(fieldId => {
+            const fieldElement = document.getElementById(fieldId);
+            if (fieldElement) {
+                fieldElement.classList.add('border-red-500');
+                // Add error message element if it doesn't exist
+                if (!fieldElement.nextElementSibling || !fieldElement.nextElementSibling.classList.contains('field-error')) {
+                    const errorElement = document.createElement('p');
+                    errorElement.className = 'field-error text-red-500 text-xs mt-1';
+                    errorElement.textContent = 'This field is required';
+                    fieldElement.insertAdjacentElement('afterend', errorElement);
+                }
+            }
+        });
+
+        // Remove error highlighting from valid fields
+        ['fullName', 'phoneNumber', 'addressLine1', 'city', 'state', 'postalCode', 'country'].forEach(fieldId => {
+            if (!errorFields[fieldId]) {
+                const fieldElement = document.getElementById(fieldId);
+                if (fieldElement) {
+                    fieldElement.classList.remove('border-red-500');
+                    const errorElement = fieldElement.nextElementSibling;
+                    if (errorElement && errorElement.classList.contains('field-error')) {
+                        errorElement.remove();
+                    }
+                }
+            }
+        });
 
         // Additional validation rules
         if (address.phoneNumber && !/^\d{10}$/.test(address.phoneNumber)) {
             errors.push('Phone number must be 10 digits');
+            const fieldElement = document.getElementById('phoneNumber');
+            if (fieldElement) {
+                fieldElement.classList.add('border-red-500');
+                const errorElement = fieldElement.nextElementSibling;
+                if (errorElement && errorElement.classList.contains('field-error')) {
+                    errorElement.textContent = 'Must be 10 digits';
+                }
+            }
         }
+
         if (address.postalCode && !/^\d{6}$/.test(address.postalCode)) {
             errors.push('Postal code must be 6 digits');
+            const fieldElement = document.getElementById('postalCode');
+            if (fieldElement) {
+                fieldElement.classList.add('border-red-500');
+                const errorElement = fieldElement.nextElementSibling;
+                if (errorElement && errorElement.classList.contains('field-error')) {
+                    errorElement.textContent = 'Must be 6 digits';
+                }
+            }
         }
 
         if (errors.length > 0) {
-            showToast(errors.join(', '), 'error');
+            // Show specific error messages without "please fill"
+            const errorMessage = errors.length === 1 
+                ? `${errors[0]} is required` 
+                : `${errors.slice(0, -1).join(', ')}${errors.length > 1 ? ' and ' + errors.slice(-1) : ''} are required`;
+            
+            showToast(errorMessage, 'error');
             return;
         }
 
@@ -658,12 +732,11 @@ async function saveAddress(event) {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
 
-        // Get current addresses
+        // Rest of the save logic remains the same...
         const userRef = db.collection("users").doc(user.uid);
         const userDoc = await userRef.get();
         let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
 
-        // If saving as default, unset all other defaults
         if (address.isDefault) {
             currentAddresses = currentAddresses.map(addr => ({
                 ...addr,
@@ -671,50 +744,38 @@ async function saveAddress(event) {
             }));
         }
 
-        // If this is the first address, make it default regardless of checkbox
-        if (currentAddresses.length === 0) {
-            address.isDefault = true;
-        }
-
-        // Check if we're editing an existing address
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         if (isEditing) {
-            // Update existing address
             currentAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
         } else {
-            // Add new address
+            if (currentAddresses.length === 0) {
+                address.isDefault = true;
+            }
             currentAddresses.push(address);
         }
 
-        // Prepare update data
         const updateData = {
             addresses: currentAddresses,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // If this is the default address, update that field too
         if (address.isDefault) {
             updateData.defaultAddress = address;
         }
 
-        // Save to Firestore
         await userRef.set(updateData, { merge: true });
-
-        // Update UI and reset form
         await loadAddresses(user.uid);
         addAddressModal.classList.add('hidden');
         document.getElementById('addressForm').reset();
         delete document.getElementById('addressForm').dataset.editingId;
         
-        // Show success message
         showToast('Address saved successfully!');
     } catch (error) {
         console.error("Error saving address:", error);
         showToast("Failed to save address. Please try again.", 'error');
     } finally {
-        // Reset button state
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
         saveBtn.disabled = false;
