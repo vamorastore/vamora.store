@@ -33,20 +33,26 @@
     border-bottom: 1px solid #e5e7eb;
 }
 #addAddressLink {
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #000;
-    color: white;
-    border-radius: 4px;
+    display: inline-flex !important;
+    align-items: center;
+    color: #3b82f6; /* Tailwind blue-500 */
+    font-weight: 500;
     text-decoration: none;
-    margin-top: 16px;
+    gap: 4px; /* space between icon and text */
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
 }
 
 #addAddressLink:hover {
-    background-color: #333;
+    color: #2563eb; /* Tailwind blue-600 */
 }
-#addAddressLink {
-    display: block !important;
+
+#addAddressLink:active {
+    color: #1d4ed8; /* Tailwind blue-700 */
 }
 #save-info:disabled {
     opacity: 0.7;
