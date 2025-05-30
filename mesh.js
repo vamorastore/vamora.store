@@ -993,6 +993,12 @@ async function loadAddresses(userId) {
     }
 }// Update the loadOrders function
 async function loadOrders(userId) {
+    // Add this check at the start
+    if (!ordersContainer) {
+        console.warn("Orders container element not found");
+        return;
+    }
+    
     const user = auth.currentUser;
     if (!user) {
         ordersContainer.innerHTML = `
@@ -2754,7 +2760,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Auth state change handler for cart sync
 auth.onAuthStateChanged(async (user) => {
     const addAddressLink = document.getElementById('addAddressLink');
-
+    
+// Only proceed with orders logic if we're on the account page
+    if (!window.location.pathname.includes('account')) {
+        return;
+    }
     if (user) {
         // Show add address button
         if (addAddressLink) addAddressLink.style.display = 'block';
@@ -2811,6 +2821,7 @@ auth.onAuthStateChanged(async (user) => {
     updateCheckoutAuthButton(user);
 
 });
+
 document.addEventListener('DOMContentLoaded', function () {
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
 
@@ -2855,6 +2866,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateAuthButton(user);
     });
 });
+
 // Function to toggle auth state (login/logout)
 function toggleAuthState() {
     const user = auth.currentUser;
