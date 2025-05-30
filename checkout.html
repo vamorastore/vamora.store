@@ -32,6 +32,14 @@
     padding: 12px 0;
     border-bottom: 1px solid #e5e7eb;
 }
+#save-info:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#save-info:disabled + span {
+    opacity: 0.7;
+}
 .logout-button {
     background-color: #f44336; /* Red color for logout */
     color: white;
@@ -1826,12 +1834,6 @@
                     <select id="country" name="country" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Select Country</option>
-                        <option value="India">India</option>
-                        <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
                     </select>
                 </div>
             </div>
@@ -2216,8 +2218,7 @@
             <label for="state" class="form-label required-field">State</label>
             <select id="state" class="form-input" required>
                 <option value="" disabled selected>Select your state</option>
-<option value="Andhra Pradesh">Andhra Pradesh</option>
-        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
         <option value="Assam">Assam</option>
         <option value="Bihar">Bihar</option>
         <option value="Chhattisgarh">Chhattisgarh</option>
@@ -2271,11 +2272,10 @@
     </div>
     
     <div class="form-group">
-        <label class="flex items-center">
-            <input type="checkbox" id="save-info" class="mr-2">
-            <span class="text-xs font-weight-300">Save this information for next time</span>
-        </label>
-    </div>
+ <div class="mt-4 flex items-center">
+    <input type="checkbox" id="save-info" class="mr-2">
+    <span class="text-sm">Save this information for next time</span>
+</div>
 </div>
                
                 <!-- Payment Failed Popup -->
