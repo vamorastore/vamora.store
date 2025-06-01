@@ -1677,7 +1677,8 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 throw new Error("User data not found");
             }
             
-            const user = auth.currentUser;
+           const user = auth.currentUser;
+    updateCheckoutEmail(user);
             const userData = doc.data();
             
             // Update UI elements if they exist
@@ -1732,7 +1733,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             if (loginSection) loginSection.classList.remove('login-success');
         });
 });
-// Updated Google Sign In/Sign Up handler with Firestore
 // Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1772,8 +1772,8 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 }, { merge: true });
             })
             .then(() => {
-                const user = auth.currentUser;
-                
+const user = auth.currentUser;
+    updateCheckoutEmail(user);                
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
@@ -1815,7 +1815,20 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             });
     });
 });
-
+function updateCheckoutEmail(user) {
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        if (user) {
+            emailInput.value = user.email || '';
+            emailInput.readOnly = true;
+            emailInput.classList.add('bg-gray-100');
+        } else {
+            emailInput.value = '';
+            emailInput.readOnly = false;
+            emailInput.classList.remove('bg-gray-100');
+        }
+    }
+}
 // Updated Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -2884,6 +2897,8 @@ auth.onAuthStateChanged(async (user) => {
     updateCartCount();
     renderCart();
     updateCheckoutAuthButton(user);
+        updateCheckoutEmail(user);
+
 
 });
 
