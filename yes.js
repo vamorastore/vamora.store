@@ -419,27 +419,49 @@ function validateCheckoutForm() {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(errorId);
         
-        if (!field.value.trim()) {
+        // Check if field exists
+        if (!field || !errorElement) return true;
+        
+        // Special handling for select elements
+        if (field.tagName === 'SELECT') {
+            // Make country optional
+            if (fieldId === 'country') return true;
+            
+            if (!field.value || field.value === "") {
+                field.classList.add('error-highlight');
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'This field is required';
+                isValid = false;
+                return false;
+            }
+        } 
+        // Handling for other input types
+        else if (!field.value.trim()) {
+            // Make city optional
+            if (fieldId === 'city') return true;
+            
             field.classList.add('error-highlight');
             errorElement.style.display = 'block';
             errorElement.textContent = 'This field is required';
             isValid = false;
-        } else {
-            field.classList.remove('error-highlight');
-            errorElement.style.display = 'none';
+            return false;
         }
+        
+        field.classList.remove('error-highlight');
+        errorElement.style.display = 'none';
+        return true;
     }
     
+    // Validate all required fields (excluding city and country)
     validateField('email', 'email-error');
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
     validateField('address', 'address-error');
-    validateField('city', 'city-error');
-    validateField('state', 'state-error');
     validateField('pin-code', 'pin-code-error');
     validateField('phone', 'phone-error');
     
-    const email = document.getElementById('email').value;
+    // Additional validations
+    const email = document.getElementById('email')?.value;
     if (email && !validateEmail(email)) {
         document.getElementById('email-error').textContent = 'Please enter a valid email address';
         document.getElementById('email-error').style.display = 'block';
@@ -447,7 +469,7 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    const phone = document.getElementById('phone').value;
+    const phone = document.getElementById('phone')?.value;
     if (phone && !/^\d{10}$/.test(phone)) {
         document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
         document.getElementById('phone-error').style.display = 'block';
@@ -455,7 +477,7 @@ function validateCheckoutForm() {
         isValid = false;
     }
     
-    const pinCode = document.getElementById('pin-code').value;
+    const pinCode = document.getElementById('pin-code')?.value;
     if (pinCode && !/^\d{6}$/.test(pinCode)) {
         document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
         document.getElementById('pin-code-error').style.display = 'block';
@@ -473,7 +495,6 @@ function validateCheckoutForm() {
     
     return isValid;
 }
-
 // Cart event listeners
 cartIconNav.addEventListener('click', toggleCart);
 closeCartButton.addEventListener('click', closeCart);
@@ -842,15 +863,33 @@ function editAddress(addressId) {
     });
 }
 
-// Event Listeners for Address Management
-document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
-document.getElementById('closeAddAddressModal')?.addEventListener('click', cancelAddress);
-document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
-document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
-document.getElementById('addressForm')?.addEventListener('submit', function(e) {
+// Event Listeners for Address Management - Consolidated version
+function setupAddressEventListeners() {
+    // Remove any existing listeners to prevent duplicates
+    document.getElementById('addAddressLink')?.removeEventListener('click', showAddAddressModal);
+    document.getElementById('closeAddAddressModal')?.removeEventListener('click', cancelAddress);
+    document.getElementById('saveAddressBtn')?.removeEventListener('click', saveAddress);
+    document.getElementById('cancelAddressBtn')?.removeEventListener('click', cancelAddress);
+    document.getElementById('addressForm')?.removeEventListener('submit', handleFormSubmit);
+
+    // Add fresh listeners
+    document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
+    document.getElementById('closeAddAddressModal')?.addEventListener('click', cancelAddress);
+    document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
+    document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
+    
+    // Form submit handler (using a named function for better debugging)
+    document.getElementById('addressForm')?.addEventListener('submit', handleFormSubmit);
+}
+
+// Named function for form submission
+function handleFormSubmit(e) {
     e.preventDefault();
     saveAddress(e);
-});
+}
+
+// Call this function when your page loads or when the modal is shown
+setupAddressEventListeners();
 
 // Initialize address form
 function initAddressForm() {
@@ -1268,11 +1307,11 @@ function getStatusProgress(status) {
 
 async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
-    if (!saveInfoCheckbox.checked) return;
+    if (!saveInfoCheckbox || !saveInfoCheckbox.checked) return;
 
     const requiredFields = [
         'first-name', 'last-name', 'address', 
-        'city', 'state', 'pin-code', 'phone'
+        'state', 'pin-code', 'phone'
     ];
     
     let isValid = true;
@@ -1286,7 +1325,7 @@ async function saveInformation() {
     });
     
     if (!isValid) {
-        alert('Please fill all required fields before saving');
+        showToast('Please fill all required fields before saving', 'error');
         saveInfoCheckbox.checked = false;
         return;
     }
@@ -1296,38 +1335,64 @@ async function saveInformation() {
         phoneNumber: document.getElementById('phone').value,
         addressLine1: document.getElementById('address').value,
         addressLine2: document.getElementById('apartment').value || '',
-        city: document.getElementById('city').value,
+        city: document.getElementById('city').value || '', // Make city optional
         state: document.getElementById('state').value,
         postalCode: document.getElementById('pin-code').value,
-        country: document.getElementById('country').value,
+        country: document.getElementById('country').value || '', // Make country optional
         addressType: 'home',
         isDefault: true,
-        id: Date.now().toString(),
+        id: `addr_${Date.now()}`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-     try {
+    // Create feedback element if it doesn't exist
+    let feedbackElement = document.getElementById('save-info-feedback');
+    if (!feedbackElement) {
+        feedbackElement = document.createElement('div');
+        feedbackElement.id = 'save-info-feedback';
+        feedbackElement.className = 'text-sm mt-1';
+        saveInfoCheckbox.parentNode.appendChild(feedbackElement);
+    }
+
+    try {
         const user = auth.currentUser;
         
         if (user) {
             const userRef = db.collection("users").doc(user.uid);
+            const userDoc = await userRef.get();
             
-            await userRef.update({
-                addresses: firebase.firestore.FieldValue.arrayUnion(address),
+            let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
+            
+            // Mark all existing addresses as non-default
+            currentAddresses = currentAddresses.map(addr => ({
+                ...addr,
+                isDefault: false
+            }));
+            
+            // Add new address
+            currentAddresses.push(address);
+            
+            await userRef.set({
+                addresses: currentAddresses,
                 defaultAddress: address,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            }, { merge: true });
             
-            alert('Address saved as default for future checkouts');
+            // Show success message
+            feedbackElement.textContent = 'Information saved successfully!';
+            feedbackElement.className = 'text-sm mt-1 text-green-600';
         } else {
-            alert('Please sign in to save addresses permanently');
+            // Show info message for guests
+            feedbackElement.textContent = 'Please sign in to save addresses permanently';
+            feedbackElement.className = 'text-sm mt-1 text-blue-600';
         }
     } catch (error) {
         console.error("Error saving address:", error);
-        alert("Failed to save address. Please try again.");
+        // Show error message
+        feedbackElement.textContent = "Failed to save information";
+        feedbackElement.className = 'text-sm mt-1 text-red-600';
     }
 }
-
 // Update the getStatusColor function to include all statuses
 function getStatusColor(status) {
     switch(status) {
