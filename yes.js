@@ -2901,6 +2901,20 @@ auth.onAuthStateChanged(async (user) => {
 
 
 });
+function updateCheckoutEmail(user) {
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        if (user) {
+            emailInput.value = user.email || '';
+            emailInput.readOnly = true;
+            emailInput.classList.add('bg-gray-100');
+        } else {
+            emailInput.value = '';
+            emailInput.readOnly = false;
+            emailInput.classList.remove('bg-gray-100');
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
