@@ -1815,20 +1815,6 @@ const user = auth.currentUser;
             });
     });
 });
-function updateCheckoutEmail(user) {
-    const emailInput = document.getElementById('email');
-    if (emailInput) {
-        if (user) {
-            emailInput.value = user.email || '';
-            emailInput.readOnly = true;
-            emailInput.classList.add('bg-gray-100');
-        } else {
-            emailInput.value = '';
-            emailInput.readOnly = false;
-            emailInput.classList.remove('bg-gray-100');
-        }
-    }
-}
 // Updated Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
