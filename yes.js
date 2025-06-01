@@ -1500,7 +1500,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Call this function when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    setupPasswordToggles();
+    updateCheckoutEmail(auth.currentUser);
 });
 
 function validateEmail(email) {
@@ -1641,96 +1641,6 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         })
         .finally(() => {
             hideLoading('signup-submit-button');
-        });
-});
-// Email/Password Login - Firestore Version
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    showLoading('login-submit-button');
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const rememberMe = document.getElementById('remember-me').checked;
-
-    const loginError = document.getElementById('login-error');
-    if (loginError) loginError.classList.add('hidden');
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Check if email is verified
-            if (!user.emailVerified) {
-                auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
-            }
-            
-            // Update last login time
-            return db.collection("users").doc(user.uid).update({
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
-            });
-        })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
-            
-           const user = auth.currentUser;
-    updateCheckoutEmail(user);
-            const userData = doc.data();
-            
-            // Update UI elements if they exist
-            const loginSuccess = document.getElementById('login-success');
-            if (loginSuccess) {
-                loginSuccess.textContent = 'Login successful! Redirecting...';
-                loginSuccess.classList.remove('hidden');
-            }
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.add('login-success');
-            
-            hideLoading('login-submit-button');
-            
-            setTimeout(() => {
-                hideAuthContainer();
-                
-                // Update account info page if it exists
-                const accountInfoPage = document.getElementById('account-info-page');
-                if (accountInfoPage) {
-                    accountInfoPage.classList.remove('hidden');
-                    
-                    const displayName = document.getElementById('displayName');
-                    if (displayName) displayName.textContent = userData.name || '';
-                    
-                    const displayEmail = document.getElementById('displayEmail');
-                    if (displayEmail) displayEmail.textContent = user.email || '';
-                    
-                    const emailDisplay = document.getElementById('emailDisplay');
-                    if (emailDisplay) emailDisplay.value = user.email || '';
-                    
-                    loadAddresses(user.uid);
-                    loadOrders(user.uid);
-                }
-                
-                updateMobileAccountOptions();
-                
-                const emailField = document.getElementById('email');
-                if (emailField) emailField.value = user.email;
-            }, 500);
-        })
-        .catch((error) => {
-            console.error("Error handling login:", error);
-            const loginError = document.getElementById('login-error');
-            if (loginError) {
-                loginError.textContent = error.message || 'Error processing login. Please try again.';
-                loginError.classList.remove('hidden');
-            }
-            hideLoading('login-submit-button');
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.remove('login-success');
         });
 });
 // Updated Google Sign In/Sign Up handler
@@ -2287,6 +2197,8 @@ function logoutUser(event) {
         
         // Update the auth button
         updateAuthButton(null);
+                updateCheckoutEmail(null);
+
         
         // Only try to clear account info if on account page
         if (document.getElementById('displayName')) {
@@ -2891,17 +2803,18 @@ function updateCheckoutEmail(user) {
     const emailInput = document.getElementById('email');
     if (emailInput) {
         if (user) {
+            // User is logged in - set email and make field read-only
             emailInput.value = user.email || '';
             emailInput.readOnly = true;
-            emailInput.classList.add('bg-gray-100');
+            emailInput.classList.add('bg-gray-100', 'cursor-not-allowed');
         } else {
+            // User is not logged in - clear field and make it editable
             emailInput.value = '';
             emailInput.readOnly = false;
-            emailInput.classList.remove('bg-gray-100');
+            emailInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
         }
     }
 }
-
 document.addEventListener('DOMContentLoaded', function () {
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
 
