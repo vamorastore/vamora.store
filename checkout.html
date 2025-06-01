@@ -32,6 +32,11 @@
     padding: 12px 0;
     border-bottom: 1px solid #e5e7eb;
 }
+#save-info-feedback {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
 #addAddressLink {
     display: inline-flex !important;
     align-items: center;
@@ -2203,7 +2208,7 @@
                     </div>
                     <div class="form-group">
                         <label for="email" class="form-label required-field">Email</label>
-                        <input type="email" id="email" class="form-input bg-gray-100" placeholder="your@email.com" required>
+                        <input type="email" id="email" class="form-input bg-gray-100" placeholder="your@email.com" readonly>
                         <div id="email-error" class="error-message" style="display: none;"></div>
                     </div>
                     <div class="form-group mt-4">
@@ -2253,13 +2258,13 @@
     <div class="form-row">
         <div class="form-group">
             <label for="city" class="form-label required-field">City</label>
-            <input type="text" id="city" class="form-input" placeholder="City" required>
+            <input type="text" id="city" class="form-input" placeholder="City">
             <div id="city-error" class="error-message" style="display: none;">This field is required</div>
         </div>
         <div class="form-group">
             <label for="state" class="form-label required-field">State</label>
-            <select id="state" class="form-input" required>
-                <option value="" disabled selected>Select your state</option>
+            <select id="state" class="form-input">
+                 <option value="" disabled selected>Select your state</option>
                 <option value="Arunachal Pradesh">Arunachal Pradesh</option>
         <option value="Assam">Assam</option>
         <option value="Bihar">Bihar</option>
@@ -2314,12 +2319,13 @@
     </div>
     
     <div class="form-group">
- <div class="flex items-center mt-4">
-    <input type="checkbox" id="save-info" class="mr-2">
-    <label for="save-info" class="text-sm">
-        Save this information for next time
-    </label>
-</div>
+    <div class="flex items-center mt-4">
+        <input type="checkbox" id="save-info" class="mr-2">
+        <label for="save-info" class="text-sm">
+            Save this information for next time
+        </label>
+    </div>
+    <div id="save-info-feedback" class="text-sm mt-1"></div>
 </div>
                
                 <!-- Payment Failed Popup -->
