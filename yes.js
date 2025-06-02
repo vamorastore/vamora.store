@@ -1229,7 +1229,8 @@ async function loadAddresses(userId) {
     }
 }
 async function loadOrders(userId) {
-    // Add this check at the start
+    // First check if orders container exists
+    const ordersContainer = document.getElementById('ordersContainer');
     if (!ordersContainer) {
         console.warn("Orders container element not found");
         return;
@@ -1288,8 +1289,6 @@ async function loadOrders(userId) {
         hideLoading('ordersLoading');
     }
 }
-
-// Update the renderOrders function to handle the date properly
 function renderOrders(orders) {
     ordersContainer.innerHTML = orders.map(order => `
         <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
@@ -1300,14 +1299,16 @@ function renderOrders(orders) {
                 </div>
                 <div>
                     <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">${order.date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}</span>
+                    <span class="block text-gray-600">
+                        ${new Date(order.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        })}
+                    </span>
                 </div>
             </div>
-            
+
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
@@ -1321,35 +1322,26 @@ function renderOrders(orders) {
                         <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
                     </div>
                     <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                            order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
+                        <div class="w-8 h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
                             rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-check text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                        <div class="w-8 h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
                             <i class="fas fa-truck text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                        <div class="w-8 h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
                             <i class="fas fa-shipping-fast text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
                             <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <span class="font-semibold">Status:</span>
@@ -1361,24 +1353,25 @@ function renderOrders(orders) {
                     <span class="font-semibold">Total:</span>
                     <span class="block text-gray-600">
                         ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat(item.price?.replace('₹', '').replace(',', '') || '0');
-                            return total + (price * (item.quantity || 1));
+                            const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
+                            const qty = item.quantity || 1;
+                            return total + (price * qty);
                         }, 0).toFixed(2)}
                     </span>
                 </div>
             </div>
-            
+
             <div class="mt-4">
                 <h4 class="font-medium mb-2">Items:</h4>
                 ${order.items.map(item => `
                     <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
                         <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title}" 
+                             alt="${item.title || 'Item'}" 
                              class="w-12 h-12 rounded mr-3 object-cover">
                         <div class="flex-1">
                             <p class="font-medium">${item.title}</p>
                             <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size}</span>
+                                <span>Size: ${item.size || '-'}</span>
                                 <span>Qty: ${item.quantity || 1}</span>
                                 <span>${item.price || '₹0.00'}</span>
                             </div>
@@ -1389,102 +1382,7 @@ function renderOrders(orders) {
         </div>
     `).join('');
 }
-// Helper function to render orders
-function renderOrders(orders) {
-    ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                    </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                            order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${order.status.replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
-                            return total + (price * item.quantity);
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size}</span>
-                                <span>Qty: ${item.quantity}</span>
-                                <span>${item.price}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
-}
+
 
 // Helper function to determine the progress bar width
 function getStatusProgress(status) {
@@ -2694,7 +2592,7 @@ async function saveOrder(paymentId, formData) {
         status: 'pending',
         paymentId: paymentId,
         userId: user?.uid || "guest",
-        email: user?.email || document.getElementById('email').value,
+email: user?.email || (document.getElementById('email')?.value ?? ''),
         items: [...cart],
         shippingAddress: {
             name: `${formData.firstName} ${formData.lastName}`,
@@ -2817,7 +2715,6 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
-// Update the auth state handler to show/hide add address button
 
 // New helper function to update UI with Firestore data
 function updateUIWithUserData(user, userData) {
@@ -2886,6 +2783,7 @@ if (checkoutBtn) {
         }
     });
 }
+
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
     document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
@@ -2902,7 +2800,14 @@ function updateCartCount() {
         cartCountElement.setAttribute('data-count', totalItems);
     }
 }
-
+// In your auth state change handler
+auth.onAuthStateChanged(async (user) => {
+    if (user && window.location.pathname.includes('account')) {
+        await loadAccountInfo(user.uid);
+        loadOrders(user.uid);
+        loadAddresses(user.uid);
+    }
+});
 // Unified function to add to cart
 async function addToCart(product) {
     const user = auth.currentUser;
