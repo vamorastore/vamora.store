@@ -1,4 +1,4 @@
- // Initialize Firebase
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -73,6 +73,7 @@ function showSignupSection() {
     document.getElementById('signup-section').classList.add('bg-gray-50');
     document.getElementById('login-section').classList.remove('bg-white');
 }
+
 // Function to open the cart
 function openCart() {
     document.getElementById('cartOverlay').classList.add('active');
@@ -87,6 +88,7 @@ function closeCart() {
     document.getElementById('cartBackdrop').classList.remove('active');
     document.body.style.overflow = '';
 }
+
 // Helper function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
@@ -359,6 +361,7 @@ async function updateCartItem(productId, size, newQuantity) {
     
     renderCart();
 }
+
 async function proceedToCheckout() {
     const user = auth.currentUser;
     
@@ -495,6 +498,7 @@ function validateCheckoutForm() {
     
     return isValid;
 }
+
 // Cart event listeners
 cartIconNav.addEventListener('click', toggleCart);
 closeCartButton.addEventListener('click', closeCart);
@@ -628,6 +632,7 @@ function renderAddresses(addresses) {
         });
     });
 }
+
 // Address Management
 function showAddAddressModal(event) {
     event.preventDefault();
@@ -901,6 +906,7 @@ function initAddressForm() {
 
 // Call init on DOM ready
 document.addEventListener('DOMContentLoaded', initAddressForm);
+
 async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
@@ -935,6 +941,7 @@ async function loadAccountInfo(userId) {
         renderEmptyAccountState();
     }
 }
+
 function renderEmptyAccountState() {
     addressContainer.innerHTML = `
         <div class="text-center text-gray-500">
@@ -989,6 +996,7 @@ async function applyDefaultAddress() {
         console.error("Error applying default address:", error);
     }
 }
+
 // Load addresses
 async function loadAddresses(userId) {
     const addressContainer = document.getElementById('addressContainer');
@@ -1030,7 +1038,9 @@ async function loadAddresses(userId) {
             </div>
         `;
     }
-}// Update the loadOrders function
+}
+
+// Update the loadOrders function
 async function loadOrders(userId) {
     // Add this check at the start
     if (!ordersContainer) {
@@ -1192,102 +1202,6 @@ function renderOrders(orders) {
         </div>
     `).join('');
 }
-// Helper function to render orders
-function renderOrders(orders) {
-    ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">${new Date(order.date).toLocaleDateString()}</span>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                    </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${order.status === 'status-order-placed' || 
-                            order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-processing' || 
-                            order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-shipped' || 
-                            order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center ${order.status === 'status-delivered' ? 'text-white' : 'text-gray-500'}">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${order.status.replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat(item.price.replace('₹', '').replace(',', ''));
-                            return total + (price * item.quantity);
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size}</span>
-                                <span>Qty: ${item.quantity}</span>
-                                <span>${item.price}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
-}
 
 // Helper function to determine the progress bar width
 function getStatusProgress(status) {
@@ -1305,94 +1219,97 @@ function getStatusProgress(status) {
     }
 }
 
-async function saveInformation() {
-    const saveInfoCheckbox = document.getElementById('save-info');
-    if (!saveInfoCheckbox || !saveInfoCheckbox.checked) return;
+// Save address if user is logged in
+    async function saveInformation() {
+        const saveInfoCheckbox = document.getElementById('save-info');
+        if (!saveInfoCheckbox || !saveInfoCheckbox.checked) return;
 
-    const requiredFields = [
-        'first-name', 'last-name', 'address', 
-        'state', 'pin-code', 'phone'
-    ];
-    
-    let isValid = true;
-    
-    requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (!field.value.trim()) {
-            field.classList.add('error-highlight');
-            isValid = false;
+        const requiredFields = [
+            'first-name', 'last-name', 'address',
+            'state', 'pin-code', 'phone'
+        ];
+
+        let isValid = true;
+
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                field.classList.add('error-highlight');
+                isValid = false;
+            } else {
+                field.classList.remove('error-highlight');
+            }
+        });
+
+        if (!isValid) {
+            showToast('Please fill all required fields before saving', 'error');
+            saveInfoCheckbox.checked = false;
+            return;
         }
-    });
-    
-    if (!isValid) {
-        showToast('Please fill all required fields before saving', 'error');
-        saveInfoCheckbox.checked = false;
-        return;
-    }
 
-    const address = {
-        fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
-        phoneNumber: document.getElementById('phone').value,
-        addressLine1: document.getElementById('address').value,
-        addressLine2: document.getElementById('apartment').value || '',
-        city: document.getElementById('city').value || '', // Make city optional
-        state: document.getElementById('state').value,
-        postalCode: document.getElementById('pin-code').value,
-        country: document.getElementById('country').value || '', // Make country optional
-        addressType: 'home',
-        isDefault: true,
-        id: `addr_${Date.now()}`,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
+        const address = {
+            fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
+            phoneNumber: document.getElementById('phone').value,
+            addressLine1: document.getElementById('address').value,
+            addressLine2: document.getElementById('apartment')?.value || '',
+            city: document.getElementById('city')?.value || '',
+            state: document.getElementById('state').value,
+            postalCode: document.getElementById('pin-code').value,
+            country: document.getElementById('country')?.value || '',
+            addressType: 'home',
+            isDefault: true,
+            id: `addr_${Date.now()}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-    // Create feedback element if it doesn't exist
-    let feedbackElement = document.getElementById('save-info-feedback');
-    if (!feedbackElement) {
-        feedbackElement = document.createElement('div');
-        feedbackElement.id = 'save-info-feedback';
-        feedbackElement.className = 'text-sm mt-1';
-        saveInfoCheckbox.parentNode.appendChild(feedbackElement);
-    }
-
-    try {
-        const user = auth.currentUser;
-        
-        if (user) {
-            const userRef = db.collection("users").doc(user.uid);
-            const userDoc = await userRef.get();
-            
-            let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
-            
-            // Mark all existing addresses as non-default
-            currentAddresses = currentAddresses.map(addr => ({
-                ...addr,
-                isDefault: false
-            }));
-            
-            // Add new address
-            currentAddresses.push(address);
-            
-            await userRef.set({
-                addresses: currentAddresses,
-                defaultAddress: address,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-            
-            // Show success message
-            feedbackElement.textContent = 'Information saved successfully!';
-            feedbackElement.className = 'text-sm mt-1 text-green-600';
-        } else {
-            // Show info message for guests
-            feedbackElement.textContent = 'Please sign in to save addresses permanently';
-            feedbackElement.className = 'text-sm mt-1 text-blue-600';
+        let feedbackElement = document.getElementById('save-info-feedback');
+        if (!feedbackElement) {
+            feedbackElement = document.createElement('div');
+            feedbackElement.id = 'save-info-feedback';
+            feedbackElement.className = 'text-sm mt-1';
+            saveInfoCheckbox.parentNode.appendChild(feedbackElement);
         }
-    } catch (error) {
-        console.error("Error saving address:", error);
-        // Show error message
-        feedbackElement.textContent = "Failed to save information";
-        feedbackElement.className = 'text-sm mt-1 text-red-600';
+
+        try {
+            const user = auth.currentUser;
+
+            if (user) {
+                const userRef = db.collection("users").doc(user.uid);
+                const userDoc = await userRef.get();
+
+                let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
+
+                currentAddresses = currentAddresses.map(addr => ({
+                    ...addr,
+                    isDefault: false
+                }));
+
+                currentAddresses.push(address);
+
+                await userRef.set({
+                    addresses: currentAddresses,
+                    defaultAddress: address,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                feedbackElement.textContent = 'Information saved successfully!';
+                feedbackElement.className = 'text-sm mt-1 text-green-600';
+                showToast('Address saved successfully!', 'success');
+
+            } else {
+                feedbackElement.textContent = 'Login required to save address information.';
+                feedbackElement.className = 'text-sm mt-1 text-blue-600';
+                showToast('Please log in to save your address.', 'info');
+                saveInfoCheckbox.checked = false;
+            }
+
+        } catch (error) {
+            console.error("Error saving address:", error);
+            feedbackElement.textContent = "Failed to save information";
+            feedbackElement.className = 'text-sm mt-1 text-red-600';
+            showToast('Error saving address. Please try again.', 'error');
+        }
     }
-}
 // Update the getStatusColor function to include all statuses
 function getStatusColor(status) {
     switch(status) {
@@ -1643,6 +1560,7 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
             hideLoading('signup-submit-button');
         });
 });
+
 // Updated Google Sign In/Sign Up handler
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1682,21 +1600,21 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 }, { merge: true });
             })
             .then(() => {
-const user = auth.currentUser;
-    updateCheckoutEmail(user);                
+                const user = auth.currentUser;
+                updateCheckoutEmail(user);                
                 googleBtn.innerHTML = originalContent;
                 googleBtn.disabled = false;
                 
                 // Hide auth container and redirect
-           setTimeout(() => {
-    hideAuthContainer();
-    
-    // Just update the UI without redirecting
-    if (window.location.pathname.includes('account')) {
-        loadAccountInfo(user.uid);
-    }
-    // No else clause - stays on current page
-}, 1500);
+                setTimeout(() => {
+                    hideAuthContainer();
+                    
+                    // Just update the UI without redirecting
+                    if (window.location.pathname.includes('account')) {
+                        loadAccountInfo(user.uid);
+                    }
+                    // No else clause - stays on current page
+                }, 1500);
             })
             .catch((error) => {
                 googleBtn.innerHTML = originalContent;
@@ -1725,6 +1643,7 @@ const user = auth.currentUser;
             });
     });
 });
+
 // Updated Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -1772,14 +1691,14 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             hideLoading('login-submit-button');
             
             setTimeout(() => {
-    hideAuthContainer();
-    
-    // Just update the UI without redirecting
-    if (window.location.pathname.includes('account')) {
-        loadAccountInfo(user.uid);
-    }
-    // No else clause - stays on current page
-}, 1500);
+                hideAuthContainer();
+                
+                // Just update the UI without redirecting
+                if (window.location.pathname.includes('account')) {
+                    loadAccountInfo(user.uid);
+                }
+                // No else clause - stays on current page
+            }, 1500);
         })
         .catch((error) => {
             console.error("Error handling login:", error);
@@ -1928,7 +1847,9 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         .finally(() => {
             hideLoading('signup-submit-button');
         });
-});// Updated Forgot Password with Firestore
+});
+
+// Updated Forgot Password with Firestore
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
@@ -2035,6 +1956,7 @@ document.getElementById('save-new-password').addEventListener('click', function(
         hideLoading('save-new-password');
     }
 });
+
 // Add to your existing auth functions
 function resendVerification(email) {
     auth.fetchSignInMethodsForEmail(email)
@@ -2083,7 +2005,9 @@ function resendVerification(email) {
         .catch((error) => {
             alert("Error checking account: " + error.message);
         });
-}// Event Listeners
+}
+
+// Event Listeners
 document.getElementById('show-signup').addEventListener('click', function(event) {
     event.preventDefault();
     showSignupSection();
@@ -2197,7 +2121,7 @@ function logoutUser(event) {
         
         // Update the auth button
         updateAuthButton(null);
-                updateCheckoutEmail(null);
+        updateCheckoutEmail(null);
 
         
         // Only try to clear account info if on account page
@@ -2234,6 +2158,7 @@ function logoutUser(event) {
         console.error('Logout error:', error);
     });
 }
+
 // Global function to resend from signup page
 function resendVerification(email) {
     auth.fetchSignInMethodsForEmail(email)
@@ -2324,18 +2249,54 @@ async function saveProfile() {
 }
 
 // Add this helper function for toast notifications
+// Toast function for messages (enhanced)
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`;
     toast.textContent = message;
+
+    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white z-50 transition-opacity duration-300 ${
+        type === 'success' ? 'bg-green-500' :
+        type === 'error' ? 'bg-red-500' :
+        'bg-blue-500'
+    }`;
+
     document.body.appendChild(toast);
-    
+
+    // Force reflow for transition
+    void toast.offsetWidth;
+
+    toast.style.opacity = '1';
+
     setTimeout(() => {
-        toast.remove();
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            toast.remove();
+        }, 300); // match transition duration
     }, 3000);
 }
+
+// Handle checkbox toggle for guest users
+document.getElementById('save-info').addEventListener('change', function (e) {
+    const user = auth.currentUser;
+
+    if (e.target.checked && !user) {
+        e.target.checked = false;
+
+        let feedbackElement = document.getElementById('save-info-feedback');
+        if (!feedbackElement) {
+            feedbackElement = document.createElement('div');
+            feedbackElement.id = 'save-info-feedback';
+            feedbackElement.className = 'text-sm mt-1';
+            e.target.parentNode.appendChild(feedbackElement);
+        }
+
+        feedbackElement.textContent = 'Login required to save address information.';
+        feedbackElement.className = 'text-sm mt-1 text-blue-600';
+
+        showToast('Please log in to save your address.', 'info');
+    }
+});
+
 // Address Management
 
 // Event Listeners
@@ -2353,7 +2314,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Update the setDefaultAddress function
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
@@ -2373,8 +2333,7 @@ function showThankYouPopup(orderDetails, orderId) {
     document.getElementById('popupCityStateZip').textContent = `${orderDetails.city}, ${orderDetails.state} ${orderDetails.pinCode}`;
     document.getElementById('popupCountry').textContent = orderDetails.country;
     document.getElementById('popupPhone').textContent = orderDetails.phone;
-// Update the form submission event listener
-document.getElementById('addressForm').addEventListener('submit', saveAddress);
+    document.getElementById('addressForm').addEventListener('submit', saveAddress);
     document.getElementById('thankYouPopup').classList.add('active');
     
     document.getElementById('thankYouPopup').addEventListener('click', function(e) {
@@ -2582,6 +2541,7 @@ document.addEventListener('click', function(event) {
         dropdownOpen = false;
     }
 });
+
 // Update the auth state handler to show/hide add address button
 
 // New helper function to update UI with Firestore data
@@ -2635,10 +2595,12 @@ if (checkoutBtn) {
         }
     });
 }
+
 // Update the Pay Now button event listener
 if (document.querySelector('.checkout-btn')) {
     document.querySelector('.checkout-btn').addEventListener('click', placeOrder);
 }
+
 // Initialize cart as a global variable
 let cart = [];
 
@@ -2737,7 +2699,7 @@ document.addEventListener('DOMContentLoaded', () => {
 auth.onAuthStateChanged(async (user) => {
     const addAddressLink = document.getElementById('addAddressLink');
     
-// Only proceed with orders logic if we're on the account page
+    // Only proceed with orders logic if we're on the account page
     if (!window.location.pathname.includes('account')) {
         return;
     }
@@ -2795,10 +2757,9 @@ auth.onAuthStateChanged(async (user) => {
     updateCartCount();
     renderCart();
     updateCheckoutAuthButton(user);
-        updateCheckoutEmail(user);
-
-
+    updateCheckoutEmail(user);
 });
+
 function updateCheckoutEmail(user) {
     const emailInput = document.getElementById('email');
     if (emailInput) {
@@ -2815,6 +2776,7 @@ function updateCheckoutEmail(user) {
         }
     }
 }
+
 document.addEventListener('DOMContentLoaded', function () {
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
 
@@ -2856,7 +2818,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     auth.onAuthStateChanged((user) => {
         updateCheckoutAuthButton(user);
-            updateAuthButton(user);
+        updateAuthButton(user);
     });
 });
 
