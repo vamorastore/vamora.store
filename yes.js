@@ -635,11 +635,16 @@ function renderAddresses(addresses) {
 
 // Address Management
 function showAddAddressModal(event) {
-    event.preventDefault();
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
-    document.querySelector('#addAddressModal h3').textContent = 'Add New Address';
-    addAddressModal.classList.remove('hidden');
+    if (event) event.preventDefault();
+    
+    // Reset form and clear any editing ID
+    initAddressForm();
+    
+    // Update modal title
+    document.getElementById('addressModalTitle').textContent = 'Add New Address';
+    
+    // Show modal
+    document.getElementById('addAddressModal').classList.remove('hidden');
 }
 
 async function saveAddress(event) {
@@ -666,18 +671,51 @@ async function saveAddress(event) {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Validation
-    const errors = [];
-    if (!address.fullName) errors.push('Full name is required');
-    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) errors.push('Valid 10-digit phone number is required');
-    if (!address.addressLine1) errors.push('Address line 1 is required');
-    if (!address.city) errors.push('City is required');
-    if (!address.state) errors.push('State is required');
-    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) errors.push('Valid 6-digit postal code is required');
-    if (!address.country) errors.push('Country is required');
+    // Reset error messages
+    document.querySelectorAll('[id$="Error"]').forEach(el => {
+        el.classList.add('hidden');
+    });
 
-    if (errors.length > 0) {
-        showToast(errors.join(', '), 'error');
+    // Validation
+    let isValid = true;
+
+    if (!address.fullName) {
+        document.getElementById('fullNameError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.phoneNumber || !/^\d{10}$/.test(address.phoneNumber)) {
+        document.getElementById('phoneNumberError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.addressLine1) {
+        document.getElementById('addressLine1Error').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.city) {
+        document.getElementById('cityError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.state) {
+        document.getElementById('stateError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.postalCode || !/^\d{6}$/.test(address.postalCode)) {
+        document.getElementById('postalCodeError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address.country) {
+        document.getElementById('countryError').classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!isValid) {
+        showToast('Please fill all required fields correctly', 'error');
         return;
     }
 
@@ -732,9 +770,8 @@ async function saveAddress(event) {
 
         // Refresh UI
         await loadAddresses(user.uid);
-        addAddressModal.classList.add('hidden');
-        document.getElementById('addressForm').reset();
-        delete document.getElementById('addressForm').dataset.editingId;
+        document.getElementById('addAddressModal').classList.add('hidden');
+        initAddressForm();
         
         // Show success message
         showToast('Address saved successfully!');
@@ -751,9 +788,8 @@ async function saveAddress(event) {
 }
 
 function cancelAddress() {
-    document.getElementById('addressForm').reset();
-    delete document.getElementById('addressForm').dataset.editingId;
-    addAddressModal.classList.add('hidden');
+    document.getElementById('addAddressModal').classList.add('hidden');
+    initAddressForm();
 }
 
 async function deleteAddress(addressId) {
@@ -859,31 +895,26 @@ function editAddress(addressId) {
         
         // Set editing ID
         document.getElementById('addressForm').dataset.editingId = addressId;
-        document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
+        document.getElementById('addressModalTitle').textContent = 'Edit Address';
         
-        addAddressModal.classList.remove('hidden');
+        // Show modal
+        document.getElementById('addAddressModal').classList.remove('hidden');
     }).catch(error => {
         console.error("Error loading address for editing:", error);
         showToast('Failed to load address for editing', 'error');
     });
 }
-
 // Event Listeners for Address Management - Consolidated version
 function setupAddressEventListeners() {
     // Remove any existing listeners to prevent duplicates
-    document.getElementById('addAddressLink')?.removeEventListener('click', showAddAddressModal);
     document.getElementById('closeAddAddressModal')?.removeEventListener('click', cancelAddress);
     document.getElementById('saveAddressBtn')?.removeEventListener('click', saveAddress);
     document.getElementById('cancelAddressBtn')?.removeEventListener('click', cancelAddress);
     document.getElementById('addressForm')?.removeEventListener('submit', handleFormSubmit);
 
     // Add fresh listeners
-    document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
     document.getElementById('closeAddAddressModal')?.addEventListener('click', cancelAddress);
-    document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
     document.getElementById('cancelAddressBtn')?.addEventListener('click', cancelAddress);
-    
-    // Form submit handler (using a named function for better debugging)
     document.getElementById('addressForm')?.addEventListener('submit', handleFormSubmit);
 }
 
@@ -893,17 +924,14 @@ function handleFormSubmit(e) {
     saveAddress(e);
 }
 
-// Call this function when your page loads or when the modal is shown
-setupAddressEventListeners();
-
 // Initialize address form
 function initAddressForm() {
     const addressForm = document.getElementById('addressForm');
     if (addressForm) {
         addressForm.reset();
+        delete addressForm.dataset.editingId;
     }
 }
-
 // Call init on DOM ready
 document.addEventListener('DOMContentLoaded', initAddressForm);
 
@@ -1418,6 +1446,8 @@ document.getElementById('auth-container').addEventListener('transitionend', func
 // Call this when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggles();
+    setupAddressEventListeners();
+    initAddressForm();
     
     // Also call it whenever the auth container is shown
     document.getElementById('auth-container').addEventListener('transitionend', function() {
@@ -2323,6 +2353,12 @@ document.getElementById('save-info').addEventListener('change', function (e) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+     // Check for stored email in sessionStorage
+    const storedEmail = sessionStorage.getItem('checkoutEmail');
+    if (storedEmail && document.getElementById('email')) {
+        document.getElementById('email').value = storedEmail;
+        sessionStorage.removeItem('checkoutEmail'); // Clear after use
+    }
     // Edit Profile
     document.getElementById('editProfileIcon')?.addEventListener('click', showEditProfileModal);
     document.getElementById('closeEditProfileModal')?.addEventListener('click', () => {
@@ -2422,6 +2458,11 @@ async function handlePaymentFailure(response) {
         
         if (seconds <= 0) {
             clearInterval(countdown);
+            // Store the email before reloading
+            const email = document.getElementById('email')?.value;
+            if (email) {
+                sessionStorage.setItem('checkoutEmail', email);
+            }
             window.location.reload();
         }
     }, 1000);
@@ -2440,7 +2481,6 @@ async function handlePaymentFailure(response) {
         console.error("Error logging payment failure:", error);
     }
 }
-
 // Save order to Firestore (updated version)
 async function saveOrder(paymentId, formData) {
     const user = auth.currentUser;
@@ -2484,6 +2524,7 @@ async function placeOrder() {
 
     const amount = calculateTotalAmount();
     const formData = getFormData();
+    const email = document.getElementById('email').value;
 
     const options = {
         key: "rzp_live_DPartLBDccSG34",
@@ -2493,7 +2534,7 @@ async function placeOrder() {
         description: "Order Payment",
         prefill: {
             name: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email,
+            email: email, // Use the email from the form
             contact: formData.phone
         },
         notes: {
@@ -2508,7 +2549,10 @@ async function placeOrder() {
                 handlePaymentSuccess(response, formData, orderId);
             } catch (error) {
                 console.error("Error processing order:", error);
+                // Store email before showing error
+                sessionStorage.setItem('checkoutEmail', email);
                 alert("There was an error saving your order. Please contact support with your payment ID: " + response.razorpay_payment_id);
+                window.location.reload();
             }
         },
         method: {
@@ -2528,10 +2572,11 @@ async function placeOrder() {
     rzp.open();
 
     rzp.on('payment.failed', function(response) {
+        // Store email before handling failure
+        sessionStorage.setItem('checkoutEmail', email);
         handlePaymentFailure(response);
     });
 }
-
 // Main event listeners
 accountIconNav.addEventListener('click', function(e) {
     e.stopPropagation();
