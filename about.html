@@ -27,6 +27,15 @@
     border-top-color: #fff;
     animation: spin 1s ease-in-out infinite;
 }
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.opacity-0 {
+    opacity: 0;
+}
 
 @keyframes spin {
     to { transform: rotate(360deg); }
