@@ -1784,7 +1784,7 @@
         </div>
     </div>
     
-   <!-- Account Info Page (hidden by default) -->
+<!-- Account Info Page (hidden by default) -->
 <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
     <div class="max-w-4xl mx-auto p-6">
         <div class="bg-white p-6 rounded-lg shadow-md relative">
@@ -1792,31 +1792,35 @@
                 <i class="fas fa-times"></i>
             </button>
             <h2 class="text-2xl font-bold mb-4">Account Information</h2>
-            <div class="mb-4">
-                <div class="flex items-center mb-2">
-                    <span class="font-semibold">Name</span>
-                    <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+            
+            <!-- Profile Information Section -->
+            <div class="mb-6">
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="font-semibold">Name</span>
+                        <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                    </div>
+                    <p id="displayName" class="text-gray-700"></p>
                 </div>
-                <p id="displayName"></p>
+                <div class="mb-4">
+                    <span class="font-semibold">Email</span>
+                    <p id="displayEmail" class="text-gray-700"></p>
+                </div>
             </div>
-            <div class="mb-4">
-                <span class="font-semibold">Email</span>
-                <p id="displayEmail"></p>
-            </div>
-        </div>
-    </div>
-</div>
-
- <!-- Orders Section -->
-                <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-xl font-bold">Your Orders</h3>
-                    <div id="ordersContainer">
-                        <!-- Orders will be displayed here -->
+            
+            <!-- Orders Section -->
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                <div id="ordersContainer" class="space-y-4">
+                    <!-- Orders will be displayed here -->
+                    <div class="text-center py-8 text-gray-500">
+                        <p>No orders found</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
     <!-- Login/Signup Modal -->
@@ -2334,6 +2338,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-            <script src="wait.js"></script>
+            <script src="yes.js"></script>
 </body>
 </html>
