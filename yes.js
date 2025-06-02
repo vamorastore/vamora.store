@@ -784,6 +784,7 @@ async function proceedToCheckout() {
 }
 
 // Function to render order summary
+// Function to render order summary in checkout
 function renderOrderSummary() {
     const orderSummaryItems = document.getElementById('orderSummaryItems');
     orderSummaryItems.innerHTML = '';
@@ -792,6 +793,8 @@ function renderOrderSummary() {
     
     if (cart.length === 0) {
         orderSummaryItems.innerHTML = '<p class="text-sm text-gray-500">Your cart is empty</p>';
+        document.getElementById('orderSubtotal').textContent = '₹ 0.00';
+        document.getElementById('orderGrandTotal').textContent = '₹ 0.00';
         return;
     }
     
@@ -801,15 +804,15 @@ function renderOrderSummary() {
         subtotal += itemTotal;
         
         const productItem = document.createElement('div');
-        productItem.className = 'product-item';
+        productItem.className = 'product-item flex items-start py-3 border-b border-gray-100';
         productItem.innerHTML = `
-            <img src="${item.image}" alt="${item.title}" class="product-image">
-            <div class="product-details">
-                <div class="product-title">${item.title}</div>
-                <div class="product-variant">Size: ${item.size}</div>
-                <div class="product-variant">Quantity: ${item.quantity}</div>
+            <img src="${item.image}" alt="${item.title}" class="product-image w-16 h-16 object-cover rounded mr-3">
+            <div class="product-details flex-1">
+                <div class="product-title font-medium">${item.title}</div>
+                <div class="product-variant text-sm text-gray-500">Size: ${item.size}</div>
+                <div class="product-variant text-sm text-gray-500">Qty: ${item.quantity}</div>
             </div>
-            <div class="product-price">${item.price}</div>
+            <div class="product-price font-medium">₹${(priceValue * item.quantity).toFixed(2)}</div>
         `;
         orderSummaryItems.appendChild(productItem);
     });
@@ -817,7 +820,6 @@ function renderOrderSummary() {
     document.getElementById('orderSubtotal').textContent = `₹ ${subtotal.toFixed(2)}`;
     document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
-
 // Close cart when pressing ESC key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && cartOpen) {
@@ -2885,6 +2887,11 @@ async function addToCart(product) {
     
     updateCartCount();
     renderCart();
+    
+    // Also update order summary if on checkout page
+    if (window.location.pathname.includes('checkout')) {
+        renderOrderSummary();
+    }
 }
 
 // Unified function to remove from cart
