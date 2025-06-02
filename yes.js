@@ -89,15 +89,34 @@ auth.onAuthStateChanged(async (user) => {
         renderCart();
     }
 });
+// Add this to your existing event listeners section
+document.getElementById('logoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    
+    // Close any open dropdowns/menus
+    if (dropdownMenu) dropdownMenu.classList.add('hidden');
+    if (mobileMenuContent) mobileMenuContent.classList.remove('active');
+    
+    // Reset mobile menu button icon
+    const mobileMenuIcon = mobileMenuButton?.querySelector('i');
+    if (mobileMenuIcon) {
+        mobileMenuIcon.classList.add('fa-bars');
+        mobileMenuIcon.classList.remove('fa-times');
+    }
+});
 // Updated logout function
 function logoutUser(event) {
-    if (event) event.preventDefault();
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     
     auth.signOut().then(() => {
         // Close all modals and dropdowns
-        document.getElementById('account-info-page').classList.add('hidden');
-        document.getElementById('dropdownMenu').classList.add('hidden');
-        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        document.getElementById('account-info-page')?.classList.add('hidden');
+        document.getElementById('dropdownMenu')?.classList.add('hidden');
+        document.getElementById('mobileAccountOptions')?.classList.add('hidden');
         
         // Reset cart
         cart = [];
@@ -124,6 +143,8 @@ function logoutUser(event) {
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
+        
+        showToast('Logged out successfully!', 'success');
     }).catch((error) => {
         console.error('Logout error:', error);
         showToast('Error logging out. Please try again.', 'error');
@@ -923,7 +944,7 @@ function updateAuthButton(user) {
         }
     }
     
-    // Update checkout auth button
+    // Update checkout auth button if it exists
     if (checkoutAuthButton) {
         if (user) {
             checkoutAuthButton.textContent = 'LOG OUT';
@@ -947,7 +968,6 @@ function updateAuthButton(user) {
         }
     }
 }
-
 function cancelAddress() {
     document.getElementById('addressForm').reset();
     delete document.getElementById('addressForm').dataset.editingId;
