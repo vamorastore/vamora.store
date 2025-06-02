@@ -1346,8 +1346,21 @@ function hideAuthContainer() {
 }
 
 function resetForms() {
+    // Save the current email values before resetting
+    const loginEmail = document.getElementById('login-email')?.value;
+    const signupEmail = document.getElementById('signup-email')?.value;
+    
     document.getElementById('login-form').reset();
     document.getElementById('signup-form').reset();
+    
+    // Restore the email values if they exist
+    if (loginEmail && document.getElementById('login-email')) {
+        document.getElementById('login-email').value = loginEmail;
+    }
+    if (signupEmail && document.getElementById('signup-email')) {
+        document.getElementById('signup-email').value = signupEmail;
+    }
+    
     document.getElementById('login-error').classList.add('hidden');
     document.getElementById('login-success').classList.add('hidden');
     document.getElementById('signup-error').classList.add('hidden');
@@ -1356,7 +1369,6 @@ function resetForms() {
     document.getElementById('password-mismatch-error').classList.add('hidden');
     document.getElementById('name-error').classList.add('hidden');
 }
-
 function showLoading(buttonId) {
     const button = document.getElementById(buttonId);
     const textSpan = button.querySelector('span');
@@ -1616,31 +1628,32 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                     // No else clause - stays on current page
                 }, 1500);
             })
-            .catch((error) => {
-                googleBtn.innerHTML = originalContent;
-                googleBtn.disabled = false;
+           .catch((error) => {
+            const errorMessage = error.message;
+            const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
+            
+            if (currentAuthSection) {
+                const isLoginSection = currentAuthSection.id === 'login-section';
                 
-                const errorMessage = error.message;
-                const currentAuthSection = document.querySelector('.auth-section:not(.hidden)');
-                
-                if (currentAuthSection) {
-                    const isLoginSection = currentAuthSection.id === 'login-section';
-                    
-                    if (isLoginSection) {
-                        const loginError = document.getElementById('login-error');
-                        if (loginError) {
-                            loginError.textContent = errorMessage;
-                            loginError.classList.remove('hidden');
-                        }
-                    } else {
-                        const signupError = document.getElementById('signup-error');
-                        if (signupError) {
-                            signupError.textContent = errorMessage;
-                            signupError.classList.remove('hidden');
-                        }
+                if (isLoginSection) {
+                    const loginError = document.getElementById('login-error');
+                    if (loginError) {
+                        loginError.textContent = errorMessage;
+                        loginError.classList.remove('hidden');
+                    }
+                } else {
+                    const signupError = document.getElementById('signup-error');
+                    if (signupError) {
+                        signupError.textContent = errorMessage;
+                        signupError.classList.remove('hidden');
                     }
                 }
-            });
+            }
+            
+            // Restore the button state
+            googleBtn.innerHTML = originalContent;
+            googleBtn.disabled = false;
+        });
     });
 });
 
@@ -1653,6 +1666,9 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const password = document.getElementById('login-password').value;
     const rememberMe = document.getElementById('remember-me').checked;
 
+    // Store email in case we need to restore it
+    const storedEmail = email;
+    
     const loginError = document.getElementById('login-error');
     if (loginError) loginError.classList.add('hidden');
 
@@ -1707,6 +1723,12 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 loginError.textContent = error.message || 'Error processing login. Please try again.';
                 loginError.classList.remove('hidden');
             }
+            
+            // Restore the email in the form
+            if (document.getElementById('login-email')) {
+                document.getElementById('login-email').value = storedEmail;
+            }
+            
             hideLoading('login-submit-button');
         });
 });
