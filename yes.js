@@ -288,7 +288,6 @@ document.getElementById('logoutOption')?.addEventListener('click', function(e) {
         mobileMenuIcon.classList.remove('fa-times');
     }
 });
-// Updated logout function
 // Updated logout function with better error handling
 function logoutUser(event) {
     if (event) {
@@ -304,24 +303,25 @@ function logoutUser(event) {
         logoutBtn.disabled = true;
     }
     
-    auth.signOut().then(() => {
+  auth.signOut().then(() => {
+    try {
         // Clear cart and local storage
         cart = [];
         localStorage.removeItem('guestCart');
         updateCartCount();
-        
+
         // Close all modals and dropdowns
         document.getElementById('account-info-page')?.classList.add('hidden');
         document.getElementById('dropdownMenu')?.classList.add('hidden');
         document.getElementById('mobileAccountOptions')?.classList.add('hidden');
-        
+
         // Reset mobile menu button icon
         const mobileMenuIcon = mobileMenuButton?.querySelector('i');
         if (mobileMenuIcon) {
             mobileMenuIcon.classList.add('fa-bars');
             mobileMenuIcon.classList.remove('fa-times');
         }
-        
+
         // Clear email fields in forms
         const emailInputs = document.querySelectorAll('input[type="email"]');
         emailInputs.forEach(input => {
@@ -329,33 +329,38 @@ function logoutUser(event) {
             input.readOnly = false;
             input.classList.remove('bg-gray-100');
         });
-        
+
         // If on account page, clear displayed email
-        if (document.getElementById('displayEmail')) {
-            document.getElementById('displayEmail').textContent = '';
+        const emailDisplay = document.getElementById('displayEmail');
+        if (emailDisplay) {
+            emailDisplay.textContent = '';
         }
-        
+
         // Show login button
         updateAuthButton(null);
-        
+
         // Show success toast
         showToast('Logged out successfully!', 'success');
-        
+
         // If on account page, reload to reset state
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
-    }).catch((error) => {
-        console.error('Logout error:', error);
-        showToast('Error logging out. Please try again.', 'error');
-    }).finally(() => {
-        // Reset button state if needed
-        if (logoutBtn) {
-            logoutBtn.innerHTML = 'Log Out';
-            logoutBtn.disabled = false;
-        }
-    });
-}
+    } catch (err) {
+        console.error('Error after logout:', err);
+        showToast('Error during post-logout cleanup.', 'error');
+    }
+}).catch((error) => {
+    console.error('Logout error:', error);
+    showToast('Error logging out. Please try again.', 'error');
+}).finally(() => {
+    if (logoutBtn) {
+        logoutBtn.innerHTML = 'Log Out';
+        logoutBtn.disabled = false;
+    }
+});
+
+
 // Update profile function
 async function saveProfile() {
     const user = auth.currentUser;
