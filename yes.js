@@ -85,6 +85,7 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 // Updated logout function
+// Updated logout function
 function logoutUser(event) {
     if (event) event.preventDefault();
     
@@ -94,10 +95,23 @@ function logoutUser(event) {
         document.getElementById('dropdownMenu').classList.add('hidden');
         document.getElementById('mobileAccountOptions').classList.add('hidden');
         
-        // Reset cart (optional)
+        // Reset cart
         cart = [];
         localStorage.removeItem('guestCart');
         updateCartCount();
+        
+        // Clear email fields in forms
+        const emailInputs = document.querySelectorAll('input[type="email"]');
+        emailInputs.forEach(input => {
+            input.value = '';
+            input.readOnly = false;
+            input.classList.remove('bg-gray-100');
+        });
+        
+        // If on account page, clear displayed email
+        if (document.getElementById('displayEmail')) {
+            document.getElementById('displayEmail').textContent = '';
+        }
         
         // Show login button
         updateAuthButton(null);
@@ -111,7 +125,6 @@ function logoutUser(event) {
         showToast('Error logging out. Please try again.', 'error');
     });
 }
-
 // Update profile function
 async function saveProfile() {
     const user = auth.currentUser;
