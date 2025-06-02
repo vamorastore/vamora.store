@@ -289,22 +289,38 @@ document.getElementById('logoutOption')?.addEventListener('click', function(e) {
     }
 });
 // Updated logout function
+// Updated logout function with better error handling
 function logoutUser(event) {
     if (event) {
         event.preventDefault();
         event.stopPropagation();
     }
     
+    // Show loading state if needed
+    const logoutBtn = event?.target;
+    if (logoutBtn) {
+        const originalText = logoutBtn.innerHTML;
+        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+        logoutBtn.disabled = true;
+    }
+    
     auth.signOut().then(() => {
+        // Clear cart and local storage
+        cart = [];
+        localStorage.removeItem('guestCart');
+        updateCartCount();
+        
         // Close all modals and dropdowns
         document.getElementById('account-info-page')?.classList.add('hidden');
         document.getElementById('dropdownMenu')?.classList.add('hidden');
         document.getElementById('mobileAccountOptions')?.classList.add('hidden');
         
-        // Reset cart
-        cart = [];
-        localStorage.removeItem('guestCart');
-        updateCartCount();
+        // Reset mobile menu button icon
+        const mobileMenuIcon = mobileMenuButton?.querySelector('i');
+        if (mobileMenuIcon) {
+            mobileMenuIcon.classList.add('fa-bars');
+            mobileMenuIcon.classList.remove('fa-times');
+        }
         
         // Clear email fields in forms
         const emailInputs = document.querySelectorAll('input[type="email"]');
@@ -322,18 +338,24 @@ function logoutUser(event) {
         // Show login button
         updateAuthButton(null);
         
+        // Show success toast
+        showToast('Logged out successfully!', 'success');
+        
         // If on account page, reload to reset state
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
-        
-        showToast('Logged out successfully!', 'success');
     }).catch((error) => {
         console.error('Logout error:', error);
         showToast('Error logging out. Please try again.', 'error');
+    }).finally(() => {
+        // Reset button state if needed
+        if (logoutBtn) {
+            logoutBtn.innerHTML = 'Log Out';
+            logoutBtn.disabled = false;
+        }
     });
 }
-
 // Update profile function
 async function saveProfile() {
     const user = auth.currentUser;
@@ -2475,17 +2497,17 @@ function showEditProfileModal() {
 // Add this helper function for toast notifications
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
     }`;
     toast.textContent = message;
     document.body.appendChild(toast);
     
     setTimeout(() => {
-        toast.remove();
+        toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-// Address Management
+}// Address Management
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
