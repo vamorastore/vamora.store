@@ -1,4 +1,4 @@
- // Initialize Firebase
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora-co-in.firebaseapp.com",
@@ -15,6 +15,7 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
+
 // Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
@@ -25,6 +26,188 @@ db.enablePersistence()
       }
   });
 
+// Update the auth state handler
+auth.onAuthStateChanged(async (user) => {
+    updateAuthButton(user);
+    
+    if (user) {
+        // User is signed in
+        try {
+            // Load user data from Firestore
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                updateUIWithUserData(user, userData);
+            } else {
+                // Create user document if it doesn't exist
+                await db.collection("users").doc(user.uid).set({
+                    name: user.displayName || '',
+                    email: user.email,
+                    provider: user.providerData[0]?.providerId || 'unknown',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    addresses: []
+                });
+                
+                // Load the newly created document
+                const newUserDoc = await db.collection("users").doc(user.uid).get();
+                updateUIWithUserData(user, newUserDoc.data());
+            }
+            
+            // Load addresses and orders
+            loadAddresses(user.uid);
+            loadOrders(user.uid);
+            
+            // Sync guest cart with user cart if needed
+            const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+            if (guestCart.length > 0) {
+                const firestoreCart = await getOrCreateUserCart(user.uid);
+                const mergedCart = mergeCarts(firestoreCart, guestCart);
+                cart = mergedCart;
+                await saveCartToFirestore(user.uid, mergedCart);
+                localStorage.removeItem('guestCart');
+                updateCartCount();
+                renderCart();
+            }
+        } catch (error) {
+            console.error("Error handling auth state change:", error);
+        }
+    } else {
+        // User is signed out
+        updateUIWithUserData(null, null);
+        
+        // Load guest cart
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+        updateCartCount();
+        renderCart();
+    }
+});
+// Updated logout function
+function logoutUser(event) {
+    if (event) event.preventDefault();
+    
+    auth.signOut().then(() => {
+        // Close all modals and dropdowns
+        document.getElementById('account-info-page').classList.add('hidden');
+        document.getElementById('dropdownMenu').classList.add('hidden');
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
+        
+        // Reset cart (optional)
+        cart = [];
+        localStorage.removeItem('guestCart');
+        updateCartCount();
+        
+        // Show login button
+        updateAuthButton(null);
+        
+        // If on account page, reload to reset state
+        if (window.location.pathname.includes('account')) {
+            window.location.reload();
+        }
+    }).catch((error) => {
+        console.error('Logout error:', error);
+        showToast('Error logging out. Please try again.', 'error');
+    });
+}
+
+// Update profile function
+async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) {
+        showToast('Please sign in to update your profile', 'error');
+        return;
+    }
+
+    const newName = document.getElementById('nameInput').value.trim();
+    if (!newName) {
+        showToast('Please enter a valid name', 'error');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const saveBtn = document.getElementById('saveProfileBtn');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+        saveBtn.disabled = true;
+
+        // Update Firebase Auth profile
+        await user.updateProfile({
+            displayName: newName
+        });
+
+        // Update Firestore
+        await db.collection("users").doc(user.uid).update({
+            name: newName,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update UI
+        document.getElementById('displayName').textContent = newName;
+        document.getElementById('editProfileModal').classList.add('hidden');
+        
+        showToast('Profile updated successfully!');
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        showToast(`Failed to update profile: ${error.message}`, 'error');
+    } finally {
+        const saveBtn = document.getElementById('saveProfileBtn');
+        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+        saveBtn.disabled = false;
+    }
+}
+
+// Update auth button function
+function updateAuthButton(user) {
+    const authButton = document.getElementById('login-button');
+    const authText = document.getElementById('auth-state-text');
+    
+    if (authButton && authText) {
+        if (user) {
+            authText.textContent = 'LOG OUT';
+            authButton.classList.add('logout-button');
+            authButton.classList.remove('login-button');
+            authButton.onclick = logoutUser;
+        } else {
+            authText.textContent = 'LOG IN';
+            authButton.classList.add('login-button');
+            authButton.classList.remove('logout-button');
+            authButton.onclick = showAuthContainer;
+        }
+    }
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit Profile
+    document.getElementById('editProfileIcon')?.addEventListener('click', showEditProfileModal);
+    document.getElementById('closeEditProfileModal')?.addEventListener('click', () => {
+        document.getElementById('editProfileModal').classList.add('hidden');
+    });
+    document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
+    
+    // Account Info Page
+    document.getElementById('closeAccountInfoPage')?.addEventListener('click', () => {
+        document.getElementById('account-info-page').classList.add('hidden');
+    });
+    
+    // Profile Option
+    document.getElementById('profileOption')?.addEventListener('click', showAccountInfo);
+    document.getElementById('mobileProfileOption')?.addEventListener('click', showAccountInfo);
+});
+
+// Show account info function
+function showAccountInfo(event) {
+    if (event) event.preventDefault();
+    
+    const user = auth.currentUser;
+    if (user) {
+        document.getElementById('account-info-page').classList.remove('hidden');
+    } else {
+        showAuthContainer();
+    }
+}
 let cartOpen = false;
 let searchOpen = false;
 let dropdownOpen = false;
@@ -503,25 +686,6 @@ function toggleMobileMenu() {
         document.getElementById('mobileAccountOptions').classList.remove('hidden');
     } else {
         document.getElementById('mobileAccountOptions').classList.add('hidden');
-    }
-}
-
-// Update the showAccountInfo function
-function showAccountInfo(event) {
-    event.preventDefault();
-    const user = auth.currentUser;
-    console.log("Showing account info for user:", user);
-    
-    if (user) {
-        // Display user info immediately
-        document.getElementById('displayName').textContent = user.displayName || '';
-        document.getElementById('displayEmail').textContent = user.email || '';
-        
-        loadAddresses(user.uid);
-        loadOrders(user.uid);
-        accountInfoPage.classList.remove('hidden');
-    } else {
-        showAuthContainer();
     }
 }
 
@@ -2236,22 +2400,6 @@ async function performLogout() {
     }
 }
         
-// Update the logoutUser function
-function logoutUser(event) {
-    if (event) event.preventDefault();
-    
-    // Add fade-out effect to account info page if visible
-    if (accountInfoPage && !accountInfoPage.classList.contains('hidden')) {
-        accountInfoPage.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-        
-        // Wait for the transition to complete before signing out
-        setTimeout(() => {
-            performLogout();
-        }, 300);
-    } else {
-        performLogout();
-    }
-}
 // Global function to resend from signup page
 function resendVerification(email) {
     auth.fetchSignInMethodsForEmail(email)
@@ -2287,51 +2435,6 @@ function showEditProfileModal() {
     nameInput.value = user.displayName || '';
     emailDisplay.value = user.email || '';
     editProfileModal.classList.remove('hidden');
-}
-
-// Update the saveProfile function
-async function saveProfile() {
-    const user = auth.currentUser;
-    if (!user) {
-        showToast('Please sign in to update your profile', 'error');
-        return;
-    }
-
-    const newName = nameInput.value.trim();
-    if (!newName) {
-        showToast('Please enter a valid name', 'error');
-        return;
-    }
-
-    try {
-        // Show loading state
-        saveProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        saveProfileBtn.disabled = true;
-
-        // Update Firebase Auth profile
-        await user.updateProfile({
-            displayName: newName
-        });
-
-        // Update Firestore user document
-        await db.collection("users").doc(user.uid).update({
-            name: newName,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Update UI
-        document.getElementById('displayName').textContent = newName;
-        editProfileModal.classList.add('hidden');
-        
-        showToast('Profile updated successfully!');
-    } catch (error) {
-        console.error("Error updating profile:", error);
-        showToast(`Failed to update profile: ${error.message}`, 'error');
-    } finally {
-        // Reset button state
-        saveProfileBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
-        saveProfileBtn.disabled = false;
-    }
 }
 // Add this helper function for toast notifications
 function showToast(message, type = 'success') {
@@ -2929,24 +3032,6 @@ function toggleAuthState() {
         // User is logged out, show login form
         showAuthContainer();
         showLoginSection();
-    }
-}
-
-// Update auth button text based on user state
-function updateAuthButton(user) {
-    const authText = document.getElementById('auth-state-text');
-    const loginButton = document.getElementById('login-button');
-    
-    if (authText && loginButton) {
-        if (user) {
-            authText.textContent = 'LOG OUT';
-            loginButton.classList.add('logout-button'); // Optional: add a different style
-            loginButton.classList.remove('login-button');
-        } else {
-            authText.textContent = 'LOG IN';
-            loginButton.classList.add('login-button');
-            loginButton.classList.remove('logout-button');
-        }
     }
 }
 
