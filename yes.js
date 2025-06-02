@@ -85,7 +85,6 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 // Updated logout function
-// Updated logout function
 function logoutUser(event) {
     if (event) event.preventDefault();
     
@@ -100,20 +99,7 @@ function logoutUser(event) {
         localStorage.removeItem('guestCart');
         updateCartCount();
         
-        // Clear email fields in forms
-        const emailInputs = document.querySelectorAll('input[type="email"]');
-        emailInputs.forEach(input => {
-            input.value = '';
-            input.readOnly = false;
-            input.classList.remove('bg-gray-100');
-        });
-        
-        // If on account page, clear displayed email
-        if (document.getElementById('displayEmail')) {
-            document.getElementById('displayEmail').textContent = '';
-        }
-        
-        // Show login button
+        // Update auth button
         updateAuthButton(null);
         
         // If on account page, reload to reset state
@@ -190,6 +176,33 @@ function updateAuthButton(user) {
         }
     }
 }
+
+// Add this to your existing event listeners
+document.getElementById('logoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e); // Pass the event to prevent default behavior
+    
+    // Close the dropdown menu
+    document.getElementById('dropdownMenu').classList.add('hidden');
+    dropdownOpen = false;
+});
+
+// Also add for mobile logout option if it exists
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    
+    // Close the mobile menu
+    document.getElementById('mobileMenuContent').classList.remove('active');
+    document.getElementById('mobileAccountOptions').classList.add('hidden');
+    
+    // Reset mobile menu button icon
+    const icon = document.querySelector('#mobileMenuButton i');
+    if (icon) {
+        icon.classList.add('fa-bars');
+        icon.classList.remove('fa-times');
+    }
+});
 
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', function() {
