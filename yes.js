@@ -506,20 +506,26 @@ function toggleMobileMenu() {
     }
 }
 
-// Show account info page
+// Update the showAccountInfo function
 function showAccountInfo(event) {
     event.preventDefault();
     const user = auth.currentUser;
     console.log("Showing account info for user:", user);
     
     if (user) {
-        loadAddresses(user.uid);  // Should trigger address load
+        // Display user info immediately
+        document.getElementById('displayName').textContent = user.displayName || '';
+        document.getElementById('displayEmail').textContent = user.email || '';
+        
+        loadAddresses(user.uid);
         loadOrders(user.uid);
         accountInfoPage.classList.remove('hidden');
     } else {
-        showAuthContainer();  // Should prompt login
+        showAuthContainer();
     }
 }
+
+
 // Close account info page
 closeAccountInfoPage.addEventListener('click', function(event) {
     event.preventDefault();
@@ -2167,12 +2173,12 @@ document.getElementById('mobileLogoutOption')?.addEventListener('click', functio
     logoutUser(e);
     toggleMobileMenu();
 });
-
-// Logout function
-function logoutUser(event) {
-    if (event) event.preventDefault();
-    
-    auth.signOut().then(async () => {
+// Separate the actual logout logic
+async function performLogout() {
+    try {
+        await auth.signOut();
+        
+        // Add any additional UI updates here
         if (dropdownMenu) dropdownMenu.classList.add('hidden');
         if (mobileMenuContent) mobileMenuContent.classList.remove('active');
         
@@ -2190,11 +2196,13 @@ function logoutUser(event) {
         // Update the auth button
         updateAuthButton(null);
         
+        // Show logout success message
+        showToast('Logged out successfully!', 'success');
+        
         // Only try to clear account info if on account page
         if (document.getElementById('displayName')) {
             document.getElementById('displayName').textContent = '';
             document.getElementById('displayEmail').textContent = '';
-            emailDisplay.value = '';
             
             addressContainer.innerHTML = `
                 <div class="text-center text-gray-500">
@@ -2212,17 +2220,37 @@ function logoutUser(event) {
                 </div>
             `;
             
-            if (accountInfoPage) accountInfoPage.classList.add('hidden');
+            if (accountInfoPage) {
+                accountInfoPage.classList.add('hidden');
+                accountInfoPage.classList.remove('opacity-0', 'transition-opacity', 'duration-300');
+            }
         }
         
-
         // Reload only if on account page
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
-    }).catch((error) => {
+    } catch (error) {
         console.error('Logout error:', error);
-    });
+        showToast('Failed to logout. Please try again.', 'error');
+    }
+}
+        
+// Update the logoutUser function
+function logoutUser(event) {
+    if (event) event.preventDefault();
+    
+    // Add fade-out effect to account info page if visible
+    if (accountInfoPage && !accountInfoPage.classList.contains('hidden')) {
+        accountInfoPage.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        
+        // Wait for the transition to complete before signing out
+        setTimeout(() => {
+            performLogout();
+        }, 300);
+    } else {
+        performLogout();
+    }
 }
 // Global function to resend from signup page
 function resendVerification(email) {
@@ -2265,26 +2293,20 @@ function showEditProfileModal() {
 async function saveProfile() {
     const user = auth.currentUser;
     if (!user) {
-        alert('Please sign in to update your profile');
+        showToast('Please sign in to update your profile', 'error');
         return;
     }
 
     const newName = nameInput.value.trim();
     if (!newName) {
-        alert('Please enter a valid name');
-        return;
-    }
-
-    // Check if name actually changed
-    if (newName === user.displayName) {
-        editProfileModal.classList.add('hidden');
+        showToast('Please enter a valid name', 'error');
         return;
     }
 
     try {
         // Show loading state
-        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        document.getElementById('saveProfileBtn').disabled = true;
+        saveProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveProfileBtn.disabled = true;
 
         // Update Firebase Auth profile
         await user.updateProfile({
@@ -2301,18 +2323,16 @@ async function saveProfile() {
         document.getElementById('displayName').textContent = newName;
         editProfileModal.classList.add('hidden');
         
-        // Show success toast/message
         showToast('Profile updated successfully!');
     } catch (error) {
         console.error("Error updating profile:", error);
         showToast(`Failed to update profile: ${error.message}`, 'error');
     } finally {
         // Reset button state
-        document.getElementById('saveProfileBtn').innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
-        document.getElementById('saveProfileBtn').disabled = false;
+        saveProfileBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+        saveProfileBtn.disabled = false;
     }
 }
-
 // Add this helper function for toast notifications
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -2759,9 +2779,9 @@ auth.onAuthStateChanged(async (user) => {
     if (user) {
         // ===== Logged-in user logic =====
 
-        // Show add address link if on account page
+        // Show add address link
         if (onAccountPage && addAddressLink) {
-            addAddressLink.style.display = 'block'; // Or 'inline-block' depending on your styling
+            addAddressLink.style.display = 'block'; // or 'inline-block'
         }
 
         // Set email field as read-only
@@ -2771,8 +2791,14 @@ auth.onAuthStateChanged(async (user) => {
             emailInput.classList.add('bg-gray-100');
         }
 
-        // Load account info & sync cart if on account page
+        // Update display name and email if on account page
         if (onAccountPage) {
+            const displayNameEl = document.getElementById('displayName');
+            const displayEmailEl = document.getElementById('displayEmail');
+            if (displayNameEl) displayNameEl.textContent = user.displayName || '';
+            if (displayEmailEl) displayEmailEl.textContent = user.email || '';
+
+            // Load account info
             loadAccountInfo(user.uid);
 
             // Guest → Logged-in cart sync
@@ -2806,16 +2832,24 @@ auth.onAuthStateChanged(async (user) => {
     } else {
         // ===== Guest user logic =====
 
-        // Hide add address link if on account page
+        // Hide add address link
         if (onAccountPage && addAddressLink) {
             addAddressLink.style.display = 'none';
         }
 
-        // Reset email input field
+        // Reset email field
         if (emailInput) {
             emailInput.value = '';
             emailInput.readOnly = false;
             emailInput.classList.remove('bg-gray-100');
+        }
+
+        // Clear display name and email if on account page
+        if (onAccountPage) {
+            const displayNameEl = document.getElementById('displayName');
+            const displayEmailEl = document.getElementById('displayEmail');
+            if (displayNameEl) displayNameEl.textContent = '';
+            if (displayEmailEl) displayEmailEl.textContent = '';
         }
 
         // Load guest cart
@@ -2833,6 +2867,7 @@ auth.onAuthStateChanged(async (user) => {
         updateEmailField(user);
     }
 });
+
 
 
 document.addEventListener('DOMContentLoaded', function () {
