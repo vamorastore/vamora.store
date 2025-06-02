@@ -30,6 +30,11 @@ db.enablePersistence()
 auth.onAuthStateChanged(async (user) => {
     updateAuthButton(user);
     
+    // Rest of your existing auth state changed logic...
+    const addAddressLink = document.getElementById('addAddressLink');
+    const emailInput = document.getElementById('email');
+    const onAccountPage = window.location.pathname.includes('account');
+    
     if (user) {
         // User is signed in
         try {
@@ -99,7 +104,20 @@ function logoutUser(event) {
         localStorage.removeItem('guestCart');
         updateCartCount();
         
-        // Update auth button
+        // Clear email fields in forms
+        const emailInputs = document.querySelectorAll('input[type="email"]');
+        emailInputs.forEach(input => {
+            input.value = '';
+            input.readOnly = false;
+            input.classList.remove('bg-gray-100');
+        });
+        
+        // If on account page, clear displayed email
+        if (document.getElementById('displayEmail')) {
+            document.getElementById('displayEmail').textContent = '';
+        }
+        
+        // Show login button
         updateAuthButton(null);
         
         // If on account page, reload to reset state
@@ -158,51 +176,6 @@ async function saveProfile() {
 }
 
 // Update auth button function
-function updateAuthButton(user) {
-    const authButton = document.getElementById('login-button');
-    const authText = document.getElementById('auth-state-text');
-    
-    if (authButton && authText) {
-        if (user) {
-            authText.textContent = 'LOG OUT';
-            authButton.classList.add('logout-button');
-            authButton.classList.remove('login-button');
-            authButton.onclick = logoutUser;
-        } else {
-            authText.textContent = 'LOG IN';
-            authButton.classList.add('login-button');
-            authButton.classList.remove('logout-button');
-            authButton.onclick = showAuthContainer;
-        }
-    }
-}
-
-// Add this to your existing event listeners
-document.getElementById('logoutOption')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    logoutUser(e); // Pass the event to prevent default behavior
-    
-    // Close the dropdown menu
-    document.getElementById('dropdownMenu').classList.add('hidden');
-    dropdownOpen = false;
-});
-
-// Also add for mobile logout option if it exists
-document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    logoutUser(e);
-    
-    // Close the mobile menu
-    document.getElementById('mobileMenuContent').classList.remove('active');
-    document.getElementById('mobileAccountOptions').classList.add('hidden');
-    
-    // Reset mobile menu button icon
-    const icon = document.querySelector('#mobileMenuButton i');
-    if (icon) {
-        icon.classList.add('fa-bars');
-        icon.classList.remove('fa-times');
-    }
-});
 
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -881,6 +854,97 @@ async function saveAddress(event) {
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
         saveBtn.disabled = false;
+    }
+}
+// Update the checkout auth button functionality
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutAuthButton = document.getElementById('checkoutAuthButton');
+
+    function updateCheckoutAuthButton(user) {
+        if (checkoutAuthButton) {
+            if (user) {
+                checkoutAuthButton.textContent = 'LOG OUT';
+                checkoutAuthButton.classList.remove('text-blue-600', 'hover:text-blue-800');
+                checkoutAuthButton.classList.add('text-red-600', 'hover:text-red-800');
+                checkoutAuthButton.onclick = function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to log out?')) {
+                        logoutUser();
+                    }
+                };
+            } else {
+                checkoutAuthButton.textContent = 'LOG IN';
+                checkoutAuthButton.classList.remove('text-red-600', 'hover:text-red-800');
+                checkoutAuthButton.classList.add('text-blue-600', 'hover:text-blue-800');
+                checkoutAuthButton.onclick = function(e) {
+                    e.preventDefault();
+                    showAuthContainer();
+                    showLoginSection();
+                };
+            }
+        }
+    }
+
+    // Initialize the button
+    if (checkoutAuthButton) {
+        // Set up hover effects
+        checkoutAuthButton.addEventListener('mouseenter', () => checkoutAuthButton.classList.add('underline'));
+        checkoutAuthButton.addEventListener('mouseleave', () => checkoutAuthButton.classList.remove('underline'));
+        checkoutAuthButton.addEventListener('mousedown', () => checkoutAuthButton.classList.add('opacity-75'));
+        checkoutAuthButton.addEventListener('mouseup', () => checkoutAuthButton.classList.remove('opacity-75'));
+        checkoutAuthButton.addEventListener('mouseout', () => checkoutAuthButton.classList.remove('opacity-75'));
+
+        // Update based on auth state
+        auth.onAuthStateChanged((user) => {
+            updateCheckoutAuthButton(user);
+            updateAuthButton(user);
+        });
+    }
+});
+
+// Update the auth button function to handle both main and checkout login buttons
+function updateAuthButton(user) {
+    const authButton = document.getElementById('login-button');
+    const authText = document.getElementById('auth-state-text');
+    const checkoutAuthButton = document.getElementById('checkoutAuthButton');
+    
+    // Update main auth button
+    if (authButton && authText) {
+        if (user) {
+            authText.textContent = 'LOG OUT';
+            authButton.classList.add('logout-button');
+            authButton.classList.remove('login-button');
+            authButton.onclick = logoutUser;
+        } else {
+            authText.textContent = 'LOG IN';
+            authButton.classList.add('login-button');
+            authButton.classList.remove('logout-button');
+            authButton.onclick = showAuthContainer;
+        }
+    }
+    
+    // Update checkout auth button
+    if (checkoutAuthButton) {
+        if (user) {
+            checkoutAuthButton.textContent = 'LOG OUT';
+            checkoutAuthButton.classList.remove('text-blue-600', 'hover:text-blue-800');
+            checkoutAuthButton.classList.add('text-red-600', 'hover:text-red-800');
+            checkoutAuthButton.onclick = function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to log out?')) {
+                    logoutUser();
+                }
+            };
+        } else {
+            checkoutAuthButton.textContent = 'LOG IN';
+            checkoutAuthButton.classList.remove('text-red-600', 'hover:text-red-800');
+            checkoutAuthButton.classList.add('text-blue-600', 'hover:text-blue-800');
+            checkoutAuthButton.onclick = function(e) {
+                e.preventDefault();
+                showAuthContainer();
+                showLoginSection();
+            };
+        }
     }
 }
 
@@ -2997,52 +3061,6 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    const checkoutAuthButton = document.getElementById('checkoutAuthButton');
-
-    function updateCheckoutAuthButton(user) {
-        if (checkoutAuthButton) {
-            if (user) {
-                checkoutAuthButton.textContent = 'LOG OUT';
-                checkoutAuthButton.classList.remove('text-blue-600', 'hover:text-blue-800');
-                checkoutAuthButton.classList.add('text-red-600', 'hover:text-red-800');
-            } else {
-                checkoutAuthButton.textContent = 'LOG IN';
-                checkoutAuthButton.classList.remove('text-red-600', 'hover:text-red-800');
-                checkoutAuthButton.classList.add('text-blue-600', 'hover:text-blue-800');
-            }
-        }
-    }
-
-    if (checkoutAuthButton) {
-        checkoutAuthButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            const user = auth.currentUser;
-
-            if (user) {
-                if (confirm('Are you sure you want to log out?')) {
-                    logoutUser();
-                }
-            } else {
-                showAuthContainer();
-                showLoginSection();
-            }
-        });
-
-        checkoutAuthButton.addEventListener('mouseenter', () => checkoutAuthButton.classList.add('underline'));
-        checkoutAuthButton.addEventListener('mouseleave', () => checkoutAuthButton.classList.remove('underline'));
-        checkoutAuthButton.addEventListener('mousedown', () => checkoutAuthButton.classList.add('opacity-75'));
-        checkoutAuthButton.addEventListener('mouseup', () => checkoutAuthButton.classList.remove('opacity-75'));
-        checkoutAuthButton.addEventListener('mouseout', () => checkoutAuthButton.classList.remove('opacity-75'));
-    }
-
-    auth.onAuthStateChanged((user) => {
-        updateCheckoutAuthButton(user);
-            updateAuthButton(user);
-    });
-});
 
 // Function to toggle auth state (login/logout)
 function toggleAuthState() {
