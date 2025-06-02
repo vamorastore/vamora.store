@@ -26,14 +26,186 @@ db.enablePersistence()
       }
   });
 
-// Update the auth state handler
+// Initialize ordersContainer at the top with other DOM elements
+const ordersContainer = document.getElementById('ordersContainer');
+
+// Updated loadOrders function
+async function loadOrders(userId) {
+    // First check if orders container exists
+    if (!ordersContainer) {
+        console.warn("Orders container element not found");
+        return;
+    }
+    
+    const user = auth.currentUser;
+    if (!user) {
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                <p class="text-lg">Please sign in to view your orders</p>
+                <button onclick="showAuthContainer(); showLoginSection()" 
+                        class="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    Sign In
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        // Show loading state
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+                <p>Loading your orders...</p>
+            </div>
+        `;
+
+        const querySnapshot = await db.collection("orders")
+            .where("userId", "==", userId)
+            .orderBy("timestamp", "desc")
+            .get();
+
+        if (querySnapshot.empty) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">You haven't placed any orders yet</p>
+                    <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
+                    <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                        Continue Shopping
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        const orders = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                date: data.timestamp?.toDate() || new Date()
+            };
+        });
+        
+        renderOrders(orders);
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        ordersContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
+                <p class="text-lg">Error loading orders</p>
+                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
+                <button onclick="loadOrders('${userId}')" 
+                        class="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Updated renderOrders function
+function renderOrders(orders) {
+    if (!ordersContainer) return;
+    
+    ordersContainer.innerHTML = orders.map(order => `
+        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Order Number:</span>
+                    <span class="block text-gray-600">${order.orderId || order.id}</span>
+                </div>
+                <div>
+                    <span class="font-semibold">Date:</span>
+                    <span class="block text-gray-600">
+                        ${new Date(order.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        })}
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
+                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    </div>
+                    <div class="relative flex justify-between">
+                        <div class="w-8 h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-truck text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-shipping-fast text-xs"></i>
+                        </div>
+                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="font-semibold">Status:</span>
+                    <span class="block capitalize ${getStatusColor(order.status)}">
+                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Total:</span>
+                    <span class="block text-gray-600">
+                        ₹${order.items.reduce((total, item) => {
+                            const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
+                            const qty = item.quantity || 1;
+                            return total + (price * qty);
+                        }, 0).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h4 class="font-medium mb-2">Items:</h4>
+                ${order.items.map(item => `
+                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                             alt="${item.title || 'Item'}" 
+                             class="w-12 h-12 rounded mr-3 object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium">${item.title}</p>
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span>Size: ${item.size || '-'}</span>
+                                <span>Qty: ${item.quantity || 1}</span>
+                                <span>${item.price || '₹0.00'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update the auth state change handler to load orders when user logs in
 auth.onAuthStateChanged(async (user) => {
     updateAuthButton(user);
-    
-    // Rest of your existing auth state changed logic...
-    const addAddressLink = document.getElementById('addAddressLink');
-    const emailInput = document.getElementById('email');
-    const onAccountPage = window.location.pathname.includes('account');
     
     if (user) {
         // User is signed in
@@ -54,15 +226,11 @@ auth.onAuthStateChanged(async (user) => {
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     addresses: []
                 });
-                
-                // Load the newly created document
-                const newUserDoc = await db.collection("users").doc(user.uid).get();
-                updateUIWithUserData(user, newUserDoc.data());
             }
             
             // Load addresses and orders
             loadAddresses(user.uid);
-            loadOrders(user.uid);
+            loadOrders(user.uid); // Load orders after successful login
             
             // Sync guest cart with user cart if needed
             const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
@@ -82,6 +250,20 @@ auth.onAuthStateChanged(async (user) => {
         // User is signed out
         updateUIWithUserData(null, null);
         
+        // If on account page, show login prompt for orders
+        if (window.location.pathname.includes('account') && ordersContainer) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
+                    <p class="text-lg">Please sign in to view your orders</p>
+                    <button onclick="showAuthContainer(); showLoginSection()" 
+                            class="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                        Sign In
+                    </button>
+                </div>
+            `;
+        }
+        
         // Load guest cart
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         cart = guestCart;
@@ -89,6 +271,7 @@ auth.onAuthStateChanged(async (user) => {
         renderCart();
     }
 });
+
 // Add this to your existing event listeners section
 document.getElementById('logoutOption')?.addEventListener('click', function(e) {
     e.preventDefault();
@@ -150,6 +333,7 @@ function logoutUser(event) {
         showToast('Error logging out. Please try again.', 'error');
     });
 }
+
 // Update profile function
 async function saveProfile() {
     const user = auth.currentUser;
@@ -258,7 +442,6 @@ const addAddressModal = document.getElementById('addAddressModal');
 const closeAddAddressModal = document.getElementById('closeAddAddressModal');
 const saveAddressBtn = document.getElementById('saveAddressBtn');
 const addressContainer = document.getElementById('addressContainer');
-const ordersContainer = document.getElementById('ordersContainer');
 const loginButton = document.getElementById('login-button');
 
 // Show login section and hide signup section
@@ -1228,161 +1411,6 @@ async function loadAddresses(userId) {
         `;
     }
 }
-async function loadOrders(userId) {
-    // First check if orders container exists
-    const ordersContainer = document.getElementById('ordersContainer');
-    if (!ordersContainer) {
-        console.warn("Orders container element not found");
-        return;
-    }
-    
-    const user = auth.currentUser;
-    if (!user) {
-        ordersContainer.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                <p class="text-lg">Please sign in to view your orders</p>
-            </div>
-        `;
-        return;
-    }
-
-    try {
-        showLoading('ordersLoading');
-        
-        const querySnapshot = await db.collection("orders")
-            .where("userId", "==", userId)
-            .orderBy("timestamp", "desc")
-            .get();
-
-        if (querySnapshot.empty) {
-            ordersContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-shopping-bag text-4xl mb-3"></i>
-                    <p class="text-lg">You haven't placed any orders yet</p>
-                    <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
-                </div>
-            `;
-            return;
-        }
-
-        const orders = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                ...data,
-                id: doc.id,
-                date: data.timestamp?.toDate() || new Date()
-            };
-        });
-        
-        renderOrders(orders);
-    } catch (error) {
-        console.error("Error loading orders:", error);
-        ordersContainer.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
-                <p class="text-lg">Error loading orders</p>
-                <p class="text-sm mt-2">${error.message || 'Please try again later'}</p>
-            </div>
-        `;
-    } finally {
-        hideLoading('ordersLoading');
-    }
-}
-function renderOrders(orders) {
-    ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId || order.id}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">
-                        ${new Date(order.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        })}
-                    </span>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
-                    </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
-                            const qty = item.quantity || 1;
-                            return total + (price * qty);
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title || 'Item'}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size || '-'}</span>
-                                <span>Qty: ${item.quantity || 1}</span>
-                                <span>${item.price || '₹0.00'}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
-}
-
 
 // Helper function to determine the progress bar width
 function getStatusProgress(status) {
