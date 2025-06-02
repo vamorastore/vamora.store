@@ -36,6 +36,45 @@
 .opacity-0 {
     opacity: 0;
 }
+/* Add these transition classes */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.transition-opacity {
+    transition: opacity 0.3s ease;
+}
+
+.transition-transform {
+    transition: transform 0.3s ease;
+}
+
+.opacity-0 {
+    opacity: 0;
+}
+
+.opacity-100 {
+    opacity: 1;
+}
+
+/* Toast animation */
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(20px); opacity: 0; }
+}
+
+.toast {
+    animation: slideIn 0.3s forwards;
+}
+
+.toast.hide {
+    animation: slideOut 0.3s forwards;
+}
 
 @keyframes spin {
     to { transform: rotate(360deg); }
