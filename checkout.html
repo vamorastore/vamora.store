@@ -1881,6 +1881,7 @@
                     <select id="country" name="country" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Select Country</option>
+            <option value="India">India</option>
                     </select>
                 </div>
             </div>
@@ -2258,12 +2259,12 @@
     <div class="form-row">
         <div class="form-group">
             <label for="city" class="form-label required-field">City</label>
-            <input type="text" id="city" class="form-input" placeholder="City">
+            <input type="text" id="city" class="form-input" placeholder="City" required>
             <div id="city-error" class="error-message" style="display: none;">This field is required</div>
         </div>
         <div class="form-group">
             <label for="state" class="form-label required-field">State</label>
-            <select id="state" class="form-input">
+            <select id="state" class="form-input" required>
                  <option value="" disabled selected>Select your state</option>
                 <option value="Arunachal Pradesh">Arunachal Pradesh</option>
         <option value="Assam">Assam</option>
