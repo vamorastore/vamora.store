@@ -542,10 +542,10 @@ function renderOrders(orders) {
     if (!ordersContainer) return;
 
     ordersContainer.innerHTML = orders.map(order => {
-        // Helper to determine icon fill class based on status
+        // Updated statuses in order
         const statusOrder = [
-            'status-order-placed',
-            'status-processing',
+            'status-placed',
+            'status-processed',
             'status-shipped',
             'status-delivered'
         ];
@@ -555,8 +555,30 @@ function renderOrders(orders) {
         const iconClass = (index) => {
             return (index <= currentIndex)
                 ? 'bg-blue-500 text-white'
-                : (index === 0 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500');
+                : 'bg-gray-200 text-gray-500';
         };
+
+        // Helper function for status text color class
+        function getStatusColor(status) {
+            switch (status) {
+                case 'status-placed': return 'text-blue-600';
+                case 'status-processed': return 'text-yellow-600';
+                case 'status-shipped': return 'text-orange-600';
+                case 'status-delivered': return 'text-green-600';
+                default: return 'text-gray-600';
+            }
+        }
+
+        // Progress bar fill based on current status
+        function getStatusProgress(status) {
+            switch (status) {
+                case 'status-placed': return 'w-1/4 bg-blue-500';
+                case 'status-processed': return 'w-2/4 bg-yellow-500';
+                case 'status-shipped': return 'w-3/4 bg-orange-500';
+                case 'status-delivered': return 'w-full bg-green-500';
+                default: return 'w-0';
+            }
+        }
 
         return `
         <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
@@ -599,12 +621,12 @@ function renderOrders(orders) {
             <!-- Order Progress - Fully responsive -->
             <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
-                    <!-- Labels - visible on all screens -->
+                    <!-- Labels -->
                     <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
-                        <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : ''}">Processing</span>
-                        <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : ''}">In Transmit</span>
-                        <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : ''}">Out for Delivery</span>
-                        <span class="${order.status === 'status-delivered' ? 'text-blue-600 font-medium' : ''}">Delivered</span>
+                        <span class="${order.status === 'status-placed' ? 'text-blue-600 font-medium' : ''}">Placed</span>
+                        <span class="${order.status === 'status-processed' ? 'text-yellow-600 font-medium' : ''}">Processed</span>
+                        <span class="${order.status === 'status-shipped' ? 'text-orange-600 font-medium' : ''}">Shipped</span>
+                        <span class="${order.status === 'status-delivered' ? 'text-green-600 font-medium' : ''}">Delivered</span>
                     </div>
 
                     <!-- Progress Bar -->
@@ -617,13 +639,13 @@ function renderOrders(orders) {
                         <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(0)} rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-check text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(1)} rounded-full flex items-center justify-center">
-                            <i class="fas fa-truck text-xs"></i>
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(1)} rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-cogs text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(2)} rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(2)} rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-shipping-fast text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(3)} rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(3)} rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
@@ -671,6 +693,7 @@ function renderOrders(orders) {
         `;
     }).join('');
 }
+
 
 
 // Helper function for mobile vertical progress
