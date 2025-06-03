@@ -551,14 +551,16 @@ function renderOrders(orders) {
     ordersContainer.innerHTML = orders.map(order => {
         const currentIndex = statusOrder.indexOf(order.status);
 
-        // Function to decide classes for each icon based on index
+        // Updated iconClass: "Placed" always active
         const iconClass = (index) => {
+            if (index === 0) {
+                return 'bg-blue-500 text-white';
+            }
             return (index <= currentIndex)
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-500';
         };
 
-        // Function to get progress bar width class based on status
         const getStatusProgress = (status) => {
             switch (status) {
                 case 'placed': return 'w-1/4 bg-blue-500';
@@ -569,7 +571,6 @@ function renderOrders(orders) {
             }
         };
 
-        // Function to get status text color
         const getStatusColor = (status) => {
             return statusOrder.includes(status) ? 'text-blue-600' : 'text-gray-600';
         };
@@ -612,7 +613,7 @@ function renderOrders(orders) {
                 </div>
             </div>
 
-            <!-- Order Progress - Fully responsive -->
+            <!-- Order Progress -->
             <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
                     <!-- Labels -->
@@ -687,8 +688,6 @@ function renderOrders(orders) {
         `;
     }).join('');
 }
-
-
 
 
 // Helper function for mobile vertical progress
