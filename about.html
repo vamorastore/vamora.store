@@ -32,6 +32,37 @@
     transition-duration: 300ms;
 }
 
+.mobile-menu-button {
+    display: none; /* This should be block on mobile */
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-button {
+        display: block;
+        order: 1;
+        z-index: 100; /* Ensure it's above other elements */
+    }
+    
+    .mobile-menu-content {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #e5e5e5;
+        padding: 1.25rem 1.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 40;
+    }
+    
+    .mobile-menu-content.active {
+        display: block;
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+}
+
 .opacity-0 {
     opacity: 0;
 }
