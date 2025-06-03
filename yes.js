@@ -541,14 +541,14 @@ async function loadOrders(userId) {
 function renderOrders(orders) {
     if (!ordersContainer) return;
 
+    const statusOrder = [
+        'placed',
+        'processed',
+        'shipped',
+        'delivered'
+    ];
+
     ordersContainer.innerHTML = orders.map(order => {
-        // Updated statuses in order
-        const statusOrder = [
-            'status-placed',
-            'status-processed',
-            'status-shipped',
-            'status-delivered'
-        ];
         const currentIndex = statusOrder.indexOf(order.status);
 
         // Function to decide classes for each icon based on index
@@ -558,27 +558,21 @@ function renderOrders(orders) {
                 : 'bg-gray-200 text-gray-500';
         };
 
-        // Helper function for status text color class
-        function getStatusColor(status) {
+        // Function to get progress bar width class based on status
+        const getStatusProgress = (status) => {
             switch (status) {
-                case 'status-placed': return 'text-blue-600';
-                case 'status-processed': return 'text-yellow-600';
-                case 'status-shipped': return 'text-orange-600';
-                case 'status-delivered': return 'text-green-600';
-                default: return 'text-gray-600';
-            }
-        }
-
-        // Progress bar fill based on current status
-        function getStatusProgress(status) {
-            switch (status) {
-                case 'status-placed': return 'w-1/4 bg-blue-500';
-                case 'status-processed': return 'w-2/4 bg-yellow-500';
-                case 'status-shipped': return 'w-3/4 bg-orange-500';
-                case 'status-delivered': return 'w-full bg-green-500';
+                case 'placed': return 'w-1/4 bg-blue-500';
+                case 'processed': return 'w-2/4 bg-blue-500';
+                case 'shipped': return 'w-3/4 bg-blue-500';
+                case 'delivered': return 'w-full bg-blue-500';
                 default: return 'w-0';
             }
-        }
+        };
+
+        // Function to get status text color
+        const getStatusColor = (status) => {
+            return statusOrder.includes(status) ? 'text-blue-600' : 'text-gray-600';
+        };
 
         return `
         <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
@@ -612,7 +606,7 @@ function renderOrders(orders) {
                     <div class="flex-1 min-w-[150px]">
                         <span class="text-sm font-medium text-gray-500">Status</span>
                         <p class="capitalize ${getStatusColor(order.status)} font-medium">
-                            ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
+                            ${order.status || 'pending'}
                         </p>
                     </div>
                 </div>
@@ -623,10 +617,10 @@ function renderOrders(orders) {
                 <div class="relative">
                     <!-- Labels -->
                     <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
-                        <span class="${order.status === 'status-placed' ? 'text-blue-600 font-medium' : ''}">Placed</span>
-                        <span class="${order.status === 'status-processed' ? 'text-yellow-600 font-medium' : ''}">Processed</span>
-                        <span class="${order.status === 'status-shipped' ? 'text-orange-600 font-medium' : ''}">Shipped</span>
-                        <span class="${order.status === 'status-delivered' ? 'text-green-600 font-medium' : ''}">Delivered</span>
+                        <span class="${order.status === 'placed' ? 'text-blue-600 font-medium' : ''}">Placed</span>
+                        <span class="${order.status === 'processed' ? 'text-blue-600 font-medium' : ''}">Processed</span>
+                        <span class="${order.status === 'shipped' ? 'text-blue-600 font-medium' : ''}">Shipped</span>
+                        <span class="${order.status === 'delivered' ? 'text-blue-600 font-medium' : ''}">Delivered</span>
                     </div>
 
                     <!-- Progress Bar -->
@@ -636,16 +630,16 @@ function renderOrders(orders) {
 
                     <!-- Icons -->
                     <div class="relative flex justify-between px-1 md:px-0">
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(0)} rounded-full flex items-center justify-center text-white">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(0)} rounded-full flex items-center justify-center">
                             <i class="fas fa-check text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(1)} rounded-full flex items-center justify-center text-white">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(1)} rounded-full flex items-center justify-center">
                             <i class="fas fa-cogs text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(2)} rounded-full flex items-center justify-center text-white">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(2)} rounded-full flex items-center justify-center">
                             <i class="fas fa-shipping-fast text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(3)} rounded-full flex items-center justify-center text-white">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(3)} rounded-full flex items-center justify-center">
                             <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
@@ -693,6 +687,7 @@ function renderOrders(orders) {
         `;
     }).join('');
 }
+
 
 
 
