@@ -333,37 +333,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Update order status
-    async function updateOrderStatus(orderId) {
-        const newStatus = document.getElementById('statusUpdateSelect').value;
-        const orderRef = db.collection("orders").doc(orderId);
-        
-        try {
-            await orderRef.update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Update local data
-            const orderIndex = allOrders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                allOrders[orderIndex].status = newStatus;
-            }
-            
-            // Update filtered orders if needed
-            const filteredIndex = filteredOrders.findIndex(o => o.id === orderId);
-            if (filteredIndex !== -1) {
-                filteredOrders[filteredIndex].status = newStatus;
-            }
-            
-            showToast("Order status updated successfully", "success");
-            renderOrders(currentPage);
-            orderDetailsModal.classList.add('hidden');
-        } catch (error) {
-            console.error("Error updating order status:", error);
-            showToast("Failed to update order status", "error");
-        }
-    }
+async function updateOrderStatus(orderId) {
+    const newStatus = document.getElementById('statusUpdateSelect').value;
+    const orderRef = db.collection("orders").doc(orderId);
     
+    try {
+        await orderRef.update({
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Update local data
+        const orderIndex = allOrders.findIndex(o => o.id === orderId);
+        if (orderIndex !== -1) {
+            allOrders[orderIndex].status = newStatus;
+            allOrders[orderIndex].updatedAt = new Date();
+        }
+        
+        // Update filtered orders if needed
+        const filteredIndex = filteredOrders.findIndex(o => o.id === orderId);
+        if (filteredIndex !== -1) {
+            filteredOrders[filteredIndex].status = newStatus;
+            filteredOrders[filteredIndex].updatedAt = new Date();
+        }
+        
+        showToast("Order status updated successfully", "success");
+        renderOrders(currentPage);
+        orderDetailsModal.classList.add('hidden');
+    } catch (error) {
+        console.error("Detailed update error:", {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        showToast(`Failed to update order status: ${error.message}`, "error");
+    }
+}
+
     // Cancel order
     async function cancelOrder(orderId) {
         if (!confirm("Are you sure you want to cancel this order?")) return;
