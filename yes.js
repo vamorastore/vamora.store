@@ -597,10 +597,11 @@ function renderOrders(orders) {
                     </div>
                     
                     <!-- Vertical progress bar for mobile -->
-                    <div class="relative h-40 w-1 bg-gray-200 ml-4 mb-4">
-                        <div class="absolute top-0 left-0 w-full ${getStatusProgressMobile(order.status)} bg-blue-500"></div>
-                    </div>
-                </div>
+                   <div class="relative ml-6 mb-4">
+    <div class="absolute top-4 left-3 w-0.5 h-[130px] bg-gray-300"></div>
+    <div class="absolute top-4 left-3 w-0.5 ${getStatusProgressMobile(order.status)} bg-blue-500 z-10"></div>
+</div>
+
                 
                 <!-- Desktop View - Horizontal Status -->
                 <div class="hidden md:block">
@@ -684,15 +685,15 @@ function renderOrders(orders) {
 function getStatusProgressMobile(status) {
     switch(status) {
         case 'status-order-placed':
-            return 'h-1/4';
+            return 'h-[32px]'; // ~25%
         case 'status-processing':
-            return 'h-2/4';
+            return 'h-[65px]'; // ~50%
         case 'status-shipped':
-            return 'h-3/4';
+            return 'h-[100px]'; // ~75%
         case 'status-delivered':
-            return 'h-full';
+            return 'h-[130px]'; // 100%
         default:
-            return 'h-1/4';
+            return 'h-[32px]';
     }
 }
 
