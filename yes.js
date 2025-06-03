@@ -582,8 +582,8 @@ function renderOrders(orders) {
             <!-- Order Progress - Fully responsive -->
             <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
-                    <!-- Labels - vertical on mobile, horizontal on md+ -->
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs text-center gap-1 md:gap-0">
+                    <!-- Labels - visible on all screens -->
+                    <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
                         <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : ''}">Order Placed</span>
                         <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : ''}">Processing</span>
                         <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : ''}">Shipped</span>
@@ -591,27 +591,27 @@ function renderOrders(orders) {
                     </div>
 
                     <!-- Progress Bar -->
-                    <div class="relative h-1.5 bg-gray-200 rounded-full mb-4 md:mb-6 md:h-1.5 md:w-full md:mx-auto">
-                        <div class="absolute top-0 left-0 h-1.5 rounded-full ${getStatusProgress(order.status)} md:w-full"></div>
+                    <div class="relative h-1.5 bg-gray-200 rounded-full mb-4">
+                        <div class="absolute top-0 left-0 h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
                     </div>
 
-                    <!-- Icons - vertical on mobile, horizontal on md+ -->
-                    <div class="relative flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0 px-0 md:px-1">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center 
-                            ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'}">
-                            <i class="fas fa-check text-sm"></i>
+                    <!-- Icons -->
+                    <div class="relative flex justify-between px-1 md:px-0">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
+                            rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-check text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center 
-                            ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'}">
-                            <i class="fas fa-truck text-sm"></i>
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-truck text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center 
-                            ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'}">
-                            <i class="fas fa-shipping-fast text-sm"></i>
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-shipping-fast text-xs"></i>
                         </div>
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center 
-                            ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'}">
-                            <i class="fas fa-box-open text-sm"></i>
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                            rounded-full flex items-center justify-center">
+                            <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
                 </div>
@@ -657,8 +657,6 @@ function renderOrders(orders) {
         </div>
     `).join('');
 }
-
-
 
 // Helper function for mobile vertical progress
 function getStatusProgressMobile(status) {
