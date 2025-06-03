@@ -37,7 +37,6 @@ let cart = [];
 // ======================
 
 // Initialize cart on page load
-// Modify initializeCart to ensure it runs on every page
 function initializeCart() {
     const user = auth.currentUser;
     if (user) {
@@ -45,12 +44,14 @@ function initializeCart() {
             cart = firestoreCart;
             updateCartCount();
             renderCart();
+            renderOrderSummary(); // Add this line to ensure order summary is rendered
         });
     } else {
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         cart = guestCart;
         updateCartCount();
         renderCart();
+        renderOrderSummary(); // Add this line to ensure order summary is rendered
     }
 }
 
@@ -58,6 +59,7 @@ function initializeCart() {
 auth.onAuthStateChanged(() => {
     initializeCart();
 });
+
 // Function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
@@ -114,7 +116,7 @@ window.addToCart = async function(product) {
     
     // Check if item exists with same ID and size
     const existingItem = cart.find(item => 
-        item.id === product.id && item.size === product.size
+        item.id === product.id && i.size === product.size
     );
 
     if (existingItem) {
@@ -131,7 +133,9 @@ window.addToCart = async function(product) {
     
     updateCartCount();
     renderCart();
+    renderOrderSummary(); // Add this line to update order summary when adding to cart
 };
+
 // Function to update cart count in navbar
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
@@ -252,6 +256,7 @@ window.updateQuantity = async function(index, change) {
     
     updateCartCount();
     renderCart();
+    renderOrderSummary(); // Add this line to update order summary when quantity changes
 };
 
 window.removeFromCart = async function(index, event) {
@@ -271,6 +276,7 @@ window.removeFromCart = async function(index, event) {
     
     updateCartCount();
     renderCart();
+    renderOrderSummary(); // Add this line to update order summary when item is removed
 };
 
 // Function to proceed to checkout
@@ -2710,6 +2716,7 @@ document.getElementById('mobileLogoutOption')?.addEventListener('click', functio
                     localStorage.removeItem('guestCart');
                     updateCartCount();
                     renderCart();
+                    renderOrderSummary(); // Ensure order summary is updated after merge
                 }
             } catch (error) {
                 console.error("Error handling auth state change:", error);
@@ -2737,6 +2744,7 @@ document.getElementById('mobileLogoutOption')?.addEventListener('click', functio
             cart = guestCart;
             updateCartCount();
             renderCart();
+            renderOrderSummary(); // Ensure order summary is updated for guest users
         }
     });
 });
