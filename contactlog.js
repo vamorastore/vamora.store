@@ -1,4 +1,4 @@
-     // Firebase Initialization
+ // Firebase Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
             authDomain: "vamora-co-in.firebaseapp.com",
