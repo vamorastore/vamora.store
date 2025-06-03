@@ -541,7 +541,24 @@ async function loadOrders(userId) {
 function renderOrders(orders) {
     if (!ordersContainer) return;
 
-    ordersContainer.innerHTML = orders.map(order => `
+    ordersContainer.innerHTML = orders.map(order => {
+        // Helper to determine icon fill class based on status
+        const statusOrder = [
+            'status-order-placed',
+            'status-processing',
+            'status-shipped',
+            'status-delivered'
+        ];
+        const currentIndex = statusOrder.indexOf(order.status);
+
+        // Function to decide classes for each icon based on index
+        const iconClass = (index) => {
+            return (index <= currentIndex)
+                ? 'bg-blue-500 text-white'
+                : (index === 0 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500');
+        };
+
+        return `
         <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
             <!-- Order Header -->
             <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
@@ -584,9 +601,9 @@ function renderOrders(orders) {
                 <div class="relative">
                     <!-- Labels - visible on all screens -->
                     <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
-                        <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : ''}">Order Placed</span>
-                        <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : ''}">Processing</span>
-                        <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : ''}">Shipped</span>
+                        <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : ''}">Processing</span>
+                        <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : ''}">In Transmit</span>
+                        <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : ''}">Out for Delivery</span>
                         <span class="${order.status === 'status-delivered' ? 'text-blue-600 font-medium' : ''}">Delivered</span>
                     </div>
 
@@ -597,20 +614,16 @@ function renderOrders(orders) {
 
                     <!-- Icons -->
                     <div class="relative flex justify-between px-1 md:px-0">
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(0)} rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-check text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(1)} rounded-full flex items-center justify-center">
                             <i class="fas fa-truck text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(2)} rounded-full flex items-center justify-center">
                             <i class="fas fa-shipping-fast text-xs"></i>
                         </div>
-                        <div class="w-6 h-6 md:w-8 md:h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(3)} rounded-full flex items-center justify-center">
                             <i class="fas fa-box-open text-xs"></i>
                         </div>
                     </div>
@@ -655,8 +668,10 @@ function renderOrders(orders) {
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
+
 
 // Helper function for mobile vertical progress
 function getStatusProgressMobile(status) {
