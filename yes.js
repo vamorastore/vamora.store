@@ -810,12 +810,12 @@ function validateCheckoutForm() {
 }
 
 // Function to generate a unique order ID with VA prefix and 5-digit number
+// Function to generate a unique order ID with VA prefix and 5-digit number
 function generateOrderId() {
     const prefix = "VA";
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     return `${prefix}${randomNum}`;
 }
-
 // Helper function to calculate total amount in paise
 function calculateTotalAmount() {
     let total = 0;
@@ -860,14 +860,13 @@ async function handlePaymentFailure(response) {
 }
 
 // Save order to Firestore (updated version)
-async function saveOrder(paymentId, formData) {
+async function saveOrder(paymentId, formData, orderId) {
     const user = auth.currentUser;
-    const orderId = generateOrderId();
     
     const orderData = {
-        orderId: orderId,
+        orderId: orderId, // Use the provided orderId
         date: new Date().toISOString(),
-        status: 'pending',
+        status: 'placed', // Changed from 'pending' to 'placed' for consistency
         paymentId: paymentId,
         userId: user?.uid || "guest",
         email: user?.email || (document.getElementById('email')?.value ?? ''),
@@ -886,6 +885,7 @@ async function saveOrder(paymentId, formData) {
     };
 
     try {
+        // Use the orderId as the document ID to prevent duplicates
         await db.collection("orders").doc(orderId).set(orderData);
         return orderId;
     } catch (error) {
@@ -893,7 +893,7 @@ async function saveOrder(paymentId, formData) {
         throw error;
     }
 }
-
+// Show thank you popup with order details
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
@@ -903,6 +903,7 @@ function showThankYouPopup(orderDetails, orderId) {
         day: 'numeric'
     });
 
+    // Ensure we're using the same orderId everywhere
     document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
     document.getElementById('popupOrderId').textContent = orderId;
     document.getElementById('popupOrderDate').textContent = formattedDate;
@@ -922,32 +923,29 @@ function showThankYouPopup(orderDetails, orderId) {
         }
     });
 }
-
 // Handle successful payment
-function handlePaymentSuccess(response, formData) {
-    const orderId = generateOrderId();
-    
+// Handle successful payment
+function handlePaymentSuccess(response, formData, orderId) {
     // Show thank you popup with order details
     showThankYouPopup(formData, orderId);
     
-    // Save order to Firestore
-    saveOrder(response.razorpay_payment_id, formData)
-        .then(() => {
-            // Clear cart
-            cart = [];
-            if (auth.currentUser) {
-                saveCartToFirestore(auth.currentUser.uid, []);
-            } else {
-                localStorage.removeItem('guestCart');
-            }
-            updateCartCount();
-            renderCart();
-            renderOrderSummary();
-        })
-        .catch(error => {
-            console.error("Error saving order:", error);
-            // Even if order save fails, show success since payment was successful
-        });
+    // Update UI elements
+    document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
+    document.getElementById('popupOrderId').textContent = orderId;
+    
+    // Analytics tracking
+    analytics.logEvent('purchase', {
+        transaction_id: orderId,
+        value: calculateTotalAmount() / 100,
+        currency: 'INR',
+        items: cart.map(item => ({
+            item_id: item.id,
+            item_name: item.title,
+            item_category: item.category || 'general',
+            price: parseFloat(item.price.replace(/[^\d.]/g, '')),
+            quantity: item.quantity
+        }))
+    });
 }
 
 // Get form data from checkout form
@@ -1039,12 +1037,10 @@ async function saveInformation() {
     }
 }
 
-// Place order function with Razorpay integration
 // Update the placeOrder function to check these fields
 async function placeOrder() {
     // First validate the checkout form
     if (!validateCheckoutForm()) {
-        // Scroll to the first error field
         const firstErrorField = document.querySelector('.error-highlight');
         if (firstErrorField) {
             firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1058,6 +1054,9 @@ async function placeOrder() {
         return;
     }
 
+    // Generate order ID once at the beginning
+    const orderId = generateOrderId();
+    
     // Get form data
     const formData = getFormData();
     const email = document.getElementById('email').value.trim();
@@ -1069,7 +1068,6 @@ async function placeOrder() {
             await saveInformation();
         } catch (error) {
             console.error("Error saving address:", error);
-            // Continue with order even if address save fails
         }
     }
 
@@ -1078,18 +1076,18 @@ async function placeOrder() {
 
     // Create Razorpay options
     const options = {
-        key: "rzp_live_DPartLBDccSG34", // Your live Razorpay key
-        amount: totalAmount, // Amount in paise
+        key: "rzp_live_DPartLBDccSG34",
+        amount: totalAmount,
         currency: "INR",
         name: "VAMORA.STORE",
         description: "Order Payment",
-        image: "/logo.png", // Your logo
+        image: "/logo.png",
         order_id: "", // This will be generated by Razorpay
         handler: async function(response) {
-            // This function runs after successful payment
             try {
-                const orderId = await saveOrder(response.razorpay_payment_id, {...formData, email});
-                handlePaymentSuccess(response, {...formData, email});
+                // Use the same orderId we generated earlier
+                await saveOrder(response.razorpay_payment_id, {...formData, email}, orderId);
+                handlePaymentSuccess(response, {...formData, email}, orderId);
                 
                 // Clear cart after successful payment
                 cart = [];
@@ -1116,16 +1114,14 @@ async function placeOrder() {
             address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pinCode}`
         },
         theme: {
-            color: "#000000" // Black theme to match your site
+            color: "#000000"
         }
     };
 
     try {
-        // Create Razorpay instance and open payment modal
         const rzp = new Razorpay(options);
         rzp.open();
 
-        // Handle payment failure
         rzp.on('payment.failed', function(response) {
             handlePaymentFailure(response);
         });
