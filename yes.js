@@ -673,6 +673,7 @@ function getStatusColor(status) {
 // CHECKOUT FUNCTIONS
 // ======================
 
+// Update the validateCheckoutForm function
 function validateCheckoutForm() {
     let isValid = true;
 
@@ -698,12 +699,15 @@ function validateCheckoutForm() {
         }
     }
 
-    // Only validate mandatory fields
+    // Validate all mandatory fields
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
     validateField('address', 'address-error');
     validateField('pin-code', 'pin-code-error');
     validateField('phone', 'phone-error');
+    validateField('city', 'city-error');
+    validateField('state', 'state-error');
+    validateField('email', 'email-error');
 
     // Additional phone number validation
     const phone = document.getElementById('phone').value.trim();
@@ -723,6 +727,15 @@ function validateCheckoutForm() {
         isValid = false;
     }
 
+    // Email validation
+    const email = document.getElementById('email').value.trim();
+    if (email && !validateEmail(email)) {
+        document.getElementById('email-error').textContent = 'Please enter a valid email address';
+        document.getElementById('email-error').style.display = 'block';
+        document.getElementById('email').classList.add('error-highlight');
+        isValid = false;
+    }
+
     return isValid;
 }
 
@@ -733,7 +746,6 @@ function generateOrderId() {
     return `${prefix}${randomNum}`;
 }
 
-// Function to calculate the total amount from the cart
 // Helper function to calculate total amount in paise
 function calculateTotalAmount() {
     let total = 0;
@@ -741,7 +753,7 @@ function calculateTotalAmount() {
         const price = parseFloat(item.price.replace(/[^\d.]/g, '')) * 100; // Convert to paise
         total += price * item.quantity;
     });
-    return total;
+    return total; // Returns amount in paise
 }
 async function handlePaymentFailure(response) {
     console.error("Payment failed:", response);
@@ -843,15 +855,33 @@ function showThankYouPopup(orderDetails, orderId) {
 
 // Handle successful payment
 function handlePaymentSuccess(response, formData) {
-    const orderId = saveOrder(response.razorpay_payment_id, formData);
+    const orderId = generateOrderId();
     
-    cart = [];
-    localStorage.setItem('guestCart', JSON.stringify(cart));
-    
+    // Show thank you popup with order details
     showThankYouPopup(formData, orderId);
+    
+    // Save order to Firestore
+    saveOrder(response.razorpay_payment_id, formData)
+        .then(() => {
+            // Clear cart
+            cart = [];
+            if (auth.currentUser) {
+                saveCartToFirestore(auth.currentUser.uid, []);
+            } else {
+                localStorage.removeItem('guestCart');
+            }
+            updateCartCount();
+            renderCart();
+            renderOrderSummary();
+        })
+        .catch(error => {
+            console.error("Error saving order:", error);
+            // Even if order save fails, show success since payment was successful
+        });
 }
 
 // Get form data from checkout form
+// Update the getFormData function to include email
 function getFormData() {
     return {
         firstName: document.getElementById('first-name').value,
@@ -862,10 +892,10 @@ function getFormData() {
         state: document.getElementById('state').value,
         pinCode: document.getElementById('pin-code').value,
         country: document.getElementById('country').value,
-        phone: document.getElementById('phone').value
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value
     };
 }
-
 async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
     if (!saveInfoCheckbox.checked) return;
@@ -940,9 +970,15 @@ async function saveInformation() {
 }
 
 // Place order function with Razorpay integration
+// Update the placeOrder function to check these fields
 async function placeOrder() {
     // First validate the checkout form
     if (!validateCheckoutForm()) {
+        // Scroll to the first error field
+        const firstErrorField = document.querySelector('.error-highlight');
+        if (firstErrorField) {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
     }
 
@@ -952,15 +988,13 @@ async function placeOrder() {
         return;
     }
 
-    // Calculate total amount from cart (in paise for Razorpay)
-    const totalAmount = calculateTotalAmount(); // This should return amount in paise (₹100 = 10000 paise)
-
     // Get form data
     const formData = getFormData();
+    const email = document.getElementById('email').value.trim();
 
     // Save information if checkbox is checked
     const saveInfoCheckbox = document.getElementById('save-info');
-    if (saveInfoCheckbox.checked) {
+    if (saveInfoCheckbox?.checked) {
         try {
             await saveInformation();
         } catch (error) {
@@ -968,6 +1002,9 @@ async function placeOrder() {
             // Continue with order even if address save fails
         }
     }
+
+    // Calculate total amount from cart (in paise for Razorpay)
+    const totalAmount = calculateTotalAmount();
 
     // Create Razorpay options
     const options = {
@@ -981,8 +1018,20 @@ async function placeOrder() {
         handler: async function(response) {
             // This function runs after successful payment
             try {
-                const orderId = await saveOrder(response.razorpay_payment_id, formData);
-                handlePaymentSuccess(response, formData, orderId);
+                const orderId = await saveOrder(response.razorpay_payment_id, {...formData, email});
+                handlePaymentSuccess(response, {...formData, email});
+                
+                // Clear cart after successful payment
+                cart = [];
+                updateCartCount();
+                renderCart();
+                renderOrderSummary();
+                
+                if (auth.currentUser) {
+                    await saveCartToFirestore(auth.currentUser.uid, []);
+                } else {
+                    localStorage.removeItem('guestCart');
+                }
             } catch (error) {
                 console.error("Error processing order:", error);
                 showToast("There was an error saving your order. Please contact support.", 'error');
@@ -990,7 +1039,7 @@ async function placeOrder() {
         },
         prefill: {
             name: `${formData.firstName} ${formData.lastName}`,
-            email: auth.currentUser?.email || formData.email,
+            email: email,
             contact: formData.phone
         },
         notes: {
@@ -1001,14 +1050,19 @@ async function placeOrder() {
         }
     };
 
-    // Create Razorpay instance and open payment modal
-    const rzp = new Razorpay(options);
-    rzp.open();
+    try {
+        // Create Razorpay instance and open payment modal
+        const rzp = new Razorpay(options);
+        rzp.open();
 
-    // Handle payment failure
-    rzp.on('payment.failed', function(response) {
-        handlePaymentFailure(response);
-    });
+        // Handle payment failure
+        rzp.on('payment.failed', function(response) {
+            handlePaymentFailure(response);
+        });
+    } catch (error) {
+        console.error("Error initializing Razorpay:", error);
+        showToast("Error initializing payment gateway. Please try again.", 'error');
+    }
 }
 // ======================
 // ADDRESS MANAGEMENT
@@ -1463,6 +1517,7 @@ function setupPasswordToggles() {
 }
 
 // Also make sure this is called in your DOMContentLoaded event listener
+// Add this helper function if not already present
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
