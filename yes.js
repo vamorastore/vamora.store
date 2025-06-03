@@ -1430,9 +1430,11 @@ function hideLoading(buttonId) {
     textSpan.classList.remove('opacity-0');
 }
 
+// Replace your current setupPasswordToggles function with this:
 function setupPasswordToggles() {
     document.querySelectorAll('.password-toggle').forEach(toggle => {
-        toggle.addEventListener('click', function() {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
             const inputId = this.getAttribute('data-toggle');
             const input = document.getElementById(inputId);
             if (input) {
@@ -1450,6 +1452,7 @@ function setupPasswordToggles() {
     });
 }
 
+// Also make sure this is called in your DOMContentLoaded event listener
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
@@ -1969,15 +1972,15 @@ async function logoutUser(event) {
         event.stopPropagation();
     }
     
-    // Show loading state if needed
-    const logoutBtn = event?.target;
-    if (logoutBtn) {
-        const originalText = logoutBtn.innerHTML;
-        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
-        logoutBtn.disabled = true;
-    }
-    
     try {
+        // Show loading state
+        const logoutBtn = event?.target.closest('button') || event?.target.closest('a');
+        if (logoutBtn) {
+            const originalContent = logoutBtn.innerHTML;
+            logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            logoutBtn.disabled = true;
+        }
+
         await auth.signOut();
         
         // Clear cart and local storage
@@ -1989,12 +1992,16 @@ async function logoutUser(event) {
         document.getElementById('account-info-page')?.classList.add('hidden');
         document.getElementById('dropdownMenu')?.classList.add('hidden');
         document.getElementById('mobileAccountOptions')?.classList.add('hidden');
+        document.getElementById('mobileMenuContent')?.classList.remove('active');
 
         // Reset mobile menu button icon
-        const mobileMenuIcon = mobileMenuButton?.querySelector('i');
-        if (mobileMenuIcon) {
-            mobileMenuIcon.classList.add('fa-bars');
-            mobileMenuIcon.classList.remove('fa-times');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        if (mobileMenuButton) {
+            const mobileMenuIcon = mobileMenuButton.querySelector('i');
+            if (mobileMenuIcon) {
+                mobileMenuIcon.classList.add('fa-bars');
+                mobileMenuIcon.classList.remove('fa-times');
+            }
         }
 
         // Clear email fields in forms
@@ -2005,33 +2012,25 @@ async function logoutUser(event) {
             input.classList.remove('bg-gray-100');
         });
 
-        // If on account page, clear displayed email
-        const emailDisplay = document.getElementById('displayEmail');
-        if (emailDisplay) {
-            emailDisplay.textContent = '';
-        }
-
-        // Show login button
+        // Update UI elements
         updateAuthButton(null);
-
-        // Show success toast
         showToast('Logged out successfully!', 'success');
 
         // If on account page, reload to reset state
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
-    } catch (err) {
-        console.error('Error after logout:', err);
-        showToast('Error during post-logout cleanup.', 'error');
+    } catch (error) {
+        console.error('Logout error:', error);
+        showToast('Error during logout. Please try again.', 'error');
     } finally {
-        if (logoutBtn) {
-            logoutBtn.innerHTML = 'Log Out';
-            logoutBtn.disabled = false;
-        }
+        // Reset any logout buttons
+        document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+            btn.innerHTML = btn.getAttribute('data-original') || 'Log Out';
+            btn.disabled = false;
+        });
     }
 }
-
 // ======================
 // PROFILE MANAGEMENT
 // ======================
@@ -2590,11 +2589,19 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleMobileMenu();
     });
 
-    document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        logoutUser(e);
-        toggleMobileMenu();
-    });
+    // In your event listeners section, add this:
+document.getElementById('logoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    document.getElementById('dropdownMenu').classList.add('hidden'); // Close the dropdown
+});
+
+// Also update the mobile logout option:
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    document.getElementById('mobileAccountOptions').classList.add('hidden'); // Close mobile menu
+});
 
     // Account dropdown functionality
     document.getElementById('accountIconNav')?.addEventListener('click', function(e) {
