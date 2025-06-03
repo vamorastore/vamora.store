@@ -551,7 +551,7 @@ function renderOrders(orders) {
     ordersContainer.innerHTML = orders.map(order => {
         const currentIndex = statusOrder.indexOf(order.status);
 
-        // Updated iconClass: "Placed" always active
+        // Icon class: "Placed" always active, others active if <= currentIndex
         const iconClass = (index) => {
             if (index === 0) {
                 return 'bg-blue-500 text-white';
@@ -561,14 +561,12 @@ function renderOrders(orders) {
                 : 'bg-gray-200 text-gray-500';
         };
 
+        // Progress bar: always minimum 1/4 (placed), increases by status
         const getStatusProgress = (status) => {
-            switch (status) {
-                case 'placed': return 'w-1/4 bg-blue-500';
-                case 'processed': return 'w-2/4 bg-blue-500';
-                case 'shipped': return 'w-3/4 bg-blue-500';
-                case 'delivered': return 'w-full bg-blue-500';
-                default: return 'w-0';
-            }
+            const currentIndex = statusOrder.indexOf(status);
+            const widthClasses = ['w-1/4', 'w-2/4', 'w-3/4', 'w-full'];
+            if (currentIndex === -1) return 'w-1/4 bg-blue-500';
+            return widthClasses[Math.max(0, currentIndex)] + ' bg-blue-500';
         };
 
         const getStatusColor = (status) => {
