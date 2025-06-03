@@ -36,6 +36,25 @@ let cart = [];
 // CART MANAGEMENT SYSTEM
 // ======================
 
+// Initialize cart on page load
+function initializeCart() {
+    const user = auth.currentUser;
+    if (user) {
+        // Load from Firestore
+        getOrCreateUserCart(user.uid).then(firestoreCart => {
+            cart = firestoreCart;
+            updateCartCount();
+            renderCart();
+        });
+    } else {
+        // Load from localStorage
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        cart = guestCart;
+        updateCartCount();
+        renderCart();
+    }
+}
+
 // Function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
@@ -86,20 +105,11 @@ function mergeCarts(primaryCart, secondaryCart) {
     return merged;
 }
 
-// Function to update cart count in navbar
-function updateCartCount() {
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + (item.quantity || 1), 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.setAttribute('data-count', totalItems);
-    }
-}
-
-// Function to add item to cart
-async function addToCart(product) {
+// Universal Add to Cart function
+window.addToCart = async function(product) {
     const user = auth.currentUser;
     
+    // Check if item already exists in cart with same size
     const existingItem = cart.find(item => 
         item.id === product.id && item.size === product.size
     );
@@ -119,48 +129,28 @@ async function addToCart(product) {
     updateCartCount();
     renderCart();
     
-    // Also update order summary if on checkout page
-    if (window.location.pathname.includes('checkout')) {
-        renderOrderSummary();
+    // Show success feedback
+    const button = document.getElementById('add-to-cart-btn');
+    if (button) {
+        const originalText = button.textContent;
+        button.textContent = 'ADDED TO CART!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
     }
-}
+    
+    // Open cart after adding item
+    openCart();
+};
 
-// Function to remove item from cart
-async function removeFromCart(index, event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
+// Function to update cart count in navbar
+function updateCartCount() {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.setAttribute('data-count', totalItems);
     }
-    
-    cart.splice(index, 1);
-
-    const user = auth.currentUser;
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    } else {
-        localStorage.setItem('guestCart', JSON.stringify(cart));
-    }
-    
-    updateCartCount();
-    renderCart();
-}
-
-// Function to update item quantity in cart
-async function updateQuantity(index, change) {
-    const newQuantity = cart[index].quantity + change;
-    if (newQuantity < 1) return;
-    
-    cart[index].quantity = newQuantity;
-    
-    const user = auth.currentUser;
-    if (user) {
-        await saveCartToFirestore(user.uid, cart);
-    } else {
-        localStorage.setItem('guestCart', JSON.stringify(cart));
-    }
-    
-    updateCartCount();
-    renderCart();
 }
 
 // Function to render cart items
@@ -257,6 +247,43 @@ function renderOrderSummary() {
     document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
 
+// Global functions for cart operations
+window.updateQuantity = async function(index, change) {
+    const newQuantity = cart[index].quantity + change;
+    if (newQuantity < 1) return;
+    
+    cart[index].quantity = newQuantity;
+    
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    updateCartCount();
+    renderCart();
+};
+
+window.removeFromCart = async function(index, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    cart.splice(index, 1);
+
+    const user = auth.currentUser;
+    if (user) {
+        await saveCartToFirestore(user.uid, cart);
+    } else {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+    }
+    
+    updateCartCount();
+    renderCart();
+};
+
 // Function to proceed to checkout
 async function proceedToCheckout() {
     const user = auth.currentUser;
@@ -269,55 +296,37 @@ async function proceedToCheckout() {
     window.location.href = 'checkout.html';
 }
 
-// Initialize cart on page load
-function initializeCart() {
-    const user = auth.currentUser;
-    if (user) {
-        // Load from Firestore
-        getOrCreateUserCart(user.uid).then(firestoreCart => {
-            cart = firestoreCart;
-            updateCartCount();
-            renderCart();
-        });
-    } else {
-        // Load from localStorage
-        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-        cart = guestCart;
-        updateCartCount();
-        renderCart();
-    }
-}
+// Cart UI functions
+window.openCart = function() {
+    document.getElementById('cartOverlay').classList.add('active');
+    document.getElementById('cartBackdrop').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderCart();
+};
 
-// Cart event listeners
+window.closeCart = function() {
+    document.getElementById('cartOverlay').classList.remove('active');
+    document.getElementById('cartBackdrop').classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+// Initialize cart event listeners
 function setupCartEventListeners() {
-    // Open cart function
-    function openCart() {
-        document.getElementById('cartOverlay').classList.add('active');
-        document.getElementById('cartBackdrop').classList.add('active');
-        document.body.style.overflow = 'hidden';
-        renderCart();
-    }
-
-    // Close cart function
-    function closeCart() {
-        document.getElementById('cartOverlay').classList.remove('active');
-        document.getElementById('cartBackdrop').classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // Toggle cart
-    function toggleCart() {
-        if (document.getElementById('cartOverlay').classList.contains('active')) {
-            closeCart();
-        } else {
-            openCart();
-        }
-    }
-
     // Event listeners
-    document.getElementById('cartIconNav')?.addEventListener('click', toggleCart);
-    document.getElementById('closeCartButton')?.addEventListener('click', closeCart);
-    document.getElementById('cartBackdrop')?.addEventListener('click', closeCart);
+    document.getElementById('cartIconNav')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        openCart();
+    });
+
+    document.getElementById('closeCartButton')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeCart();
+    });
+
+    document.getElementById('cartBackdrop')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeCart();
+    });
 
     // Close cart when pressing ESC key
     document.addEventListener('keydown', (e) => {
@@ -420,16 +429,6 @@ function setupProductPage() {
         };
         
         addToCart(product);
-        
-        // Show success feedback
-        const button = this;
-        const originalText = button.textContent;
-        button.textContent = 'ADDED TO CART!';
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
-        
-        openCart();
     });
 
     // Buy now button
