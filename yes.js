@@ -647,8 +647,17 @@ function renderOrders(orders) {
                     `).join('')}
                 </div>
             </div>
+
+            <!-- Track Order Button -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                <button class="w-full md:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm font-medium">
+                    Track Order
+                </button>
+            </div>
+        </div>
     `).join('');
 }
+
 
 // Helper function for mobile vertical progress
 function getStatusProgressMobile(status) {
