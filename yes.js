@@ -579,24 +579,31 @@ function renderOrders(orders) {
                 </div>
             </div>
 
-            <!-- Order Progress - Fully responsive -->
+            <!-- Order Progress - Fully responsive with vertical on mobile -->
             <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
-                    <!-- Labels - visible on all screens -->
-                    <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
+                    <!-- Labels - vertical on mobile, horizontal on md+ -->
+                    <div class="flex flex-col md:flex-row justify-between gap-2 md:gap-0 mb-3 text-[11px] text-gray-600 md:text-xs text-center">
                         <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : ''}">Order Placed</span>
                         <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : ''}">Processing</span>
                         <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : ''}">Shipped</span>
                         <span class="${order.status === 'status-delivered' ? 'text-blue-600 font-medium' : ''}">Delivered</span>
                     </div>
 
-                    <!-- Progress Bar -->
-                    <div class="relative h-1.5 bg-gray-200 rounded-full mb-4">
-                        <div class="absolute top-0 left-0 h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    <!-- Progress Bar - vertical on mobile, horizontal on md+ -->
+                    <div class="relative mb-4">
+                        <!-- Horizontal Progress (md+) -->
+                        <div class="hidden md:block h-1.5 bg-gray-200 rounded-full">
+                            <div class="h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                        </div>
+                        <!-- Vertical Progress (mobile) -->
+                        <div class="block md:hidden w-1.5 h-24 bg-gray-200 rounded-full mx-auto">
+                            <div class="w-1.5 rounded-full ${getStatusProgress(order.status)} h-full"></div>
+                        </div>
                     </div>
 
-                    <!-- Icons -->
-                    <div class="relative flex justify-between px-1 md:px-0">
+                    <!-- Icons - vertical on mobile, horizontal on md+ -->
+                    <div class="relative flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 px-1 md:px-0">
                         <div class="w-6 h-6 md:w-8 md:h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
                             rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-check text-xs"></i>
@@ -657,6 +664,7 @@ function renderOrders(orders) {
         </div>
     `).join('');
 }
+
 
 
 // Helper function for mobile vertical progress
