@@ -3,528 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Orders - VAMORA</title>
+    <title>Admin Orders - VAMORA.STORE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Unbounded', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            font-weight: 300;
-        }
-        
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-            font-size: 1.8rem;
-        }
-        
-        .filter-controls {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-controls select, 
-        .filter-controls input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-width: 150px;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            font-size: 0.85rem;
-        }
-        
-        .filter-controls button {
-            background: black;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-            font-size: 0.85rem;
-        }
-        
-        .filter-controls button#clear-all-orders {
-            background: #ff4444;
-        }
-        
-        .orders-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-        
-        .order-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .order-header {
-            padding: 15px 15px 15px 40px;
-            background: #f9f9f9;
-            border-bottom: 1px solid #eee;
-            position: relative;
-        }
-        
-        .order-id {
-            font-weight: 500;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-        
-        .order-date {
-            color: #666;
-            font-size: 0.8rem;
-            font-weight: 300;
-        }
-        
-        .customer-info {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .customer-name {
-            font-weight: 400;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-        
-        .customer-email {
-            color: #666;
-            font-size: 0.8rem;
-            font-weight: 300;
-        }
-        
-        .shipping-address {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            font-weight: 300;
-        }
-        
-        .shipping-address p {
-            margin: 5px 0;
-        }
-        
-        .shipping-address strong {
-            display: inline-block;
-            min-width: 80px;
-            color: #333;
-            font-weight: 400;
-        }
-        
-        .order-items {
-            padding: 15px;
-        }
-        
-        .order-item {
-            display: flex;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px dashed #eee;
-            position: relative;
-            padding-right: 25px;
-        }
-        
-        .order-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        
-        .item-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 15px;
-        }
-        
-        .item-details {
-            flex: 1;
-        }
-        
-        .item-title {
-            font-size: 0.9rem;
-            font-weight: 400;
-            margin-bottom: 5px;
-        }
-        
-        .item-variants {
-            display: flex;
-            gap: 15px;
-            font-size: 0.75rem;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 300;
-        }
-        
-        .item-status {
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-        }
-        
-        .status-select {
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-            font-size: 0.8rem;
-            min-width: 120px;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-        }
-        
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 400;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status-placed { background-color: #EFF6FF; color: #1D4ED8; }
+        .status-processed { background-color: #FEF3C7; color: #92400E; }
+        .status-shipped { background-color: #EDE9FE; color: #5B21B6; }
+        .status-delivered { background-color: #D1FAE5; color: #065F46; }
+        .status-cancelled { background-color: #FEE2E2; color: #991B1B; }
+        .status-refunded { background-color: #ECFDF5; color: #047857; }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
-        .status-placed { background-color: #FFF3CD; color: #856404; }
-        .status-processed { background-color: #CCE5FF; color: #004085; }
-        .status-shipped { background-color: #D4EDDA; color: #155724; }
-        .status-delivered { background-color: #D1ECF1; color: #0C5460; }
-        .status-cancelled { background-color: #F8D7DA; color: #721C24; }
-        
-        .order-footer {
-            padding: 15px;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .order-total {
-            font-weight: 400;
-            font-size: 0.95rem;
-        }
-        
-        .save-btn {
-            background: black;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-        }
-        
-        .save-btn:hover {
-            background: #333;
-        }
-        
-        .save-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: none;
-            border: none;
-            color: #ff4444;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: transform 0.2s;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .delete-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .item-delete-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: none;
-            border: none;
-            color: #ff4444;
-            cursor: pointer;
-            font-size: 0.9rem;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        
-        .item-delete-btn:hover {
-            opacity: 1;
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 1000;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            font-size: 0.9rem;
-        }
-        
-        .notification.error {
-            background: #ff4444;
-        }
-        
-        .no-orders {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-            grid-column: 1 / -1;
-            font-weight: 300;
-            font-size: 0.95rem;
-        }
-        
-        .confirm-dialog {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            display: none;
-        }
-        
-        .confirm-content {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-        
-        .confirm-content h3 {
-            font-weight: 400;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        
-        .confirm-content p {
-            font-weight: 300;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        
-        .confirm-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .confirm-buttons button {
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            font-size: 0.85rem;
-        }
-        
-        .confirm-yes {
-            background: #ff4444;
-            color: white;
-            border: none;
-        }
-        
-        .confirm-no {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-        }
-        
-        .login-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-        
-        .login-box {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 350px;
-            max-width: 90%;
-            text-align: center;
-        }
-        
-        .login-box h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-        
-        .auth-providers {
-            margin-top: 20px;
-        }
-        
-        .auth-provider-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            border: 1px solid #ddd;
-            background: white;
-            width: 100%;
-        }
-        
-        .auth-provider-btn.google {
-            background: #4285F4;
-            color: white;
-            border-color: #4285F4;
-        }
-        
-        .auth-provider-btn i {
-            margin-right: 8px;
-        }
-        
-        .logout-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 8px 15px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Unbounded', sans-serif;
-            font-weight: 300;
-            z-index: 1000;
-        }
-        
-        @media (max-width: 768px) {
-            .orders-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .filter-controls {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
+        .order-row:hover {
+            background-color: #F9FAFB;
         }
     </style>
 </head>
-<body>
-    <div class="admin-container">
-        <h1>Orders Management</h1>
-        
-        <div class="filter-controls">
-            <select id="status-filter">
-                <option value="all">All Statuses</option>
-                <option value="placed">Order Placed</option>
-                <option value="processed">Confirmed</option>
-                <option value="shipped">In Transmit</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-            </select>
-            
-            <input type="text" id="search-orders" placeholder="Search order ID or customer">
-            
-            <button id="refresh-orders"><i class="fas fa-sync-alt"></i> Refresh</button>
-            <button id="clear-all-orders"><i class="fas fa-trash"></i> Clear All Orders</button>
-        </div>
-        
-        <div class="orders-list" id="orders-container">
-            <!-- Orders will be loaded here -->
-        </div>
-    </div>
-    
-    <div class="notification" id="notification"></div>
-    
-    <div class="confirm-dialog" id="confirm-dialog">
-        <div class="confirm-content">
-            <h3>Delete Item</h3>
-            <p>Are you sure you want to delete this item from the order? This action cannot be undone.</p>
-            <div class="confirm-buttons">
-                <button class="confirm-yes" id="confirm-yes">Yes, Delete</button>
-                <button class="confirm-no" id="confirm-no">Cancel</button>
+<body class="bg-gray-50">
+    <!-- Admin Navbar -->
+    <nav class="bg-black text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-xl font-bold">VAMORA.STORE</a>
+                <span class="text-sm bg-yellow-500 text-black px-2 py-1 rounded">ADMIN</span>
             </div>
-        </div>
-    </div>
-    
-    <div class="login-container" id="login-container">
-        <div class="login-box">
-            <h2>Admin Login</h2>
-            <div class="auth-providers">
-                <button class="auth-provider-btn google" id="google-signin">
-                    <i class="fab fa-google"></i> Sign in with Google
+            <div class="flex items-center space-x-4">
+                <button id="logoutBtn" class="text-sm hover:text-gray-300">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
                 </button>
             </div>
         </div>
+    </nav>
+
+    <!-- Admin Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">Loading admin panel...</p>
+        </div>
+
+        <!-- Unauthorized State -->
+        <div id="unauthorizedState" class="hidden text-center py-12">
+            <i class="fas fa-lock text-4xl text-red-500 mb-4"></i>
+            <h2 class="text-2xl font-bold mb-2">Admin Access Required</h2>
+            <p class="text-gray-600 mb-6">You must be logged in with an admin account to access this page.</p>
+            <button id="adminLoginBtn" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                <i class="fab fa-google mr-2"></i> Login with Admin Account
+            </button>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-2xl font-bold">Orders Management</h1>
+                <div class="flex space-x-4">
+                    <div class="relative">
+                        <input type="text" id="searchOrders" placeholder="Search orders..." 
+                               class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+                        <option value="">All Statuses</option>
+                        <option value="placed">Placed</option>
+                        <option value="processed">Processed</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Previous
+                        </button>
+                        <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Next
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p id="paginationInfo" class="text-sm text-gray-700">
+                                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <!-- Page numbers will be inserted here -->
+                                <div id="pageNumbers" class="flex"></div>
+                                <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div id="orderDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-lg font-bold">Order Details</h3>
+                    <button id="closeOrderDetails" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="font-bold mb-2">Order Information</h4>
+                            <div class="space-y-2">
+                                <p><span class="text-gray-600">Order ID:</span> <span id="modalOrderId" class="font-medium"></span></p>
+                                <p><span class="text-gray-600">Date:</span> <span id="modalOrderDate" class="font-medium"></span></p>
+                                <p><span class="text-gray-600">Status:</span> <span id="modalOrderStatus" class="status-badge"></span></p>
+                                <p><span class="text-gray-600">Payment:</span> <span id="modalPaymentStatus" class="font-medium"></span></p>
+                                <p><span class="text-gray-600">Total:</span> <span id="modalOrderTotal" class="font-medium"></span></p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">Customer Information</h4>
+                            <div class="space-y-2">
+                                <p id="modalCustomerName" class="font-medium"></p>
+                                <p id="modalCustomerEmail"></p>
+                                <p id="modalCustomerPhone"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">Shipping Address</h4>
+                        <div id="modalShippingAddress" class="bg-gray-50 p-3 rounded"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">Items</h4>
+                        <div id="modalOrderItems" class="space-y-3"></div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold mb-2">Update Status</h4>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <select id="statusUpdateSelect" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+                                <option value="placed">Placed</option>
+                                <option value="processed">Processed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="refunded">Refunded</option>
+                            </select>
+                            <button id="updateStatusBtn" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                                Update Status
+                            </button>
+                            <button id="cancelOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 hidden">
+                                Cancel Order
+                            </button>
+                            <button id="deleteOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                Delete Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white bg-green-500"></div>
+
+    <!-- Firebase and other scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
-        // Firebase configuration
+        // Initialize Firebase with your config
         const firebaseConfig = {
             apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
             authDomain: "vamora-co-in.firebaseapp.com",
@@ -536,471 +235,11 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        // Global variables
-        let currentItemToDelete = null;
-        let currentUser = null;
-        let allOrders = [];
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is already logged in
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    // User is signed in
-                    document.getElementById('login-container').style.display = 'none';
-                    checkAdminStatus(user);
-                } else {
-                    // No user is signed in
-                    document.getElementById('login-container').style.display = 'flex';
-                }
-            });
-            
-            // Set up event listeners
-            document.getElementById('refresh-orders').addEventListener('click', loadAllOrders);
-            document.getElementById('status-filter').addEventListener('change', applyFilters);
-            document.getElementById('search-orders').addEventListener('input', applyFilters);
-            document.getElementById('clear-all-orders').addEventListener('click', confirmClearAllOrders);
-            document.getElementById('google-signin').addEventListener('click', signInWithGoogle);
-            
-            // Confirm dialog buttons
-            document.getElementById('confirm-yes').addEventListener('click', deleteConfirmedItem);
-            document.getElementById('confirm-no').addEventListener('click', hideConfirmDialog);
-        });
-        
-        function checkAdminStatus(user) {
-            // Check if user is admin (either specific email or in admins collection)
-            const adminEmail = 'vamora.co.in@gmail.com';
-            
-            if (user.email === adminEmail) {
-                // Special admin email
-                currentUser = user;
-                setupAdminUI();
-                return;
-            }
-            
-            // Check admins collection
-            db.collection('admins').doc(user.uid).get()
-                .then(doc => {
-                    if (doc.exists) {
-                        currentUser = user;
-                        setupAdminUI();
-                    } else {
-                        showNotification('You are not authorized as an admin', 'error');
-                        auth.signOut();
-                    }
-                })
-                .catch(error => {
-                    showNotification('Error checking admin status: ' + error.message, 'error');
-                    auth.signOut();
-                });
-        }
-        
-        function setupAdminUI() {
-            document.getElementById('login-container').style.display = 'none';
-            loadAllOrders();
-            
-            // Add logout button
-            const existingLogoutBtn = document.querySelector('.logout-btn');
-            if (!existingLogoutBtn) {
-                const logoutBtn = document.createElement('button');
-                logoutBtn.className = 'logout-btn';
-                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-                logoutBtn.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        window.location.reload();
-                    });
-                });
-                document.body.appendChild(logoutBtn);
-            }
-        }
-        
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    // This will trigger the authStateChanged listener
-                })
-                .catch(error => {
-                    showNotification('Error signing in: ' + error.message, 'error');
-                });
-        }
-        
-        function loadAllOrders() {
-            if (!currentUser) {
-                showNotification('Please login first', 'error');
-                return;
-            }
-            
-            showLoading(true);
-            
-            db.collection("orders")
-                .orderBy("timestamp", "desc")
-                .get()
-                .then((querySnapshot) => {
-                    allOrders = [];
-                    querySnapshot.forEach((doc) => {
-                        const orderData = doc.data();
-                        // Ensure all required fields exist
-                        const completeOrder = {
-                            id: doc.id,
-                            orderId: orderData.orderId || doc.id,
-                            email: orderData.email || 'no-email@example.com',
-                            status: orderData.status || 'placed',
-                            timestamp: orderData.timestamp || firebase.firestore.Timestamp.now(),
-                            date: (orderData.timestamp?.toDate() || new Date()),
-                            shippingAddress: orderData.shippingAddress || {
-                                name: 'Unknown',
-                                address: 'Unknown',
-                                city: 'Unknown',
-                                state: 'Unknown',
-                                postalCode: 'Unknown',
-                                country: 'Unknown'
-                            },
-                            items: orderData.items || []
-                        };
-                        
-                        allOrders.push(completeOrder);
-                    });
-                    renderOrders(allOrders);
-                    showLoading(false);
-                })
-                .catch((error) => {
-                    showNotification('Error loading orders: ' + error.message, 'error');
-                    showLoading(false);
-                });
-        }
-        
-        function applyFilters() {
-            const statusFilter = document.getElementById('status-filter').value;
-            const searchQuery = document.getElementById('search-orders').value.toLowerCase();
-            
-            let filteredOrders = [...allOrders];
-            
-            if (statusFilter !== 'all') {
-                filteredOrders = filteredOrders.filter(order => 
-                    order.status === statusFilter
-                );
-            }
-            
-            if (searchQuery) {
-                filteredOrders = filteredOrders.filter(order => 
-                    (order.orderId && order.orderId.toLowerCase().includes(searchQuery)) ||
-                    (order.shippingAddress?.name && order.shippingAddress.name.toLowerCase().includes(searchQuery)) ||
-                    (order.email && order.email.toLowerCase().includes(searchQuery))
-                );
-            }
-            
-            renderOrders(filteredOrders);
-        }
-        
-        function renderOrders(orders) {
-            const ordersContainer = document.getElementById('orders-container');
-            
-            if (orders.length === 0) {
-                ordersContainer.innerHTML = `
-                    <div class="no-orders">
-                        <i class="fas fa-shopping-bag fa-2x" style="color: #ddd; margin-bottom: 15px;"></i>
-                        <h3>No orders found</h3>
-                        <p>No orders match your current filters</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            ordersContainer.innerHTML = '';
-            
-            orders.forEach(order => {
-                const total = order.items.reduce((sum, item) => {
-                    // Handle different price formats
-                    let price = 0;
-                    if (typeof item.price === 'string') {
-                        price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
-                    } else if (typeof item.price === 'number') {
-                        price = item.price;
-                    }
-                    return sum + (price * (item.quantity || 1));
-                }, 0);
-                
-                const orderDate = order.date;
-                const formattedDate = orderDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                const orderCard = document.createElement('div');
-                orderCard.className = 'order-card';
-                orderCard.innerHTML = `
-                    <button class="delete-btn" data-order-id="${order.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    
-                    <div class="order-header">
-                        <div class="order-id">#${order.orderId}</div>
-                        <div class="order-date">${formattedDate}</div>
-                    </div>
-                    
-                    <div class="customer-info">
-                        <div class="customer-name">${order.shippingAddress.name}</div>
-                        <div class="customer-email">${order.email}</div>
-                    </div>
-                    
-                    <div class="shipping-address">
-                        <p><strong>Address:</strong> ${order.shippingAddress.address}</p>
-                        ${order.shippingAddress.apartment ? `<p><strong>Apt/Suite:</strong> ${order.shippingAddress.apartment}</p>` : ''}
-                        <p><strong>City:</strong> ${order.shippingAddress.city}</p>
-                        <p><strong>State:</strong> ${order.shippingAddress.state}</p>
-                        <p><strong>Postal Code:</strong> ${order.shippingAddress.postalCode}</p>
-                        <p><strong>Country:</strong> ${order.shippingAddress.country}</p>
-                        ${order.shippingAddress.phone ? `<p><strong>Phone:</strong> ${order.shippingAddress.phone}</p>` : ''}
-                    </div>
-                    
-                    <div class="order-items">
-                        ${order.items.map((item, index) => `
-                            <div class="order-item">
-                                <button class="item-delete-btn" data-order-id="${order.id}" data-item-index="${index}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.title}" class="item-image">
-                                <div class="item-details">
-                                    <div class="item-title">${item.title}</div>
-                                    <div class="item-variants">
-                                        <span>Size: ${item.size || '-'}</span>
-                                        <span>Qty: ${item.quantity || 1}</span>
-                                        <span>₹${((parseFloat((item.price || '₹0').toString().replace(/[^0-9.]/g, '')) || 0).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="order-footer">
-                        <div class="order-total">Total: ₹${total.toFixed(2)}</div>
-                        <div class="item-status">
-                            <select class="status-select" data-order-id="${order.id}">
-                                <option value="placed" ${order.status === 'placed' ? 'selected' : ''}>Order Placed</option>
-                                <option value="processed" ${order.status === 'processed' ? 'selected' : ''}>Processing</option>
-                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                            </select>
-                            <span class="status-badge status-${order.status || 'placed'}">
-                                ${formatStatus(order.status || 'placed')}
-                            </span>
-                        </div>
-                        <button class="save-btn" data-order-id="${order.id}">
-                            Save Changes
-                        </button>
-                    </div>
-                `;
-                
-                ordersContainer.appendChild(orderCard);
-            });
-            
-            // Set up save buttons
-            document.querySelectorAll('.save-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orderId = this.dataset.orderId;
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                    
-                    saveOrderStatus(orderId).then(() => {
-                        this.disabled = false;
-                        this.textContent = 'Save Changes';
-                    });
-                });
-            });
-            
-            // Set up order delete buttons
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    currentItemToDelete = {
-                        type: 'order',
-                        orderId: this.dataset.orderId
-                    };
-                    document.querySelector('.confirm-content h3').textContent = 'Delete Order';
-                    document.querySelector('.confirm-content p').textContent = 'Are you sure you want to delete this order? This action cannot be undone.';
-                    showConfirmDialog();
-                });
-            });
-            
-            // Set up item delete buttons
-            document.querySelectorAll('.item-delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    currentItemToDelete = {
-                        type: 'item',
-                        orderId: this.dataset.orderId,
-                        itemIndex: parseInt(this.dataset.itemIndex)
-                    };
-                    document.querySelector('.confirm-content h3').textContent = 'Delete Item';
-                    document.querySelector('.confirm-content p').textContent = 'Are you sure you want to delete this item from the order? This action cannot be undone.';
-                    showConfirmDialog();
-                });
-            });
-        }
-        
-        function confirmClearAllOrders() {
-            currentItemToDelete = {
-                type: 'all-orders'
-            };
-            document.querySelector('.confirm-content h3').textContent = 'Clear All Orders';
-            document.querySelector('.confirm-content p').textContent = 'Are you sure you want to delete ALL orders? This action cannot be undone and will remove all order history.';
-            showConfirmDialog();
-        }
-        
-        function showConfirmDialog() {
-            document.getElementById('confirm-dialog').style.display = 'flex';
-        }
-        
-        function hideConfirmDialog() {
-            document.getElementById('confirm-dialog').style.display = 'none';
-            currentItemToDelete = null;
-        }
-        
-        function deleteConfirmedItem() {
-            if (!currentItemToDelete) return;
-            
-            if (currentItemToDelete.type === 'order') {
-                deleteOrder();
-            } else if (currentItemToDelete.type === 'item') {
-                deleteItemFromOrder();
-            } else if (currentItemToDelete.type === 'all-orders') {
-                clearAllOrders();
-            }
-        }
-        
-        function deleteOrder() {
-            const { orderId } = currentItemToDelete;
-            
-            db.collection("orders").doc(orderId).delete()
-                .then(() => {
-                    showNotification('Order deleted successfully!');
-                    hideConfirmDialog();
-                    loadAllOrders();
-                })
-                .catch((error) => {
-                    showNotification('Error deleting order: ' + error.message, 'error');
-                    hideConfirmDialog();
-                });
-        }
-        
-        function deleteItemFromOrder() {
-            const { orderId, itemIndex } = currentItemToDelete;
-            
-            db.collection("orders").doc(orderId).get()
-                .then((doc) => {
-                    if (!doc.exists) {
-                        throw new Error("Order not found");
-                    }
-                    
-                    const orderData = doc.data();
-                    const updatedItems = [...orderData.items];
-                    updatedItems.splice(itemIndex, 1);
-                    
-                    // If no items left, delete the entire order
-                    if (updatedItems.length === 0) {
-                        return db.collection("orders").doc(orderId).delete();
-                    } else {
-                        return db.collection("orders").doc(orderId).update({
-                            items: updatedItems,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                })
-                .then(() => {
-                    showNotification('Item deleted successfully!');
-                    hideConfirmDialog();
-                    loadAllOrders();
-                })
-                .catch((error) => {
-                    showNotification('Error deleting item: ' + error.message, 'error');
-                    hideConfirmDialog();
-                });
-        }
-        
-        function clearAllOrders() {
-            // Get all orders and delete them one by one
-            db.collection("orders").get()
-                .then((querySnapshot) => {
-                    const batch = db.batch();
-                    querySnapshot.forEach((doc) => {
-                        batch.delete(doc.ref);
-                    });
-                    return batch.commit();
-                })
-                .then(() => {
-                    showNotification('All orders have been cleared successfully!');
-                    hideConfirmDialog();
-                    loadAllOrders();
-                })
-                .catch((error) => {
-                    showNotification('Error clearing orders: ' + error.message, 'error');
-                    hideConfirmDialog();
-                });
-        }
-        
-        async function saveOrderStatus(orderId) {
-            const statusSelect = document.querySelector(`.status-select[data-order-id="${orderId}"]`);
-            const newStatus = statusSelect.value;
-            
-            try {
-                await db.collection("orders").doc(orderId).update({
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Update the status badge immediately
-                const statusBadge = statusSelect.nextElementSibling;
-                statusBadge.className = `status-badge status-${newStatus}`;
-                statusBadge.textContent = formatStatus(newStatus);
-                
-                showNotification('Order status updated successfully!');
-                return true;
-            } catch (error) {
-                showNotification('Error updating order status: ' + error.message, 'error');
-                return false;
-            }
-        }
-        
-        function formatStatus(status) {
-            if (!status) return 'Order Placed';
-            const statusMap = {
-                'placed': 'Order Placed',
-                'processed': 'Processing',
-                'shipped': 'Shipped',
-                'delivered': 'Delivered',
-                'cancelled': 'Cancelled'
-            };
-            return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
-        }
-        
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = type === 'success' ? 'notification' : 'notification error';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        function showLoading(show) {
-            const ordersContainer = document.getElementById('orders-container');
-            if (show) {
-                ordersContainer.innerHTML = `
-                    <div class="no-orders">
-                        <i class="fas fa-spinner fa-spin fa-2x" style="color: #ddd; margin-bottom: 15px;"></i>
-                        <p>Loading orders...</p>
-                    </div>
-                `;
-            }
-        }
+        const provider = new firebase.auth.GoogleAuthProvider();
     </script>
+    <script src="admin-orders.js"></script>
 </body>
 </html>
