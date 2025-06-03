@@ -5,340 +5,259 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Orders - VAMORA.STORE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-light: #6366F1;
-            --dark: #1F2937;
-            --light: #F9FAFB;
-            --card-bg: #FFFFFF;
-        }
-        
         body {
-            font-family: 'Manrope', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
         
         .order-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
-            border: 1px solid #EAEDF3;
-            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            border-radius: 12px;
             overflow: hidden;
         }
         
         .order-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        
-        .order-card.new-order::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
         }
         
         .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.025em;
         }
         
-        .status-placed { background-color: #E0E7FF; color: #4338CA; }
+        .status-placed { background-color: #EFF6FF; color: #1D4ED8; }
         .status-processed { background-color: #FEF3C7; color: #92400E; }
-        .status-shipped { background-color: #E0E7FF; color: #3730A3; }
+        .status-shipped { background-color: #EDE9FE; color: #5B21B6; }
         .status-delivered { background-color: #D1FAE5; color: #065F46; }
         .status-cancelled { background-color: #FEE2E2; color: #991B1B; }
         .status-refunded { background-color: #ECFDF5; color: #047857; }
         
-        .new-tag {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: #EF4444;
-            color: white;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-            animation: pulse 2s infinite;
+        .loading-spinner {
+            animation: spin 1s linear infinite;
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         .search-input {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' viewBox='0 0 20 20' fill='%239CA3AF'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 12px center;
-            background-size: 18px;
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
         }
         
-        .select-dropdown {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' viewBox='0 0 20 20' fill='%239CA3AF'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 18px;
+        .search-input:focus {
+            border-color: #cbd5e1;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
         }
         
-        @media (max-width: 640px) {
-            .order-card {
-                width: 100%;
-                margin-bottom: 16px;
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .toast {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .order-grid {
+                grid-template-columns: 1fr !important;
             }
             
             .filter-bar {
                 flex-direction: column;
-                gap: 12px;
+                gap: 0.75rem;
             }
             
-            .search-input, .select-dropdown {
+            .filter-bar > * {
                 width: 100%;
             }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Mobile-Friendly Navbar -->
-    <nav class="bg-white shadow-sm sticky top-0 z-10 px-4 py-3">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center">
-                <svg class="w-6 h-6 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-                <span class="font-bold text-gray-800">VAMORA</span>
-                <span class="ml-2 text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">ADMIN</span>
+<body class="bg-gray-50">
+    <!-- Admin Navbar -->
+    <nav class="bg-gray-900 text-white p-4 shadow-sm">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="/" class="text-xl font-bold tracking-tight">VAMORA.STORE</a>
+                <span class="text-xs bg-amber-400 text-gray-900 px-2 py-1 rounded-full font-medium">ADMIN</span>
             </div>
-            <button id="logoutBtn" class="p-2 rounded-full bg-gray-100 text-gray-600">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <div class="flex items-center space-x-4">
+                <button id="logoutBtn" class="text-sm hover:text-gray-300 flex items-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6">
-        <!-- Header and Filters -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Orders</h1>
-            
-            <div class="filter-bar flex flex-wrap gap-3 mb-4">
-                <input type="text" id="searchOrders" placeholder="Search orders..." 
-                       class="search-input pl-10 pr-4 py-2 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent flex-1 min-w-[200px]">
-                
-                <select id="statusFilter" class="select-dropdown px-4 py-2 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="">All Statuses</option>
-                    <option value="placed">Placed</option>
-                    <option value="processed">Processed</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="refunded">Refunded</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Orders Grid -->
-        <div id="ordersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Order cards will be populated here -->
-            
-            <!-- Sample Order Card (will be generated dynamically) -->
-            <div class="order-card new-order p-4">
-                <div class="new-tag">NEW</div>
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <h3 class="font-bold text-gray-800">#ORD-1842</h3>
-                        <p class="text-xs text-gray-500">Today, 10:45 AM</p>
-                    </div>
-                    <span class="status-badge status-placed">Placed</span>
-                </div>
-                
-                <div class="mb-3">
-                    <p class="font-medium text-gray-800">John Smith</p>
-                    <p class="text-sm text-gray-600">john@example.com</p>
-                </div>
-                
-                <div class="flex justify-between items-center mb-3">
-                    <div>
-                        <p class="text-sm text-gray-600">3 items</p>
-                    </div>
-                    <p class="font-bold text-gray-800">$124.99</p>
-                </div>
-                
-                <div class="flex space-x-2">
-                    <button class="view-detail-btn flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium">
-                        View
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-12">
-            <div class="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <i class="fas fa-box-open text-2xl text-gray-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-800 mb-1">No orders found</h3>
-            <p class="text-gray-500">Try adjusting your search or filter criteria</p>
-        </div>
-        
+    <!-- Admin Content -->
+    <div class="container mx-auto px-4 py-6">
         <!-- Loading State -->
         <div id="loadingState" class="text-center py-12">
             <div class="inline-flex items-center justify-center">
-                <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-8 h-8 border-4 border-gray-300 border-t-gray-900 rounded-full loading-spinner"></div>
             </div>
-            <p class="mt-3 text-gray-600">Loading orders...</p>
+            <p class="text-gray-600 mt-3">Loading admin panel...</p>
         </div>
-        
-        <!-- Pagination -->
-        <div class="mt-8 flex justify-center">
-            <div class="inline-flex rounded-md shadow-sm">
-                <button id="prevPage" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div id="pageNumbers" class="flex">
-                    <button class="px-3 py-1 border-t border-b border-gray-300 bg-white text-indigo-600 font-medium">1</button>
-                </div>
-                <button id="nextPage" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-    </main>
 
-    <!-- Order Details Modal -->
-    <div id="orderDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
-                <h3 class="font-bold text-lg">Order Details</h3>
-                <button id="closeOrderDetails" class="text-gray-500">
-                    <i class="fas fa-times"></i>
+        <!-- Unauthorized State -->
+        <div id="unauthorizedState" class="hidden text-center py-12 max-w-md mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-lock text-red-500 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-2 text-gray-800">Admin Access Required</h2>
+                <p class="text-gray-600 mb-6">You must be logged in with an admin account to access this page.</p>
+                <button id="adminLoginBtn" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 w-full flex items-center justify-center">
+                    <i class="fab fa-google mr-2"></i> Login with Admin Account
                 </button>
             </div>
-            
-            <div class="p-4">
-                <div class="mb-6">
-                    <h4 class="font-bold text-gray-800 mb-3">Order Summary</h4>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <p class="text-gray-500">Order ID</p>
-                            <p id="modalOrderId" class="font-medium">#ORD-1842</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Date</p>
-                            <p id="modalOrderDate" class="font-medium">Jun 12, 2023</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Status</p>
-                            <p id="modalOrderStatus" class="status-badge status-placed inline-block">Placed</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Payment</p>
-                            <p id="modalPaymentStatus" class="font-medium">Paid</p>
-                        </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">Orders Management</h1>
+                <div class="filter-bar flex flex-wrap gap-3">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchOrders" placeholder="Search orders..." 
+                               class="search-input w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select id="statusFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 bg-white">
+                        <option value="">All Statuses</option>
+                        <option value="placed">Placed</option>
+                        <option value="processed">Processed</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders Grid -->
+            <div id="ordersGrid" class="order-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                <!-- Orders will be populated here -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white px-4 py-3 rounded-lg shadow-sm flex items-center justify-between border border-gray-100">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p id="paginationInfo" class="text-sm text-gray-700">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Previous</span>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <!-- Page numbers will be inserted here -->
+                            <div id="pageNumbers" class="flex"></div>
+                            <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Next</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
                     </div>
                 </div>
-                
-                <div class="mb-6">
-                    <h4 class="font-bold text-gray-800 mb-3">Customer</h4>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <i class="fas fa-user text-indigo-600"></i>
-                        </div>
-                        <div>
-                            <p id="modalCustomerName" class="font-medium">John Smith</p>
-                            <p id="modalCustomerEmail" class="text-sm text-gray-600">john@example.com</p>
-                        </div>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div id="orderDetailsModal" class="hidden fixed inset-0 z-50">
+            <div class="modal-overlay absolute inset-0"></div>
+            <div class="relative flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+                        <h3 class="text-lg font-bold text-gray-800">Order Details</h3>
+                        <button id="closeOrderDetails" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <p id="modalCustomerPhone" class="text-sm text-gray-600 mt-2">
-                        <i class="fas fa-phone mr-2"></i> +1 (555) 123-4567
-                    </p>
-                </div>
-                
-                <div class="mb-6">
-                    <h4 class="font-bold text-gray-800 mb-3">Shipping Address</h4>
-                    <div id="modalShippingAddress" class="bg-gray-50 p-3 rounded-lg text-sm">
-                        123 Main St, Apt 4B<br>
-                        New York, NY 10001<br>
-                        United States
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <h4 class="font-bold text-gray-800 mb-3">Items (3)</h4>
-                    <div id="modalOrderItems" class="space-y-3">
-                        <div class="flex items-center p-2 rounded-lg bg-gray-50">
-                            <div class="w-12 h-12 bg-gray-200 rounded mr-3"></div>
-                            <div class="flex-1">
-                                <p class="font-medium">Premium T-Shirt</p>
-                                <p class="text-sm text-gray-600">Qty: 1 × $29.99</p>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h4 class="font-bold mb-3 text-gray-700">Order Information</h4>
+                                <div class="space-y-3">
+                                    <p><span class="text-gray-600 text-sm">Order ID:</span> <span id="modalOrderId" class="font-medium block"></span></p>
+                                    <p><span class="text-gray-600 text-sm">Date:</span> <span id="modalOrderDate" class="font-medium block"></span></p>
+                                    <p><span class="text-gray-600 text-sm">Status:</span> <span id="modalOrderStatus" class="status-badge mt-1 block"></span></p>
+                                    <p><span class="text-gray-600 text-sm">Payment:</span> <span id="modalPaymentStatus" class="font-medium block"></span></p>
+                                    <p><span class="text-gray-600 text-sm">Total:</span> <span id="modalOrderTotal" class="font-medium block"></span></p>
+                                </div>
                             </div>
-                            <p class="font-medium">$29.99</p>
+                            <div>
+                                <h4 class="font-bold mb-3 text-gray-700">Customer Information</h4>
+                                <div class="space-y-3">
+                                    <p id="modalCustomerName" class="font-medium"></p>
+                                    <p id="modalCustomerEmail" class="text-gray-600 text-sm"></p>
+                                    <p id="modalCustomerPhone" class="text-gray-600 text-sm"></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-3 border-t">
-                        <div class="flex justify-between py-1">
-                            <span class="text-gray-600">Subtotal</span>
-                            <span id="modalSubtotal" class="font-medium">$89.97</span>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-bold mb-3 text-gray-700">Shipping Address</h4>
+                            <div id="modalShippingAddress" class="bg-gray-50 p-4 rounded-lg text-sm"></div>
                         </div>
-                        <div class="flex justify-between py-1">
-                            <span class="text-gray-600">Shipping</span>
-                            <span id="modalShipping" class="font-medium">$5.00</span>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-bold mb-3 text-gray-700">Order Items</h4>
+                            <div id="modalOrderItems" class="space-y-4"></div>
                         </div>
-                        <div class="flex justify-between py-1">
-                            <span class="text-gray-600">Tax</span>
-                            <span id="modalTax" class="font-medium">$8.00</span>
+                        
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold mb-3 text-gray-700">Update Status</h4>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <select id="statusUpdateSelect" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 bg-white flex-grow">
+                                    <option value="placed">Placed</option>
+                                    <option value="processed">Processed</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="refunded">Refunded</option>
+                                </select>
+                                <button id="updateStatusBtn" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 flex-grow">
+                                    Update Status
+                                </button>
+                                <button id="cancelOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 hidden flex-grow">
+                                    Cancel Order
+                                </button>
+                                <button id="deleteOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex-grow">
+                                    Delete Order
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex justify-between py-2 font-bold text-lg">
-                            <span>Total</span>
-                            <span id="modalCalculatedTotal">$102.97</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="pt-4 border-t">
-                    <h4 class="font-bold text-gray-800 mb-3">Update Status</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <select id="statusUpdateSelect" class="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="placed">Placed</option>
-                            <option value="processed">Processed</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="refunded">Refunded</option>
-                        </select>
-                        <button id="updateStatusBtn" class="btn-primary px-4 py-2 rounded-lg text-white font-medium">
-                            Update
-                        </button>
-                        <button id="deleteOrderBtn" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium">
-                            Delete
-                        </button>
                     </div>
                 </div>
             </div>
@@ -346,12 +265,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg bg-gray-800 text-white text-sm font-medium shadow-lg">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-2"></i>
-            <span id="toastMessage">Status updated successfully</span>
-        </div>
-    </div>
+    <div id="toast" class="hidden fixed bottom-4 right-4 px-5 py-3 rounded-lg shadow-lg text-white bg-gray-900 font-medium text-sm"></div>
 
     <!-- Firebase and other scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -375,6 +289,220 @@
         const db = firebase.firestore();
         const provider = new firebase.auth.GoogleAuthProvider();
     </script>
-    <script src="admin-orders.js"></script>
+    <script>
+        // Sample JavaScript to demonstrate functionality (to be replaced with your actual implementation)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading state after 1.5s (simulate loading)
+            setTimeout(() => {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                
+                // Sample orders data
+                const sampleOrders = [
+                    {
+                        id: 'ORD-12345',
+                        customer: 'John Doe',
+                        date: 'May 15, 2023',
+                        items: 3,
+                        total: '$149.99',
+                        status: 'processed'
+                    },
+                    {
+                        id: 'ORD-12346',
+                        customer: 'Jane Smith',
+                        date: 'May 16, 2023',
+                        items: 1,
+                        total: '$49.99',
+                        status: 'shipped'
+                    },
+                    {
+                        id: 'ORD-12347',
+                        customer: 'Robert Johnson',
+                        date: 'May 17, 2023',
+                        items: 5,
+                        total: '$299.95',
+                        status: 'delivered'
+                    },
+                    {
+                        id: 'ORD-12348',
+                        customer: 'Emily Davis',
+                        date: 'May 18, 2023',
+                        items: 2,
+                        total: '$89.98',
+                        status: 'placed'
+                    },
+                    {
+                        id: 'ORD-12349',
+                        customer: 'Michael Wilson',
+                        date: 'May 19, 2023',
+                        items: 1,
+                        total: '$129.99',
+                        status: 'cancelled'
+                    },
+                    {
+                        id: 'ORD-12350',
+                        customer: 'Sarah Brown',
+                        date: 'May 20, 2023',
+                        items: 4,
+                        total: '$179.96',
+                        status: 'refunded'
+                    }
+                ];
+                
+                // Render sample orders
+                renderOrders(sampleOrders);
+                
+                // Set up event listeners
+                setupEventListeners();
+            }, 1500);
+            
+            function renderOrders(orders) {
+                const ordersGrid = document.getElementById('ordersGrid');
+                ordersGrid.innerHTML = '';
+                
+                orders.forEach(order => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'order-card bg-white';
+                    orderCard.innerHTML = `
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-gray-800">${order.id}</h3>
+                                    <p class="text-sm text-gray-500">${order.date}</p>
+                                </div>
+                                <span class="status-badge status-${order.status}">${order.status}</span>
+                            </div>
+                            <div class="mb-4">
+                                <p class="text-gray-700 mb-1">${order.customer}</p>
+                                <p class="text-sm text-gray-500">${order.items} item${order.items > 1 ? 's' : ''}</p>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">${order.total}</span>
+                                <button class="view-details-btn text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700" data-orderid="${order.id}">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    ordersGrid.appendChild(orderCard);
+                });
+            }
+            
+            function setupEventListeners() {
+                // View details button click
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('view-details-btn')) {
+                        const orderId = e.target.getAttribute('data-orderid');
+                        showOrderDetails(orderId);
+                    }
+                });
+                
+                // Close modal button
+                document.getElementById('closeOrderDetails').addEventListener('click', function() {
+                    document.getElementById('orderDetailsModal').classList.add('hidden');
+                });
+                
+                // Status filter change
+                document.getElementById('statusFilter').addEventListener('change', function() {
+                    // In a real app, this would filter orders
+                    showToast(`Filtered by: ${this.value || 'All statuses'}`);
+                });
+                
+                // Search input
+                document.getElementById('searchOrders').addEventListener('input', function() {
+                    // In a real app, this would search orders
+                    if (this.value.length > 2) {
+                        showToast(`Searching for: ${this.value}`);
+                    }
+                });
+                
+                // Update status button
+                document.getElementById('updateStatusBtn').addEventListener('click', function() {
+                    const newStatus = document.getElementById('statusUpdateSelect').value;
+                    showToast(`Status updated to: ${newStatus}`);
+                });
+                
+                // Delete order button
+                document.getElementById('deleteOrderBtn').addEventListener('click', function() {
+                    showToast('Order deleted successfully', 'error');
+                    document.getElementById('orderDetailsModal').classList.add('hidden');
+                });
+                
+                // Login button
+                document.getElementById('adminLoginBtn').addEventListener('click', function() {
+                    showToast('Redirecting to admin login...');
+                });
+                
+                // Logout button
+                document.getElementById('logoutBtn').addEventListener('click', function() {
+                    showToast('Logged out successfully');
+                });
+            }
+            
+            function showOrderDetails(orderId) {
+                // In a real app, this would fetch order details from Firebase
+                const modal = document.getElementById('orderDetailsModal');
+                
+                // Set sample data
+                document.getElementById('modalOrderId').textContent = orderId;
+                document.getElementById('modalOrderDate').textContent = 'May 15, 2023 at 10:30 AM';
+                document.getElementById('modalCustomerName').textContent = 'John Doe';
+                document.getElementById('modalCustomerEmail').textContent = 'john.doe@example.com';
+                document.getElementById('modalCustomerPhone').textContent = '+1 (555) 123-4567';
+                document.getElementById('modalShippingAddress').textContent = '123 Main St, Apt 4B, New York, NY 10001, United States';
+                document.getElementById('modalOrderTotal').textContent = '$149.99';
+                document.getElementById('modalPaymentStatus').textContent = 'Paid (Credit Card)';
+                
+                // Set status
+                const statusBadge = document.getElementById('modalOrderStatus');
+                statusBadge.className = 'status-badge status-processed';
+                statusBadge.textContent = 'processed';
+                
+                // Set order items
+                const orderItems = document.getElementById('modalOrderItems');
+                orderItems.innerHTML = `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gray-200 rounded-md mr-3"></div>
+                            <div>
+                                <p class="font-medium text-gray-800">Premium T-Shirt</p>
+                                <p class="text-sm text-gray-500">Size: M, Color: Black</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">$49.99</p>
+                            <p class="text-sm text-gray-500">Qty: 1</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gray-200 rounded-md mr-3"></div>
+                            <div>
+                                <p class="font-medium text-gray-800">Classic Jeans</p>
+                                <p class="text-sm text-gray-500">Size: 32/34, Color: Blue</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">$79.99</p>
+                            <p class="text-sm text-gray-500">Qty: 1</p>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            }
+            
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `fixed bottom-4 right-4 px-5 py-3 rounded-lg shadow-lg text-white font-medium text-sm ${type === 'error' ? 'bg-red-600' : 'bg-gray-900'}`;
+                toast.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+        });
+    </script>
 </body>
 </html>
