@@ -1898,34 +1898,62 @@ document.addEventListener('DOMContentLoaded', function() {
         quantityInput.value = value + 1;
     });
     
-// Open cart function
-function openCart() {
-    document.getElementById('cartOverlay').classList.add('active');
-    document.getElementById('cartBackdrop').classList.add('active');
-    updateCartDisplay();
-}
+    // Size guide toggle
+    const sizeGuideBtn = document.getElementById('size-guide-btn');
+    const sizeGuideContainer = document.getElementById('size-guide-container');
 
-// Close cart function
-function closeCart() {
-    document.getElementById('cartOverlay').classList.remove('active');
-    document.getElementById('cartBackdrop').classList.remove('active');
-}
+    sizeGuideBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sizeGuideContainer.classList.toggle('open');
+        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+    });
 
-// Event listeners
-document.getElementById('cartIconNav').addEventListener('click', function(e) {
-    e.preventDefault();
-    openCart();
-});
+    // Input validation
+    quantityInput.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+    });
+    
+    // Share functionality
+    const shareButton = document.querySelector('.share-icon');
+    shareButton.addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.querySelector('h1').textContent,
+                text: "Check out this product from VAMORA.STORE",
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare();
+            });
+        } else {
+            fallbackShare();
+        }
+    });
 
-document.getElementById('closeCartButton').addEventListener('click', function(e) {
-    e.preventDefault();
-    closeCart();
-});
+    function fallbackShare() {
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
+    }
+    
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.nextElementSibling;
+            container.classList.toggle('open');
+            
+            // Toggle the icon rotation
+            const icon = this.querySelector('.icon');
+            if (icon) {
+                icon.classList.toggle('rotate-180');
+            }
+        });
+    });
 
-document.getElementById('cartBackdrop').addEventListener('click', function(e) {
-    e.preventDefault();
-    closeCart();
-});
     // Add to cart button
     document.getElementById('add-to-cart-btn').addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
@@ -1935,7 +1963,7 @@ document.getElementById('cartBackdrop').addEventListener('click', function(e) {
         }
         
         const product = {
-            id: window.location.pathname, // Use URL as product ID
+            id: window.location.pathname,
             title: document.querySelector('h1').textContent,
             size: selectedSize.textContent,
             price: document.querySelector('.details-section .text-2xl.font-bold').textContent,
@@ -1944,71 +1972,7 @@ document.getElementById('cartBackdrop').addEventListener('click', function(e) {
         };
         
         addToCart(product);
-        
-        // Show success feedback
-        const button = this;
-        const originalText = button.textContent;
-        button.textContent = 'ADDED TO CART!';
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
-        
- openCart();
-});
-     // Size guide toggle
-            const sizeGuideBtn = document.getElementById('size-guide-btn');
-            const sizeGuideContainer = document.getElementById('size-guide-container');
-
-            sizeGuideBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                sizeGuideContainer.classList.toggle('open');
-                this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
-            });
-
-            // Input validation
-            quantityInput.addEventListener('change', function() {
-                if (this.value < 1) this.value = 1;
-            });
-            
-            // Share functionality
-            const shareButton = document.querySelector('.share-icon');
-            shareButton.addEventListener('click', function() {
-                if (navigator.share) {
-                    navigator.share({
-                        title: document.querySelector('h1').textContent,
-                        text: "Check out this product from VAMORA.STORE",
-                        url: window.location.href
-                    }).catch(err => {
-                        console.log('Error sharing:', err);
-                        fallbackShare();
-                    });
-                } else {
-                    fallbackShare();
-                }
-            });
-
-            function fallbackShare() {
-                const tempInput = document.createElement('input');
-                tempInput.value = window.location.href;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand('copy');
-                document.body.removeChild(tempInput);
-                alert('Link copied to clipboard!');
-            }
-             // Dropdown functionality
-            document.querySelectorAll('.dropdown-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const container = this.nextElementSibling;
-                    container.classList.toggle('open');
-                    
-                    // Toggle the icon rotation
-                    const icon = this.querySelector('.icon');
-                    if (icon) {
-                        icon.classList.toggle('rotate-180');
-                    }
-                });
-            });
+    });
 
     // Buy now button
     document.getElementById('buy-now-btn').addEventListener('click', function() {
@@ -2037,9 +2001,9 @@ document.getElementById('cartBackdrop').addEventListener('click', function(e) {
             localStorage.setItem('guestCart', JSON.stringify(cart));
         }
         
-        proceedToCheckout();
+        window.location.href = 'checkout.html';
     });
-}); 
+});
 </script>
 </body>
 </html> 
