@@ -27,65 +27,80 @@
     opacity: 0.9;
     transform: translateY(-1px);
 }
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Default: 3 columns */
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.product-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 125.93%; /* Maintain 3:4 aspect ratio */
+    overflow: hidden;
+}
+
+.image-frame img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.image-frame img:last-child {
+    opacity: 0;
+}
+
+.image-frame:hover img:first-child {
+    opacity: 0;
+}
+
+.image-frame:hover img:last-child {
+    opacity: 1;
+}
+
+.product-caption {
+    width: 100%;
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+/* Mobile layout: 2 products per row */
+@media (max-width: 768px) {
     .product-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
-    }
-    
-    .product-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .image-frame {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-    }
-    
-    .image-frame img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: opacity 0.3s ease;
-    }
-    
-    .image-frame img:last-child {
-        opacity: 0;
-    }
-    
-    .image-frame:hover img:first-child {
-        opacity: 0;
-    }
-    
-    .image-frame:hover img:last-child {
-        opacity: 1;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        padding: 0 0.5rem;
     }
     
     .product-caption {
-        padding: 8px 0;
-        text-align: center;
-        font-size: 14px;
-        line-height: 1.4;
+        font-size: 0.6875rem;
     }
-    
-    @media (max-width: 768px) {
-        .product-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
+}
+
+/* Desktop layout: 3 products per row */
+@media (min-width: 769px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
     }
-    
-    @media (max-width: 480px) {
-        .product-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-    }
+}
+
 
 /* Login/Signup Modal */
 #auth-container {
@@ -1764,83 +1779,93 @@
         </div>
         
     <!    <!-- Product Grid -->
-    <div class="product-grid max-w-1400 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-8">
-        <!-- Row 1 -->
-        <!-- Product 1 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 1" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE_.jpg?updatedAt=1748437606226"/>
-                <img alt="Product 1 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE.jpg"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>ONE.EYE</div>
-                <div>₹378.00</div>
-            </div>
+<div class="product-grid max-w-1400 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-8">
+            <!-- Row 1 -->
+<!-- Product 1 -->
+<a href="product-one.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 1" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE_.jpg?updatedAt=1748437606226"/>
+            <img alt="Product 1 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE.jpg"/>
         </div>
-        
-        <!-- Product 2 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 2" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO_.jpg?updatedAt=1748437607881"/>
-                <img alt="Product 2 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO.jpg?updatedAt=1748437606028"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>BRO.GO</div>
-                <div>₹378.00</div>
-            </div>
-        </div>
-        
-      <!-- Product 3 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 3" class="object-cover" src="https://via.placeholder.com/300x400"/>
-                <img alt="Product 3 Alternate" class="object-cover" src="https://via.placeholder.com/300x400?text=Alternate"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>NEW.PRODUCT</div>
-                <div>₹499.00</div>
-            </div>
-        </div>
-        
-        <!-- Row 2 -->
-        
-           <!-- Product 4 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 4" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q2.jpg?updatedAt=1748439166255"/>
-                <img alt="Product 4 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q1.jpg?updatedAt=1748439165304"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>EPISTLE RAP</div>
-                <div>₹589.00</div>
-            </div>
-        </div>
-        
-        <!-- Product 5 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 5" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q10.jpg?updatedAt=1748439166881"/>
-                <img alt="Product 5 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q5.jpg?updatedAt=1748439165793"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>HOKKAIDO.</div>
-                <div>₹589.00</div>
-            </div>
-        </div>
-        
-        <!-- Product 6 -->
-        <div class="product-item">
-            <div class="image-frame aspect-[3/4]">
-                <img alt="Product 6" class="object-cover" src="https://via.placeholder.com/300x400"/>
-                <img alt="Product 6 Alternate" class="object-cover" src="https://via.placeholder.com/300x400?text=Alternate"/>
-            </div>
-            <div class="product-caption mt-3">
-                <div>ANOTHER.PRODUCT</div>
-                <div>₹599.00</div>
-            </div>
+        <div class="product-caption mt-3">
+            <div>ONE.EYE</div>
+            <div>₹378.00</div>
         </div>
     </div>
-</div>
+</a>
+
+<!-- Product 2 -->
+<a href="product-bro.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 2" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO_.jpg?updatedAt=1748437607881"/>
+            <img alt="Product 2 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO.jpg?updatedAt=1748437606028"/>
+        </div>
+        <div class="product-caption mt-3">
+            <div>BRO.GO</div>
+            <div>₹378.00</div>
+        </div>
+    </div>
+</a>
+
+<!-- Product 3 -->
+<a href="product-apex.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 3" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v6.jpg?updatedAt=1748937396133"/>
+            <img alt="Product 3 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v5.jpg?updatedAt=1748937396119"/>
+        </div>
+        <div class="product-caption mt-3">
+            <div>APEX.</div>
+            <div>₹399.00</div>
+        </div>
+    </div>
+</a>
+
+<!-- Product 4 -->
+<a href="product-epistle.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 4" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q2.jpg?updatedAt=1748439166255"/>
+            <img alt="Product 4 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q1.jpg?updatedAt=1748439165304"/>
+        </div>
+        <div class="product-caption mt-3">
+            <div>EPISTLE RAP</div>
+            <div>₹589.00</div>
+        </div>
+    </div>
+</a>
+
+<!-- Product 5 -->
+<a href="product-hokkaido.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 5" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q10.jpg?updatedAt=1748439166881"/>
+            <img alt="Product 5 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q5.jpg?updatedAt=1748439165793"/>
+        </div>
+        <div class="product-caption mt-3">
+            <div>HOKKAIDO.</div>
+            <div>₹589.00</div>
+        </div>
+    </div>
+</a>
+
+<!-- Product 6 -->
+<a href="product-luffy.html" class="block">
+    <div class="product-item">
+        <div class="image-frame aspect-[3/4]">
+            <img alt="Product 6" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v3.jpg?updatedAt=1748937396157"/>
+            <img alt="Product 6 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v1.jpg?updatedAt=1748937396224"/>
+        </div>
+        <div class="product-caption mt-3">
+            <div>LUFFY.</div>
+            <div>₹399.00</div>
+        </div>
+    </div>
+</a>
+    </div>
+
         <!-- DE.ORIGIN Product Page -->
         <div class="curly-frame-container">
             <div class="frame-content">
