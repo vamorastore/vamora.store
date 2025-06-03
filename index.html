@@ -2005,11 +2005,7 @@
 <script src="yes.js"></script>
 
 <script>
-// Product Page Script
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart from localStorage or empty array
-    let cart = JSON.parse(localStorage.getItem('guestCart')) || [];
-    
     // Size buttons selection
     const sizeButtons = document.querySelectorAll('.size-button');
     sizeButtons.forEach(button => {
@@ -2083,7 +2079,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (viewMoreLink) {
         viewMoreLink.addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = 'p4.html'; // Change to your product details page
+            window.location.href = 'p4.html';
         });
     }
 
@@ -2101,7 +2097,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productImage = document.querySelector('.main-image').src;
         
         const product = {
-            id: window.location.pathname, // Consistent ID generation with second script
+            id: window.location.pathname,
             title: productTitle,
             size: selectedSize.textContent,
             price: productPrice,
@@ -2109,36 +2105,10 @@ document.addEventListener('DOMContentLoaded', function() {
             image: productImage
         };
      
-        // Check if item already exists in cart with same size
-        const existingItemIndex = cart.findIndex(item => 
-            item.id === product.id && item.size === product.size
-        );
-        
-        if (existingItemIndex !== -1) {
-            // Update quantity if item already exists
-            cart[existingItemIndex].quantity += product.quantity;
-        } else {
-            // Add new item to cart
-            cart.push(product);
-        }
-        
-        // Save to Firebase if user is logged in, otherwise to localStorage
-        const user = firebase.auth().currentUser;
-        if (user) {
-            saveCartToFirestore(user.uid, cart).then(() => {
-                updateCartCount();
-                showAddToCartSuccess();
-                openCartAndRenderItems(); // Open cart after adding item
-            });
-        } else {
-            localStorage.setItem('guestCart', JSON.stringify(cart)); // Consistent key with second script
-            updateCartCount();
-            showAddToCartSuccess();
-            openCartAndRenderItems(); // Open cart after adding item
-        }
+        addToCart(product);
     });
 
-    // Buy Now functionality (modified to skip cart count update)
+    // Buy Now functionality
     document.getElementById('buy-now-btn').addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
         if (!selectedSize) {
@@ -2151,9 +2121,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const productTitle = document.querySelector('h8').textContent;
         const productImage = document.querySelector('.main-image').src;
         
-        // Create a temporary cart for buy now flow
-        const tempCart = [{
-            id: window.location.pathname, // Consistent ID generation
+        // Replace cart with just this item
+        cart = [{
+            id: window.location.pathname,
             title: productTitle,
             size: selectedSize.textContent,
             price: productPrice,
@@ -2161,193 +2131,6 @@ document.addEventListener('DOMContentLoaded', function() {
             image: productImage
         }];
         
-        // Save to Firebase if user is logged in, otherwise to localStorage
-        const user = firebase.auth().currentUser;
-        if (user) {
-            // Save temporary cart without updating the main cart
-            firebase.firestore().collection("carts").doc(user.uid).set({
-                items: tempCart,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                window.location.href = 'checkout.html';
-            }).catch(error => {
-                console.error("Error saving temp cart:", error);
-                // Fallback to localStorage with consistent key
-                localStorage.setItem('guestTempCart', JSON.stringify(tempCart));
-                window.location.href = 'checkout.html';
-            });
-        } else {
-            // Use a separate key for temporary buy now cart
-            localStorage.setItem('guestTempCart', JSON.stringify(tempCart));
-            window.location.href = 'checkout.html';
-        }
-    });
-
-    // Update cart count in navbar
-    function updateCartCount() {
-        const cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-            cartCountElement.textContent = totalItems;
-            cartCountElement.classList.toggle('hidden', totalItems === 0);
-        }
-    }
-
-    // Show success message when adding to cart
-    function showAddToCartSuccess() {
-        const button = document.getElementById('add-to-cart-btn');
-        const originalText = button.textContent;
-        
-        button.textContent = 'ADDED TO CART!';
-
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.style.backgroundColor = '';
-        }, 2000);
-    }
-
-    // Function to open cart and render items
-    function openCartAndRenderItems() {
-        // Open the cart overlay
-        document.getElementById('cartOverlay').classList.add('active');
-        document.getElementById('cartBackdrop').classList.add('active');
-        
-        // Render the cart items
-        renderCartItems();
-    }
-
-    // Function to render cart items in the overlay
-    function renderCartItems() {
-        const cartList = document.getElementById('cartList');
-        if (!cartList) return;
-        
-        cartList.innerHTML = '';
-        
-        if (cart.length === 0) {
-            cartList.innerHTML = `
-                <div class="text-center py-12">
-                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500">Your cart is empty</p>
-                </div>
-            `;
-            document.getElementById('cartTotal').textContent = '₹ 0.00';
-            return;
-        }
-        
-        let subtotal = 0;
-        
-        cart.forEach((item, index) => {
-            const priceValue = parseFloat(item.price.replace(/[^\d.]/g, ''));
-            const itemTotal = priceValue * item.quantity;
-            subtotal += itemTotal;
-            
-            const cartItem = document.createElement('div');
-            cartItem.className = 'cart-item';
-            cartItem.innerHTML = `
-                <div class="flex items-center">
-                    <img src="${item.image}" alt="${item.title}" class="cart-item-image">
-                    <div class="cart-item-details">
-                        <p class="font-medium">${item.title}</p>
-                        <p class="text-sm text-gray-500">Size: ${item.size}</p>
-                        <div class="flex items-center mt-1">
-                            <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, -1)">-</button>
-                            <span class="mx-2">${item.quantity}</span>
-                            <button class="quantity-button px-2 py-1 text-gray-500" onclick="updateQuantity(${index}, 1)">+</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <span class="cart-item-price">${item.price}</span>
-                    <button class="cart-item-remove" onclick="removeFromCart(${index}, event)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            cartList.appendChild(cartItem);
-        });
-        
-        document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
-    }
-
-    // Save cart to Firestore
-    async function saveCartToFirestore(userId, cartItems) {
-        try {
-            await firebase.firestore().collection("carts").doc(userId).set({
-                items: cartItems,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (error) {
-            console.error("Error saving cart:", error);
-            // Fallback to localStorage with consistent key
-            localStorage.setItem('guestCart', JSON.stringify(cartItems));
-        }
-    }
-
-    // Initialize cart count on page load
-    updateCartCount();
-
-    // Listen for auth state changes to sync cart
-    firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-            // User is signed in - merge localStorage cart with Firestore cart
-            try {
-                const doc = await firebase.firestore().collection("carts").doc(user.uid).get();
-                const firestoreCart = doc.exists ? doc.data().items : [];
-                
-                // Get current guest cart
-                const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
-                
-                // Merge carts (Firestore cart takes precedence)
-                const mergedCart = mergeCarts(firestoreCart, guestCart);
-                cart = mergedCart;
-                
-                // Save merged cart to Firestore
-                await saveCartToFirestore(user.uid, mergedCart);
-                
-                // Clear localStorage cart
-                localStorage.removeItem('guestCart');
-                
-                // Update UI
-                updateCartCount();
-                if (document.getElementById('cartOverlay').classList.contains('active')) {
-                    renderCartItems();
-                }
-            } catch (error) {
-                console.error("Error syncing carts:", error);
-            }
-        } else {
-            // User is signed out - load from localStorage
-            cart = JSON.parse(localStorage.getItem('guestCart')) || [];
-            updateCartCount();
-        }
-    });
-
-    // Helper function to merge carts
-    function mergeCarts(firestoreCart, localCart) {
-        const merged = [...firestoreCart];
-        
-        localCart.forEach(localItem => {
-            const existingItem = merged.find(item => 
-                item.id === localItem.id && item.size === localItem.size
-            );
-            
-            if (existingItem) {
-                existingItem.quantity += localItem.quantity;
-            } else {
-                merged.push(localItem);
-            }
-        });
-        
-        return merged;
-    }
-
-    // Add global functions for cart operations
-    window.updateQuantity = function(index, change) {
-        const newQuantity = cart[index].quantity + change;
-        if (newQuantity < 1) return;
-        
-        cart[index].quantity = newQuantity;
-        
         const user = firebase.auth().currentUser;
         if (user) {
             saveCartToFirestore(user.uid, cart);
@@ -2355,67 +2138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('guestCart', JSON.stringify(cart));
         }
         
-        updateCartCount();
-        renderCartItems();
-    };
-
-    window.removeFromCart = function(index, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        cart.splice(index, 1);
-        
-        const user = firebase.auth().currentUser;
-        if (user) {
-            saveCartToFirestore(user.uid, cart);
-        } else {
-            localStorage.setItem('guestCart', JSON.stringify(cart));
-        }
-        
-        updateCartCount();
-        renderCartItems();
-    };
-
-    window.proceedToCheckout = function() {
-        const user = firebase.auth().currentUser;
-        
-        if (!user) {
-            // Show auth modal if not logged in
-            document.getElementById('auth-container').classList.add('active');
-            document.body.classList.add('overflow-hidden');
-            return;
-        }
-
         window.location.href = 'checkout.html';
-    };
-
-    // Open cart function
-    window.openCart = function() {
-        document.getElementById('cartOverlay').classList.add('active');
-        document.getElementById('cartBackdrop').classList.add('active');
-        renderCartItems();
-    };
-
-    // Close cart function
-    window.closeCart = function() {
-        document.getElementById('cartOverlay').classList.remove('active');
-        document.getElementById('cartBackdrop').classList.remove('active');
-    };
-
-    // Event listeners for cart buttons
-    document.getElementById('cartIconNav').addEventListener('click', function(e) {
-        e.preventDefault();
-        openCart();
-    });
-
-    document.getElementById('closeCartButton').addEventListener('click', function(e) {
-        e.preventDefault();
-        closeCart();
-    });
-
-    document.getElementById('cartBackdrop').addEventListener('click', function(e) {
-        e.preventDefault();
-        closeCart();
     });
 });
 </script>
