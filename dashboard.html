@@ -398,7 +398,6 @@
             justify-content: center;
             align-items: center;
             z-index: 3000;
-            display: none;
         }
         
         .login-box {
@@ -407,6 +406,7 @@
             border-radius: 8px;
             width: 350px;
             max-width: 90%;
+            text-align: center;
         }
         
         .login-box h2 {
@@ -415,31 +415,48 @@
             font-weight: 400;
         }
         
-        .login-box input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Unbounded', sans-serif;
+        .auth-providers {
+            margin-top: 20px;
         }
         
-        .login-box button {
+        .auth-provider-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 300;
+            border: 1px solid #ddd;
+            background: white;
             width: 100%;
-            padding: 10px;
-            background: black;
+        }
+        
+        .auth-provider-btn.google {
+            background: #4285F4;
+            color: white;
+            border-color: #4285F4;
+        }
+        
+        .auth-provider-btn i {
+            margin-right: 8px;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background: #ff4444;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Unbounded', sans-serif;
-        }
-        
-        .login-error {
-            color: #ff4444;
-            font-size: 0.8rem;
-            margin-top: 10px;
-            display: none;
+            font-weight: 300;
+            z-index: 1000;
         }
         
         @media (max-width: 768px) {
@@ -498,10 +515,11 @@
     <div class="login-container" id="login-container">
         <div class="login-box">
             <h2>Admin Login</h2>
-            <input type="email" id="admin-email" placeholder="Admin Email">
-            <input type="password" id="admin-password" placeholder="Password">
-            <button id="admin-login-btn">Login</button>
-            <div class="login-error" id="login-error"></div>
+            <div class="auth-providers">
+                <button class="auth-provider-btn google" id="google-signin">
+                    <i class="fab fa-google"></i> Sign in with Google
+                </button>
+            </div>
         </div>
     </div>
     
@@ -531,10 +549,11 @@
             // Check if user is already logged in
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    currentUser = user;
+                    // User is signed in
                     document.getElementById('login-container').style.display = 'none';
-                    loadAllOrders();
+                    checkAdminStatus(user);
                 } else {
+                    // No user is signed in
                     document.getElementById('login-container').style.display = 'flex';
                 }
             });
@@ -544,30 +563,68 @@
             document.getElementById('status-filter').addEventListener('change', applyFilters);
             document.getElementById('search-orders').addEventListener('input', applyFilters);
             document.getElementById('clear-all-orders').addEventListener('click', confirmClearAllOrders);
-            document.getElementById('admin-login-btn').addEventListener('click', adminLogin);
+            document.getElementById('google-signin').addEventListener('click', signInWithGoogle);
             
             // Confirm dialog buttons
             document.getElementById('confirm-yes').addEventListener('click', deleteConfirmedItem);
             document.getElementById('confirm-no').addEventListener('click', hideConfirmDialog);
         });
         
-        function adminLogin() {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
-            const errorElement = document.getElementById('login-error');
+        function checkAdminStatus(user) {
+            // Check if user is admin (either specific email or in admins collection)
+            const adminEmail = 'vamora.co.in@gmail.com';
             
-            errorElement.style.display = 'none';
+            if (user.email === adminEmail) {
+                // Special admin email
+                currentUser = user;
+                setupAdminUI();
+                return;
+            }
             
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Check if user is admin (you should implement proper admin verification)
-                    currentUser = userCredential.user;
-                    document.getElementById('login-container').style.display = 'none';
-                    loadAllOrders();
+            // Check admins collection
+            db.collection('admins').doc(user.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        currentUser = user;
+                        setupAdminUI();
+                    } else {
+                        showNotification('You are not authorized as an admin', 'error');
+                        auth.signOut();
+                    }
                 })
-                .catch((error) => {
-                    errorElement.textContent = error.message;
-                    errorElement.style.display = 'block';
+                .catch(error => {
+                    showNotification('Error checking admin status: ' + error.message, 'error');
+                    auth.signOut();
+                });
+        }
+        
+        function setupAdminUI() {
+            document.getElementById('login-container').style.display = 'none';
+            loadAllOrders();
+            
+            // Add logout button
+            const existingLogoutBtn = document.querySelector('.logout-btn');
+            if (!existingLogoutBtn) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'logout-btn';
+                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                logoutBtn.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        window.location.reload();
+                    });
+                });
+                document.body.appendChild(logoutBtn);
+            }
+        }
+        
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    // This will trigger the authStateChanged listener
+                })
+                .catch(error => {
+                    showNotification('Error signing in: ' + error.message, 'error');
                 });
         }
         
@@ -586,11 +643,26 @@
                     allOrders = [];
                     querySnapshot.forEach((doc) => {
                         const orderData = doc.data();
-                        allOrders.push({
+                        // Ensure all required fields exist
+                        const completeOrder = {
                             id: doc.id,
-                            ...orderData,
-                            date: orderData.timestamp?.toDate() || new Date()
-                        });
+                            orderId: orderData.orderId || doc.id,
+                            email: orderData.email || 'no-email@example.com',
+                            status: orderData.status || 'placed',
+                            timestamp: orderData.timestamp || firebase.firestore.Timestamp.now(),
+                            date: (orderData.timestamp?.toDate() || new Date()),
+                            shippingAddress: orderData.shippingAddress || {
+                                name: 'Unknown',
+                                address: 'Unknown',
+                                city: 'Unknown',
+                                state: 'Unknown',
+                                postalCode: 'Unknown',
+                                country: 'Unknown'
+                            },
+                            items: orderData.items || []
+                        };
+                        
+                        allOrders.push(completeOrder);
                     });
                     renderOrders(allOrders);
                     showLoading(false);
@@ -615,9 +687,9 @@
             
             if (searchQuery) {
                 filteredOrders = filteredOrders.filter(order => 
-                    order.orderId.toLowerCase().includes(searchQuery) ||
-                    (order.shippingAddress?.name?.toLowerCase().includes(searchQuery)) ||
-                    order.email.toLowerCase().includes(searchQuery)
+                    (order.orderId && order.orderId.toLowerCase().includes(searchQuery)) ||
+                    (order.shippingAddress?.name && order.shippingAddress.name.toLowerCase().includes(searchQuery)) ||
+                    (order.email && order.email.toLowerCase().includes(searchQuery))
                 );
             }
             
@@ -642,7 +714,13 @@
             
             orders.forEach(order => {
                 const total = order.items.reduce((sum, item) => {
-                    const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
+                    // Handle different price formats
+                    let price = 0;
+                    if (typeof item.price === 'string') {
+                        price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+                    } else if (typeof item.price === 'number') {
+                        price = item.price;
+                    }
                     return sum + (price * (item.quantity || 1));
                 }, 0);
                 
@@ -663,23 +741,23 @@
                     </button>
                     
                     <div class="order-header">
-                        <div class="order-id">#${order.orderId || order.id}</div>
+                        <div class="order-id">#${order.orderId}</div>
                         <div class="order-date">${formattedDate}</div>
                     </div>
                     
                     <div class="customer-info">
-                        <div class="customer-name">${order.shippingAddress?.name || 'No name'}</div>
+                        <div class="customer-name">${order.shippingAddress.name}</div>
                         <div class="customer-email">${order.email}</div>
                     </div>
                     
                     <div class="shipping-address">
-                        <p><strong>Address:</strong> ${order.shippingAddress?.address || 'N/A'}</p>
-                        ${order.shippingAddress?.apartment ? `<p><strong>Apt/Suite:</strong> ${order.shippingAddress.apartment}</p>` : ''}
-                        <p><strong>City:</strong> ${order.shippingAddress?.city || 'N/A'}</p>
-                        <p><strong>State:</strong> ${order.shippingAddress?.state || 'N/A'}</p>
-                        <p><strong>Postal Code:</strong> ${order.shippingAddress?.postalCode || 'N/A'}</p>
-                        <p><strong>Country:</strong> ${order.shippingAddress?.country || 'N/A'}</p>
-                        ${order.shippingAddress?.phone ? `<p><strong>Phone:</strong> ${order.shippingAddress.phone}</p>` : ''}
+                        <p><strong>Address:</strong> ${order.shippingAddress.address}</p>
+                        ${order.shippingAddress.apartment ? `<p><strong>Apt/Suite:</strong> ${order.shippingAddress.apartment}</p>` : ''}
+                        <p><strong>City:</strong> ${order.shippingAddress.city}</p>
+                        <p><strong>State:</strong> ${order.shippingAddress.state}</p>
+                        <p><strong>Postal Code:</strong> ${order.shippingAddress.postalCode}</p>
+                        <p><strong>Country:</strong> ${order.shippingAddress.country}</p>
+                        ${order.shippingAddress.phone ? `<p><strong>Phone:</strong> ${order.shippingAddress.phone}</p>` : ''}
                     </div>
                     
                     <div class="order-items">
@@ -694,7 +772,7 @@
                                     <div class="item-variants">
                                         <span>Size: ${item.size || '-'}</span>
                                         <span>Qty: ${item.quantity || 1}</span>
-                                        <span>₹${((parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0).toFixed(2)}</span>
+                                        <span>₹${((parseFloat((item.price || '₹0').toString().replace(/[^0-9.]/g, '')) || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -829,7 +907,8 @@
                         return db.collection("orders").doc(orderId).delete();
                     } else {
                         return db.collection("orders").doc(orderId).update({
-                            items: updatedItems
+                            items: updatedItems,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
                 })
@@ -845,11 +924,6 @@
         }
         
         function clearAllOrders() {
-            // This is a dangerous operation - in production, you might want to:
-            // 1. Archive orders instead of deleting
-            // 2. Implement proper admin permissions
-            // 3. Add confirmation with password
-            
             // Get all orders and delete them one by one
             db.collection("orders").get()
                 .then((querySnapshot) => {
@@ -876,7 +950,8 @@
             
             try {
                 await db.collection("orders").doc(orderId).update({
-                    status: newStatus
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 // Update the status badge immediately
@@ -894,7 +969,14 @@
         
         function formatStatus(status) {
             if (!status) return 'Order Placed';
-            return status.charAt(0).toUpperCase() + status.slice(1);
+            const statusMap = {
+                'placed': 'Order Placed',
+                'processed': 'Processing',
+                'shipped': 'Shipped',
+                'delivered': 'Delivered',
+                'cancelled': 'Cancelled'
+            };
+            return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
         }
         
         function showNotification(message, type = 'success') {
