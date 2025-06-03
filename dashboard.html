@@ -5,48 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Orders - VAMORA.STORE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #111827;
+            --secondary: #1F2937;
+            --accent: #3B82F6;
+            --light-bg: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+        }
+        
         .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 1rem;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.025em;
         }
-        .status-placed { background-color: #EFF6FF; color: #1D4ED8; }
-        .status-processed { background-color: #FEF3C7; color: #92400E; }
-        .status-shipped { background-color: #EDE9FE; color: #5B21B6; }
-        .status-delivered { background-color: #D1FAE5; color: #065F46; }
-        .status-cancelled { background-color: #FEE2E2; color: #991B1B; }
-        .status-refunded { background-color: #ECFDF5; color: #047857; }
+        
+        .status-placed { background-color: #EFF6FF; color: #1D4ED8; border-left: 3px solid #1D4ED8; }
+        .status-processed { background-color: #FEF3C7; color: #92400E; border-left: 3px solid #92400E; }
+        .status-shipped { background-color: #EDE9FE; color: #5B21B6; border-left: 3px solid #5B21B6; }
+        .status-delivered { background-color: #D1FAE5; color: #065F46; border-left: 3px solid #065F46; }
+        .status-cancelled { background-color: #FEE2E2; color: #991B1B; border-left: 3px solid #991B1B; }
+        .status-refunded { background-color: #ECFDF5; color: #047857; border-left: 3px solid #047857; }
         
         .loading-spinner {
             animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
         
         .order-row:hover {
-            background-color: #F9FAFB;
+            background-color: rgba(59, 130, 246, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background-color: #EF4444;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-danger:hover {
+            background-color: #DC2626;
+            transform: translateY(-1px);
+        }
+        
+        .nav-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .input-field {
+            transition: all 0.2s ease;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .input-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .select-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+        }
+        
+        .pagination-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover:not(.disabled) {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+        }
+        
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .active-page {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            animation: modalEnter 0.3s ease-out;
+        }
+        
+        @keyframes modalEnter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .toast {
+            animation: toastEnter 0.3s ease-out, toastExit 0.3s ease-in 2.7s forwards;
+        }
+        
+        @keyframes toastEnter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes toastExit {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+        
+        .item-card {
+            transition: all 0.2s ease;
+        }
+        
+        .item-card:hover {
+            background-color: rgba(59, 130, 246, 0.03);
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-screen">
     <!-- Admin Navbar -->
-    <nav class="bg-black text-white p-4 shadow-md">
+    <nav class="nav-gradient text-white p-4 shadow-md sticky top-0 z-40">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <a href="/" class="text-xl font-bold">VAMORA.STORE</a>
-                <span class="text-sm bg-yellow-500 text-black px-2 py-1 rounded">ADMIN</span>
+                <a href="/" class="text-xl font-bold flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    VAMORA.STORE
+                </a>
+                <span class="text-xs bg-yellow-400 text-gray-900 px-2 py-1 rounded-full font-bold uppercase tracking-wide">Admin</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="logoutBtn" class="text-sm hover:text-gray-300">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            <div class="flex items-center space-x-6">
+                <button id="logoutBtn" class="flex items-center text-sm hover:text-gray-300 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </button>
+                <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white font-medium">
+                    <i class="fas fa-user"></i>
+                </div>
             </div>
         </div>
     </nav>
@@ -54,32 +215,39 @@
     <!-- Admin Content -->
     <div class="container mx-auto px-4 py-8">
         <!-- Loading State -->
-        <div id="loadingState" class="text-center py-12">
-            <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-4"></i>
-            <p class="text-gray-600">Loading admin panel...</p>
+        <div id="loadingState" class="text-center py-16">
+            <div class="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-lg">
+                <i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i>
+            </div>
+            <p class="mt-4 text-gray-600 font-medium">Loading admin panel...</p>
         </div>
 
         <!-- Unauthorized State -->
-        <div id="unauthorizedState" class="hidden text-center py-12">
-            <i class="fas fa-lock text-4xl text-red-500 mb-4"></i>
-            <h2 class="text-2xl font-bold mb-2">Admin Access Required</h2>
+        <div id="unauthorizedState" class="hidden text-center py-16 max-w-md mx-auto">
+            <div class="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-lg mb-4">
+                <i class="fas fa-lock text-3xl text-red-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">Admin Access Required</h2>
             <p class="text-gray-600 mb-6">You must be logged in with an admin account to access this page.</p>
-            <button id="adminLoginBtn" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
-                <i class="fab fa-google mr-2"></i> Login with Admin Account
+            <button id="adminLoginBtn" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all flex items-center justify-center mx-auto shadow-md hover:shadow-lg">
+                <i class="fab fa-google mr-3"></i> Login with Admin Account
             </button>
         </div>
 
         <!-- Admin Dashboard -->
         <div id="adminDashboard" class="hidden">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl font-bold">Orders Management</h1>
-                <div class="flex space-x-4">
-                    <div class="relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Orders Management</h1>
+                    <p class="text-gray-600">View and manage customer orders</p>
+                </div>
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
+                    <div class="relative flex-1">
                         <input type="text" id="searchOrders" placeholder="Search orders..." 
-                               class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
-                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                               class="input-field w-full pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     </div>
-                    <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+                    <select id="statusFilter" class="select-field input-field px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All Statuses</option>
                         <option value="placed">Placed</option>
                         <option value="processed">Processed</option>
@@ -92,7 +260,7 @@
             </div>
 
             <!-- Orders Table -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="card overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -110,6 +278,15 @@
                             <!-- Orders will be populated here -->
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden p-12 text-center">
+                    <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-box-open text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">No orders found</h3>
+                    <p class="text-gray-500">Try adjusting your search or filter criteria</p>
                 </div>
                 
                 <!-- Pagination -->
@@ -130,13 +307,13 @@
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <button id="prevPage" class="pagination-btn relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:text-blue-600">
                                     <span class="sr-only">Previous</span>
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
                                 <!-- Page numbers will be inserted here -->
                                 <div id="pageNumbers" class="flex"></div>
-                                <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <button id="nextPage" class="pagination-btn relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:text-blue-600">
                                     <span class="sr-only">Next</span>
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
@@ -148,50 +325,95 @@
         </div>
 
         <!-- Order Details Modal -->
-        <div id="orderDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b p-4">
-                    <h3 class="text-lg font-bold">Order Details</h3>
-                    <button id="closeOrderDetails" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
+        <div id="orderDetailsModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+            <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-6 sticky top-0 bg-white z-10">
+                    <h3 class="text-xl font-bold text-gray-800">Order Details</h3>
+                    <button id="closeOrderDetails" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                <div class="p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <h4 class="font-bold mb-2">Order Information</h4>
-                            <div class="space-y-2">
-                                <p><span class="text-gray-600">Order ID:</span> <span id="modalOrderId" class="font-medium"></span></p>
-                                <p><span class="text-gray-600">Date:</span> <span id="modalOrderDate" class="font-medium"></span></p>
-                                <p><span class="text-gray-600">Status:</span> <span id="modalOrderStatus" class="status-badge"></span></p>
-                                <p><span class="text-gray-600">Payment:</span> <span id="modalPaymentStatus" class="font-medium"></span></p>
-                                <p><span class="text-gray-600">Total:</span> <span id="modalOrderTotal" class="font-medium"></span></p>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="card p-5">
+                            <h4 class="font-bold mb-4 text-lg text-gray-800 border-b pb-2">Order Information</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Order ID:</span>
+                                    <span id="modalOrderId" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date:</span>
+                                    <span id="modalOrderDate" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Status:</span>
+                                    <span id="modalOrderStatus" class="status-badge"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Payment:</span>
+                                    <span id="modalPaymentStatus" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Total:</span>
+                                    <span id="modalOrderTotal" class="font-medium text-gray-800"></span>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <h4 class="font-bold mb-2">Customer Information</h4>
-                            <div class="space-y-2">
-                                <p id="modalCustomerName" class="font-medium"></p>
-                                <p id="modalCustomerEmail"></p>
-                                <p id="modalCustomerPhone"></p>
+                        <div class="card p-5">
+                            <h4 class="font-bold mb-4 text-lg text-gray-800 border-b pb-2">Customer Information</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <p id="modalCustomerName" class="font-medium text-gray-800"></p>
+                                        <p id="modalCustomerEmail" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 text-gray-600">
+                                    <i class="fas fa-phone"></i>
+                                    <p id="modalCustomerPhone"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="mb-6">
-                        <h4 class="font-bold mb-2">Shipping Address</h4>
-                        <div id="modalShippingAddress" class="bg-gray-50 p-3 rounded"></div>
+                    <div class="card p-5 mb-8">
+                        <h4 class="font-bold mb-4 text-lg text-gray-800 border-b pb-2">Shipping Address</h4>
+                        <div id="modalShippingAddress" class="text-gray-700 space-y-1"></div>
                     </div>
                     
-                    <div class="mb-6">
-                        <h4 class="font-bold mb-2">Items</h4>
-                        <div id="modalOrderItems" class="space-y-3"></div>
+                    <div class="card p-5 mb-8">
+                        <h4 class="font-bold mb-4 text-lg text-gray-800 border-b pb-2">Order Items</h4>
+                        <div id="modalOrderItems" class="space-y-4"></div>
+                        <div class="border-t mt-4 pt-4 flex justify-end">
+                            <div class="text-right space-y-2">
+                                <div class="flex justify-between w-64">
+                                    <span class="text-gray-600">Subtotal:</span>
+                                    <span id="modalSubtotal" class="font-medium"></span>
+                                </div>
+                                <div class="flex justify-between w-64">
+                                    <span class="text-gray-600">Shipping:</span>
+                                    <span id="modalShipping" class="font-medium"></span>
+                                </div>
+                                <div class="flex justify-between w-64">
+                                    <span class="text-gray-600">Tax:</span>
+                                    <span id="modalTax" class="font-medium"></span>
+                                </div>
+                                <div class="flex justify-between w-64 font-bold text-lg text-gray-900 pt-2">
+                                    <span>Total:</span>
+                                    <span id="modalCalculatedTotal"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="border-t pt-4">
-                        <h4 class="font-bold mb-2">Update Status</h4>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <select id="statusUpdateSelect" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+                    <div class="card p-5">
+                        <h4 class="font-bold mb-4 text-lg text-gray-800 border-b pb-2">Order Actions</h4>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <select id="statusUpdateSelect" class="select-field input-field px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-[180px]">
                                 <option value="placed">Placed</option>
                                 <option value="processed">Processed</option>
                                 <option value="shipped">Shipped</option>
@@ -199,13 +421,13 @@
                                 <option value="cancelled">Cancelled</option>
                                 <option value="refunded">Refunded</option>
                             </select>
-                            <button id="updateStatusBtn" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                            <button id="updateStatusBtn" class="btn-primary px-6 py-2 rounded-lg shadow hover:shadow-md">
                                 Update Status
                             </button>
-                            <button id="cancelOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 hidden">
+                            <button id="cancelOrderBtn" class="btn-danger px-6 py-2 rounded-lg shadow hover:shadow-md hidden">
                                 Cancel Order
                             </button>
-                            <button id="deleteOrderBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                            <button id="deleteOrderBtn" class="btn-danger px-6 py-2 rounded-lg shadow hover:shadow-md">
                                 Delete Order
                             </button>
                         </div>
@@ -216,7 +438,10 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white bg-green-500"></div>
+    <div id="toast" class="hidden fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg text-white font-medium flex items-center">
+        <i class="fas fa-check-circle mr-3"></i>
+        <span id="toastMessage"></span>
+    </div>
 
     <!-- Firebase and other scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
