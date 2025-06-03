@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout.</title>
@@ -2105,11 +2106,13 @@
                             LOG IN
                         </button>
                     </div>
-                    <div class="form-group">
-    <label for="email" class="form-label required-field">Email</label>
-<input type="email" id="email" class="form-input bg-gray-100" placeholder="your@email.com" disabled>
-    <div id="email-error" class="error-message" style="display: none;"></div>
+                   <div class="form-group">
+  <label for="email" class="form-label required-field">Email</label>
+  <input type="email" id="email" class="form-input bg-gray-100" placeholder="your@email.com" disabled>
+  <!-- For email field -->
+  <div id="email-error" class="error-message hidden">This field is required</div>
 </div>
+
                     <div class="form-group mt-4">
                         <label class="flex items-center cursor-pointer">
                             <input type="checkbox" id="news-offers" class="mr-2 h-4 w-4">
@@ -2164,7 +2167,34 @@
             <label for="state" class="form-label required-field">State</label>
             <select id="state" class="form-input" required>
                  <option value="" disabled selected>Select your state</option>
-                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+<option value="Arunachal Pradesh">Arunachal Pradesh</option>
+<option value="Assam">Assam</option>
+<option value="Bihar">Bihar</option>
+<option value="Chhattisgarh">Chhattisgarh</option>
+<option value="Goa">Goa</option>
+<option value="Gujarat">Gujarat</option>
+<option value="Haryana">Haryana</option>
+<option value="Himachal Pradesh">Himachal Pradesh</option>
+<option value="Jharkhand">Jharkhand</option>
+<option value="Karnataka">Karnataka</option>
+<option value="Kerala">Kerala</option>
+<option value="Madhya Pradesh">Madhya Pradesh</option>
+<option value="Maharashtra">Maharashtra</option>
+<option value="Manipur">Manipur</option>
+<option value="Meghalaya">Meghalaya</option>
+<option value="Mizoram">Mizoram</option>
+<option value="Nagaland">Nagaland</option>
+<option value="Odisha">Odisha</option>
+<option value="Punjab">Punjab</option>
+<option value="Rajasthan">Rajasthan</option>
+<option value="Sikkim">Sikkim</option>
+<option value="Tamil Nadu">Tamil Nadu</option>
+<option value="Telangana">Telangana</option>
+<option value="Tripura">Tripura</option>
+<option value="Uttar Pradesh">Uttar Pradesh</option>
+<option value="Uttarakhand">Uttarakhand</option>
+<option value="West Bengal">West Bengal</option>
         </select>
             <div id="state-error" class="error-message" style="display: none;">This field is required</div>
         </div>
@@ -2343,8 +2373,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
             <script src="yes.js"></script>
 </body>
 </html>
