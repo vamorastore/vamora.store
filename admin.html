@@ -1,193 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Vamora</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+         <link rel="stylesheet" href="style.css">
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #f43f5e;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-        }
-        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
-            color: #334155;
+            font-family: 'Unbounded', sans-serif;
+            background-color: #f5f5f5;
         }
         
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Manrope', sans-serif;
-            font-weight: 700;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
         
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 12px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        #googleSignInBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            width: fit-content;
         }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
         }
-        
-        .status-badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.35rem 0.75rem;
-            border-radius: 9999px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+
+        .auth-modal.fade-out {
+            opacity: 0;
         }
-        
-        .status-new { background-color: #e0e7ff; color: #4338ca; }
-        .status-read { background-color: #d1fae5; color: #065f46; }
-        .status-archived { background-color: #e2e8f0; color: #475569; }
-        
-        .btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
+
+        .auth-modal-content {
+            background: white;
+            padding: 2rem;
             border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .google-signin-btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-error {
+            color: #dc2626;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Submission Cards */
+        .submission-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .submission-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-info h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .meta-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-read { background: #dcfce7; color: #166534; }
+        .status-archived { background: #f3f4f6; color: #6b7280; }
+
+        .submission-message {
+            padding: 1rem 0;
+            margin: 1rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            white-space: pre-line;
+        }
+
+        .submission-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
+
+        .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .btn-danger {
-            background-color: var(--secondary);
-            color: white;
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
         }
-        
-        .btn-danger:hover {
-            background-color: #e11d48;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
+
+        .mark-read { 
+            background: #dcfce7; 
+            color: #166534;
+            border-color: #bbf7d0;
         }
-        
-        .btn-secondary {
-            background-color: #e2e8f0;
-            color: #334155;
+        .mark-read:hover {
+            background: #bbf7d0;
         }
-        
-        .btn-secondary:hover {
-            background-color: #cbd5e1;
-            transform: translateY(-1px);
+
+        .delete { 
+            background: #fee2e2; 
+            color: #b91c1c;
+            border-color: #fecaca;
         }
-        
-        .btn-success {
-            background-color: var(--success);
-            color: white;
+        .delete:hover {
+            background: #fecaca;
         }
-        
-        .btn-success:hover {
-            background-color: #0d9488;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-        
+
         .filter-btn {
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
+            transition: all 0.2s;
         }
         
         .filter-btn.active {
-            background-color: var(--primary);
+            background-color: black;
             color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
         }
         
-        .submission-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 12px;
-            overflow: hidden;
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
-        
-        .submission-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        }
-        
-        .submission-message {
-            position: relative;
-        }
-        
-        .submission-message::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background-color: var(--primary);
-            border-radius: 4px;
-        }
-        
-        .auth-modal {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        
-        .auth-modal-content {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .google-signin-btn {
-            background: #4285F4;
-            background: linear-gradient(to right, #4285F4, #34A853, #FBBC05, #EA4335);
-            background-size: 300% 100%;
-            transition: all 0.4s ease;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
-        }
-        
-        .google-signin-btn:hover {
-            background-position: 100% 0;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(66, 133, 244, 0.3);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
+
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -197,127 +200,55 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .nav-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-        }
-        
-        .search-input {
-            background-color: #f8fafc;
-            transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white nav-shadow py-4 px-6 hidden" id="navBar">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="gradient-bg p-2 rounded-lg">
-                    <i class="fas fa-shield-alt text-white text-xl"></i>
-                </div>
-                <h1 class="text-xl font-bold text-gray-800">Vamora Admin</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-1 text-sm text-gray-600">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="userEmail"></span>
-                </div>
-                <button id="logoutBtn" class="btn btn-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+    <nav class="bg-gray-800 text-white p-4 hidden" id="navBar">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold">Admin Dashboard</div>
+            <div>
+                <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+                    Logout
                 </button>
             </div>
         </div>
     </nav>
     
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 hidden" id="mainContent">
+    <div class="container mx-auto py-8 hidden" id="mainContent">
         <div id="errorContainer" class="hidden"></div>
         
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Contact Submissions</h1>
-                <p class="text-gray-500 mt-2">Manage all incoming messages from your contact form</p>
-            </div>
-            <div class="mt-4 md:mt-0">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                    <input type="text" id="searchInput" placeholder="Search submissions..." 
-                           class="search-input pl-10 pr-4 py-3 w-full md:w-64 rounded-lg focus:outline-none">
-                </div>
-            </div>
+        <h1 class="text-3xl font-bold mb-8">Contact Form Submissions</h1>
+        
+        <div class="flex space-x-2 mb-6">
+            <button class="filter-btn px-4 py-2 rounded border active" data-filter="all">All</button>
+            <button class="filter-btn px-4 py-2 rounded border" data-filter="new">New</button>
+            <button class="filter-btn px-4 py-2 rounded border" data-filter="read">Read</button>
+            <button class="filter-btn px-4 py-2 rounded border" data-filter="archived">Archived</button>
         </div>
         
-        <!-- Filters -->
-        <div class="flex flex-wrap gap-2 mb-8">
-            <button class="filter-btn active" data-filter="all">
-                <i class="fas fa-layer-group mr-2"></i> All
-            </button>
-            <button class="filter-btn" data-filter="new">
-                <i class="fas fa-envelope mr-2"></i> New
-            </button>
-            <button class="filter-btn" data-filter="read">
-                <i class="fas fa-envelope-open mr-2"></i> Read
-            </button>
-            <button class="filter-btn" data-filter="archived">
-                <i class="fas fa-archive mr-2"></i> Archived
-            </button>
+        <div class="mb-6">
+            <input type="text" id="searchInput" placeholder="Search by name, email or message..." 
+                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         
-        <!-- Submissions List -->
-        <div id="submissionsList" class="grid grid-cols-1 gap-6"></div>
+        <div id="submissionsList"></div>
         
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="text-center py-12">
-            <div class="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-lg">
-                <i class="fas fa-spinner fa-spin text-2xl text-indigo-600"></i>
-            </div>
-            <p class="mt-4 text-gray-600 font-medium">Loading submissions...</p>
+        <div id="loadingIndicator" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-2xl"></i>
+            <p class="mt-2">Loading submissions...</p>
         </div>
         
-        <!-- Empty State -->
-        <div id="noResults" class="hidden text-center py-12">
-            <div class="inline-block p-6 bg-white rounded-full shadow-lg mb-4">
-                <i class="fas fa-inbox text-3xl text-indigo-400"></i>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900">No submissions found</h3>
-            <p class="mt-1 text-gray-500">There are currently no messages matching your criteria</p>
-        </div>
-    </div>
-    
-    <!-- Auth Modal -->
-    <div id="authModal" class="auth-modal fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div class="auth-modal-content p-8 max-w-md w-full animate-fadeIn">
-            <div class="text-center">
-                <div class="gradient-bg p-4 rounded-full inline-flex mb-4">
-                    <i class="fas fa-lock text-white text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h2>
-                <p class="text-gray-600 mb-6">Sign in to access the dashboard</p>
-                
-                <button id="googleSignInBtn" class="google-signin-btn w-full">
-                    <i class="fab fa-google mr-2"></i> Sign in with Google
-                </button>
-                
-                <div id="authError" class="mt-4 text-sm text-red-500 hidden"></div>
-                
-                <div class="mt-6 pt-6 border-t border-gray-100 text-xs text-gray-500">
-                    <p>Restricted to authorized personnel only</p>
-                </div>
-            </div>
+        <div id="noResults" class="hidden text-center py-8">
+            <i class="fas fa-inbox text-3xl text-gray-400"></i>
+            <p class="mt-2 text-gray-500">No submissions found</p>
         </div>
     </div>
     
@@ -346,21 +277,21 @@
 
         const auth = firebase.auth();
         const db = firebase.firestore();
+        let authModal = null;
 
         // Main Auth State Handler
         auth.onAuthStateChanged(async user => {
-            const authModal = document.getElementById('authModal');
-            authModal.classList.add('hidden');
+            // Always close modal first (if open)
+            closeAuthModal();
             
             if (!user) {
+                // Hide dashboard content
                 document.getElementById('navBar').classList.add('hidden');
                 document.getElementById('mainContent').classList.add('hidden');
-                authModal.classList.remove('hidden');
+                // Show sign-in modal
+                showGoogleSignIn();
                 return;
             }
-            
-            // Display user email in nav
-            document.getElementById('userEmail').textContent = user.email;
             
             // Verify Google authentication
             const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
@@ -375,6 +306,7 @@
                                 await checkAdminStatus(user.uid);
                 
                 if (hasAccess) {
+                    // Show dashboard content
                     document.getElementById('navBar').classList.remove('hidden');
                     document.getElementById('mainContent').classList.remove('hidden');
                     initializePage();
@@ -389,25 +321,31 @@
         });
 
         // Admin Verification
-        async function checkAdminStatus(uid) {
-            try {
-                const user = auth.currentUser;
-                if (user.email === 'vamora.co.in@gmail.com') {
-                    return true;
-                }
-                
-                const doc = await db.collection('admins').doc(uid).get();
-                return doc.exists;
-            } catch (error) {
-                console.error("Admin check error:", error);
-                return false;
-            }
+async function checkAdminStatus(uid) {
+    try {
+        const user = auth.currentUser;
+        console.log("Checking admin status for:", user.email, uid);
+        
+        if (user.email === 'vamora.co.in@gmail.com') {
+            console.log("Primary admin detected");
+            return true;
         }
-
-        // Enhanced unauthorized handler
+        
+        const doc = await db.collection('admins').doc(uid).get();
+        console.log("Admin document exists:", doc.exists);
+        return doc.exists;
+    } catch (error) {
+        console.error("Admin check error:", error);
+        return false;
+    }
+}        // Enhanced unauthorized handler
         function handleUnauthorized(message) {
             showError(message);
-            document.getElementById('authModal').classList.remove('hidden');
+            
+            // Show sign-in modal again if not already shown
+            if (!authModal) {
+                showGoogleSignIn();
+            }
             
             // Sign out after delay
             setTimeout(() => {
@@ -417,25 +355,68 @@
             }, 3000);
         }
 
-        // Initialize page components and event listeners
-        function initializePage() {
-            // Google Sign-In button
+        // Google Sign-In function
+        function showGoogleSignIn() {
+            if (authModal) return; // Already showing
+            
+            authModal = document.createElement('div');
+            authModal.className = 'auth-modal';
+            authModal.innerHTML = `
+                <div class="auth-modal-content">
+                    <h2 class="text-xl font-bold mb-2">Admin Login Required</h2>
+                    <p class="mb-4">Restricted Access: Admin Login</p>
+                    <button id="googleSignInBtn" class="google-signin-btn">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </button>
+                    <div id="authError" class="auth-error hidden mt-4"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(authModal);
+
+            // Enhanced sign-in handler
             document.getElementById('googleSignInBtn').addEventListener('click', async () => {
                 const btn = document.getElementById('googleSignInBtn');
                 const errorEl = document.getElementById('authError');
+                btn.disabled = true;
                 btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
                 errorEl.classList.add('hidden');
                 
                 try {
                     const provider = new firebase.auth.GoogleAuthProvider();
                     await auth.signInWithPopup(provider);
+                    // Success - auth state handler will take over
                 } catch (error) {
                     errorEl.textContent = error.message;
                     errorEl.classList.remove('hidden');
-                    btn.innerHTML = '<i class="fab fa-google mr-2"></i> Try Again';
+                    btn.innerHTML = '<i class="fab fa-google"></i> Try Again';
+                    btn.disabled = false;
                 }
             });
+            
+            // Modal close handlers
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) closeAuthModal();
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeAuthModal();
+            });
+        }
 
+        // Clean modal close function
+        function closeAuthModal() {
+            if (authModal) {
+                authModal.classList.add('fade-out');
+                setTimeout(() => {
+                    authModal.remove();
+                    authModal = null;
+                }, 300);
+            }
+        }
+
+        // Initialize page components and event listeners
+        function initializePage() {
             // Filter buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -449,15 +430,11 @@
             // Search functionality
             document.getElementById('searchInput').addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
-                let hasVisible = false;
-                
                 document.querySelectorAll('.submission-card').forEach(card => {
-                    const matches = card.textContent.toLowerCase().includes(term);
-                    card.style.display = matches ? 'block' : 'none';
-                    if (matches) hasVisible = true;
+                    card.style.display = card.textContent.toLowerCase().includes(term) 
+                        ? 'block' 
+                        : 'none';
                 });
-                
-                document.getElementById('noResults').classList.toggle('hidden', hasVisible || term === '');
             });
 
             // Logout button
@@ -468,57 +445,55 @@
             });
 
             // Event delegation for dynamic buttons
-            document.getElementById('submissionsList').addEventListener('click', async (e) => {
-                const target = e.target.closest('.mark-read, .delete');
-                if (!target) return;
-                
-                const id = target.dataset.id;
-                const card = target.closest('.submission-card');
-                
-                try {
-                    // Add click effect
-                    target.style.transform = 'scale(0.95)';
-                    setTimeout(() => { target.style.transform = ''; }, 200);
-                    
-                    if (target.classList.contains('mark-read')) {
-                        await db.collection('contactSubmissions').doc(id).update({ status: 'read' });
-                        card.querySelector('.status-badge').className = 'status-badge status-read';
-                        card.querySelector('.status-badge').textContent = 'read';
-                        target.remove();
-                    } 
-                    else if (target.classList.contains('delete')) {
-                        if (confirm('Are you sure you want to delete this submission?')) {
-                            await db.collection('contactSubmissions').doc(id).delete();
-                            card.style.opacity = '0';
-                            setTimeout(() => card.remove(), 300);
-                        }
-                    }
-                    
-                    // Update the active filter view
-                    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-                    if (activeFilter !== 'all') {
-                        if (target.classList.contains('delete')) {
-                            // If deleted, no need to check filter
-                        } else if (activeFilter !== 'read' && target.classList.contains('mark-read')) {
-                            card.style.display = 'none';
-                        }
-                    }
-                } catch (error) {
-                    if (error.code === 'permission-denied') {
-                        showError("You don't have permission to perform this action");
-                    } else {
-                        showError(`Operation failed: ${error.message}`);
-                    }
-                }
-            });
+document.getElementById('submissionsList').addEventListener('click', async (e) => {
+    const target = e.target.closest('.mark-read, .delete');
+    if (!target) return;
+    
+    const id = target.dataset.id;
+    const card = target.closest('.submission-card');
+    
+    try {
+        // Add click effect
+        target.style.transform = 'scale(0.95)';
+        setTimeout(() => { target.style.transform = ''; }, 200);
+        
+        if (target.classList.contains('mark-read')) {
+            await db.collection('contactSubmissions').doc(id).update({ status: 'read' });
+            card.querySelector('.status-badge').className = 'status-badge status-read';
+            card.querySelector('.status-badge').textContent = 'read';
+            target.remove();
+        } 
+        else if (target.classList.contains('delete')) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                await db.collection('contactSubmissions').doc(id).delete();
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            }
         }
+        
+        // Update the active filter view
+        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        if (activeFilter !== 'all') {
+            if (target.classList.contains('delete')) {
+                // If deleted, no need to check filter
+            } else if (activeFilter !== 'read' && target.classList.contains('mark-read')) {
+                card.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        if (error.code === 'permission-denied') {
+            showError("You don't have permission to perform this action");
+        } else {
+            showError(`Operation failed: ${error.message}`);
+        }
+    }
+});        }
 
         // Submission Loading
         async function loadSubmissions(filter) {
             try {
                 document.getElementById('loadingIndicator').classList.remove('hidden');
                 document.getElementById('noResults').classList.add('hidden');
-                document.getElementById('submissionsList').innerHTML = '';
                 
                 let query = db.collection('contactSubmissions').orderBy('timestamp', 'desc');
                 if (filter !== 'all') query = query.where('status', '==', filter);
@@ -527,6 +502,7 @@
                 
                 if (snapshot.empty) {
                     document.getElementById('noResults').classList.remove('hidden');
+                    document.getElementById('submissionsList').innerHTML = '';
                 } else {
                     let html = '';
                     snapshot.forEach(doc => {
@@ -544,44 +520,32 @@
         // Card Creation
         function createSubmissionCard(id, data) {
             const date = data.timestamp?.toDate() || new Date();
-            const formattedDate = date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
             return `
-                <div class="submission-card glass-card animate-fadeIn">
-                    <div class="p-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg text-gray-900">${escapeHtml(data.name || 'No name')}</h3>
-                                <p class="text-indigo-600">${escapeHtml(data.email || 'No email')}</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="status-badge ${data.status || 'new'}">
-                                    ${data.status || 'new'}
-                                </span>
-                                <span class="text-sm text-gray-500">${formattedDate}</span>
-                            </div>
+                <div class="submission-card" data-id="${id}">
+                    <div class="submission-header">
+                        <div class="user-info">
+                            <h3>${escapeHtml(data.name || 'No name')}</h3>
+                            <p>${escapeHtml(data.email || 'No email')}</p>
                         </div>
-                        
-                        <div class="submission-message pl-5 my-4 text-gray-700">
-                            ${escapeHtml(data.message || 'No message')}
+                        <div class="meta-info">
+                            <span class="status-badge ${data.status || 'new'}">
+                                ${data.status || 'new'}
+                            </span>
+                            <span>${date.toLocaleString()}</span>
                         </div>
-                        
-                        <div class="flex justify-end gap-2 mt-4">
-                            ${data.status !== 'read' ? `
-                                <button class="btn btn-success mark-read" data-id="${id}">
-                                    <i class="fas fa-check mr-1"></i> Mark Read
-                                </button>
-                            ` : ''}
-                            <button class="btn btn-danger delete" data-id="${id}">
-                                <i class="fas fa-trash mr-1"></i> Delete
+                    </div>
+                    <div class="submission-message">
+                        ${escapeHtml(data.message || 'No message')}
+                    </div>
+                    <div class="submission-actions">
+                        ${data.status !== 'read' ? `
+                            <button class="btn mark-read" data-id="${id}">
+                                <i class="fas fa-check"></i> Mark Read
                             </button>
-                        </div>
+                        ` : ''}
+                        <button class="btn delete" data-id="${id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
                     </div>
                 </div>
             `;
@@ -597,18 +561,7 @@
 
         function showError(message) {
             const el = document.getElementById('errorContainer');
-            el.innerHTML = `
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-500"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-red-700">${message}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
+            el.innerHTML = `<div class="error-message">${message}</div>`;
             el.classList.remove('hidden');
             setTimeout(() => {
                 el.classList.add('hidden');
