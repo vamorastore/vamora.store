@@ -543,93 +543,117 @@ function renderOrders(orders) {
     if (!ordersContainer) return;
     
     ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-item border-b border-gray-200 py-6 px-4 rounded-lg mb-4 bg-white shadow-sm">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Order Number:</span>
-                    <span class="block text-gray-600">${order.orderId || order.id}</span>
-                </div>
-                <div>
-                    <span class="font-semibold">Date:</span>
-                    <span class="block text-gray-600">
-                        ${new Date(order.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        })}
-                    </span>
+        <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
+            <!-- Order Header - Visible on all screens -->
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex-1 min-w-[150px]">
+                        <span class="text-sm font-medium text-gray-500">Order #</span>
+                        <p class="font-semibold text-gray-800">${order.orderId || order.id}</p>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <span class="text-sm font-medium text-gray-500">Date</span>
+                        <p class="text-gray-600">
+                            ${new Date(order.date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            })}
+                        </p>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <span class="text-sm font-medium text-gray-500">Total</span>
+                        <p class="font-semibold text-gray-800">
+                            ₹${order.items.reduce((total, item) => {
+                                const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
+                                const qty = item.quantity || 1;
+                                return total + (price * qty);
+                            }, 0).toFixed(2)}
+                        </p>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <span class="text-sm font-medium text-gray-500">Status</span>
+                        <p class="capitalize ${getStatusColor(order.status)} font-medium">
+                            ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold ${order.status === 'status-order-placed' ? 'text-blue-500' : 'text-gray-500'}">Order Placed</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-processing' ? 'text-blue-500' : 'text-gray-500'}">Processing</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-shipped' ? 'text-blue-500' : 'text-gray-500'}">Shipped</span>
-                    <span class="text-sm font-semibold ${order.status === 'status-delivered' ? 'text-blue-500' : 'text-gray-500'}">Delivered</span>
-                </div>
+            <!-- Order Progress - Simplified for mobile -->
+            <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
-                        <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
+                    <!-- Progress bar with responsive labels -->
+                    <div class="hidden md:flex justify-between items-center mb-2 text-xs">
+                        <span class="${order.status === 'status-order-placed' ? 'text-blue-600 font-medium' : 'text-gray-500'}">Order Placed</span>
+                        <span class="${order.status === 'status-processing' ? 'text-blue-600 font-medium' : 'text-gray-500'}">Processing</span>
+                        <span class="${order.status === 'status-shipped' ? 'text-blue-600 font-medium' : 'text-gray-500'}">Shipped</span>
+                        <span class="${order.status === 'status-delivered' ? 'text-blue-600 font-medium' : 'text-gray-500'}">Delivered</span>
                     </div>
-                    <div class="relative flex justify-between">
-                        <div class="w-8 h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
-                            rounded-full flex items-center justify-center text-white">
-                            <i class="fas fa-check text-xs"></i>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full bg-gray-200 h-1.5 rounded-full"></div>
+                            <div class="absolute h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
                         </div>
-                        <div class="w-8 h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-truck text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-shipping-fast text-xs"></i>
-                        </div>
-                        <div class="w-8 h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
-                            rounded-full flex items-center justify-center">
-                            <i class="fas fa-box-open text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <span class="font-semibold">Status:</span>
-                    <span class="block capitalize ${getStatusColor(order.status)}">
-                        ${(order.status || 'pending').replace('status-', '').replace('-', ' ')}
-                    </span>
-                </div>
-                <div>
-                    <span class="font-semibold">Total:</span>
-                    <span class="block text-gray-600">
-                        ₹${order.items.reduce((total, item) => {
-                            const price = parseFloat((item.price || '₹0').replace('₹', '').replace(',', '')) || 0;
-                            const qty = item.quantity || 1;
-                            return total + (price * qty);
-                        }, 0).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <h4 class="font-medium mb-2">Items:</h4>
-                ${order.items.map(item => `
-                    <div class="flex items-center mt-2 p-2 bg-gray-50 rounded">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" 
-                             alt="${item.title || 'Item'}" 
-                             class="w-12 h-12 rounded mr-3 object-cover">
-                        <div class="flex-1">
-                            <p class="font-medium">${item.title}</p>
-                            <div class="flex justify-between text-sm text-gray-500">
-                                <span>Size: ${item.size || '-'}</span>
-                                <span>Qty: ${item.quantity || 1}</span>
-                                <span>${item.price || '₹0.00'}</span>
+                        <div class="relative flex justify-between">
+                            <div class="w-6 h-6 md:w-8 md:h-8 ${['status-order-placed', 'status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500' : 'bg-gray-200'} 
+                                rounded-full flex items-center justify-center text-white">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="w-6 h-6 md:w-8 md:h-8 ${['status-processing', 'status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                                rounded-full flex items-center justify-center">
+                                <i class="fas fa-truck text-xs"></i>
+                            </div>
+                            <div class="w-6 h-6 md:w-8 md:h-8 ${['status-shipped', 'status-delivered'].includes(order.status) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                                rounded-full flex items-center justify-center">
+                                <i class="fas fa-shipping-fast text-xs"></i>
+                            </div>
+                            <div class="w-6 h-6 md:w-8 md:h-8 ${order.status === 'status-delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} 
+                                rounded-full flex items-center justify-center">
+                                <i class="fas fa-box-open text-xs"></i>
                             </div>
                         </div>
                     </div>
-                `).join('')}
+                </div>
+            </div>
+
+            <!-- Order Items - Responsive layout -->
+            <div class="px-4 py-3">
+                <h4 class="font-medium mb-3 text-gray-800">Items (${order.items.length})</h4>
+                <div class="space-y-3">
+                    ${order.items.map(item => `
+                        <div class="flex items-start p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <img src="${item.image || 'https://via.placeholder.com/50'}" 
+                                 alt="${item.title || 'Item'}" 
+                                 class="w-16 h-16 md:w-20 md:h-20 rounded-md mr-3 object-cover flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 truncate">${item.title}</p>
+                                <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                    <div>
+                                        <span class="text-gray-500">Size:</span>
+                                        <span>${item.size || '-'}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Qty:</span>
+                                        <span>${item.quantity || 1}</span>
+                                    </div>
+                                    <div class="col-span-2 md:col-span-1">
+                                        <span class="text-gray-500">Price:</span>
+                                        <span>${item.price || '₹0.00'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Actions - Visible on mobile as full width button -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                <button class="w-full md:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm font-medium">
+                    Track Order
+                </button>
             </div>
         </div>
     `).join('');
