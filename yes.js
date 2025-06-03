@@ -37,17 +37,16 @@ let cart = [];
 // ======================
 
 // Initialize cart on page load
+// Modify initializeCart to ensure it runs on every page
 function initializeCart() {
     const user = auth.currentUser;
     if (user) {
-        // Load from Firestore
         getOrCreateUserCart(user.uid).then(firestoreCart => {
             cart = firestoreCart;
             updateCartCount();
             renderCart();
         });
     } else {
-        // Load from localStorage
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         cart = guestCart;
         updateCartCount();
@@ -55,6 +54,10 @@ function initializeCart() {
     }
 }
 
+// Call initializeCart whenever auth state changes
+auth.onAuthStateChanged(() => {
+    initializeCart();
+});
 // Function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
@@ -109,7 +112,7 @@ function mergeCarts(primaryCart, secondaryCart) {
 window.addToCart = async function(product) {
     const user = auth.currentUser;
     
-    // Check if item already exists in cart with same size
+    // Check if item exists with same ID and size
     const existingItem = cart.find(item => 
         item.id === product.id && item.size === product.size
     );
@@ -128,21 +131,7 @@ window.addToCart = async function(product) {
     
     updateCartCount();
     renderCart();
-    
-    // Show success feedback
-    const button = document.getElementById('add-to-cart-btn');
-    if (button) {
-        const originalText = button.textContent;
-        button.textContent = 'ADDED TO CART!';
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
-    }
-    
-    // Open cart after adding item
-    openCart();
 };
-
 // Function to update cart count in navbar
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
