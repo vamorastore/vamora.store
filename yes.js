@@ -1,7 +1,7 @@
 // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-  authDomain: "vamora-co-in.firebaseapp.com",
+  authDomain: "vamora.store",
   projectId: "vamora-co-in",
   storageBucket: "vamora-co-in.appspot.com",
   messagingSenderId: "613048727757",
