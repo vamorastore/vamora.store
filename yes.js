@@ -1925,8 +1925,12 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     forgotErrorEl.classList.add('hidden');
 
     auth.fetchSignInMethodsForEmail(email)
-        .then(() => {
-            // Use query to get user document
+        .then((methods) => {
+            if (methods.length === 0) {
+                throw new Error("No account found with this email");
+            }
+            
+            // Get the user document
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
