@@ -675,7 +675,7 @@ function renderOrders(orders) {
                                 </button>
                             </div>
                         </div>
-                        <a href="${order.trackingLink}" target="_blank" rel="noopener noreferrer" class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <a href="track.html?tracking=${encodeURIComponent(order.trackingLink)}"class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             Open Tracking Page
                         </a>
                     ` : `
