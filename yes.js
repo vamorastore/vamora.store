@@ -1945,14 +1945,25 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                 .get();
         })
         .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                throw new Error("User data not found - please contact support");
-            }
+    if (querySnapshot.empty) {
+        console.error("No user document found for email:", email);
+        throw new Error("User data not found - please contact support");
+    }
 
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+    
+    // Temporary debug logging
+    console.log("User document found:", userDoc.id);
+    console.log("User data:", userData);
+    console.log("Expected question:", securityQuestion, "Actual:", userData.securityQuestion);
+    console.log("Expected answer:", securityAnswer, "Actual:", userData.securityAnswer);
 
             // Verify security question and answer
+            if (!userData.securityQuestion || !userData.securityAnswer) {
+                throw new Error("Security information not found for this account");
+            }
+
             if (userData.securityQuestion !== securityQuestion) {
                 throw new Error("Security question doesn't match our records");
             }
