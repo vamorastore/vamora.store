@@ -872,7 +872,7 @@
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${order.shippingAddress?.name || 'N/A'}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${formattedDate}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${order.items.length} item${order.items.length !== 1 ? 's' : ''}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">$${total.toFixed(2)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">₹${total.toFixed(2)}</td>
                 <td class="px-4 py-3 whitespace-nowrap">
                     <span class="status-badge status-${order.status}">${order.status}</span>
                 </td>
@@ -932,7 +932,7 @@
         document.getElementById('modalOrderStatus').textContent = order.status;
         document.getElementById('modalOrderStatus').className = `status-badge status-${order.status}`;
         document.getElementById('modalPaymentStatus').textContent = order.paymentId ? 'Paid' : 'Pending';
-        document.getElementById('modalOrderTotal').textContent = `$${total.toFixed(2)}`;
+        document.getElementById('modalOrderTotal').textContent = `₹${total.toFixed(2)}`;
         
         // Set customer information
         document.getElementById('modalCustomerName').textContent = order.shippingAddress?.name || 'N/A';
@@ -968,7 +968,7 @@
                     <p class="text-sm text-gray-600">Size: ${item.size || 'N/A'}</p>
                     <p class="text-sm text-gray-600">Qty: ${item.quantity || 1}</p>
                 </div>
-                <div class="font-medium">$${itemTotal.toFixed(2)}</div>
+                <div class="font-medium">₹${itemTotal.toFixed(2)}</div>
             `;
             
             orderItemsContainer.appendChild(itemElement);
