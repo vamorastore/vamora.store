@@ -1,7 +1,7 @@
 // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-  authDomain: "vamora-co-in.firebaseapp.com",
+  authDomain: "vamora.store",
   projectId: "vamora-co-in",
   storageBucket: "vamora-co-in.appspot.com",
   messagingSenderId: "613048727757",
@@ -116,7 +116,7 @@ window.addToCart = async function(product) {
     
     // Check if item exists with same ID and size
     const existingItem = cart.find(item => 
-        item.id === product.id && item.size === product.size
+        item.id === product.id && i.size === product.size
     );
 
     if (existingItem) {
@@ -133,10 +133,7 @@ window.addToCart = async function(product) {
     
     updateCartCount();
     renderCart();
-    renderOrderSummary();
-    
-    // Auto-open the cart
-    openCart();
+    renderOrderSummary(); // Add this line to update order summary when adding to cart
 };
 
 // Function to update cart count in navbar
@@ -380,23 +377,6 @@ function setupProductPage() {
     // Input validation
     quantityInput?.addEventListener('change', function() {
         if (this.value < 1) this.value = 1;
-    });
-    
-    // Share functionality
-    const shareButton = document.querySelector('.share-icon');
-    shareButton?.addEventListener('click', function() {
-        if (navigator.share) {
-            navigator.share({
-                title: document.querySelector('h1').textContent,
-                text: "Check out this product from VAMORA.STORE",
-                url: window.location.href
-            }).catch(err => {
-                console.log('Error sharing:', err);
-                fallbackShare();
-            });
-        } else {
-            fallbackShare();
-        }
     });
 
     function fallbackShare() {
@@ -842,12 +822,12 @@ function validateCheckoutForm() {
 }
 
 // Function to generate a unique order ID with VA prefix and 5-digit number
+// Function to generate a unique order ID with VA prefix and 5-digit number
 function generateOrderId() {
     const prefix = "VA";
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     return `${prefix}${randomNum}`;
 }
-
 // Helper function to calculate total amount in paise
 function calculateTotalAmount() {
     let total = 0;
@@ -857,7 +837,6 @@ function calculateTotalAmount() {
     });
     return total; // Returns amount in paise
 }
-
 async function handlePaymentFailure(response) {
     console.error("Payment failed:", response);
     
@@ -926,7 +905,7 @@ async function saveOrder(paymentId, formData, orderId) {
         throw error;
     }
 }
-
+// Show thank you popup with order details
 // Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
@@ -956,7 +935,7 @@ function showThankYouPopup(orderDetails, orderId) {
         }
     });
 }
-
+// Handle successful payment
 // Handle successful payment
 function handlePaymentSuccess(response, formData, orderId) {
     // Show thank you popup with order details
@@ -982,6 +961,7 @@ function handlePaymentSuccess(response, formData, orderId) {
 }
 
 // Get form data from checkout form
+// Update the getFormData function to include email
 function getFormData() {
     return {
         firstName: document.getElementById('first-name').value,
@@ -996,7 +976,6 @@ function getFormData() {
         email: document.getElementById('email').value
     };
 }
-
 async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
     if (!saveInfoCheckbox.checked) return;
@@ -1163,7 +1142,6 @@ async function placeOrder() {
         showToast("Error initializing payment gateway. Please try again.", 'error');
     }
 }
-
 // ======================
 // ADDRESS MANAGEMENT
 // ======================
@@ -1616,7 +1594,7 @@ function setupPasswordToggles() {
     });
 }
 
-// Helper functions for validation
+// Add this helper function
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
@@ -1677,77 +1655,88 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         isValid = false;
     }
 
-    if (!securityQuestion || !securityAnswer) {
-        document.getElementById('signup-error').textContent = 'All fields are required';
-        document.getElementById('signup-error').classList.remove('hidden');
-        isValid = false;
-    }
+   // In the signup form submit handler
+if (!securityQuestion || !securityAnswer) {
+    document.getElementById('signup-error').textContent = 'Security question and answer are required';
+    document.getElementById('signup-error').classList.remove('hidden');
+    hideLoading('signup-submit-button');
+    return;
+}
 
-    if (!isValid) {
-        hideLoading('signup-submit-button');
-        return;
-    }
+// Validate security answer length
+if (securityAnswer.length < 3) {
+    document.getElementById('signup-error').textContent = 'Security answer must be at least 3 characters';
+    document.getElementById('signup-error').classList.remove('hidden');
+    hideLoading('signup-submit-button');
+    return;
+}
 
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Send verification email
-            return user.sendEmailVerification()
-                .then(() => {
-                    // Update user profile
-                    return user.updateProfile({
-                        displayName: name
-                    }).then(() => {
-                        // Save to Firestore
-                        return db.collection("users").doc(user.uid).set({
-                            name: name,
-                            email: email,
-                            securityQuestion: securityQuestion,
-                            securityAnswer: securityAnswer,
-                            provider: 'email',
-                            emailVerified: false,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                            addresses: []
-                        });
+
+ // In the signup form submit handler
+auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        
+        // Send verification email
+        return user.sendEmailVerification()
+            .then(() => {
+                // Update user profile
+                return user.updateProfile({
+                    displayName: name
+                }).then(() => {
+                    // Save to Firestore
+                    return db.collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        securityQuestion: securityQuestion,
+                        securityAnswer: securityAnswer,
+                        provider: 'email',
+                        emailVerified: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                        addresses: []
                     });
                 });
-        })
-        .then(() => {
-            // Show verification message
-            const verifyEmailSuccess = document.getElementById('verify-email-success');
-            if (verifyEmailSuccess) {
-                verifyEmailSuccess.innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
-                        <p class="mb-4">We've sent a verification link to ${email}</p>
-                        <p class="text-sm text-gray-600 mb-4">
-                            Didn't receive the email? Check your spam folder or
-                            <a href="#" onclick="resendVerification('${email}')" 
-                               class="text-blue-600 font-medium" id="resend-verification-btn">
-                                Resend Verification Email
-                            </a>
-                        </p>
-                        <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
-                            Go to Login
-                        </button>
-                    </div>
-                `;
-                verifyEmailSuccess.classList.remove('hidden');
-                document.getElementById('signup-form').classList.add('hidden');
-            }
-        })
-        .catch((error) => {
+            });
+    })
+    .then(() => {
+        // Show verification message
+        const verifyEmailSuccess = document.getElementById('verify-email-success');
+        if (verifyEmailSuccess) {
+            verifyEmailSuccess.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                    <p class="mb-4">We've sent a verification link to ${email}</p>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Didn't receive the email? Check your spam folder or
+                        <a href="#" onclick="resendVerification('${email}')" 
+                           class="text-blue-600 font-medium" id="resend-verification-btn">
+                            Resend Verification Email
+                        </a>
+                    </p>
+                    <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                        Go to Login
+                    </button>
+                </div>
+            `;
+            verifyEmailSuccess.classList.remove('hidden');
+            document.getElementById('signup-form').classList.add('hidden');
+        }
+    })
+    .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             
             if (errorCode === 'auth/email-already-in-use') {
-                document.getElementById('email-exists-error').classList.remove('hidden');
+                const emailExistsError = document.getElementById('email-exists-error');
+                if (emailExistsError) emailExistsError.classList.remove('hidden');
             } else {
-                document.getElementById('signup-error').textContent = errorMessage;
-                document.getElementById('signup-error').classList.remove('hidden');
+                const signupError = document.getElementById('signup-error');
+                if (signupError) {
+                    signupError.textContent = errorMessage;
+                    signupError.classList.remove('hidden');
+                }
             }
         })
         .finally(() => {
@@ -1755,7 +1744,25 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         });
 });
 
-// Email/Password Login - Updated with better error handling
+// Update the forgot password form to validate email first
+document.getElementById('forgot-email')?.addEventListener('blur', function() {
+    const email = this.value.trim();
+    const errorEl = document.getElementById('forgot-email-error');
+    
+    if (!email) {
+        errorEl.textContent = 'Email is required';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        errorEl.textContent = 'Please enter a valid email address';
+        errorEl.classList.remove('hidden');
+    } else {
+        errorEl.classList.add('hidden');
+    }
+});
+// Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('login-submit-button');
@@ -1764,17 +1771,8 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const password = document.getElementById('login-password').value;
     const rememberMe = document.getElementById('remember-me').checked;
 
-    // Reset error messages
-    document.getElementById('login-error').classList.add('hidden');
-    document.getElementById('login-success').classList.add('hidden');
-
-    // Basic validation
-    if (!email || !password) {
-        document.getElementById('login-error').textContent = 'Please enter both email and password';
-        document.getElementById('login-error').classList.remove('hidden');
-        hideLoading('login-submit-button');
-        return;
-    }
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.classList.add('hidden');
 
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
@@ -1783,142 +1781,57 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             // Check if email is verified
             if (!user.emailVerified) {
                 auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+                throw new Error("Please verify your email first. Check your inbox.");
             }
             
             // Update last login time
             return db.collection("users").doc(user.uid).update({
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
             });
         })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
-            
-            const user = auth.currentUser;
-            const userData = doc.data();
-            
+        .then(() => {
             // Show success message
-            document.getElementById('login-success').textContent = 'Login successful! Redirecting...';
-            document.getElementById('login-success').classList.remove('hidden');
+            const loginSuccess = document.getElementById('login-success');
+            if (loginSuccess) {
+                loginSuccess.textContent = 'Login successful! Redirecting...';
+                loginSuccess.classList.remove('hidden');
+            }
             
             hideLoading('login-submit-button');
             
             setTimeout(() => {
                 hideAuthContainer();
-                
-                // Update account info page if it exists
-                const accountInfoPage = document.getElementById('account-info-page');
-                if (accountInfoPage) {
-                    accountInfoPage.classList.remove('hidden');
-                    
-                    const displayName = document.getElementById('displayName');
-                    if (displayName) displayName.textContent = userData.name || '';
-                    
-                    const displayEmail = document.getElementById('displayEmail');
-                    if (displayEmail) displayEmail.textContent = user.email || '';
-                    
-                    const emailDisplay = document.getElementById('emailDisplay');
-                    if (emailDisplay) emailDisplay.value = user.email || '';
-                    
-                    loadAddresses(user.uid);
-                    loadOrders(user.uid);
-                }
-                
-                updateMobileAccountOptions();
-                
-                const emailField = document.getElementById('email');
-                if (emailField) emailField.value = user.email;
-            }, 1500);
-        })
- // Update the login error handling in the login form submit handler
-.catch((error) => {
-    console.error("Login error:", error);
-    const loginError = document.getElementById('login-error');
-    
-    // User-friendly error messages
-    let errorMessage = 'Error processing login. Please try again.';
-    
-    switch(error.code) {
-        case 'auth/user-not-found':
-            errorMessage = 'No account found with this email. Please sign up.';
-            break;
-        case 'auth/wrong-password':
-            errorMessage = 'Incorrect password. Please try again.';
-            break;
-        case 'auth/too-many-requests':
-            errorMessage = 'Account temporarily locked due to too many attempts. Please try again later.';
-            break;
-        case 'auth/invalid-email':
-            errorMessage = 'Invalid email format. Please check your email.';
-            break;
-        case 'auth/invalid-login-credentials':
-        case 'INVALID_LOGIN_CREDENTIALS':
-            errorMessage = 'Invalid email or password. Please try again.';
-            break;
-        default:
-            errorMessage = error.message || errorMessage;
-    }
-    
-    loginError.textContent = errorMessage;
-    loginError.classList.remove('hidden');
-    hideLoading('login-submit-button');
-});
-});
-
-// Resend verification email - Updated with better error handling
-function resendVerification(email) {
-    const resendBtn = document.getElementById('resend-verification-btn');
-    if (!resendBtn) return;
-    
-    const originalText = resendBtn.innerHTML;
-    resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    resendBtn.onclick = null;
-    
-    auth.fetchSignInMethodsForEmail(email)
-        .then((methods) => {
-            if (methods.length === 0) {
-                throw new Error('No account found with this email');
-            }
-            
-            // If user is already signed in (unlikely in this flow), use that user
-            if (auth.currentUser && auth.currentUser.email === email) {
-                return auth.currentUser.sendEmailVerification();
-            }
-            
-            // Otherwise, sign in to trigger verification email
-            return auth.signInWithEmailAndPassword(email, prompt('Please enter your password to resend verification'))
-                .then((userCredential) => {
-                    return userCredential.user.sendEmailVerification();
-                })
-                .finally(() => {
-                    auth.signOut(); // Sign out after sending verification
-                });
-        })
-        .then(() => {
-            showToast("Verification email resent! Please check your inbox.");
+                // Update UI as needed
+            }, 500);
         })
         .catch((error) => {
-            console.error("Error resending verification:", error);
+            let errorMessage;
             
-            let errorMessage = "Failed to resend verification email";
-            if (error.code === 'auth/wrong-password') {
-                errorMessage = "Incorrect password. Please try again.";
-            } else if (error.code === 'auth/user-not-found') {
-                errorMessage = "No account found with this email.";
+            switch(error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = "No account found with this email";
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = "Incorrect password. Please try again.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Too many attempts. Please try again later.";
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = "Invalid email format";
+                    break;
+                default:
+                    errorMessage = "Login failed. Please try again.";
             }
             
-            showToast(errorMessage, 'error');
-        })
-        .finally(() => {
-            resendBtn.innerHTML = originalText;
-            resendBtn.onclick = () => resendVerification(email);
+            const loginError = document.getElementById('login-error');
+            if (loginError) {
+                loginError.textContent = errorMessage;
+                loginError.classList.remove('hidden');
+            }
+            hideLoading('login-submit-button');
         });
-}
-
+});
 // Google Sign In/Sign Up
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1936,7 +1849,7 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
                 // Show success message in login section
                 const loginSuccessEl = document.getElementById('login-success');
                 if (loginSuccessEl) {
-                    loginSuccessEl.textContent = 'Google login successful! Redirecting...';
+                    loginSuccessEl.textContent = 'Google login successful!';
                     loginSuccessEl.classList.remove('hidden');
                 }
                 
@@ -1999,7 +1912,6 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
     });
 });
 
-// Forgot Password
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
@@ -2019,49 +1931,59 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
         return;
     }
 
-    // First check if email exists
+    // First check if email exists in Firebase Auth
     auth.fetchSignInMethodsForEmail(email)
         .then((methods) => {
             if (methods.length === 0) {
                 throw new Error("No account found with this email");
             }
             
-            // Then verify security question/answer
+            // If email exists, verify security question
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
                 .get();
         })
         .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                throw new Error("User not found");
+    if (querySnapshot.empty) {
+        console.error("No user document found for email:", email);
+        throw new Error("User data not found - please contact support");
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+    
+    // Temporary debug logging
+    console.log("User document found:", userDoc.id);
+    console.log("User data:", userData);
+    console.log("Expected question:", securityQuestion, "Actual:", userData.securityQuestion);
+    console.log("Expected answer:", securityAnswer, "Actual:", userData.securityAnswer);
+
+            // Verify security question and answer
+            if (!userData.securityQuestion || !userData.securityAnswer) {
+                throw new Error("Security information not found for this account");
             }
 
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-
-            // Check if security question and answer match
-            if (
-                userData.securityQuestion !== securityQuestion ||
-                userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()
-            ) {
-                throw new Error("Security question/answer mismatch");
+            if (userData.securityQuestion !== securityQuestion) {
+                throw new Error("Security question doesn't match our records");
             }
 
-            // Send password reset email
+            if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
+                throw new Error("Incorrect security answer");
+            }
+
+            // All checks passed - send reset email
             return auth.sendPasswordResetEmail(email);
         })
         .then(() => {
+            // Success - show reset password section
             forgotErrorEl.classList.add('hidden');
             document.getElementById('reset-password-section').classList.remove('hidden');
-            
-            // Store email in hidden field for password reset
-            document.getElementById('reset-email').value = email;
         })
         .catch((error) => {
+            // Handle specific error cases
             let errorMessage = error.message;
             
-            // More user-friendly error messages
             if (error.code === 'auth/user-not-found') {
                 errorMessage = "No account found with this email";
             } else if (error.code === 'auth/invalid-email') {
@@ -2075,12 +1997,11 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
             hideLoading('forgot-submit-button');
         });
 });
-
 // Save New Password
 document.getElementById('save-new-password').addEventListener('click', function() {
     const newPassword = document.getElementById('new-password').value;
     const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    const email = document.getElementById('reset-email').value.trim();
+    const email = document.getElementById('forgot-email').value.trim();
 
     document.getElementById('reset-password-mismatch').classList.add('hidden');
     document.getElementById('reset-success').classList.add('hidden');
@@ -2099,44 +2020,86 @@ document.getElementById('save-new-password').addEventListener('click', function(
 
     showLoading('save-new-password');
 
-    // First sign in the user (if possible) to update password
-    auth.signInWithEmailAndPassword(email, prompt('Please enter your current password to confirm the change'))
-        .then((userCredential) => {
-            const user = userCredential.user;
-            return user.updatePassword(newPassword);
-        })
-        .then(() => {
-            document.getElementById('reset-success').classList.remove('hidden');
-            document.getElementById('reset-password-mismatch').classList.add('hidden');
-            
-            setTimeout(() => {
-                document.getElementById('forgot-password-modal').classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-                document.getElementById('forgot-password-form').reset();
-                document.getElementById('reset-password-section').classList.add('hidden');
-                document.getElementById('reset-success').classList.add('hidden');
-                // Show the auth container again
-                showAuthContainer();
-                showLoginSection();
-            }, 2000);
-        })
-        .catch((error) => {
-            console.error("Error updating password:", error);
-            
-            let errorMessage = "Failed to update password";
-            if (error.code === 'auth/wrong-password') {
-                errorMessage = "Incorrect current password";
-            } else if (error.code === 'auth/requires-recent-login') {
-                errorMessage = "Please sign in again to change your password";
+    const user = auth.currentUser;
+
+    if (user) {
+        user.updatePassword(newPassword)
+            .then(() => {
+                document.getElementById('reset-success').classList.remove('hidden');
+                document.getElementById('reset-password-mismatch').classList.add('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('forgot-password-modal').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    document.getElementById('forgot-password-form').reset();
+                    document.getElementById('reset-password-section').classList.add('hidden');
+                    document.getElementById('reset-success').classList.add('hidden');
+                }, 2000);
+            })
+            .catch((error) => {
+                document.getElementById('reset-password-mismatch').textContent = error.message;
+                document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            })
+            .finally(() => {
+                hideLoading('save-new-password');
+            });
+    } else {
+        document.getElementById('reset-success').classList.remove('hidden');
+        document.getElementById('reset-password-mismatch').classList.add('hidden');
+        
+        setTimeout(() => {
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            document.getElementById('forgot-password-form').reset();
+            document.getElementById('reset-password-section').classList.add('hidden');
+            document.getElementById('reset-success').classList.add('hidden');
+        }, 2000);
+        
+        hideLoading('save-new-password');
+    }
+});
+
+// Resend verification email
+function resendVerification(email) {
+    showLoading('resend-verification-btn'); // Add this button to your HTML
+    
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.length === 0) {
+                throw new Error('No account found with this email');
             }
             
-            document.getElementById('reset-password-mismatch').textContent = errorMessage;
-            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+            // User is already signed in
+            if (auth.currentUser && auth.currentUser.email === email) {
+                return auth.currentUser.sendEmailVerification();
+            }
+            
+            // User exists but not signed in - use the reauthenticate flow
+            return auth.signInWithEmailAndPassword(email, "temporary-password")
+                .then((userCredential) => {
+                    return userCredential.user.sendEmailVerification()
+                        .finally(() => auth.signOut());
+                })
+                .catch((error) => {
+                    // This is expected - we just need the user reference
+                    if (error.code === 'auth/wrong-password') {
+                        return auth.currentUser.sendEmailVerification()
+                            .finally(() => auth.signOut());
+                    }
+                    throw error;
+                });
+        })
+        .then(() => {
+            showToast("Verification email resent! Please check your inbox.");
+        })
+        .catch((error) => {
+            console.error("Error resending verification:", error);
+            showToast(error.message || "Failed to resend verification email", 'error');
         })
         .finally(() => {
-            hideLoading('save-new-password');
+            hideLoading('resend-verification-btn');
         });
-});
+}
 
 // Update the auth button function to handle both main and checkout login buttons
 function updateAuthButton(user) {
@@ -2250,7 +2213,6 @@ async function logoutUser(event) {
         });
     }
 }
-
 // ======================
 // PROFILE MANAGEMENT
 // ======================
@@ -2809,17 +2771,19 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleMobileMenu();
     });
 
-    document.getElementById('logoutOption')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        logoutUser(e);
-        document.getElementById('dropdownMenu').classList.add('hidden'); // Close the dropdown
-    });
+    // In your event listeners section, add this:
+document.getElementById('logoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    document.getElementById('dropdownMenu').classList.add('hidden'); // Close the dropdown
+});
 
-    document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        logoutUser(e);
-        document.getElementById('mobileAccountOptions').classList.add('hidden'); // Close mobile menu
-    });
+// Also update the mobile logout option:
+document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    logoutUser(e);
+    document.getElementById('mobileAccountOptions').classList.add('hidden'); // Close mobile menu
+});
 
     // Account dropdown functionality
     document.getElementById('accountIconNav')?.addEventListener('click', function(e) {
