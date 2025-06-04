@@ -666,23 +666,24 @@ function renderOrders(orders) {
                         </button>
                     </div>
                     ${order.trackingLink ? `
-                        <div class="mb-4">
-                            <p class="text-sm text-gray-600 mb-2">Here's your tracking link:</p>
-                            <div class="flex items-center border rounded-md overflow-hidden">
-                                <input type="text" id="trackingLink-${order.id}" value="${order.trackingLink}" class="flex-1 px-3 py-2 outline-none text-sm" readonly>
-                                <button onclick="copyTrackingLink('trackingLink-${order.id}')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <a href="track.html"class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Open Tracking Page
-                        </a>
-                    ` : `
-                        <p class="text-gray-600 mb-4">Tracking information is not yet available. Please check back later.</p>
-                        <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-                            Close
-                        </button>
+    <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-1">Courier Service: <span class="font-medium capitalize">${order.courierService || 'Not specified'}</span></p>
+        <p class="text-sm text-gray-600 mb-2">Tracking Link:</p>
+        <div class="flex items-center border rounded-md overflow-hidden">
+            <input type="text" id="trackingLink-${order.id}" value="${order.trackingLink}" class="flex-1 px-3 py-2 outline-none text-sm" readonly>
+            <button onclick="copyTrackingLink('trackingLink-${order.id}')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    </div>
+    <a href="${order.trackingLink}" target="_blank" class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Open Tracking Page
+    </a>
+` : `
+    <p class="text-gray-600 mb-4">Tracking information is not yet available. Please check back later.</p>
+    <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+        Close
+    </button>
                     `}
                 </div>
             </div>
