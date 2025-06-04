@@ -1925,15 +1925,17 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
-    
+
     const email = document.getElementById('forgot-email').value.trim();
     const securityQuestion = document.getElementById('forgot-security-question').value;
     const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
 
-    document.getElementById('forgot-error').classList.add('hidden');
+    const forgotErrorEl = document.getElementById('forgot-error');
+    forgotErrorEl.classList.add('hidden');
 
     auth.fetchSignInMethodsForEmail(email)
         .then(() => {
+            // Use query to get user document
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
@@ -1943,24 +1945,28 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
             if (querySnapshot.empty) {
                 throw new Error("User not found");
             }
-            
+
             const userDoc = querySnapshot.docs[0];
             const userData = userDoc.data();
-            
-            if (userData.securityQuestion !== securityQuestion || 
-                userData.securityAnswer !== securityAnswer) {
+
+            // Check if security question and answer match
+            if (
+                userData.securityQuestion !== securityQuestion ||
+                userData.securityAnswer !== securityAnswer
+            ) {
                 throw new Error("Security question/answer mismatch");
             }
-            
+
+            // Send password reset email
             return auth.sendPasswordResetEmail(email);
         })
         .then(() => {
-            document.getElementById('forgot-error').classList.add('hidden');
+            forgotErrorEl.classList.add('hidden');
             document.getElementById('reset-password-section').classList.remove('hidden');
         })
         .catch((error) => {
-            document.getElementById('forgot-error').textContent = error.message;
-            document.getElementById('forgot-error').classList.remove('hidden');
+            forgotErrorEl.textContent = error.message;
+            forgotErrorEl.classList.remove('hidden');
         })
         .finally(() => {
             hideLoading('forgot-submit-button');
