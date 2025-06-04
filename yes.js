@@ -1594,8 +1594,7 @@ function setupPasswordToggles() {
     });
 }
 
-// Also make sure this is called in your DOMContentLoaded event listener
-// Add this helper function if not already present
+// Add this helper function
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
@@ -1656,16 +1655,22 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         isValid = false;
     }
 
-    if (!securityQuestion || !securityAnswer) {
-        document.getElementById('signup-error').textContent = 'All fields are required';
-        document.getElementById('signup-error').classList.remove('hidden');
-        isValid = false;
-    }
+   // In the signup form submit handler
+if (!securityQuestion || !securityAnswer) {
+    document.getElementById('signup-error').textContent = 'Security question and answer are required';
+    document.getElementById('signup-error').classList.remove('hidden');
+    hideLoading('signup-submit-button');
+    return;
+}
 
-    if (!isValid) {
-        hideLoading('signup-submit-button');
-        return;
-    }
+// Validate security answer length
+if (securityAnswer.length < 3) {
+    document.getElementById('signup-error').textContent = 'Security answer must be at least 3 characters';
+    document.getElementById('signup-error').classList.remove('hidden');
+    hideLoading('signup-submit-button');
+    return;
+}
+
 
  // In the signup form submit handler
 auth.createUserWithEmailAndPassword(email, password)
@@ -1739,6 +1744,24 @@ auth.createUserWithEmailAndPassword(email, password)
         });
 });
 
+// Update the forgot password form to validate email first
+document.getElementById('forgot-email')?.addEventListener('blur', function() {
+    const email = this.value.trim();
+    const errorEl = document.getElementById('forgot-email-error');
+    
+    if (!email) {
+        errorEl.textContent = 'Email is required';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        errorEl.textContent = 'Please enter a valid email address';
+        errorEl.classList.remove('hidden');
+    } else {
+        errorEl.classList.add('hidden');
+    }
+});
 // Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -1758,24 +1781,15 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             // Check if email is verified
             if (!user.emailVerified) {
                 auth.signOut(); // Force logout unverified users
-                throw new Error("Please verify your email first. Check your inbox or resend the verification email.");
+                throw new Error("Please verify your email first. Check your inbox.");
             }
             
             // Update last login time
             return db.collection("users").doc(user.uid).update({
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                return db.collection("users").doc(user.uid).get();
             });
         })
-        .then((doc) => {
-            if (!doc.exists) {
-                throw new Error("User data not found");
-            }
-            
-            const user = auth.currentUser;
-            const userData = doc.data();
-            
+        .then(() => {
             // Show success message
             const loginSuccess = document.getElementById('login-success');
             if (loginSuccess) {
@@ -1787,51 +1801,37 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             
             setTimeout(() => {
                 hideAuthContainer();
-                
-                // Update account info page if it exists
-                const accountInfoPage = document.getElementById('account-info-page');
-                if (accountInfoPage) {
-                    accountInfoPage.classList.remove('hidden');
-                    
-                    const displayName = document.getElementById('displayName');
-                    if (displayName) displayName.textContent = userData.name || '';
-                    
-                    const displayEmail = document.getElementById('displayEmail');
-                    if (displayEmail) displayEmail.textContent = user.email || '';
-                    
-                    const emailDisplay = document.getElementById('emailDisplay');
-                    if (emailDisplay) emailDisplay.value = user.email || '';
-                    
-                    loadAddresses(user.uid);
-                    loadOrders(user.uid);
-                }
-                
-                updateMobileAccountOptions();
-                
-                const emailField = document.getElementById('email');
-                if (emailField) emailField.value = user.email;
+                // Update UI as needed
             }, 500);
         })
-    .catch((error) => {
-        console.error("Error handling login:", error);
-        const loginError = document.getElementById('login-error');
-        if (loginError) {
-            // User-friendly error messages
-            if (error.code === 'auth/user-not-found') {
-                loginError.textContent = 'No account found with this email. Please sign up.';
-            } else if (error.code === 'auth/wrong-password') {
-                loginError.textContent = 'Incorrect password. Please try again.';
-            } else if (error.code === 'auth/too-many-requests') {
-                loginError.textContent = 'Too many attempts. Please try again later.';
-            } else {
-                loginError.textContent = 'Error processing login. Please try again.';
+        .catch((error) => {
+            let errorMessage;
+            
+            switch(error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = "No account found with this email";
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = "Incorrect password. Please try again.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Too many attempts. Please try again later.";
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = "Invalid email format";
+                    break;
+                default:
+                    errorMessage = "Login failed. Please try again.";
             }
-            loginError.classList.remove('hidden');
-        }
-        hideLoading('login-submit-button');
-    });
+            
+            const loginError = document.getElementById('login-error');
+            if (loginError) {
+                loginError.textContent = errorMessage;
+                loginError.classList.remove('hidden');
+            }
+            hideLoading('login-submit-button');
+        });
 });
-
 // Google Sign In/Sign Up
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -1912,7 +1912,6 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
     });
 });
 
-// Forgot Password
 document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
@@ -1924,13 +1923,22 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     const forgotErrorEl = document.getElementById('forgot-error');
     forgotErrorEl.classList.add('hidden');
 
+    // Basic validation
+    if (!email || !securityQuestion || !securityAnswer) {
+        forgotErrorEl.textContent = 'All fields are required';
+        forgotErrorEl.classList.remove('hidden');
+        hideLoading('forgot-submit-button');
+        return;
+    }
+
+    // First check if email exists in Firebase Auth
     auth.fetchSignInMethodsForEmail(email)
         .then((methods) => {
             if (methods.length === 0) {
                 throw new Error("No account found with this email");
             }
             
-            // Get the user document
+            // If email exists, verify security question
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
@@ -1938,36 +1946,46 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
         })
         .then((querySnapshot) => {
             if (querySnapshot.empty) {
-                throw new Error("User not found");
+                throw new Error("User data not found - please contact support");
             }
 
             const userDoc = querySnapshot.docs[0];
             const userData = userDoc.data();
 
-            // Check if security question and answer match
-            if (
-                userData.securityQuestion !== securityQuestion ||
-                userData.securityAnswer !== securityAnswer
-            ) {
-                throw new Error("Security question/answer mismatch");
+            // Verify security question and answer
+            if (userData.securityQuestion !== securityQuestion) {
+                throw new Error("Security question doesn't match our records");
             }
 
-            // Send password reset email
+            if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
+                throw new Error("Incorrect security answer");
+            }
+
+            // All checks passed - send reset email
             return auth.sendPasswordResetEmail(email);
         })
         .then(() => {
+            // Success - show reset password section
             forgotErrorEl.classList.add('hidden');
             document.getElementById('reset-password-section').classList.remove('hidden');
         })
         .catch((error) => {
-            forgotErrorEl.textContent = error.message;
+            // Handle specific error cases
+            let errorMessage = error.message;
+            
+            if (error.code === 'auth/user-not-found') {
+                errorMessage = "No account found with this email";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Invalid email format";
+            }
+            
+            forgotErrorEl.textContent = errorMessage;
             forgotErrorEl.classList.remove('hidden');
         })
         .finally(() => {
             hideLoading('forgot-submit-button');
         });
 });
-
 // Save New Password
 document.getElementById('save-new-password').addEventListener('click', function() {
     const newPassword = document.getElementById('new-password').value;
