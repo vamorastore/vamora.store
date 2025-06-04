@@ -1938,13 +1938,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                 throw new Error("No account found with this email");
             }
             
-            // If user is currently logged in with this email, proceed
-            const user = auth.currentUser;
-            if (user && user.email === email) {
-                return verifySecurityQuestion(email, securityQuestion, securityAnswer);
-            }
-            
-            // For non-logged-in users, check security question
+            // Now check Firestore for security question
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
@@ -1955,12 +1949,27 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                     }
                     
                     const userDoc = querySnapshot.docs[0];
-                    return verifySecurityQuestion(email, securityQuestion, securityAnswer, userDoc);
+                    const userData = userDoc.data();
+                    
+                    // Verify security question and answer
+                    if (!userData.securityQuestion || !userData.securityAnswer) {
+                        throw new Error("Security information not set up for this account");
+                    }
+
+                    if (userData.securityQuestion !== securityQuestion) {
+                        throw new Error("Security question doesn't match our records");
+                    }
+
+                    if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
+                        throw new Error("Incorrect security answer");
+                    }
+                    
+                    return email; // Return email for next step
                 });
         })
-        .then(() => {
+        .then((verifiedEmail) => {
             // All checks passed - send reset email
-            return auth.sendPasswordResetEmail(email, {
+            return auth.sendPasswordResetEmail(verifiedEmail, {
                 url: window.location.origin + '/login.html' // Where to redirect after reset
             });
         })
@@ -1977,8 +1986,6 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                 errorMessage = "No account found with this email";
             } else if (error.code === 'auth/invalid-email') {
                 errorMessage = "Invalid email format";
-            } else if (error.message.includes("Security question")) {
-                errorMessage = "Security information doesn't match our records";
             }
             
             forgotErrorEl.textContent = errorMessage;
@@ -2051,26 +2058,55 @@ document.getElementById('save-new-password').addEventListener('click', function(
 
     showLoading('save-new-password');
 
-    const user = auth.currentUser;
-
-    // If user is logged in with the same email, update password directly
-    if (user && user.email === email) {
-        user.updatePassword(newPassword)
-            .then(() => {
-                showResetSuccess();
-            })
-            .catch((error) => {
-                document.getElementById('reset-password-mismatch').textContent = error.message;
-                document.getElementById('reset-password-mismatch').classList.remove('hidden');
-            })
-            .finally(() => {
-                hideLoading('save-new-password');
-            });
-    } else {
-        // For non-logged-in users, just show success (they'll use the email link)
-        showResetSuccess();
-        hideLoading('save-new-password');
-    }
+    // Try to find the user by email
+    auth.fetchSignInMethodsForEmail(email)
+        .then((methods) => {
+            if (methods.length === 0) {
+                throw new Error("No account found with this email");
+            }
+            
+            // For email/password users, we can attempt to sign in and update password
+            if (methods.includes('password')) {
+                // This is just to get the user reference - we'll sign out immediately after
+                return auth.signInWithEmailAndPassword(email, "temporary-password")
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return user.updatePassword(newPassword)
+                            .then(() => {
+                                auth.signOut(); // Sign out immediately after password change
+                                return true;
+                            });
+                    })
+                    .catch((error) => {
+                        // This is expected - we just need the user reference
+                        if (error.code === 'auth/wrong-password') {
+                            const user = auth.currentUser;
+                            if (user && user.email === email) {
+                                return user.updatePassword(newPassword)
+                                    .then(() => {
+                                        auth.signOut(); // Sign out immediately after password change
+                                        return true;
+                                    });
+                            }
+                        }
+                        throw error;
+                    });
+            }
+            
+            // For other providers, just show success (they'll use the email link)
+            return true;
+        })
+        .then(() => {
+            showResetSuccess();
+        })
+        .catch((error) => {
+            console.error("Error updating password:", error);
+            document.getElementById('reset-password-mismatch').textContent = error.message;
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        })
+        .finally(() => {
+            hideLoading('save-new-password');
+        });
 });
 
 function showResetSuccess() {
@@ -2084,15 +2120,9 @@ function showResetSuccess() {
         document.getElementById('reset-password-section').classList.add('hidden');
         document.getElementById('reset-success').classList.add('hidden');
         
-        // If user was logged in, redirect to profile page
-        const user = auth.currentUser;
-        if (user) {
-            window.location.href = 'account.html';
-        } else {
-            // Show login form for non-logged-in users
-            document.getElementById('auth-container').classList.add('active');
-            showLoginSection();
-        }
+        // Show login form
+        document.getElementById('auth-container').classList.add('active');
+        showLoginSection();
     }, 2000);
 }
 // Resend verification email
