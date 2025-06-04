@@ -672,17 +672,20 @@ function renderOrders(orders) {
                                 <input type="text" id="trackingLink-${order.id}" value="${order.trackingLink}" class="flex-1 px-3 py-2 outline-none text-sm" readonly>
                                 <button onclick="copyTrackingLink('trackingLink-${order.id}')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm">
                                     <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <a href="${order.trackingLink}" target="_blank" rel="noopener noreferrer" class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Open Tracking Page
-                        </a>
-                    ` : `
-                        <p class="text-gray-600 mb-4">Tracking information is not yet available. Please check back later.</p>
-                        <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-                            Close
-                        </button>
+                               </button>
+    </div>
+</div>
+${order.trackingLink ? `
+    <button 
+        onclick="window.location.href='track.html?id=${order.id}'" 
+        class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Open Tracking Page
+    </button>
+` : `
+    <p class="text-gray-600 mb-4">Tracking information is not yet available. Please check back later.</p>
+    <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+        Close
+    </button>
                     `}
                 </div>
             </div>
