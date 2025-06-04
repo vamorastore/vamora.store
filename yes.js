@@ -133,7 +133,10 @@ window.addToCart = async function(product) {
     
     updateCartCount();
     renderCart();
-    renderOrderSummary(); // Add this line to update order summary when adding to cart
+    renderOrderSummary();
+    
+    // Auto-open the cart
+    openCart();
 };
 
 // Function to update cart count in navbar
@@ -1831,34 +1834,39 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 if (emailField) emailField.value = user.email;
             }, 1500);
         })
-        .catch((error) => {
-            console.error("Login error:", error);
-            const loginError = document.getElementById('login-error');
-            
-            // User-friendly error messages
-            let errorMessage = 'Error processing login. Please try again.';
-            
-            switch(error.code) {
-                case 'auth/user-not-found':
-                    errorMessage = 'No account found with this email. Please sign up.';
-                    break;
-                case 'auth/wrong-password':
-                    errorMessage = 'Incorrect password. Please try again.';
-                    break;
-                case 'auth/too-many-requests':
-                    errorMessage = 'Account temporarily locked due to too many attempts. Please try again later.';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage = 'Invalid email format. Please check your email.';
-                    break;
-                default:
-                    errorMessage = error.message || errorMessage;
-            }
-            
-            loginError.textContent = errorMessage;
-            loginError.classList.remove('hidden');
-            hideLoading('login-submit-button');
-        });
+ // Update the login error handling in the login form submit handler
+.catch((error) => {
+    console.error("Login error:", error);
+    const loginError = document.getElementById('login-error');
+    
+    // User-friendly error messages
+    let errorMessage = 'Error processing login. Please try again.';
+    
+    switch(error.code) {
+        case 'auth/user-not-found':
+            errorMessage = 'No account found with this email. Please sign up.';
+            break;
+        case 'auth/wrong-password':
+            errorMessage = 'Incorrect password. Please try again.';
+            break;
+        case 'auth/too-many-requests':
+            errorMessage = 'Account temporarily locked due to too many attempts. Please try again later.';
+            break;
+        case 'auth/invalid-email':
+            errorMessage = 'Invalid email format. Please check your email.';
+            break;
+        case 'auth/invalid-login-credentials':
+        case 'INVALID_LOGIN_CREDENTIALS':
+            errorMessage = 'Invalid email or password. Please try again.';
+            break;
+        default:
+            errorMessage = error.message || errorMessage;
+    }
+    
+    loginError.textContent = errorMessage;
+    loginError.classList.remove('hidden');
+    hideLoading('login-submit-button');
+});
 });
 
 // Resend verification email - Updated with better error handling
@@ -2003,9 +2011,22 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     const forgotErrorEl = document.getElementById('forgot-error');
     forgotErrorEl.classList.add('hidden');
 
+    // Basic validation
+    if (!email || !securityQuestion || !securityAnswer) {
+        forgotErrorEl.textContent = 'All fields are required';
+        forgotErrorEl.classList.remove('hidden');
+        hideLoading('forgot-submit-button');
+        return;
+    }
+
+    // First check if email exists
     auth.fetchSignInMethodsForEmail(email)
-        .then(() => {
-            // Use query to get user document
+        .then((methods) => {
+            if (methods.length === 0) {
+                throw new Error("No account found with this email");
+            }
+            
+            // Then verify security question/answer
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
@@ -2022,7 +2043,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
             // Check if security question and answer match
             if (
                 userData.securityQuestion !== securityQuestion ||
-                userData.securityAnswer !== securityAnswer
+                userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()
             ) {
                 throw new Error("Security question/answer mismatch");
             }
@@ -2033,9 +2054,21 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
         .then(() => {
             forgotErrorEl.classList.add('hidden');
             document.getElementById('reset-password-section').classList.remove('hidden');
+            
+            // Store email in hidden field for password reset
+            document.getElementById('reset-email').value = email;
         })
         .catch((error) => {
-            forgotErrorEl.textContent = error.message;
+            let errorMessage = error.message;
+            
+            // More user-friendly error messages
+            if (error.code === 'auth/user-not-found') {
+                errorMessage = "No account found with this email";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Invalid email format";
+            }
+            
+            forgotErrorEl.textContent = errorMessage;
             forgotErrorEl.classList.remove('hidden');
         })
         .finally(() => {
@@ -2047,7 +2080,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
 document.getElementById('save-new-password').addEventListener('click', function() {
     const newPassword = document.getElementById('new-password').value;
     const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    const email = document.getElementById('forgot-email').value.trim();
+    const email = document.getElementById('reset-email').value.trim();
 
     document.getElementById('reset-password-mismatch').classList.add('hidden');
     document.getElementById('reset-success').classList.add('hidden');
@@ -2066,43 +2099,43 @@ document.getElementById('save-new-password').addEventListener('click', function(
 
     showLoading('save-new-password');
 
-    const user = auth.currentUser;
-
-    if (user) {
-        user.updatePassword(newPassword)
-            .then(() => {
-                document.getElementById('reset-success').classList.remove('hidden');
-                document.getElementById('reset-password-mismatch').classList.add('hidden');
-                
-                setTimeout(() => {
-                    document.getElementById('forgot-password-modal').classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                    document.getElementById('forgot-password-form').reset();
-                    document.getElementById('reset-password-section').classList.add('hidden');
-                    document.getElementById('reset-success').classList.add('hidden');
-                }, 2000);
-            })
-            .catch((error) => {
-                document.getElementById('reset-password-mismatch').textContent = error.message;
-                document.getElementById('reset-password-mismatch').classList.remove('hidden');
-            })
-            .finally(() => {
-                hideLoading('save-new-password');
-            });
-    } else {
-        document.getElementById('reset-success').classList.remove('hidden');
-        document.getElementById('reset-password-mismatch').classList.add('hidden');
-        
-        setTimeout(() => {
-            document.getElementById('forgot-password-modal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            document.getElementById('forgot-password-form').reset();
-            document.getElementById('reset-password-section').classList.add('hidden');
-            document.getElementById('reset-success').classList.add('hidden');
-        }, 2000);
-        
-        hideLoading('save-new-password');
-    }
+    // First sign in the user (if possible) to update password
+    auth.signInWithEmailAndPassword(email, prompt('Please enter your current password to confirm the change'))
+        .then((userCredential) => {
+            const user = userCredential.user;
+            return user.updatePassword(newPassword);
+        })
+        .then(() => {
+            document.getElementById('reset-success').classList.remove('hidden');
+            document.getElementById('reset-password-mismatch').classList.add('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('forgot-password-modal').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                document.getElementById('forgot-password-form').reset();
+                document.getElementById('reset-password-section').classList.add('hidden');
+                document.getElementById('reset-success').classList.add('hidden');
+                // Show the auth container again
+                showAuthContainer();
+                showLoginSection();
+            }, 2000);
+        })
+        .catch((error) => {
+            console.error("Error updating password:", error);
+            
+            let errorMessage = "Failed to update password";
+            if (error.code === 'auth/wrong-password') {
+                errorMessage = "Incorrect current password";
+            } else if (error.code === 'auth/requires-recent-login') {
+                errorMessage = "Please sign in again to change your password";
+            }
+            
+            document.getElementById('reset-password-mismatch').textContent = errorMessage;
+            document.getElementById('reset-password-mismatch').classList.remove('hidden');
+        })
+        .finally(() => {
+            hideLoading('save-new-password');
+        });
 });
 
 // Update the auth button function to handle both main and checkout login buttons
