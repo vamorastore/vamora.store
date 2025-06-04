@@ -541,31 +541,19 @@ async function loadOrders(userId) {
 function renderOrders(orders) {
     if (!ordersContainer) return;
 
-    const statusOrder = [
-        'placed',
-        'processed',
-        'shipped',
-        'delivered'
-    ];
+    const statusOrder = ['placed', 'processed', 'shipped', 'delivered'];
 
     ordersContainer.innerHTML = orders.map(order => {
         const currentIndex = statusOrder.indexOf(order.status);
 
-        // Icon class: "Placed" always active, others active if <= currentIndex
         const iconClass = (index) => {
-            if (index === 0) {
-                return 'bg-blue-500 text-white';
-            }
-            return (index <= currentIndex)
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-500';
+            if (index === 0) return 'bg-blue-500 text-white';
+            return (index <= currentIndex) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500';
         };
 
-        // Progress bar: always minimum 1/4 (placed), increases by status
         const getStatusProgress = (status) => {
             const currentIndex = statusOrder.indexOf(status);
             const widthClasses = ['w-1/4', 'w-2/4', 'w-3/4', 'w-full'];
-            if (currentIndex === -1) return 'w-1/4 bg-blue-500';
             return widthClasses[Math.max(0, currentIndex)] + ' bg-blue-500';
         };
 
@@ -575,7 +563,6 @@ function renderOrders(orders) {
 
         return `
         <div class="order-item border border-gray-200 rounded-lg mb-6 bg-white shadow-sm overflow-hidden">
-            <!-- Order Header -->
             <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <div class="flex-1 min-w-[150px]">
@@ -611,10 +598,8 @@ function renderOrders(orders) {
                 </div>
             </div>
 
-            <!-- Order Progress -->
             <div class="px-4 py-3 border-b border-gray-200">
                 <div class="relative">
-                    <!-- Labels -->
                     <div class="flex justify-between items-center mb-3 text-[11px] text-gray-600 md:text-xs">
                         <span class="${order.status === 'placed' ? 'text-blue-600 font-medium' : ''}">Placed</span>
                         <span class="${order.status === 'processed' ? 'text-blue-600 font-medium' : ''}">Processed</span>
@@ -622,12 +607,10 @@ function renderOrders(orders) {
                         <span class="${order.status === 'delivered' ? 'text-blue-600 font-medium' : ''}">Delivered</span>
                     </div>
 
-                    <!-- Progress Bar -->
                     <div class="relative h-1.5 bg-gray-200 rounded-full mb-4">
                         <div class="absolute top-0 left-0 h-1.5 rounded-full ${getStatusProgress(order.status)}"></div>
                     </div>
 
-                    <!-- Icons -->
                     <div class="relative flex justify-between px-1 md:px-0">
                         <div class="w-6 h-6 md:w-8 md:h-8 ${iconClass(0)} rounded-full flex items-center justify-center">
                             <i class="fas fa-check text-xs"></i>
@@ -645,7 +628,6 @@ function renderOrders(orders) {
                 </div>
             </div>
 
-            <!-- Order Items -->
             <div class="px-4 py-3">
                 <h4 class="font-medium mb-3 text-gray-800">Items (${order.items.length})</h4>
                 <div class="space-y-3">
@@ -657,18 +639,9 @@ function renderOrders(orders) {
                             <div class="flex-1 min-w-0">
                                 <p class="font-medium text-gray-900 truncate">${item.title}</p>
                                 <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-600">
-                                    <div>
-                                        <span class="text-gray-500">Size:</span>
-                                        <span>${item.size || '-'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Qty:</span>
-                                        <span>${item.quantity || 1}</span>
-                                    </div>
-                                    <div class="col-span-2 md:col-span-1">
-                                        <span class="text-gray-500">Price:</span>
-                                        <span>${item.price || '₹0.00'}</span>
-                                    </div>
+                                    <div><span class="text-gray-500">Size:</span> <span>${item.size || '-'}</span></div>
+                                    <div><span class="text-gray-500">Qty:</span> <span>${item.quantity || 1}</span></div>
+                                    <div class="col-span-2 md:col-span-1"><span class="text-gray-500">Price:</span> <span>${item.price || '₹0.00'}</span></div>
                                 </div>
                             </div>
                         </div>
@@ -678,13 +651,68 @@ function renderOrders(orders) {
 
             <!-- Track Order Button -->
             <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
-                <button class="w-full md:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm font-medium">
+                <button onclick="showTrackingLink('${order.trackingLink || ''}')" class="w-full md:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm font-medium">
                     Track Order
                 </button>
+            </div>
+
+            <!-- Tracking Link Modal -->
+            <div id="trackingModal-${order.id}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Order Tracking</h3>
+                        <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    ${order.trackingLink ? `
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Here's your tracking link:</p>
+                            <div class="flex items-center border rounded-md overflow-hidden">
+                                <input type="text" id="trackingLink-${order.id}" value="${order.trackingLink}" class="flex-1 px-3 py-2 outline-none text-sm" readonly>
+                                <button onclick="copyTrackingLink('trackingLink-${order.id}')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a href="${order.trackingLink}" target="_blank" rel="noopener noreferrer" class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Open Tracking Page
+                        </a>
+                    ` : `
+                        <p class="text-gray-600 mb-4">Tracking information is not yet available. Please check back later.</p>
+                        <button onclick="document.getElementById('trackingModal-${order.id}').classList.add('hidden')" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+                            Close
+                        </button>
+                    `}
+                </div>
             </div>
         </div>
         `;
     }).join('');
+
+    // Helper Functions
+    window.showTrackingLink = function (link) {
+        if (!link) {
+            alert("Tracking information is not yet available. Please check back later.");
+            return;
+        }
+        const orderElement = event.target.closest('.order-item');
+        if (orderElement) {
+            const modal = orderElement.querySelector('[id^="trackingModal-"]');
+            if (modal) modal.classList.remove('hidden');
+        }
+    };
+
+    window.copyTrackingLink = function (inputId) {
+        const input = document.getElementById(inputId);
+        input.select();
+        document.execCommand('copy');
+        const toast = document.createElement('div');
+        toast.textContent = 'Link copied!';
+        toast.className = 'fixed bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded-md shadow-lg';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    };
 }
 
 
