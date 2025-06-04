@@ -378,23 +378,6 @@ function setupProductPage() {
     quantityInput?.addEventListener('change', function() {
         if (this.value < 1) this.value = 1;
     });
-    
-    // Share functionality
-    const shareButton = document.querySelector('.share-icon');
-    shareButton?.addEventListener('click', function() {
-        if (navigator.share) {
-            navigator.share({
-                title: document.querySelector('h1').textContent,
-                text: "Check out this product from VAMORA.STORE",
-                url: window.location.href
-            }).catch(err => {
-                console.log('Error sharing:', err);
-                fallbackShare();
-            });
-        } else {
-            fallbackShare();
-        }
-    });
 
     function fallbackShare() {
         const tempInput = document.createElement('input');
