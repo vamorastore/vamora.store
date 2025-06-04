@@ -1684,18 +1684,19 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         return;
     }
 
-    // Create user and send verification email
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Send verification email
-            return user.sendEmailVerification().then(() => {
-                // Update user profile with display name
+ // In the signup form submit handler
+auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        
+        // Send verification email
+        return user.sendEmailVerification()
+            .then(() => {
+                // Update user profile
                 return user.updateProfile({
                     displayName: name
                 }).then(() => {
-                    // Save additional user data to Firestore
+                    // Save to Firestore
                     return db.collection("users").doc(user.uid).set({
                         name: name,
                         email: email,
@@ -1709,32 +1710,33 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
                     });
                 });
             });
-        })
-        .then(() => {
-            // Hide the form and show verification message
-            const signupForm = document.getElementById('signup-form');
-            const verifyEmailSuccess = document.getElementById('verify-email-success');
-            
-            if (signupForm) signupForm.classList.add('hidden');
-            if (verifyEmailSuccess) {
-                verifyEmailSuccess.classList.remove('hidden');
-                verifyEmailSuccess.innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
-                        <p class="mb-4">We've sent a verification link to ${email}</p>
-                        <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
-                            Go to Login
-                        </button>
-                        <p class="text-sm mt-4 text-gray-600">
-                            Didn't get the email? 
-                            <a href="#" onclick="resendVerification('${email}')" class="text-blue-600">Resend</a>
-                        </p>
-                    </div>
-                `;
-            }
-        })
-        .catch((error) => {
+    })
+    .then(() => {
+        // Show verification message
+        const verifyEmailSuccess = document.getElementById('verify-email-success');
+        if (verifyEmailSuccess) {
+            verifyEmailSuccess.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-envelope-open-text text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                    <p class="mb-4">We've sent a verification link to ${email}</p>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Didn't receive the email? Check your spam folder or
+                        <a href="#" onclick="resendVerification('${email}')" 
+                           class="text-blue-600 font-medium" id="resend-verification-btn">
+                            Resend Verification Email
+                        </a>
+                    </p>
+                    <button onclick="showLoginSection()" class="px-4 py-2 bg-black text-white rounded">
+                        Go to Login
+                    </button>
+                </div>
+            `;
+            verifyEmailSuccess.classList.remove('hidden');
+            document.getElementById('signup-form').classList.add('hidden');
+        }
+    })
+    .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             
@@ -1827,18 +1829,24 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 if (emailField) emailField.value = user.email;
             }, 500);
         })
-        .catch((error) => {
-            console.error("Error handling login:", error);
-            const loginError = document.getElementById('login-error');
-            if (loginError) {
-                loginError.textContent = error.message || 'Error processing login. Please try again.';
-                loginError.classList.remove('hidden');
+    .catch((error) => {
+        console.error("Error handling login:", error);
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            // User-friendly error messages
+            if (error.code === 'auth/user-not-found') {
+                loginError.textContent = 'No account found with this email. Please sign up.';
+            } else if (error.code === 'auth/wrong-password') {
+                loginError.textContent = 'Incorrect password. Please try again.';
+            } else if (error.code === 'auth/too-many-requests') {
+                loginError.textContent = 'Too many attempts. Please try again later.';
+            } else {
+                loginError.textContent = 'Error processing login. Please try again.';
             }
-            hideLoading('login-submit-button');
-            
-            const loginSection = document.getElementById('login-section');
-            if (loginSection) loginSection.classList.remove('login-success');
-        });
+            loginError.classList.remove('hidden');
+        }
+        hideLoading('login-submit-button');
+    });
 });
 
 // Google Sign In/Sign Up
@@ -2037,51 +2045,43 @@ document.getElementById('save-new-password').addEventListener('click', function(
 
 // Resend verification email
 function resendVerification(email) {
+    showLoading('resend-verification-btn'); // Add this button to your HTML
+    
     auth.fetchSignInMethodsForEmail(email)
         .then((methods) => {
-            if (methods.length > 0) {
-                const user = auth.currentUser;
-                if (user) {
-                    return user.sendEmailVerification()
-                        .then(() => {
-                            alert("Verification email resent! Please check your inbox.");
-                        })
-                        .catch((error) => {
-                            alert("Error resending verification: " + error.message);
-                        });
-                } else {
-                    // For users who aren't currently signed in
-                    return auth.signInWithEmailAndPassword(email, "temporary-password")
-                        .then((userCredential) => {
-                            return userCredential.user.sendEmailVerification()
-                                .then(() => {
-                                    auth.signOut(); // Sign out immediately after sending
-                                    alert("Verification email resent! Please check your inbox.");
-                                });
-                        })
-                        .catch((error) => {
-                            if (error.code === 'auth/wrong-password') {
-                                // This is expected since we used a dummy password
-                                // Try to send the verification anyway
-                                auth.currentUser.sendEmailVerification()
-                                    .then(() => {
-                                        auth.signOut();
-                                        alert("Verification email resent! Please check your inbox.");
-                                    })
-                                    .catch((sendError) => {
-                                        alert("Error resending verification: " + sendError.message);
-                                    });
-                            } else {
-                                alert("Error resending verification: " + error.message);
-                            }
-                        });
-                }
-            } else {
-                alert("No account found with this email.");
+            if (methods.length === 0) {
+                throw new Error('No account found with this email');
             }
+            
+            // User is already signed in
+            if (auth.currentUser && auth.currentUser.email === email) {
+                return auth.currentUser.sendEmailVerification();
+            }
+            
+            // User exists but not signed in - use the reauthenticate flow
+            return auth.signInWithEmailAndPassword(email, "temporary-password")
+                .then((userCredential) => {
+                    return userCredential.user.sendEmailVerification()
+                        .finally(() => auth.signOut());
+                })
+                .catch((error) => {
+                    // This is expected - we just need the user reference
+                    if (error.code === 'auth/wrong-password') {
+                        return auth.currentUser.sendEmailVerification()
+                            .finally(() => auth.signOut());
+                    }
+                    throw error;
+                });
+        })
+        .then(() => {
+            showToast("Verification email resent! Please check your inbox.");
         })
         .catch((error) => {
-            alert("Error checking account: " + error.message);
+            console.error("Error resending verification:", error);
+            showToast(error.message || "Failed to resend verification email", 'error');
+        })
+        .finally(() => {
+            hideLoading('resend-verification-btn');
         });
 }
 
