@@ -159,7 +159,7 @@ function renderCart() {
             <div class="text-center py-12">
                 <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
                 <p class="text-gray-500">Your cart is empty</p>
-                <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                <a href="shop.html" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
                     Continue Shopping
                 </a>
             </div>
@@ -504,7 +504,7 @@ async function loadOrders(userId) {
                     <i class="fas fa-shopping-bag text-4xl mb-3"></i>
                     <p class="text-lg">You haven't placed any orders yet</p>
                     <p class="text-sm mt-2">Your orders will appear here once you make a purchase</p>
-                    <a href="/shop" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                    <a href="shop.html" class="mt-4 inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
                         Continue Shopping
                     </a>
                 </div>
