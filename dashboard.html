@@ -471,7 +471,15 @@
                 </div>
                 
                 <div class="border-t pt-4">
-                    <h4 class="font-bold mb-2 tracking-wide">Update Status</h4>
+    <h4 class="font-bold mb-2 tracking-wide">Tracking Information</h4>
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+        <input type="text" id="trackingLinkInput" class="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter tracking link" aria-label="Tracking link">
+        <button id="saveTrackingLinkBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700" aria-label="Save tracking link">
+            Save Link
+        </button>
+    </div>
+    
+    <h4 class="font-bold mb-2 tracking-wide">Update Status</h4>
                     <div class="flex flex-wrap items-center gap-3">
                         <select id="statusUpdateSelect" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black" aria-label="Select new order status">
                             <option value="placed">Placed</option>
@@ -902,6 +910,51 @@
                 showOrderDetails(orderId);
             });
         });
+        
+        // Add this near your other DOM element selectors
+const trackingLinkInput = document.getElementById('trackingLinkInput');
+const saveTrackingLinkBtn = document.getElementById('saveTrackingLinkBtn');
+
+// Add this event listener in your setupEventListeners function
+if (saveTrackingLinkBtn) saveTrackingLinkBtn.addEventListener('click', saveTrackingLink);
+
+// Add this function to handle saving tracking links
+async function saveTrackingLink() {
+    if (!currentOrderId) return;
+    
+    const trackingLink = trackingLinkInput.value.trim();
+    if (!trackingLink) {
+        showToast("Please enter a valid tracking link", "error");
+        return;
+    }
+    
+    const orderRef = db.collection("orders").doc(currentOrderId);
+    
+    try {
+        await orderRef.update({
+            trackingLink: trackingLink,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Update local data
+        const orderIndex = allOrders.findIndex(o => o.id === currentOrderId);
+        if (orderIndex !== -1) {
+            allOrders[orderIndex].trackingLink = trackingLink;
+        }
+        
+        // Update filtered orders if needed
+        const filteredIndex = filteredOrders.findIndex(o => o.id === currentOrderId);
+        if (filteredIndex !== -1) {
+            filteredOrders[filteredIndex].trackingLink = trackingLink;
+        }
+        
+        showToast("Tracking link saved successfully", "success");
+    } catch (error) {
+        console.error("Error saving tracking link:", error);
+        showToast("Failed to save tracking link: " + error.message, "error");
+    }
+}
+        
     }
     
     // Show order details modal
