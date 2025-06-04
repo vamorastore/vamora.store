@@ -332,6 +332,132 @@ function setupCartEventListeners() {
 }
 
 // ======================
+// PRODUCT PAGE FUNCTIONS
+// ======================
+
+function setupProductPage() {
+    if (!document.querySelector('.product-details')) return;
+
+    // Size selection
+    const sizeButtons = document.querySelectorAll('.size-button');
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            sizeButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Quantity adjustment
+    const decrementButton = document.getElementById('decrement-quantity');
+    const incrementButton = document.getElementById('increment-quantity');
+    const quantityInput = document.getElementById('product-quantity');
+
+    decrementButton?.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+        }
+    });
+
+    incrementButton?.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+    });
+    
+    // Size guide toggle
+    const sizeGuideBtn = document.getElementById('size-guide-btn');
+    const sizeGuideContainer = document.getElementById('size-guide-container');
+
+    sizeGuideBtn?.addEventListener('click', function(e) {
+        e.preventDefault();
+        sizeGuideContainer.classList.toggle('open');
+        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+    });
+
+    // Input validation
+    quantityInput?.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+    });
+    
+    // Share functionality
+    const shareButton = document.querySelector('.share-icon');
+    shareButton?.addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.querySelector('h1').textContent,
+                text: "Check out this product from VAMORA.STORE",
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare();
+            });
+        } else {
+            fallbackShare();
+        }
+    });
+
+    function fallbackShare() {
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
+    }
+
+    // Add to cart button
+    document.getElementById('add-to-cart-btn')?.addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        
+        const product = {
+            id: window.location.pathname,
+            title: document.querySelector('h1').textContent,
+            size: selectedSize.textContent,
+            price: document.querySelector('.details-section .text-2xl.font-bold').textContent,
+            quantity: parseInt(quantityInput.value),
+            image: document.querySelector('.main-image').src
+        };
+        
+        addToCart(product);
+    });
+
+    // Buy now button
+    document.getElementById('buy-now-btn')?.addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        
+        const product = {
+            id: window.location.pathname,
+            title: document.querySelector('h1').textContent,
+            size: selectedSize.textContent,
+            price: document.querySelector('.details-section .text-2xl.font-bold').textContent,
+            quantity: parseInt(quantityInput.value),
+            image: document.querySelector('.main-image').src
+        };
+        
+        // Replace cart with just this item
+        cart = [product];
+        
+        const user = auth.currentUser;
+        if (user) {
+            saveCartToFirestore(user.uid, cart);
+        } else {
+            localStorage.setItem('guestCart', JSON.stringify(cart));
+        }
+        
+        proceedToCheckout();
+    });
+}
+
+// ======================
 // ORDER MANAGEMENT
 // ======================
 
