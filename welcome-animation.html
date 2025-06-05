@@ -30,7 +30,7 @@
         }
 
         .welcome-text {
-            font-size: clamp(2rem, 6vw, 4rem); /* Responsive font size */
+            font-size: clamp(2rem, 6vw, 4rem);
             font-weight: 700;
             margin: 0;
             opacity: 0;
@@ -44,7 +44,7 @@
             transform: translateY(30px);
         }
 
-        /* Animation for each letter in "vamora.store" */
+        /* Animation for each letter */
         .welcome-text .letter:nth-child(1) { animation: fadeInUp 0.6s forwards 0.1s; }
         .welcome-text .letter:nth-child(2) { animation: fadeInUp 0.6s forwards 0.2s; }
         .welcome-text .letter:nth-child(3) { animation: fadeInUp 0.6s forwards 0.3s; }
@@ -59,7 +59,7 @@
         .welcome-text .letter:nth-child(12) { animation: fadeInUp 0.6s forwards 1.2s; }
 
         .subtext {
-            font-size: clamp(0.8rem, 2vw, 1.5rem); /* Responsive font size */
+            font-size: clamp(0.8rem, 2vw, 1.5rem);
             font-weight: 300;
             opacity: 0;
             transform: translateY(20px);
@@ -72,6 +72,13 @@
             font-weight: 700;
         }
 
+        /* Dissolve effect for main page */
+        .main-content {
+            opacity: 0;
+            animation: dissolveIn 1.5s ease-in forwards;
+            animation-delay: 3s; /* Match this with animation duration */
+        }
+
         @keyframes fadeInUp {
             to {
                 opacity: 1;
@@ -82,6 +89,17 @@
         @keyframes fadeOut {
             to {
                 opacity: 0;
+            }
+        }
+
+        @keyframes dissolveIn {
+            0% {
+                opacity: 0;
+                filter: blur(5px);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0);
             }
         }
     </style>
@@ -111,20 +129,30 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Check if animation should be shown (once per session)
             if (!sessionStorage.getItem('animationShown')) {
+                // Hide main content initially
+                document.querySelector('.main-content').style.opacity = '0';
+                
                 // Animation sequence
                 setTimeout(function() {
+                    // Fade out welcome overlay
                     document.getElementById('welcomeOverlay').style.animation = 'fadeOut 1s forwards';
                     
+                    // Remove overlay after fade out completes
                     setTimeout(function() {
                         document.getElementById('welcomeOverlay').remove();
                     }, 1000);
-                }, 3000); // Total animation duration
+                    
+                    // Start dissolve in effect for main content
+                    document.querySelector('.main-content').style.animation = 'dissolveIn 1.5s ease-in forwards';
+                    
+                }, 3000); // Total animation duration before fade out
                 
                 // Mark animation as shown for this session
                 sessionStorage.setItem('animationShown', 'true');
             } else {
-                // Remove immediately if animation was already shown
+                // Remove overlay immediately if animation was already shown
                 document.getElementById('welcomeOverlay').remove();
+                document.querySelector('.main-content').style.opacity = '1';
             }
         });
     </script>
