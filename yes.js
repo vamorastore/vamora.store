@@ -1090,7 +1090,7 @@ async function placeOrder() {
 
     // Create Razorpay options
     const options = {
-        key:'rzp_live_DPartLBDccSG34',
+        key:"rzp_live_DPartLBDccSG34",
         amount: totalAmount,
         currency: "INR",
         name: "VAMORA.STORE",
