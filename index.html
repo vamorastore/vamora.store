@@ -2040,7 +2040,30 @@ Clarity. Focus. Vision with intent."</p>
 
 <!-- Your scripts -->
 <script src="yes.js"></script>
+<script>
+// Load welcome animation
+function loadWelcomeAnimation() {
+    // Create container if it doesn't exist
+    if (!document.getElementById('welcome-animation-container')) {
+        const container = document.createElement('div');
+        container.id = 'welcome-animation-container';
+        document.body.insertBefore(container, document.body.firstChild);
+    }
+    
+    // Load the animation content
+    fetch('welcome-animation.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('welcome-animation-container').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading welcome animation:', error);
+        });
+}
 
+// Call the function when DOM is loaded
+document.addEventListener('DOMContentLoaded', loadWelcomeAnimation);
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Size buttons selection
