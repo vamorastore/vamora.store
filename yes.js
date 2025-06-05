@@ -1917,28 +1917,57 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     showLoading('forgot-submit-button');
 
     const email = document.getElementById('forgot-email').value.trim();
+    const user = auth.currentUser;
+    const isLoggedIn = !!user;
+    
+    // For logged-in users, skip security question verification
+    if (isLoggedIn && user.email !== email) {
+        showToast("Email doesn't match logged-in account", 'error');
+        hideLoading('forgot-submit-button');
+        return;
+    }
+
     const securityQuestion = document.getElementById('forgot-security-question').value;
     const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
 
     const forgotErrorEl = document.getElementById('forgot-error');
     forgotErrorEl.classList.add('hidden');
 
-    // Basic validation
-    if (!email || !securityQuestion || !securityAnswer) {
-        forgotErrorEl.textContent = 'All fields are required';
-        forgotErrorEl.classList.remove('hidden');
-        hideLoading('forgot-submit-button');
+    // Skip validation for logged-in users
+    if (!isLoggedIn) {
+        if (!email || !securityQuestion || !securityAnswer) {
+            forgotErrorEl.textContent = 'All fields are required';
+            forgotErrorEl.classList.remove('hidden');
+            hideLoading('forgot-submit-button');
+            return;
+        }
+    }
+
+    // For logged-in users, use their existing data
+    if (isLoggedIn) {
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                forgotErrorEl.classList.add('hidden');
+                document.getElementById('reset-password-section').classList.remove('hidden');
+            })
+            .catch((error) => {
+                forgotErrorEl.textContent = error.message;
+                forgotErrorEl.classList.remove('hidden');
+            })
+            .finally(() => {
+                hideLoading('forgot-submit-button');
+            });
         return;
     }
 
-    // First check if email exists in Firebase Auth
+    // Rest of the existing flow for non-logged-in users...
     auth.fetchSignInMethodsForEmail(email)
         .then((methods) => {
             if (methods.length === 0) {
                 throw new Error("No account found with this email");
             }
             
-            // Now check Firestore for security question
+            // Check Firestore for security question
             return db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
@@ -1951,44 +1980,35 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
                     
-                    // Verify security question and answer
-                    if (!userData.securityQuestion || !userData.securityAnswer) {
-                        throw new Error("Security information not set up for this account");
-                    }
+                    if (!isLoggedIn) {
+                        // Verify security question and answer for non-logged-in users
+                        if (!userData.securityQuestion || !userData.securityAnswer) {
+                            throw new Error("Security information not set up for this account");
+                        }
 
-                    if (userData.securityQuestion !== securityQuestion) {
-                        throw new Error("Security question doesn't match our records");
-                    }
+                        if (userData.securityQuestion !== securityQuestion) {
+                            throw new Error("Security question doesn't match our records");
+                        }
 
-                    if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
-                        throw new Error("Incorrect security answer");
+                        if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
+                            throw new Error("Incorrect security answer");
+                        }
                     }
                     
-                    return email; // Return email for next step
+                    return email;
                 });
         })
         .then((verifiedEmail) => {
-            // All checks passed - send reset email
             return auth.sendPasswordResetEmail(verifiedEmail, {
-                url: window.location.origin + '/login.html' // Where to redirect after reset
+                url: window.location.origin + '/login.html'
             });
         })
         .then(() => {
-            // Success - show reset password section
             forgotErrorEl.classList.add('hidden');
             document.getElementById('reset-password-section').classList.remove('hidden');
         })
         .catch((error) => {
-            // Handle specific error cases
-            let errorMessage = error.message;
-            
-            if (error.code === 'auth/user-not-found') {
-                errorMessage = "No account found with this email";
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage = "Invalid email format";
-            }
-            
-            forgotErrorEl.textContent = errorMessage;
+            forgotErrorEl.textContent = error.message;
             forgotErrorEl.classList.remove('hidden');
         })
         .finally(() => {
@@ -2035,6 +2055,11 @@ async function verifySecurityQuestion(email, securityQuestion, securityAnswer, u
     
     return true;
 }
+// When showing the forgot password modal, ensure reset section is hidden
+document.getElementById('forgot-password-link')?.addEventListener('click', function() {
+    document.getElementById('reset-password-section').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+});
 // Save New Password
 document.getElementById('save-new-password').addEventListener('click', function() {
     const newPassword = document.getElementById('new-password').value;
@@ -2763,20 +2788,27 @@ document.addEventListener('DOMContentLoaded', function() {
         resetForms();
     });
 
-    document.getElementById('close-forgot-password')?.addEventListener('click', function() {
-        document.getElementById('forgot-password-modal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-        
-        // Reset the form and error messages
-        document.getElementById('forgot-password-form').reset();
-        document.getElementById('reset-password-section').classList.add('hidden');
-        document.getElementById('forgot-error').classList.add('hidden');
-        document.getElementById('reset-success').classList.add('hidden');
-        
-        // Show the auth container again
+document.getElementById('close-forgot-password')?.addEventListener('click', function() {
+    document.getElementById('forgot-password-modal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    
+    // Reset the form and show security fields again
+    document.getElementById('forgot-password-form').reset();
+    document.getElementById('reset-password-section').classList.add('hidden');
+    document.getElementById('forgot-error').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+    document.getElementById('forgot-email').readOnly = false;
+    document.getElementById('forgot-email').classList.remove('bg-gray-100');
+    
+    // Show security fields again
+    document.getElementById('forgot-security-question').closest('.mb-4').classList.remove('hidden');
+    document.getElementById('forgot-security-answer').closest('.mb-4').classList.remove('hidden');
+    
+    // Show the auth container again if user wasn't logged in
+    if (!auth.currentUser) {
         document.getElementById('auth-container').classList.add('active');
-    });
-
+    }
+});
 // When showing forgot password modal, pre-fill email if user is logged in
 document.getElementById('forgot-password-link')?.addEventListener('click', function(event) {
     event.preventDefault();
@@ -2785,13 +2817,23 @@ document.getElementById('forgot-password-link')?.addEventListener('click', funct
     const forgotEmailInput = document.getElementById('forgot-email');
     
     if (user && forgotEmailInput) {
+        // User is logged in - prefill email and disable editing
         forgotEmailInput.value = user.email;
         forgotEmailInput.readOnly = true;
         forgotEmailInput.classList.add('bg-gray-100');
+        
+        // Hide the security question section for logged-in users
+        document.getElementById('forgot-security-question').closest('.mb-4').classList.add('hidden');
+        document.getElementById('forgot-security-answer').closest('.mb-4').classList.add('hidden');
     } else if (forgotEmailInput) {
+        // User is not logged in - reset the field
         forgotEmailInput.value = '';
         forgotEmailInput.readOnly = false;
         forgotEmailInput.classList.remove('bg-gray-100');
+        
+        // Show security question section
+        document.getElementById('forgot-security-question').closest('.mb-4').classList.remove('hidden');
+        document.getElementById('forgot-security-answer').closest('.mb-4').classList.remove('hidden');
     }
     
     document.getElementById('auth-container').classList.remove('active');
