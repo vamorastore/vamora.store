@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Partners</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+ body {
+    font-family: 'Unbounded', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #e5e5e5; /* Ensure this is set */
+}
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.mobile-menu-button {
+    display: none; /* This should be block on mobile */
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-button {
+        display: block;
+        order: 1;
+        z-index: 100; /* Ensure it's above other elements */
+    }
+    
+    .mobile-menu-content {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #e5e5e5;
+        padding: 1.25rem 1.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 40;
+    }
+    
+    .mobile-menu-content.active {
+        display: block;
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+}
+
+.opacity-0 {
+    opacity: 0;
+}
+/* Add these transition classes */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.transition-opacity {
+    transition: opacity 0.3s ease;
+}
+
+.transition-transform {
+    transition: transform 0.3s ease;
+}
+
+.opacity-0 {
+    opacity: 0;
+}
+
+.opacity-100 {
+    opacity: 1;
+}
+
+/* Toast animation */
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(20px); opacity: 0; }
+}
+
+.toast {
+    animation: slideIn 0.3s forwards;
+}
+
+.toast.hide {
+    animation: slideOut 0.3s forwards;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+#auth-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100; /* Higher than other elements */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#auth-container.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.auth-modal {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+/* Main content container */
+.main-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: 80px; /* Account for fixed navbar */
+    background-color: white;
+    min-height: calc(100vh - 80px); /* Full height minus navbar */
+    box-sizing: border-box;
+}
+
+/* Account dropdown styles */
+.account-icon-hover {
+    transition: all 0.2s ease;
+}
+.account-icon-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+.account-icon-hover:active {
+    transform: scale(0.95);
+}
+.icon-hover {
+    transition: all 0.2s ease;
+}
+.icon-hover:hover {
+    color: #3b82f6;
+    transform: scale(1.1);
+}
+.icon-hover-blue:hover {
+    color: #2563eb;
+}
+.icon-hover-gray:hover {
+    color: #6b7280;
+}
+.icon-hover-red:hover {
+    color: #dc2626;
+}
+.icon-click-effect:active {
+    transform: scale(0.85);
+}
+
+/* Login modal styles */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+.loading:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.password-container {
+    position: relative;
+}
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    cursor: pointer;
+    color: #6b7280;
+    background: none;
+    border: none;
+    padding: 4px;
+    z-index: 10;
+}
+.password-input {
+    padding-right: 40px !important;
+}
+
+/* Navigation styles */
+.nav-link {
+    position: relative;
+    cursor: pointer;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background-color: black;
+    left: 50%;
+    bottom: -4px;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+    left: 0;
+}
+
+.icon-separator {
+    border-left: 1px solid black;
+    height: 28px;
+    margin: 0 10px;
+}
+
+.icon {
+    font-size: 1.2rem;
+}
+
+/* Logo animation */
+.logo-container {
+    position: relative;
+    display: inline-block;
+}
+.logo-container img {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    height: 50px;
+    width: 60px;
+}
+.logo-container:hover img {
+    transform: rotateY(360deg);
+}
+.logo-text {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.6s, left 0.6s;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.logo-container:hover .logo-text {
+    opacity: 1;
+    left: calc(100% + 10px);
+}
+
+/* Navigation bar */
+.navbar {
+    background-color: #e5e5e5;
+    padding: 1rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 50;
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Mobile menu */
+.mobile-menu-button {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+    color: #555;
+    transform: scale(1.1);
+}
+
+.mobile-menu-button:active {
+    transform: scale(0.95);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.75rem;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Mobile menu content */
+.mobile-menu-content {
+    display: none;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: #e5e5e5;
+    padding: 1.25rem 1.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 40;
+}
+
+
+.mobile-menu-content.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+.mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.mobile-menu-social {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.75rem;
+    padding: 0.75rem 0;
+}
+
+/* Cart Overlay Styles */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    max-width: 450px;
+    height: 100%;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.cart-overlay.active {
+    right: 0;
+}
+
+.overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.overlay-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Account dropdown styles */
+.account-icon-hover {
+    transition: all 0.2s ease;
+}
+.account-icon-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+.account-icon-hover:active {
+    transform: scale(0.95);
+}
+.icon-hover {
+    transition: all 0.2s ease;
+}
+.icon-hover:hover {
+    color: #3b82f6;
+    transform: scale(1.1);
+}
+.icon-hover-blue:hover {
+    color: #2563eb;
+}
+.icon-hover-gray:hover {
+    color: #6b7280;
+}
+.icon-hover-red:hover {
+    color: #dc2626;
+}
+.icon-click-effect:active {
+    transform: scale(0.85);
+}
+
+/* Search styles */
+.search-container {
+    position: relative;
+    display: inline-block;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 180px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 100;
+    display: none;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.search-result-item .title {
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-size: 0.9rem;
+}
+
+.search-result-item .category {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.no-results {
+    padding: 10px 15px;
+    color: #666;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.search-input-container {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+}
+
+.search-input {
+    padding: 8px 15px;
+    padding-right: 35px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    width: 180px;
+    outline: none;
+    transition: width 0.3s;
+}
+
+.search-input:focus {
+    width: 220px;
+    border-color: #999;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.search-close {
+    position: absolute;
+    right: 35px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+}
+
+.search-close:hover {
+    color: #333;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .mobile-menu-button {
+        display: block;
+        order: 1;
+    }
+    
+    .logo-container {
+        order: 2;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .logo-container:hover img {
+        transform: none;
+    }
+    
+    .logo-text {
+        display: none;
+    }
+    
+    .nav-icons {
+        order: 3;
+    }
+    
+    .nav-links {
+        display: none;
+    }
+    
+    .mobile-menu-links a {
+        font-size: 1rem;
+    }
+    
+    .mobile-menu-social a {
+        font-size: 1.35rem;
+    }
+    
+    .cart-overlay {
+        max-width: 100%;
+    }
+    
+    .icon {
+        font-size: 1rem;
+    }
+    
+    /* Mobile search adjustments */
+    .search-input-container {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        padding: 10px;
+        background: #e5e5e5;
+        z-index: 60;
+    }
+    
+    .search-input {
+        width: calc(100% - 50px);
+        padding: 10px 45px 10px 15px;
+    }
+    
+    .search-input:focus {
+        width: calc(100% - 50px);
+    }
+    
+    .search-results {
+        position: fixed;
+        top: 140px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    .search-close {
+        right: 45px;
+    }
+    
+    .search-icon {
+        right: 20px;
+    }
+
+    .no-results {
+        padding: 15px;
+        font-size: 1em;
+    }
+
+    /* Adjusted dropdown position */
+    #dropdownMenu {
+        top: 100%;
+        right: 0;
+        left: auto;
+        width: 200px;
+    }
+}
+
+@media (min-width: 769px) {
+    .nav-links {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .nav-links a {
+        font-size: 0.875rem;
+    }
+    
+    .cart-overlay h2 {
+        font-size: 2.25rem;
+    }
+    
+    .cart-overlay .font-medium {
+        font-size: 1.125rem;
+    }
+    
+    .cart-overlay .text-lg {
+        font-size: 1.25rem;
+    }
+    
+    .cart-overlay button {
+        font-size: 1.125rem;
+        padding: 1rem;
+    }
+
+    .cart-overlay .fa-times {
+        font-size: 1.5rem;
+    }
+}
+
+/* Footer styles */
+.footer-link {
+    position: relative;
+    cursor: pointer;
+    font-weight: 300;
+}
+.footer-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    background-color: black;
+    left: 50%;
+    bottom: -2px;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+.footer-link:hover::after,
+.footer-link.active::after {
+    width: 100%;
+    left: 0;
+}
+
+/* Main content container */
+.main-content {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: 50px;
+    background-color: white;
+}
+
+/* Footer */
+.footer {
+    background-color: #e5e5e5;
+    padding: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+.footer-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-logo {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.footer-social-desktop,
+.footer-social-mobile {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.footer-social-desktop a,
+.footer-social-mobile a {
+    font-size: 1rem;
+    transition: opacity 0.3s;
+}
+
+.footer-social-desktop a:hover,
+.footer-social-mobile a:hover {
+    opacity: 0.7;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+.footer-bottom {
+    border-top: 1px solid #d1d5db;
+    padding-top: 1rem;
+    text-align: center;
+    width: 100%;
+}
+
+.footer-bottom p {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+/* Account Info Page Styling */
+#account-info-page {
+    transition: opacity 0.3s ease;
+}
+
+#account-info-page.active {
+    display: block;
+}
+
+/* Edit Profile Modal Styling */
+#editProfileModal {
+    transition: all 0.3s ease;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error/Success Messages */
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.success-message {
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Button States */
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .footer {
+        padding: 1rem;
+        padding-bottom: 2rem;
+    }
+    
+    .footer-social-desktop {
+        display: none;
+    }
+    
+    .footer-social-mobile {
+        display: flex;
+        margin: 1rem 0;
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .footer-link {
+        font-size: 0.6rem;
+    }
+    
+    .footer-bottom p {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .mobile-menu-links a {
+        font-size: 0.875rem;
+    }
+    
+    .mobile-menu-social a {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .footer-social-mobile {
+        display: none;
+    }
+    
+    .footer-social-desktop {
+        display: flex;
+    }
+    
+    .footer-link {
+        font-size: 0.7rem;
+    }
+    
+    .footer-container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .footer-bottom p {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        line-height: normal;
+    }
+}
+
+/* Enhanced cart styles */
+#cartList {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1rem;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-item-price {
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 1rem;
+}
+/* Add these styles to your CSS file */
+#account-info-page {
+    transition: opacity 0.3s ease;
+}
+
+#account-info-page.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#account-info-page.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#editProfileModal {
+    transition: all 0.3s ease;
+}
+
+#editProfileModal.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+#editProfileModal:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.logout-button {
+    color: #ef4444;
+}
+
+.logout-button:hover {
+    color: #dc2626;
+}
+
+.login-button {
+    color: #3b82f6;
+}
+
+.login-button:hover {
+    color: #2563eb;
+}
+
+.cart-item-remove {
+    color: #ef4444;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .product-container {
+        flex-direction: column;
+        padding: 1rem;
+        min-height: auto;
+    }
+    
+    .image-section, .details-section {
+        width: 100% !important;
+    }
+    
+    .details-section {
+        margin-left: 0 !important;
+        margin-top: 1.5rem;
+    }
+    
+    .thumbnail {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .size-button {
+        font-size: 0.65rem;
+        width: 2.2rem;
+        height: 2.2rem;
+    }
+    
+    .main-image {
+        max-height: 60vh;
+    }
+    
+    .cart-overlay {
+        max-width: 100%;
+    }
+    
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+}        
+        /* Courier Companies Section */
+        .courier-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .courier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .courier-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .courier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .courier-logo {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: #f8f8f8;
+        }
+        
+        .courier-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .courier-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .courier-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .courier-info p {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .track-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: black;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .courier-card:hover .track-btn {
+            background-color: #333;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <button class="mobile-menu-button" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="flex items-center logo-container">
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
+                <span class="logo-text">VAMORA.STORE</span>
+            </div>
+            
+            <div class="flex items-center space-x-2 nav-icons">
+                <div class="search-container">
+                    <a class="text-black nav-link" id="enableSearch">
+                        <i class="fas fa-search icon"></i>
+                    </a>
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+                        <span class="search-close" id="closeSearch">&times;</span>
+                        <span class="search-icon" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="icon-separator"></div>
+                <div class="relative">
+                    <div class="cursor-pointer" id="accountIconNav">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/309035_user_account_human_person_icon.png?updatedAt=1748440169995" 
+                             alt="Account" 
+                             class="account-icon-hover w-8 h-8 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                    </div>
+                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
+                        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
+                        </a>
+                        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <div class="icon-separator"></div>
+                <a class="text-black nav-link" id="cartIconNav">
+                    <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="contact.html">CONTACT</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Content -->
+    <div class="mobile-menu-content" id="mobileMenuContent">
+        <div class="mobile-menu-links">
+            <a class="text-black nav-link" href="index.html">HOME</a>
+            <a class="text-black nav-link" href="shop.html">SHOP</a>
+            <a class="text-black nav-link" href="about.html">ABOUT</a>
+            <a class="text-black nav-link" href="contact.html">CONTACT</a>
+        </div>
+        <div class="mobile-menu-social">
+            <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+            <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="courier-section">
+            <h1 class="section-title">Our Shipping Partners</h1>
+            <p class="section-subtitle">We work with trusted courier partners to ensure fast and reliable delivery of your orders</p>
+            
+            <div class="courier-grid">
+                <!-- Ekart -->
+                <div class="courier-card" onclick="window.open('https://www.ekartlogistics.com/', '_blank')">
+                    <div class="courier-logo">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/c9d7799868e9d5111913aa57ea7ba80c16bdb82d2d81d497b656f0173dcef7cd.webp" alt="Ekart Logistics">
+                    </div>
+                    <div class="courier-info">
+                        <h3>Ekart Logistics</h3>
+                        <p>Flipkart's logistics arm providing reliable delivery services across India</p>
+                        <span class="track-btn">Track Shipment</span>
+                    </div>
+                </div>
+                
+                <!-- Xpressbees -->
+                <div class="courier-card" onclick="window.open('https://www.xpressbees.com/', '_blank')">
+                    <div class="courier-logo">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/images.png?updatedAt=1749128659983" alt="Xpressbees">
+                    </div>
+                    <div class="courier-info">
+                        <h3>Xpressbees</h3>
+                        <p>Fast and efficient logistics services with extensive coverage in India</p>
+                        <span class="track-btn">Track Shipment</span>
+                    </div>
+                </div>
+                
+                <!-- Delhivery -->
+                <div class="courier-card" onclick="window.open('https://www.delhivery.com/', '_blank')">
+                    <div class="courier-logo">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/delhivery-logo-png_seeklogo-356432.png?updatedAt=1749128752752" alt="Delhivery">
+                    </div>
+                    <div class="courier-info">
+                        <h3>Delhivery</h3>
+                        <p>India's leading supply chain services company with nationwide coverage</p>
+                        <span class="track-btn">Track Shipment</span>
+                    </div>
+                </div>
+                
+                <!-- Blue Dart -->
+                <div class="courier-card" onclick="window.open('https://www.bluedart.com/', '_blank')">
+                    <div class="courier-logo">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/1200px-Blue_Dart_logo_transparent.png" alt="Blue Dart">
+                    </div>
+                    <div class="courier-info">
+                        <h3>Blue Dart</h3>
+                        <p>Premium express air and integrated transportation & distribution services</p>
+                        <span class="track-btn">Track Shipment</span>
+                    </div>
+                </div>
+     </div>
+                </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Centered logo -->
+            <div class="footer-logo">
+                <div class="flex items-center justify-center logo-container">
+                    <img alt="Company logo" class="h-10 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on desktop, hidden on mobile -->
+            <div class="footer-social-desktop">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <!-- Footer links grid -->
+            <div class="footer-grid">
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="mailto:vamora.co.in@gmail.com">EMAIL</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link active" href="track.html">ORDER TRACK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on mobile, hidden on desktop -->
+            <div class="footer-social-mobile">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
+                    <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
+                    <span>
+                    <a class="footer-link" href="refund.html" style="font-size: 0.5rem;"> . REFUND POLICY</a>
+                    
+                    <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
+                    </span>
+                    <span>
+                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    
+                    <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Include all your existing JavaScript files -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="yes.js"></script>
+</body>
+</html>
