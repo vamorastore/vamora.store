@@ -1,10 +1,11 @@
 require('dotenv').config();
-const Razorpay = require('razorpay');
-const { initializeApp } = require("firebase/app");
+console.log("Razorpay Key ID:", process.env.RAZORPAY_KEY_ID);
+console.log("Razorpay Key Secret:", process.env.RAZORPAY_KEY_SECRET);
 
+const Razorpay = require('razorpay');
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
-key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 const firebaseConfig = {
