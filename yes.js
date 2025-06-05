@@ -116,7 +116,7 @@ window.addToCart = async function(product) {
     
     // Check if item exists with same ID and size
     const existingItem = cart.find(item => 
-        item.id === product.id && i.size === product.size
+        item.id === product.id && item.size === product.size
     );
 
     if (existingItem) {
@@ -133,9 +133,11 @@ window.addToCart = async function(product) {
     
     updateCartCount();
     renderCart();
-    renderOrderSummary(); // Add this line to update order summary when adding to cart
+    renderOrderSummary();
+    
+    // Open the cart automatically
+    openCart();
 };
-
 // Function to update cart count in navbar
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
