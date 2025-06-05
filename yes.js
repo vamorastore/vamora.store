@@ -1912,110 +1912,96 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
     });
 });
 
-document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
+document.getElementById('forgot-password-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
 
-    const email = document.getElementById('forgot-email').value.trim();
-    const user = auth.currentUser;
-    const isLoggedIn = !!user;
-    
-    // For logged-in users, skip security question verification
-    if (isLoggedIn && user.email !== email) {
-        showToast("Email doesn't match logged-in account", 'error');
-        hideLoading('forgot-submit-button');
-        return;
-    }
-
+    const email = document.getElementById('forgot-email').value.trim().toLowerCase(); // Normalize email
     const securityQuestion = document.getElementById('forgot-security-question').value;
     const securityAnswer = document.getElementById('forgot-security-answer').value.trim();
 
     const forgotErrorEl = document.getElementById('forgot-error');
     forgotErrorEl.classList.add('hidden');
 
-    // Skip validation for logged-in users
-    if (!isLoggedIn) {
-        if (!email || !securityQuestion || !securityAnswer) {
-            forgotErrorEl.textContent = 'All fields are required';
-            forgotErrorEl.classList.remove('hidden');
-            hideLoading('forgot-submit-button');
-            return;
+    try {
+        // 1. First check if email exists in Firebase Auth
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length === 0) {
+            throw new Error("No account found with this email");
         }
-    }
 
-    // For logged-in users, use their existing data
-    if (isLoggedIn) {
-        auth.sendPasswordResetEmail(email)
-            .then(() => {
-                forgotErrorEl.classList.add('hidden');
-                document.getElementById('reset-password-section').classList.remove('hidden');
-            })
-            .catch((error) => {
-                forgotErrorEl.textContent = error.message;
-                forgotErrorEl.classList.remove('hidden');
-            })
-            .finally(() => {
-                hideLoading('forgot-submit-button');
-            });
-        return;
-    }
+        // 2. Check Firestore for user data
+        const querySnapshot = await db.collection("users")
+            .where("email", "==", email)
+            .limit(1)
+            .get();
 
-    // Rest of the existing flow for non-logged-in users...
-    auth.fetchSignInMethodsForEmail(email)
-        .then((methods) => {
-            if (methods.length === 0) {
-                throw new Error("No account found with this email");
-            }
+        if (querySnapshot.empty) {
+            // Special case: User exists in Auth but not Firestore
+            console.warn("User exists in Auth but not Firestore - creating minimal record");
+            const userCred = await auth.signInWithEmailAndPassword(email, "temporary");
+            await auth.signOut(); // Immediately sign out
             
-            // Check Firestore for security question
-            return db.collection("users")
+            // Create minimal user record
+            await db.collection("users").doc(userCred.user.uid).set({
+                email: email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Resend the query
+            const newSnapshot = await db.collection("users")
                 .where("email", "==", email)
                 .limit(1)
-                .get()
-                .then((querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        throw new Error("User data not found - please contact support");
-                    }
-                    
-                    const userDoc = querySnapshot.docs[0];
-                    const userData = userDoc.data();
-                    
-                    if (!isLoggedIn) {
-                        // Verify security question and answer for non-logged-in users
-                        if (!userData.securityQuestion || !userData.securityAnswer) {
-                            throw new Error("Security information not set up for this account");
-                        }
+                .get();
+                
+            if (newSnapshot.empty) {
+                throw new Error("Failed to verify account - please contact support");
+            }
+            
+            return await handlePasswordReset(email);
+        }
 
-                        if (userData.securityQuestion !== securityQuestion) {
-                            throw new Error("Security question doesn't match our records");
-                        }
+        // 3. Verify security question if not logged in
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        
+        if (!userData.securityQuestion || !userData.securityAnswer) {
+            throw new Error("Security information not set up for this account");
+        }
 
-                        if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
-                            throw new Error("Incorrect security answer");
-                        }
-                    }
-                    
-                    return email;
-                });
-        })
-        .then((verifiedEmail) => {
-            return auth.sendPasswordResetEmail(verifiedEmail, {
-                url: window.location.origin + '/login.html'
-            });
-        })
-        .then(() => {
-            forgotErrorEl.classList.add('hidden');
-            document.getElementById('reset-password-section').classList.remove('hidden');
-        })
-        .catch((error) => {
-            forgotErrorEl.textContent = error.message;
-            forgotErrorEl.classList.remove('hidden');
-        })
-        .finally(() => {
-            hideLoading('forgot-submit-button');
-        });
+        if (userData.securityQuestion !== securityQuestion) {
+            throw new Error("Security question doesn't match our records");
+        }
+
+        // Case-insensitive comparison for security answer
+        if (userData.securityAnswer.toLowerCase() !== securityAnswer.toLowerCase()) {
+            throw new Error("Incorrect security answer");
+        }
+
+        // 4. All checks passed - send reset email
+        await handlePasswordReset(email);
+        
+    } catch (error) {
+        console.error("Password reset error:", error);
+        forgotErrorEl.textContent = error.message;
+        forgotErrorEl.classList.remove('hidden');
+    } finally {
+        hideLoading('forgot-submit-button');
+    }
 });
 
+async function handlePasswordReset(email) {
+    try {
+        await auth.sendPasswordResetEmail(email, {
+            url: window.location.origin + '/login.html'
+        });
+        
+        document.getElementById('forgot-error').classList.add('hidden');
+        document.getElementById('reset-password-section').classList.remove('hidden');
+    } catch (error) {
+        throw new Error("Failed to send reset email. Please try again later.");
+    }
+}
 // Helper function to verify security question
 async function verifySecurityQuestion(email, securityQuestion, securityAnswer, userDoc = null) {
     // If user is logged in, we can skip Firestore check
