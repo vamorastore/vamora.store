@@ -1128,7 +1128,7 @@ async function placeOrder() {
             address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pinCode}`
         },
         theme: {
-            color: "#000000"
+            color: "#528FF0"
         }
     };
 
