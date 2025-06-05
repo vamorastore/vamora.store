@@ -22,3 +22,5 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
+console.log("Firebase initialized successfully");
+console.log("Razorpay instance created successfully");
