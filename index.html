@@ -19,7 +19,7 @@
     flex-direction: column;
     background-color: #e5e5e5;
 }
-/* Add this to your existing CSS */
+
 .cart-overlay a {
     transition: all 0.3s ease;
 }
@@ -30,7 +30,7 @@
 }
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Default: 3 columns */
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     width: 100%;
     max-width: 1200px;
@@ -47,7 +47,7 @@
 .image-frame {
     position: relative;
     width: 100%;
-    padding-bottom: 125.93%; /* Maintain 3:4 aspect ratio */
+    padding-bottom: 125.93%;
     overflow: hidden;
 }
 
@@ -81,7 +81,6 @@
     font-size: 0.75rem;
 }
 
-/* Mobile layout: 2 products per row */
 @media (max-width: 768px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -93,17 +92,12 @@
         font-size: 0.6875rem;
     }
 }
-
-/* Desktop layout: 3 products per row */
 @media (min-width: 769px) {
     .product-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
     }
 }
-
-
-/* Login/Signup Modal */
 #auth-container {
     position: fixed;
     top: 0;
@@ -134,7 +128,6 @@
     position: relative;
 }
 
-/* Password field styles */
 .password-container {
     position: relative;
 }
@@ -155,7 +148,6 @@
     padding-right: 40px !important;
 }
 
-/* Loading spinner */
 .loading {
     position: relative;
     pointer-events: none;
@@ -179,7 +171,6 @@
     to { transform: rotate(360deg); }
 }
 
-/* Modal content styles */
 .auth-section {
     width: 100%;
     padding: 1.5rem;
@@ -191,7 +182,6 @@
     }
 }
 
-/* Form input styles */
 .w-full.px-4.py-2.border.rounded-lg {
     transition: all 0.2s ease;
 }
@@ -203,7 +193,6 @@
 }
 
 
-/* Error message styles */
 .text-red-500 {
     color: #ef4444;
 }
@@ -212,14 +201,12 @@
     color: #10b981;
 }
 
-/* Divider styles */
 .flex-grow.border-t.border-gray-300 {
     flex-grow: 1;
     border-top-width: 1px;
     border-color: #d1d5db;
 }
 
-/* Responsive text sizes */
 .text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
@@ -232,12 +219,10 @@
     }
 }
 
-/* Google login success messages */
 #google-login-success, #google-signup-success {
     transition: all 0.3s ease;
 }
 
-/* Share Button Hover Effects */
 .share-icon {
     transition: all 0.3s ease;
     cursor: pointer;
@@ -253,7 +238,6 @@
     background-color: #d1d1d1;
 }
 
-/* View More Details Link Styling */
 .view-more-link {
     color: #000;
     text-decoration: none;
@@ -299,7 +283,6 @@
 .view-more-link:hover i {
     transform: translateX(3px);
 }
-/* Button styles */
 .bg-blue-500.text-white.py-2.rounded-lg {
     transition: background-color 0.2s ease;
     font-weight: 500;
@@ -308,8 +291,6 @@
 .bg-blue-500.text-white.py-2.rounded-lg:hover {
     background-color: #2563eb;
 }
-
-/* Animation for the success message */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -322,7 +303,7 @@
 }
 
 #google-signin-btn {
-    font-weight: 500; /* moderate boldness */
+    font-weight: 500;
     transition: all 0.3s ease;
 }
 
@@ -341,8 +322,6 @@
 #google-signin-btn span {
     font-weight: 500;
 }
-
-/* Google sign-in button */
 .border.border-gray-300.rounded-lg {
     transition: background-color 0.2s ease;
     font-weight: 500;
@@ -356,8 +335,6 @@
     background-color: #f3f4f6;
 }
 
-
-/* Navigation styles */
 .nav-link {
     position: relative;
     cursor: pointer;
@@ -389,8 +366,6 @@
 .icon {
     font-size: 1.2rem;
 }
-
-/* Logo animation */
 .logo-container {
     position: relative;
     display: inline-block;
@@ -423,8 +398,6 @@
     opacity: 1;
     left: calc(100% + 10px);
 }
-
-/* Navigation bar */
 .navbar {
     background-color: #e5e5e5;
     padding: 1rem 2rem;
@@ -445,8 +418,6 @@
     justify-content: space-between;
     align-items: center;
 }
-
-/* Mobile menu */
 .mobile-menu-button {
     display: none;
     background: none;
@@ -475,8 +446,6 @@
     align-items: center;
     position: relative;
 }
-
-/* Mobile menu content */
 .mobile-menu-content {
     display: none;
     position: fixed;
@@ -506,8 +475,6 @@
     gap: 1.75rem;
     padding: 0.75rem 0;
 }
-
-/* Cart Overlay Styles */
 .cart-overlay {
     position: fixed;
     top: 0;
@@ -580,8 +547,6 @@
     cursor: pointer;
     margin-left: 1rem;
 }
-
-/* Account dropdown styles */
 .account-icon-hover {
     transition: all 0.2s ease;
 }
@@ -619,8 +584,6 @@
 .icon-click-effect:active {
     transform: scale(0.85);
 }
-
-/* Search styles */
 .search-container {
     position: relative;
     display: inline-block;
@@ -712,8 +675,6 @@
 .search-close:hover {
     color: #333;
 }
-
-/* Mobile adjustments */
 @media (max-width: 768px) {
     .mobile-menu-button {
         display: block;
@@ -762,9 +723,7 @@
     .password-toggle {
         top: 36px;
     }
-    
-    /* Mobile search adjustments */
-    .search-input-container {
+        .search-input-container {
         position: fixed;
         top: 80px;
         left: 0;
@@ -804,8 +763,6 @@
         padding: 15px;
         font-size: 1em;
     }
-
-    /* Adjusted dropdown position */
     #dropdownMenu {
         top: 100%;
         right: 0;
@@ -846,8 +803,6 @@
         font-size: 1.5rem;
     }
 }
-
-/* Footer styles */
 .footer-link {
     position: relative;
     cursor: pointer;
@@ -870,8 +825,6 @@
     width: 100%;
     left: 0;
 }
-
-/* Main content container */
 .main-content {
     flex: 1;
     width: 100%;
@@ -880,8 +833,6 @@
     padding-top: 80px;
     background-color: white;
 }
-
-/* Product grid styles - Responsive */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -938,16 +889,12 @@
     padding: 0.5rem 0;
     font-size: 0.75rem;
 }
-
-/* Hero images */
 .hero-image {
     width: 100%;
     height: auto;
     max-height: 100vh;
     object-fit: cover;
 }
-
-/* Footer */
 .footer {
     background-color: #e5e5e5;
     padding: 1.5rem;
@@ -1009,8 +956,6 @@
     justify-content: center;
     gap: 0.5rem;
 }
-
-/* Button styles */
 .button {
     position: relative;
     background-color: black;
@@ -1080,13 +1025,11 @@
     transform: translateY(-100%);
 }
 
-/* Text styles */
 .heading-text {
     font-size: 1.5rem;
     font-weight: bold;
 }
 
-/* Page title */
 .page-title {
     font-size: 2rem;
     font-weight: 600;
@@ -1106,8 +1049,6 @@
 .button-effect:active {
     transform: scale(0.95);
 }
-
-/* Account info page */
 #account-info-page {
     transition: overflow 0.3s ease;
 }
@@ -1115,8 +1056,6 @@
 #account-info-page.overflow-hidden {
     overflow: hidden;
 }
-
-/* Mobile adjustments */
 @media (max-width: 768px) {
     .heading-text {
         font-size: 1.25rem;
@@ -1220,7 +1159,6 @@
     }
 }
 
-/* DE.ORIGIN Product Page Styles */
 .curly-frame-container {
     width: 95%;
     max-width: 1200px;
@@ -1232,8 +1170,6 @@
     overflow: hidden;
     margin: 2rem auto;
 }
-
-/* Curly Border Effect */
 .curly-frame-container::before {
     content: "";
     position: absolute;
@@ -1336,7 +1272,6 @@
     cursor: pointer;
 }
 
-/* Product container */
 .product-container {
     display: flex;
     flex-direction: column;
@@ -1374,19 +1309,15 @@
     }
 }
 
-/* Mobile adjustments (767px and below) */
 @media (max-width: 767px) {
-    /* Description title */
     .details-section h3.font-medium {
         font-size: 0.8125rem;
     }
     
-    /* Description text */
     .details-section p.text-gray-700 {
         font-size: 0.75rem;
     }
     
-    /* Share title */
     .share-section p.text-sm {
         font-size: 0.6875rem;
     }
@@ -1398,12 +1329,9 @@
         align-items: center;
     }
 
-    /* Reduce left margin to save space */
     .share-section > div.ml-9 {
         margin-left: 1.5rem;
     }
-
-    /* Optional: Make share icon smaller */
     .share-icon {
         transform: scale(0.85);
     }
@@ -1411,7 +1339,6 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <button class="mobile-menu-button" id="mobileMenuButton">
@@ -1469,8 +1396,6 @@
             </div>
         </div>
     </nav>
-
-    <!-- Mobile Menu Content -->
     <div class="mobile-menu-content" id="mobileMenuContent">
         <div class="mobile-menu-links">
          <a class="text-black nav-link active" href="index.html">HOME</a>
@@ -1483,8 +1408,6 @@
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
         </div>
     </div>
-
-    <!-- Cart Overlay -->
     <div class="overlay-backdrop" id="cartBackdrop"></div>
     <div class="cart-overlay" id="cartOverlay">
         <div class="p-6 h-full flex flex-col">
@@ -1510,9 +1433,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- Account Info Page (hidden by default) -->
-<div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
+    <div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
     <div class="max-w-4xl mx-auto p-6">
         <div class="bg-white p-6 rounded-lg shadow-md relative">
             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
@@ -1520,7 +1441,6 @@
             </button>
             <h2 class="text-2xl font-bold mb-4">Account Information</h2>
             
-            <!-- Profile Information Section -->
             <div class="mb-6">
                 <div class="mb-4">
                     <div class="flex items-center mb-2">
@@ -1535,11 +1455,9 @@
                 </div>
             </div>
             
-            <!-- Orders Section -->
             <div class="bg-white p-4 rounded-lg shadow-md mt-4">
                 <h3 class="text-xl font-bold mb-4">Your Orders</h3>
                 <div id="ordersContainer" class="space-y-4">
-                    <!-- Orders will be displayed here -->
                     <div class="text-center py-8 text-gray-500">
                         <p>No orders found</p>
                     </div>
@@ -1548,8 +1466,6 @@
         </div>
     </div>
 </div>
-
-   <!-- Edit Profile Modal (move this inside the account-info-page div) -->
 <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 font-unbounded">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div class="flex justify-between items-center mb-4">
@@ -1571,8 +1487,6 @@
         </button>
     </div>
 </div>
-
-    <!-- Login/Signup Modal -->
 <div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
         <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
@@ -1615,9 +1529,7 @@
                 <span class="mx-4 text-gray-500 text-sm">or</span>
                 <div class="flex-grow border-t border-gray-300"></div>
             </div>
-            
-            <!-- Google Sign In Button at the bottom -->
-            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                        <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
                 <span class="text-gray-500 font-medium"> Log in with Google </span>
             </button>
@@ -1629,14 +1541,8 @@
         
         <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
             <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
-            
-            <!-- In the login-section div -->
-<p id="google-login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
-
-<!-- In the signup-section div -->
+            <p id="google-login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
 <p id="google-signup-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful!</p>
-
-            <!-- Google Sign Up Button -->
        
             <form id="signup-form">
                 <div class="mb-4">
@@ -1692,9 +1598,7 @@
                 <span class="mx-4 text-gray-500 text-sm">or</span>
                 <div class="flex-grow border-t border-gray-300"></div>
             </div>
-            
-            <!-- Google Sign In Button at the bottom -->
-            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                        <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
                 <span class="text-gray-500 font-medium"> Sign up with Google </span>
             </button>
@@ -1707,8 +1611,6 @@
         </div>
     </div>
 </div>
-
-    <!-- Forgot Password Modal -->
     <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
             <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
@@ -1762,19 +1664,13 @@
             </div>
         </div>
     </div>
-    
     <div class="main-content">
-        <!-- Hero Section -->
         <div class="w-full mb-4 md:mb-8">
             <img alt="Main banner" class="hero-image" src="https://ik.imagekit.io/qsjmmsgdx/Artboard%2012.jpg?updatedAt=1748435357499"/>
         </div>
-        
-        <!-- Secondary Banner -->
         <div class="w-full mb-4 md:mb-8">
             <img alt="Secondary banner" class="hero-image" src="https://ik.imagekit.io/qsjmmsgdx/Artboard%206.jpg?updatedAt=1748435357768"/>
         </div>
-        
-        <!-- Heading Section -->
         <div class="bg-gray-200 px-4 py-6 md:px-8 md:py-8 mb-4 md:mb-8">
             <div class="max-w-1400 mx-auto flex flex-col md:flex-row justify-between items-center">
                 <h1 class="heading-text mb-4 md:mb-0">
@@ -1785,16 +1681,12 @@
                 </a>
             </div>
         </div>
-        
-    <!    <!-- Product Grid -->
-<div class="product-grid max-w-1400 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-8">
-            <!-- Row 1 -->
-<!-- Product 1 -->
+        <div class="product-grid max-w-1400 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-8">
 <a href="oneeye.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 1" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE_.jpg?updatedAt=1748437606226"/>
-            <img alt="Product 1 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE.jpg"/>
+            <img alt="ONE.EYE" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE_.jpg?updatedAt=1748437606226"/>
+            <img alt="ONE.EYE" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/ONE.jpg"/>
         </div>
         <div class="product-caption mt-3">
             <div>ONE.EYE</div>
@@ -1802,13 +1694,11 @@
         </div>
     </div>
 </a>
-
-<!-- Product 2 -->
 <a href="brogo.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 2" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO_.jpg?updatedAt=1748437607881"/>
-            <img alt="Product 2 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO.jpg?updatedAt=1748437606028"/>
+            <img alt="BRO.GO" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO_.jpg?updatedAt=1748437607881"/>
+            <img alt="BRO.GO" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/BRO.jpg?updatedAt=1748437606028"/>
         </div>
         <div class="product-caption mt-3">
             <div>BRO.GO</div>
@@ -1816,13 +1706,11 @@
         </div>
     </div>
 </a>
-
-<!-- Product 3 -->
 <a href="apex.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 3" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v6.jpg?updatedAt=1748937396133"/>
-            <img alt="Product 3 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v5.jpg?updatedAt=1748937396119"/>
+            <img alt="APEX." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v6.jpg?updatedAt=1748937396133"/>
+            <img alt="APEX." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v5.jpg?updatedAt=1748937396119"/>
         </div>
         <div class="product-caption mt-3">
             <div>APEX.</div>
@@ -1830,27 +1718,23 @@
         </div>
     </div>
 </a>
-
-<!-- Product 4 -->
 <a href="epistlerap.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 4" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q2.jpg?updatedAt=1748439166255"/>
-            <img alt="Product 4 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q1.jpg?updatedAt=1748439165304"/>
+            <img alt="EPISTLE RAP" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q2.jpg?updatedAt=1748439166255"/>
+            <img alt="EPISTLE RAP" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q1.jpg?updatedAt=1748439165304"/>
         </div>
         <div class="product-caption mt-3">
-            <div>EPISTLE RAP</div>
+            <div>EPISTLE RAP.</div>
             <div>₹589.00</div>
         </div>
     </div>
 </a>
-
-<!-- Product 5 -->
 <a href="hokkaido.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 5" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q10.jpg?updatedAt=1748439166881"/>
-            <img alt="Product 5 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q5.jpg?updatedAt=1748439165793"/>
+            <img alt="HOKKAIDO." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q10.jpg?updatedAt=1748439166881"/>
+            <img alt="HOKKAIDO." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/q5.jpg?updatedAt=1748439165793"/>
         </div>
         <div class="product-caption mt-3">
             <div>HOKKAIDO.</div>
@@ -1858,13 +1742,11 @@
         </div>
     </div>
 </a>
-
-<!-- Product 6 -->
 <a href="luffy.html" class="block">
     <div class="product-item">
         <div class="image-frame aspect-[3/4]">
-            <img alt="Product 6" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v3.jpg?updatedAt=1748937396157"/>
-            <img alt="Product 6 Alternate" class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v1.jpg?updatedAt=1748937396224"/>
+            <img alt="LUFFY." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v3.jpg?updatedAt=1748937396157"/>
+            <img alt="LUFFY." class="object-cover" src="https://ik.imagekit.io/qsjmmsgdx/v1.jpg?updatedAt=1748937396224"/>
         </div>
         <div class="product-caption mt-3">
             <div>LUFFY.</div>
@@ -1873,13 +1755,9 @@
     </div>
 </a>
     </div>
-
-        <!-- DE.ORIGIN Product Page -->
         <div class="curly-frame-container">
             <div class="frame-content">
-                        <!-- Product Page Content -->
                 <div class="product-container">
-                    <!-- Image Section -->
                     <div class="image-section">
                         <div class="sticky top-6">
                             <img alt="DE.ORIGIN T-shirt" 
@@ -1898,7 +1776,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Details Section -->
                     <div class="details-section">
                         <h8 class="text-2xl md:text-3xl font-semibold mb-3">SIGHT.</h8>
                         
@@ -1947,20 +1824,17 @@
                            <button id="buy-now-btn" class="button-effect w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800">
     BUY IT NOW
 </button>
-                        </div>
-                        
+ </div>
                                       <div class="mb-6">
                     <h3 class="font-medium mb-2 text-gray-900">DESCRIPTION</h3>
                     <p class="text-gray-700">" SIGHT. — See beyond the surface.
 For minds that don’t just look — they perceive.
 Clarity. Focus. Vision with intent."</p>
                 </div>
-                        
-                        <!-- Share Button -->
-                       <div class="share-section flex items-center">
+                                               <div class="share-section flex items-center">
     <p class="text-sm font-medium text-gray-900 mr-2">SHARE</p>
     <div class="share-icon"><i class="fas fa-share-alt text-xs"></i></div>
-    <div class="ml-6"> <!-- Reduced margin -->
+    <div class="ml-6">
         <a href="sight.html" class="view-more-link inline-flex items-center">
             VIEW MORE DETAILS
             <i class="fas fa-chevron-right ml-1 text-2xs"></i>
@@ -1972,19 +1846,14 @@ Clarity. Focus. Vision with intent."</p>
             </div>
         </div>
     </div>
-
-     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <!-- Centered logo -->
             <div class="footer-logo">
                 <div class="flex items-center justify-center logo-container">
                     <img alt="Company logo" class="h-10 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
                 </div>
             </div>
-            
-            <!-- Footer links grid -->
-            <div class="footer-grid">
+                        <div class="footer-grid">
                 <div class="flex flex-col items-center">
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="vamora.co.in@gmail.com">EMAIL</a>
                 </div>
@@ -2004,9 +1873,7 @@ Clarity. Focus. Vision with intent."</p>
                     <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
                 </div>
             </div>
-            
-            <!-- Social icons - shown on mobile, hidden on desktop -->
-            <div class="footer-social-mobile">
+                        <div class="footer-social-mobile">
                 <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
                 <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
             </div>
@@ -2028,19 +1895,14 @@ Clarity. Focus. Vision with intent."</p>
             </div>
         </div>
     </footer>
-    
-<!-- Firebase and other dependencies -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<!-- Your scripts -->
 <script src="yes.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Size buttons selection
     const sizeButtons = document.querySelectorAll('.size-button');
     sizeButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -2048,8 +1910,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('selected');
         });
     });
-
-    // Quantity adjustment
     const decrementButton = document.getElementById('decrement-quantity');
     const incrementButton = document.getElementById('increment-quantity');
     const quantityInput = document.getElementById('product-quantity');
@@ -2065,8 +1925,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let value = parseInt(quantityInput.value);
         quantityInput.value = value + 1;
     });
-
-    // Size guide toggle
     const sizeGuideBtn = document.getElementById('size-guide-btn');
     const sizeGuideContainer = document.getElementById('size-guide-container');
 
@@ -2075,14 +1933,10 @@ document.addEventListener('DOMContentLoaded', function() {
         sizeGuideContainer.classList.toggle('open');
         this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
     });
-
-    // Input validation
     quantityInput.addEventListener('change', function() {
         if (this.value < 1) this.value = 1;
     });
-    
-    // Share functionality
-    const shareButton = document.querySelector('.share-icon');
+        const shareButton = document.querySelector('.share-icon');
     shareButton.addEventListener('click', function() {
         if (navigator.share) {
             navigator.share({
@@ -2107,8 +1961,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.removeChild(tempInput);
         alert('Link copied to clipboard!');
     }
-
-    // View More Details redirect
     const viewMoreLink = document.querySelector('.view-more-link');
     if (viewMoreLink) {
         viewMoreLink.addEventListener('click', function(e) {
@@ -2116,8 +1968,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = 'sight.html';
         });
     }
-
-    // Add to cart functionality
     document.getElementById('add-to-cart-btn').addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
         if (!selectedSize) {
@@ -2141,8 +1991,6 @@ document.addEventListener('DOMContentLoaded', function() {
      
         addToCart(product);
     });
-
-    // Buy Now functionality
     document.getElementById('buy-now-btn').addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
         if (!selectedSize) {
@@ -2154,9 +2002,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productPrice = document.querySelector('.details-section .text-2xl.font-bold').textContent;
         const productTitle = document.querySelector('h8').textContent;
         const productImage = document.querySelector('.main-image').src;
-        
-        // Replace cart with just this item
-        cart = [{
+                cart = [{
             id: window.location.pathname,
             title: productTitle,
             size: selectedSize.textContent,
