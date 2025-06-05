@@ -1,4 +1,3 @@
-// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
   authDomain: "vamora.store",
@@ -9,14 +8,12 @@ const firebaseConfig = {
   measurementId: "G-8R6TDRQGS6"
 };
 
-// Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const analytics = firebase.analytics();
 const db = firebase.firestore();
 
-// Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
       if (err.code == 'failed-precondition') {
@@ -26,17 +23,10 @@ db.enablePersistence()
       }
   });
 
-// Initialize ordersContainer at the top with other DOM elements
 const ordersContainer = document.getElementById('ordersContainer');
 
-// Global cart variable
 let cart = [];
 
-// ======================
-// CART MANAGEMENT SYSTEM
-// ======================
-
-// Initialize cart on page load
 function initializeCart() {
     const user = auth.currentUser;
     if (user) {
@@ -44,23 +34,21 @@ function initializeCart() {
             cart = firestoreCart;
             updateCartCount();
             renderCart();
-            renderOrderSummary(); // Add this line to ensure order summary is rendered
+            renderOrderSummary();
         });
     } else {
         const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
         cart = guestCart;
         updateCartCount();
         renderCart();
-        renderOrderSummary(); // Add this line to ensure order summary is rendered
+        renderOrderSummary();
     }
 }
 
-// Call initializeCart whenever auth state changes
 auth.onAuthStateChanged(() => {
     initializeCart();
 });
 
-// Function to get or create user's cart in Firestore
 async function getOrCreateUserCart(userId) {
     const cartRef = db.collection("carts").doc(userId);
     const doc = await cartRef.get();
@@ -75,7 +63,6 @@ async function getOrCreateUserCart(userId) {
     return doc.data().items || [];
 }
 
-// Function to save cart to Firestore
 async function saveCartToFirestore(userId, cartItems) {
     try {
         await db.collection("carts").doc(userId).set({
@@ -84,14 +71,12 @@ async function saveCartToFirestore(userId, cartItems) {
         });
     } catch (error) {
         console.error("Error saving cart:", error);
-        // Fallback to localStorage if Firestore fails
         if (!userId) {
             localStorage.setItem('guestCart', JSON.stringify(cartItems));
         }
     }
 }
 
-// Function to merge carts (guest + user)
 function mergeCarts(primaryCart, secondaryCart) {
     const merged = [...primaryCart];
     
@@ -110,13 +95,11 @@ function mergeCarts(primaryCart, secondaryCart) {
     return merged;
 }
 
-// Universal Add to Cart function
 window.addToCart = async function(product) {
     const user = auth.currentUser;
     
-    // Check if item exists with same ID and size
     const existingItem = cart.find(item => 
-        item.id === product.id && item.size === product.size
+        item.id === product.id && i.size === product.size
     );
 
     if (existingItem) {
@@ -135,10 +118,9 @@ window.addToCart = async function(product) {
     renderCart();
     renderOrderSummary();
     
-    // Open the cart automatically
     openCart();
 };
-// Function to update cart count in navbar
+
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
     if (cartCountElement) {
@@ -148,7 +130,6 @@ function updateCartCount() {
     }
 }
 
-// Function to render cart items
 function renderCart() {
     const cartList = document.getElementById('cartList');
     if (!cartList) return;
@@ -203,7 +184,6 @@ function renderCart() {
     document.getElementById('cartTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
 
-// Function to render order summary in checkout
 function renderOrderSummary() {
     const orderSummaryItems = document.getElementById('orderSummaryItems');
     if (!orderSummaryItems) return;
@@ -242,7 +222,6 @@ function renderOrderSummary() {
     document.getElementById('orderGrandTotal').textContent = `₹ ${subtotal.toFixed(2)}`;
 }
 
-// Global functions for cart operations
 window.updateQuantity = async function(index, change) {
     const newQuantity = cart[index].quantity + change;
     if (newQuantity < 1) return;
@@ -258,7 +237,7 @@ window.updateQuantity = async function(index, change) {
     
     updateCartCount();
     renderCart();
-    renderOrderSummary(); // Add this line to update order summary when quantity changes
+    renderOrderSummary();
 };
 
 window.removeFromCart = async function(index, event) {
@@ -278,10 +257,9 @@ window.removeFromCart = async function(index, event) {
     
     updateCartCount();
     renderCart();
-    renderOrderSummary(); // Add this line to update order summary when item is removed
+    renderOrderSummary();
 };
 
-// Function to proceed to checkout
 async function proceedToCheckout() {
     const user = auth.currentUser;
     
@@ -293,7 +271,6 @@ async function proceedToCheckout() {
     window.location.href = 'checkout.html';
 }
 
-// Cart UI functions
 window.openCart = function() {
     document.getElementById('cartOverlay').classList.add('active');
     document.getElementById('cartBackdrop').classList.add('active');
@@ -307,9 +284,7 @@ window.closeCart = function() {
     document.body.style.overflow = '';
 };
 
-// Initialize cart event listeners
 function setupCartEventListeners() {
-    // Event listeners
     document.getElementById('cartIconNav')?.addEventListener('click', function(e) {
         e.preventDefault();
         openCart();
@@ -325,7 +300,6 @@ function setupCartEventListeners() {
         closeCart();
     });
 
-    // Close cart when pressing ESC key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && document.getElementById('cartOverlay').classList.contains('active')) {
             closeCart();
@@ -333,14 +307,9 @@ function setupCartEventListeners() {
     });
 }
 
-// ======================
-// PRODUCT PAGE FUNCTIONS
-// ======================
-
 function setupProductPage() {
     if (!document.querySelector('.product-details')) return;
 
-    // Size selection
     const sizeButtons = document.querySelectorAll('.size-button');
     sizeButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -349,7 +318,6 @@ function setupProductPage() {
         });
     });
 
-    // Quantity adjustment
     const decrementButton = document.getElementById('decrement-quantity');
     const incrementButton = document.getElementById('increment-quantity');
     const quantityInput = document.getElementById('product-quantity');
@@ -366,7 +334,6 @@ function setupProductPage() {
         quantityInput.value = value + 1;
     });
     
-    // Size guide toggle
     const sizeGuideBtn = document.getElementById('size-guide-btn');
     const sizeGuideContainer = document.getElementById('size-guide-container');
 
@@ -376,7 +343,6 @@ function setupProductPage() {
         this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
     });
 
-    // Input validation
     quantityInput?.addEventListener('change', function() {
         if (this.value < 1) this.value = 1;
     });
@@ -391,7 +357,6 @@ function setupProductPage() {
         alert('Link copied to clipboard!');
     }
 
-    // Add to cart button
     document.getElementById('add-to-cart-btn')?.addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
         if (!selectedSize) {
@@ -411,7 +376,6 @@ function setupProductPage() {
         addToCart(product);
     });
 
-    // Buy now button
     document.getElementById('buy-now-btn')?.addEventListener('click', function() {
         const selectedSize = document.querySelector('.size-button.selected');
         if (!selectedSize) {
@@ -428,7 +392,6 @@ function setupProductPage() {
             image: document.querySelector('.main-image').src
         };
         
-        // Replace cart with just this item
         cart = [product];
         
         const user = auth.currentUser;
@@ -442,13 +405,7 @@ function setupProductPage() {
     });
 }
 
-// ======================
-// ORDER MANAGEMENT
-// ======================
-
-// Updated loadOrders function
 async function loadOrders(userId) {
-    // First check if orders container exists
     if (!ordersContainer) {
         console.warn("Orders container element not found");
         return;
@@ -470,7 +427,6 @@ async function loadOrders(userId) {
     }
 
     try {
-        // Show loading state
         ordersContainer.innerHTML = `
             <div class="text-center py-8">
                 <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
@@ -634,14 +590,12 @@ function renderOrders(orders) {
                 </div>
             </div>
 
-            <!-- Track Order Button -->
             <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
                 <button onclick="showTrackingLink('${order.trackingLink || ''}')" class="w-full md:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm font-medium">
                     Track Order
                 </button>
             </div>
 
-            <!-- Tracking Link Modal -->
             <div id="trackingModal-${order.id}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
                     <div class="flex justify-between items-center mb-4">
@@ -676,7 +630,6 @@ function renderOrders(orders) {
         `;
     }).join('');
 
-    // Helper Functions
     window.showTrackingLink = function (link) {
         if (!link) {
             alert("Tracking information is not yet available. Please check back later.");
@@ -701,24 +654,21 @@ function renderOrders(orders) {
     };
 }
 
-
-// Helper function for mobile vertical progress
 function getStatusProgressMobile(status) {
     switch(status) {
         case 'status-order-placed':
-            return 'h-[32px]'; // ~25%
+            return 'h-[32px]';
         case 'status-processing':
-            return 'h-[65px]'; // ~50%
+            return 'h-[65px]';
         case 'status-shipped':
-            return 'h-[100px]'; // ~75%
+            return 'h-[100px]';
         case 'status-delivered':
-            return 'h-[130px]'; // 100%
+            return 'h-[130px]';
         default:
             return 'h-[32px]';
     }
 }
 
-// Keep the existing getStatusProgress for desktop
 function getStatusProgress(status) {
     switch(status) {
         case 'status-order-placed':
@@ -734,7 +684,6 @@ function getStatusProgress(status) {
     }
 }
 
-// Keep the existing getStatusColor function
 function getStatusColor(status) {
     switch(status) {
         case 'status-order-placed':
@@ -752,12 +701,6 @@ function getStatusColor(status) {
     }
 }
 
-
-// ======================
-// CHECKOUT FUNCTIONS
-// ======================
-
-// Update the validateCheckoutForm function
 function validateCheckoutForm() {
     let isValid = true;
 
@@ -783,7 +726,6 @@ function validateCheckoutForm() {
         }
     }
 
-    // Validate all mandatory fields
     validateField('first-name', 'first-name-error');
     validateField('last-name', 'last-name-error');
     validateField('address', 'address-error');
@@ -793,7 +735,6 @@ function validateCheckoutForm() {
     validateField('state', 'state-error');
     validateField('email', 'email-error');
 
-    // Additional phone number validation
     const phone = document.getElementById('phone').value.trim();
     if (phone && !/^\d{10}$/.test(phone)) {
         document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit phone number';
@@ -802,7 +743,6 @@ function validateCheckoutForm() {
         isValid = false;
     }
 
-    // Additional PIN code validation
     const pinCode = document.getElementById('pin-code').value.trim();
     if (pinCode && !/^\d{6}$/.test(pinCode)) {
         document.getElementById('pin-code-error').textContent = 'Please enter a valid 6-digit PIN code';
@@ -811,7 +751,6 @@ function validateCheckoutForm() {
         isValid = false;
     }
 
-    // Email validation
     const email = document.getElementById('email').value.trim();
     if (email && !validateEmail(email)) {
         document.getElementById('email-error').textContent = 'Please enter a valid email address';
@@ -823,21 +762,19 @@ function validateCheckoutForm() {
     return isValid;
 }
 
-// Function to generate a unique order ID with VA prefix and 5-digit number
 function generateOrderId() {
     const prefix = "VA";
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     return `${prefix}${randomNum}`;
 }
 
-// Helper function to calculate total amount in paise
 function calculateTotalAmount() {
     let total = 0;
     cart.forEach(item => {
-        const price = parseFloat(item.price.replace(/[^\d.]/g, '')) * 100; // Convert to paise
+        const price = parseFloat(item.price.replace(/[^\d.]/g, '')) * 100;
         total += price * item.quantity;
     });
-    return total; // Returns amount in paise
+    return total;
 }
 
 async function handlePaymentFailure(response) {
@@ -874,14 +811,13 @@ async function handlePaymentFailure(response) {
     }
 }
 
-// Save order to Firestore (updated version)
 async function saveOrder(paymentId, formData, orderId) {
     const user = auth.currentUser;
     
     const orderData = {
-        orderId: orderId, // Use the provided orderId
+        orderId: orderId,
         date: new Date().toISOString(),
-        status: 'placed', // Changed from 'pending' to 'placed' for consistency
+        status: 'placed',
         paymentId: paymentId,
         userId: user?.uid || "guest",
         email: user?.email || (document.getElementById('email')?.value ?? ''),
@@ -900,7 +836,6 @@ async function saveOrder(paymentId, formData, orderId) {
     };
 
     try {
-        // Use the orderId as the document ID to prevent duplicates
         await db.collection("orders").doc(orderId).set(orderData);
         return orderId;
     } catch (error) {
@@ -909,7 +844,6 @@ async function saveOrder(paymentId, formData, orderId) {
     }
 }
 
-// Show thank you popup with order details
 function showThankYouPopup(orderDetails, orderId) {
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', {
@@ -918,7 +852,6 @@ function showThankYouPopup(orderDetails, orderId) {
         day: 'numeric'
     });
 
-    // Ensure we're using the same orderId everywhere
     document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
     document.getElementById('popupOrderId').textContent = orderId;
     document.getElementById('popupOrderDate').textContent = formattedDate;
@@ -939,16 +872,12 @@ function showThankYouPopup(orderDetails, orderId) {
     });
 }
 
-// Handle successful payment
 function handlePaymentSuccess(response, formData, orderId) {
-    // Show thank you popup with order details
     showThankYouPopup(formData, orderId);
     
-    // Update UI elements
     document.getElementById('thankYouOrderId').textContent = `#${orderId}`;
     document.getElementById('popupOrderId').textContent = orderId;
     
-    // Analytics tracking
     analytics.logEvent('purchase', {
         transaction_id: orderId,
         value: calculateTotalAmount() / 100,
@@ -963,8 +892,6 @@ function handlePaymentSuccess(response, formData, orderId) {
     });
 }
 
-// Get form data from checkout form
-// Update the getFormData function to include email
 function getFormData() {
     return {
         firstName: document.getElementById('first-name').value,
@@ -984,7 +911,6 @@ async function saveInformation() {
     const saveInfoCheckbox = document.getElementById('save-info');
     if (!saveInfoCheckbox.checked) return;
 
-    // First validate all fields
     if (!validateCheckoutForm()) {
         saveInfoCheckbox.checked = false;
         return;
@@ -998,11 +924,9 @@ async function saveInformation() {
     }
 
     try {
-        // Show loading state
         saveInfoCheckbox.disabled = true;
         saveInfoCheckbox.nextElementSibling.textContent = 'Saving...';
 
-        // Prepare address data from checkout form
         const address = {
             fullName: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
             phoneNumber: document.getElementById('phone').value,
@@ -1012,35 +936,30 @@ async function saveInformation() {
             state: document.getElementById('state').value,
             postalCode: document.getElementById('pin-code').value,
             country: document.getElementById('country').value,
-            addressType: 'home', // Default type
-            isDefault: true, // Make this the default address
+            addressType: 'home',
+            isDefault: true,
             id: `addr_${Date.now()}`,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         const userRef = db.collection("users").doc(user.uid);
         
-        // Get current addresses first
         const userDoc = await userRef.get();
         let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
         
-        // If there are existing addresses, unset any existing default
         currentAddresses = currentAddresses.map(addr => ({
             ...addr,
             isDefault: false
         }));
         
-        // Add the new address
         currentAddresses.push(address);
         
-        // Update Firestore
         await userRef.set({
             addresses: currentAddresses,
             defaultAddress: address,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
         
-        // Show success notification
         showToast('Address saved successfully!');
         
     } catch (error) {
@@ -1053,9 +972,7 @@ async function saveInformation() {
     }
 }
 
-// Update the placeOrder function to check these fields
 async function placeOrder() {
-    // First validate the checkout form
     if (!validateCheckoutForm()) {
         const firstErrorField = document.querySelector('.error-highlight');
         if (firstErrorField) {
@@ -1064,20 +981,16 @@ async function placeOrder() {
         return;
     }
 
-    // Check if cart is empty
     if (cart.length === 0) {
         showToast('Your cart is empty', 'error');
         return;
     }
 
-    // Generate order ID once at the beginning
     const orderId = generateOrderId();
     
-    // Get form data
     const formData = getFormData();
     const email = document.getElementById('email').value.trim();
 
-    // Save information if checkbox is checked
     const saveInfoCheckbox = document.getElementById('save-info');
     if (saveInfoCheckbox?.checked) {
         try {
@@ -1087,10 +1000,8 @@ async function placeOrder() {
         }
     }
 
-    // Calculate total amount from cart (in paise for Razorpay)
     const totalAmount = calculateTotalAmount();
 
-    // Create Razorpay options
     const options = {
         key:"rzp_live_DPartLBDccSG34",
         amount: totalAmount,
@@ -1098,14 +1009,12 @@ async function placeOrder() {
         name: "VAMORA.STORE",
         description: "Order Payment",
         image: "/logo.png",
-        order_id: "", // This will be generated by Razorpay
+        order_id: "",
         handler: async function(response) {
             try {
-                // Use the same orderId we generated earlier
                 await saveOrder(response.razorpay_payment_id, {...formData, email}, orderId);
                 handlePaymentSuccess(response, {...formData, email}, orderId);
                 
-                // Clear cart after successful payment
                 cart = [];
                 updateCartCount();
                 renderCart();
@@ -1147,10 +1056,6 @@ async function placeOrder() {
     }
 }
 
-// ======================
-// ADDRESS MANAGEMENT
-// ======================
-
 async function loadAddresses(userId) {
     console.log("Loading addresses for user:", userId);
     try {
@@ -1168,7 +1073,6 @@ async function loadAddresses(userId) {
         }
     } catch (error) {
         console.error("Error loading addresses:", error);
-        // Show error message in UI
         const addressContainer = document.getElementById('addressContainer');
         if (addressContainer) {
             addressContainer.innerHTML = `
@@ -1249,7 +1153,6 @@ async function saveAddress(event) {
         return;
     }
 
-    // Get form elements
     const fullName = document.getElementById('fullName').value.trim();
     const phoneNumber = document.getElementById('phoneNumber').value.trim();
     const addressLine1 = document.getElementById('addressLine1').value.trim();
@@ -1260,7 +1163,6 @@ async function saveAddress(event) {
     const addressType = document.querySelector('input[name="addressType"]:checked')?.value || 'home';
     const isDefault = document.getElementById('setAsDefault').checked;
 
-    // Validation checks
     const errors = [];
     
     if (!fullName) errors.push('Full name is required');
@@ -1271,7 +1173,6 @@ async function saveAddress(event) {
     if (!postalCode) errors.push('Postal code is required');
     if (!country) errors.push('Country is required');
     
-    // Additional format validation
     if (phoneNumber && !/^\d{10}$/.test(phoneNumber)) {
         errors.push('Phone number must be 10 digits');
     }
@@ -1280,13 +1181,11 @@ async function saveAddress(event) {
         errors.push('Postal code must be 6 digits');
     }
 
-    // Show errors if any
     if (errors.length > 0) {
         showToast(errors.join(', '), 'error');
-        return; // Don't proceed with saving
+        return;
     }
 
-    // Prepare address object
     const address = {
         fullName,
         phoneNumber,
@@ -1303,18 +1202,15 @@ async function saveAddress(event) {
     };
 
     try {
-        // Show loading state
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
 
         const userRef = db.collection("users").doc(user.uid);
         
-        // Get current addresses
         const userDoc = await userRef.get();
         let currentAddresses = userDoc.exists ? (userDoc.data().addresses || []) : [];
 
-        // Handle default address logic
         if (address.isDefault) {
             currentAddresses = currentAddresses.map(addr => ({
                 ...addr,
@@ -1322,49 +1218,40 @@ async function saveAddress(event) {
             }));
         }
 
-        // Check if we're editing an existing address
         const isEditing = document.getElementById('addressForm').dataset.editingId;
         if (isEditing) {
-            // Update existing address
             currentAddresses = currentAddresses.map(addr => 
                 addr.id === isEditing ? address : addr
             );
         } else {
-            // Add new address - if it's the first address, make it default
             if (currentAddresses.length === 0) {
                 address.isDefault = true;
             }
             currentAddresses.push(address);
         }
 
-        // Prepare update data
         const updateData = {
             addresses: currentAddresses,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // If this is the default address, update that field
         if (address.isDefault) {
             updateData.defaultAddress = address;
         }
 
-        // Save to Firestore
         await userRef.set(updateData, { merge: true });
 
-        // Refresh UI
         await loadAddresses(user.uid);
         document.getElementById('addAddressModal').classList.add('hidden');
         document.getElementById('addressForm').reset();
         delete document.getElementById('addressForm').dataset.editingId;
         
-        // Show success message
         showToast('Address saved successfully!');
         
     } catch (error) {
         console.error("Error saving address:", error);
         showToast("Failed to save address. Please try again.", 'error');
     } finally {
-        // Reset button state
         const saveBtn = document.getElementById('saveAddressBtn');
         saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Address';
         saveBtn.disabled = false;
@@ -1418,7 +1305,6 @@ async function setDefaultAddress(addressId) {
     try {
         const userRef = db.collection("users").doc(user.uid);
         
-        // First get current addresses
         const userDoc = await userRef.get();
         if (!userDoc.exists) return;
         
@@ -1430,7 +1316,6 @@ async function setDefaultAddress(addressId) {
             return;
         }
 
-        // Update all addresses to set this one as default
         const updatedAddresses = addresses.map(addr => ({
             ...addr,
             isDefault: addr.id === addressId
@@ -1462,7 +1347,6 @@ function editAddress(addressId) {
         const address = addresses.find(addr => addr.id === addressId);
         if (!address) return;
         
-        // Populate form fields
         document.getElementById('fullName').value = address.fullName;
         document.getElementById('phoneNumber').value = address.phoneNumber;
         document.getElementById('addressLine1').value = address.addressLine1;
@@ -1472,7 +1356,6 @@ function editAddress(addressId) {
         document.getElementById('postalCode').value = address.postalCode;
         document.getElementById('country').value = address.country;
         
-        // Set address type radio button
         const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
         addressTypeRadios.forEach(radio => {
             radio.checked = (radio.value === address.addressType);
@@ -1480,7 +1363,6 @@ function editAddress(addressId) {
         
         document.getElementById('setAsDefault').checked = address.isDefault || false;
         
-        // Set editing ID
         document.getElementById('addressForm').dataset.editingId = addressId;
         document.querySelector('#addAddressModal h3').textContent = 'Edit Address';
         
@@ -1509,16 +1391,13 @@ async function applyDefaultAddress() {
         const defaultAddress = userDoc.data().defaultAddress;
         if (!defaultAddress) return;
 
-        // Split full name into first and last names
         const nameParts = defaultAddress.fullName.split(' ');
         document.getElementById('first-name').value = nameParts[0] || '';
         document.getElementById('last-name').value = nameParts.slice(1).join(' ') || '';
         
-        // Address fields
         document.getElementById('address').value = defaultAddress.addressLine1 || '';
         document.getElementById('apartment').value = defaultAddress.addressLine2 || '';
         
-        // Other fields
         document.getElementById('city').value = defaultAddress.city || '';
         document.getElementById('state').value = defaultAddress.state || '';
         document.getElementById('pin-code').value = defaultAddress.postalCode || '';
@@ -1528,11 +1407,6 @@ async function applyDefaultAddress() {
     }
 }
 
-// ======================
-// AUTHENTICATION SYSTEM
-// ======================
-
-// Firebase Authentication Functions
 function showAuthContainer() {
     document.getElementById('auth-container').classList.add('active');
     document.body.classList.add('overflow-hidden');
@@ -1577,7 +1451,6 @@ function hideLoading(buttonId) {
     textSpan.classList.remove('opacity-0');
 }
 
-// Replace your current setupPasswordToggles function with this:
 function setupPasswordToggles() {
     document.querySelectorAll('.password-toggle').forEach(toggle => {
         toggle.addEventListener('click', function(e) {
@@ -1585,10 +1458,8 @@ function setupPasswordToggles() {
             const inputId = this.getAttribute('data-toggle');
             const input = document.getElementById(inputId);
             if (input) {
-                // Toggle input type
                 input.type = input.type === 'password' ? 'text' : 'password';
                 
-                // Toggle eye icon
                 const icon = this.querySelector('i');
                 if (icon) {
                     icon.classList.toggle('fa-eye');
@@ -1599,7 +1470,6 @@ function setupPasswordToggles() {
     });
 }
 
-// Add this helper function
 function validateEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
@@ -1616,7 +1486,6 @@ function validateName(name) {
     return name.length >= 2 && name.length <= 50;
 }
 
-// Email/Password Sign Up
 document.getElementById('signup-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('signup-submit-button');
@@ -1626,14 +1495,12 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
 
-    // Reset error messages
     document.getElementById('signup-error').classList.add('hidden');
     document.getElementById('email-error').classList.add('hidden');
     document.getElementById('email-exists-error').classList.add('hidden');
     document.getElementById('password-mismatch-error').classList.add('hidden');
     document.getElementById('name-error').classList.add('hidden');
 
-    // Validation
     let isValid = true;
 
     if (!validateName(name)) {
@@ -1667,14 +1534,11 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         .then((userCredential) => {
             const user = userCredential.user;
             
-            // Send verification email
             return user.sendEmailVerification()
                 .then(() => {
-                    // Update user profile
                     return user.updateProfile({
                         displayName: name
                     }).then(() => {
-                        // Save to Firestore
                         return db.collection("users").doc(user.uid).set({
                             name: name,
                             email: email,
@@ -1688,7 +1552,6 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
                 });
         })
         .then(() => {
-            // Show verification message
             const verifyEmailSuccess = document.getElementById('verify-email-success');
             if (verifyEmailSuccess) {
                 verifyEmailSuccess.innerHTML = `
@@ -1732,7 +1595,6 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
             });
 });
 
-// Update the forgot password form to validate email first
 document.getElementById('forgot-email')?.addEventListener('blur', function() {
     const email = this.value.trim();
     const errorEl = document.getElementById('forgot-email-error');
@@ -1751,7 +1613,6 @@ document.getElementById('forgot-email')?.addEventListener('blur', function() {
     }
 });
 
-// Email/Password Login
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     showLoading('login-submit-button');
@@ -1763,7 +1624,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const loginError = document.getElementById('login-error');
     if (loginError) loginError.classList.add('hidden');
 
-    // Set persistence based on remember me selection
     const persistence = rememberMe ? 
         firebase.auth.Auth.Persistence.LOCAL : 
         firebase.auth.Auth.Persistence.SESSION;
@@ -1775,13 +1635,11 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         .then((userCredential) => {
             const user = userCredential.user;
             
-            // Check if email is verified
             if (!user.emailVerified) {
                 auth.signOut();
                 throw new Error("Please verify your email first. Check your inbox.");
             }
             
-            // Update last login time
             return db.collection("users").doc(user.uid).update({
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -1797,14 +1655,11 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             
             setTimeout(() => {
                 hideAuthContainer();
-                // Redirect or update UI as needed
             }, 500);
         })
         .catch((error) => {
-            // Error handling remains the same
         });
 });
-// Google Sign In/Sign Up
 document.querySelectorAll('#google-signin-btn').forEach(button => {
     button.addEventListener('click', function() {
         const googleBtn = this;
@@ -1818,20 +1673,17 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
             .then((result) => {
                 const user = result.user;
                 
-                // Show success message in login section
                 const loginSuccessEl = document.getElementById('login-success');
                 if (loginSuccessEl) {
                     loginSuccessEl.textContent = 'Google login successful!';
                     loginSuccessEl.classList.remove('hidden');
                 }
                 
-                // Hide error messages if they exist
                 const loginError = document.getElementById('login-error');
                 const signupError = document.getElementById('signup-error');
                 if (loginError) loginError.classList.add('hidden');
                 if (signupError) signupError.classList.add('hidden');
                 
-                // Save user data to Firestore
                 return db.collection("users").doc(user.uid).set({
                     name: user.displayName,
                     email: user.email,
@@ -1884,7 +1736,6 @@ document.querySelectorAll('#google-signin-btn').forEach(button => {
     });
 });
 
-// Updated forgot password handler
 document.getElementById('forgot-password-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     showLoading('forgot-submit-button');
@@ -1896,32 +1747,25 @@ document.getElementById('forgot-password-form').addEventListener('submit', async
     forgotErrorEl.classList.add('hidden');
 
     try {
-        // First check if email exists
         const methods = await auth.fetchSignInMethodsForEmail(email);
         if (methods.length === 0) {
             throw new Error("No account found with this email");
         }
 
-        // Verify security question (in a real app, you'd verify against stored answers)
-        // This is just a basic example - in production, you'd verify against stored answers
         if (!securityQuestion || !securityAnswer) {
             throw new Error("Please answer the security question");
         }
 
-        // Send password reset email
         await auth.sendPasswordResetEmail(email, {
             url: window.location.origin + '/index.html'
         });
         
-        // Show success message
         document.getElementById('forgot-error').classList.add('hidden');
         showToast("Password reset email sent. Please check your inbox.");
         
-        // Close the modal after a delay
         setTimeout(() => {
             document.getElementById('forgot-password-modal').classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
-            // Show the auth container again
             document.getElementById('auth-container').classList.add('active');
         }, 2000);
         
@@ -1938,7 +1782,6 @@ function updateAuthButton(user) {
     const authText = document.getElementById('auth-state-text');
     const checkoutAuthButton = document.getElementById('checkoutAuthButton');
     
-    // Update main auth button
     if (authButton && authText) {
         if (user) {
             authText.textContent = 'LOG OUT';
@@ -1953,7 +1796,6 @@ function updateAuthButton(user) {
         }
     }
     
-    // Update checkout auth button if it exists
     if (checkoutAuthButton) {
         if (user) {
             checkoutAuthButton.textContent = 'LOG OUT';
@@ -1978,7 +1820,6 @@ function updateAuthButton(user) {
     }
 }
 
-// Logout function
 async function logoutUser(event) {
     if (event) {
         event.preventDefault();
@@ -1986,7 +1827,6 @@ async function logoutUser(event) {
     }
     
     try {
-        // Show loading state
         const logoutBtn = event?.target.closest('button') || event?.target.closest('a');
         if (logoutBtn) {
             const originalContent = logoutBtn.innerHTML;
@@ -1996,18 +1836,15 @@ async function logoutUser(event) {
 
         await auth.signOut();
         
-        // Clear cart and local storage
         cart = [];
         localStorage.removeItem('guestCart');
         updateCartCount();
 
-        // Close all modals and dropdowns
         document.getElementById('account-info-page')?.classList.add('hidden');
         document.getElementById('dropdownMenu')?.classList.add('hidden');
         document.getElementById('mobileAccountOptions')?.classList.add('hidden');
         document.getElementById('mobileMenuContent')?.classList.remove('active');
 
-        // Reset mobile menu button icon
         const mobileMenuButton = document.getElementById('mobileMenuButton');
         if (mobileMenuButton) {
             const mobileMenuIcon = mobileMenuButton.querySelector('i');
@@ -2017,7 +1854,6 @@ async function logoutUser(event) {
             }
         }
 
-        // Clear email fields in forms
         const emailInputs = document.querySelectorAll('input[type="email"]');
         emailInputs.forEach(input => {
             input.value = '';
@@ -2025,11 +1861,9 @@ async function logoutUser(event) {
             input.classList.remove('bg-gray-100');
         });
 
-        // Update UI elements
         updateAuthButton(null);
         showToast('Logged out successfully!', 'success');
 
-        // If on account page, reload to reset state
         if (window.location.pathname.includes('account')) {
             window.location.reload();
         }
@@ -2037,7 +1871,6 @@ async function logoutUser(event) {
         console.error('Logout error:', error);
         showToast('Error during logout. Please try again.', 'error');
     } finally {
-        // Reset any logout buttons
         document.querySelectorAll('[data-action="logout"]').forEach(btn => {
             btn.innerHTML = btn.getAttribute('data-original') || 'Log Out';
             btn.disabled = false;
@@ -2045,7 +1878,6 @@ async function logoutUser(event) {
     }
 }
 
-// Resend verification email
 function resendVerification(email) {
     showLoading('resend-verification-btn');
     
@@ -2055,19 +1887,16 @@ function resendVerification(email) {
                 throw new Error('No account found with this email');
             }
             
-            // User is already signed in
             if (auth.currentUser && auth.currentUser.email === email) {
                 return auth.currentUser.sendEmailVerification();
             }
             
-            // User exists but not signed in - use the reauthenticate flow
             return auth.signInWithEmailAndPassword(email, "temporary-password")
                 .then((userCredential) => {
                     return userCredential.user.sendEmailVerification()
                         .finally(() => auth.signOut());
                 })
                 .catch((error) => {
-                    // This is expected - we just need the user reference
                     if (error.code === 'auth/wrong-password') {
                         return auth.currentUser.sendEmailVerification()
                             .finally(() => auth.signOut());
@@ -2087,11 +1916,6 @@ function resendVerification(email) {
         });
 }
 
-// ======================
-// PROFILE MANAGEMENT
-// ======================
-
-// Show account info function
 function showAccountInfo(event) {
     if (event) event.preventDefault();
     
@@ -2103,7 +1927,6 @@ function showAccountInfo(event) {
     }
 }
 
-// Update profile function
 async function saveProfile() {
     const user = auth.currentUser;
     if (!user) {
@@ -2118,23 +1941,19 @@ async function saveProfile() {
     }
 
     try {
-        // Show loading state
         const saveBtn = document.getElementById('saveProfileBtn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         saveBtn.disabled = true;
 
-        // Update Firebase Auth profile
         await user.updateProfile({
             displayName: newName
         });
 
-        // Update Firestore
         await db.collection("users").doc(user.uid).update({
             name: newName,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Update UI
         document.getElementById('displayName').textContent = newName;
         document.getElementById('editProfileModal').classList.add('hidden');
         
@@ -2149,7 +1968,6 @@ async function saveProfile() {
     }
 }
 
-// Show edit profile modal
 function showEditProfileModal() {
     const user = auth.currentUser;
     if (!user) return;
@@ -2159,7 +1977,6 @@ function showEditProfileModal() {
     document.getElementById('editProfileModal').classList.remove('hidden');
 }
 
-// Load account info
 async function loadAccountInfo(userId) {
     try {
         const user = auth.currentUser;
@@ -2172,7 +1989,6 @@ async function loadAccountInfo(userId) {
         const userDoc = await db.collection("users").doc(userId).get();
         
         if (!userDoc.exists) {
-            // Create basic user document if it doesn't exist
             await db.collection("users").doc(userId).set({
                 name: user.displayName || '',
                 email: user.email,
@@ -2182,7 +1998,6 @@ async function loadAccountInfo(userId) {
                 addresses: []
             });
             
-            // Try getting the document again
             const newUserDoc = await db.collection("users").doc(userId).get();
             updateUIWithUserData(user, newUserDoc.data());
         } else {
@@ -2225,24 +2040,19 @@ function renderEmptyAccountState() {
     }
 }
 
-// Update UI with user data
 function updateUIWithUserData(user, userData) {
-    // Cache DOM elements
     const displayNameEl = document.getElementById('displayName');
     const displayEmailEl = document.getElementById('displayEmail');
     const emailInput = document.getElementById('email');
     
-    // Update display name
     if (displayNameEl) {
         displayNameEl.textContent = userData?.name || user?.displayName || '';
     }
 
-    // Update display email
     if (displayEmailEl) {
         displayEmailEl.textContent = user?.email || '';
     }
 
-    // Update form inputs
     const nameInput = document.getElementById('nameInput');
     const emailDisplay = document.getElementById('emailDisplay');
     
@@ -2252,22 +2062,20 @@ function updateUIWithUserData(user, userData) {
     if (emailDisplay) {
         emailDisplay.value = user?.email || '';
         if (emailDisplay.readOnly !== undefined) {
-            emailDisplay.readOnly = true; // Keep email read-only in forms
+            emailDisplay.readOnly = true;
         }
     }
 
-    // Update main email input with read-only and styling
     if (emailInput) {
         emailInput.value = user?.email || '';
-        emailInput.readOnly = !!user;  // read-only if user exists
+        emailInput.readOnly = !!user;
         if (user) {
-            emailInput.classList.add('bg-gray-100'); // styling to indicate read-only
+            emailInput.classList.add('bg-gray-100');
         } else {
             emailInput.classList.remove('bg-gray-100');
         }
     }
 
-    // Load addresses and orders if user is authenticated
     if (user && user.uid) {
         try {
             loadAddresses(user.uid);
@@ -2278,7 +2086,6 @@ function updateUIWithUserData(user, userData) {
     }
 }
 
-// Update mobile account options visibility
 function updateMobileAccountOptions() {
     const user = auth.currentUser;
     const mobileAccountOptions = document.getElementById('mobileAccountOptions');
@@ -2292,21 +2099,18 @@ function updateMobileAccountOptions() {
     }
 }
 
-// ======================
-// SEARCH FUNCTIONALITY
-// ======================
-
-// Search functionality
 const searchData = [
-    { id: 1, title: "Men's T-Shirt", category: "Clothing", url: "/products/mens-tshirt" },
-    { id: 2, title: "Women's Jeans", category: "Clothing", url: "/products/womens-jeans" },
-    { id: 3, title: "Running Shoes", category: "Footwear", url: "/products/running-shoes" },
-    { id: 4, title: "Smart Watch", category: "Electronics", url: "/products/smart-watch" },
-    { id: 5, title: "Backpack", category: "Accessories", url: "/products/backpack" },
-    { id: 6, title: "Wireless Headphones", category: "Electronics", url: "/products/headphones" },
-    { id: 7, title: "Sunglasses", category: "Accessories", url: "/products/sunglasses" },
-    { id: 8, title: "Dress", category: "Clothing", url: "/products/dress" }
+    { id: 1, title: "HOOKAIDO.", category: "Oversized", url: "/hokkaido.html" },
+    { id: 2, title: "SIGHT.", category: "Oversized", url: "/sight.html" },
+    { id: 3, title: "EPISTLE RAP.", category: "Oversized", url: "/epistlerap.html" },
+    { id: 4, title: "ONE.EYE", category: "TEES", url: "/oneeye.html" },
+    { id: 5, title: "BRO.GO", category: "TEES", url: "/brogo.html" },
+    { id: 6, title: "OVER.THINKER", category: "TEES", url: "/overthinker.html" },
+    { id: 7, title: "APEX.", category: "TEES", url: "/apex.html" },
+    { id: 8, title: "ONE.PIECE", category: "TEES", url: "/onepiece.html" },
+    { id: 9, title: "LUFFY.", category: "TEES", url: "/luffy.html" }
 ];
+
 
 function setupSearch() {
     const enableSearch = document.getElementById('enableSearch');
@@ -2320,7 +2124,6 @@ function setupSearch() {
 
     let searchOpen = false;
 
-    // Toggle search input
     enableSearch.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2339,7 +2142,6 @@ function setupSearch() {
         searchInput.focus();
     });
 
-    // Close search
     closeSearch?.addEventListener('click', function() {
         searchInputContainer.style.display = 'none';
         searchInput.value = '';
@@ -2347,7 +2149,6 @@ function setupSearch() {
         searchOpen = false;
     });
 
-    // Search functionality
     searchInput?.addEventListener('input', function() {
         const query = this.value.toLowerCase();
         
@@ -2364,7 +2165,6 @@ function setupSearch() {
         displayResults(results);
     });
 
-    // Perform search on button click
     searchButton?.addEventListener('click', function() {
         const query = searchInput.value.toLowerCase();
         
@@ -2381,7 +2181,6 @@ function setupSearch() {
         displayResults(results);
     });
 
-    // Display search results
     function displayResults(results) {
         if (!searchResults) return;
         
@@ -2408,14 +2207,12 @@ function setupSearch() {
         });
     }
 
-    // Close search results when clicking outside
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.search-container') && !e.target.closest('.search-input-container')) {
             searchResults.style.display = 'none';
         }
     });
 
-    // Close search results on ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             searchResults.style.display = 'none';
@@ -2423,11 +2220,6 @@ function setupSearch() {
     });
 }
 
-// ======================
-// UTILITY FUNCTIONS
-// ======================
-
-// Show toast notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
@@ -2442,27 +2234,22 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Close all open elements
 function closeAllOpenElements() {
-    // Close cart
     if (document.getElementById('cartOverlay')?.classList.contains('active')) {
         document.getElementById('cartOverlay').classList.remove('active');
         document.getElementById('cartBackdrop').classList.remove('active');
     }
     
-    // Close search
     const searchInputContainer = document.querySelector('.search-input-container');
     if (searchInputContainer && searchInputContainer.style.display !== 'none') {
         searchInputContainer.style.display = 'none';
         document.getElementById('searchResults').style.display = 'none';
     }
     
-    // Close dropdown menu
     if (document.getElementById('dropdownMenu')?.classList.contains('hidden') === false) {
         document.getElementById('dropdownMenu').classList.add('hidden');
     }
     
-    // Close mobile menu
     const mobileMenuContent = document.getElementById('mobileMenuContent');
     if (mobileMenuContent?.classList.contains('active')) {
         mobileMenuContent.classList.remove('active');
@@ -2475,7 +2262,6 @@ function closeAllOpenElements() {
     }
 }
 
-// Toggle mobile menu
 function toggleMobileMenu() {
     const mobileMenuContent = document.getElementById('mobileMenuContent');
     if (!mobileMenuContent) return;
@@ -2507,7 +2293,6 @@ function toggleMobileMenu() {
     }
 }
 
-// Toggle dropdown menu
 function toggleDropdown() {
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (!dropdownMenu) return;
@@ -2521,7 +2306,6 @@ function toggleDropdown() {
     dropdownMenu.classList.remove('hidden');
 }
 
-// Show login section and hide signup section
 function showLoginSection() {
     document.getElementById('login-section').classList.remove('hidden');
     document.getElementById('signup-section').classList.add('hidden');
@@ -2529,7 +2313,6 @@ function showLoginSection() {
     document.getElementById('signup-section').classList.remove('bg-gray-50');
 }
 
-// Show signup section and hide login section
 function showSignupSection() {
     document.getElementById('signup-section').classList.remove('hidden');
     document.getElementById('login-section').classList.add('hidden');
@@ -2537,28 +2320,17 @@ function showSignupSection() {
     document.getElementById('login-section').classList.remove('bg-white');
 }
 
-// ======================
-// INITIALIZATION
-// ======================
-
-// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart
     initializeCart();
     
-    // Setup cart event listeners
     setupCartEventListeners();
     
-    // Setup product page if needed
     setupProductPage();
     
-    // Setup search functionality
     setupSearch();
     
-    // Setup password toggles
     setupPasswordToggles();
     
-    // Event listeners for auth sections
     document.getElementById('show-signup')?.addEventListener('click', function(event) {
         event.preventDefault();
         showSignupSection();
@@ -2575,17 +2347,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('forgot-password-modal').classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
         
-        // Reset the form
         document.getElementById('forgot-password-form').reset();
         document.getElementById('forgot-error').classList.add('hidden');
         
-        // Show the auth container again if user wasn't logged in
         if (!auth.currentUser) {
             document.getElementById('auth-container').classList.add('active');
         }
     });
 
-    // When showing forgot password modal, pre-fill email if user is logged in
     document.getElementById('forgot-password-link')?.addEventListener('click', function(event) {
         event.preventDefault();
         
@@ -2593,12 +2362,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const forgotEmailInput = document.getElementById('forgot-email');
         
         if (user && forgotEmailInput) {
-            // User is logged in - prefill email and disable editing
             forgotEmailInput.value = user.email;
             forgotEmailInput.readOnly = true;
             forgotEmailInput.classList.add('bg-gray-100');
         } else if (forgotEmailInput) {
-            // User is not logged in - reset the field
             forgotEmailInput.value = '';
             forgotEmailInput.readOnly = false;
             forgotEmailInput.classList.remove('bg-gray-100');
@@ -2609,7 +2376,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('overflow-hidden');
     });
 
-    // Password match validation
     document.getElementById('signup-confirm-password')?.addEventListener('input', function() {
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
@@ -2634,7 +2400,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close modals when clicking outside
     document.getElementById('auth-container')?.addEventListener('click', function(e) {
         if (e.target === this) {
             hideAuthContainer();
@@ -2645,12 +2410,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === this) {
             this.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
-            // Show the auth container again
             document.getElementById('auth-container').classList.add('active');
         }
     });
 
-    // Event listeners for mobile account options
     document.getElementById('mobileProfileOption')?.addEventListener('click', function(e) {
         e.preventDefault();
         showAccountInfo(e);
@@ -2660,16 +2423,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('logoutOption')?.addEventListener('click', function(e) {
         e.preventDefault();
         logoutUser(e);
-        document.getElementById('dropdownMenu').classList.add('hidden'); // Close the dropdown
+        document.getElementById('dropdownMenu').classList.add('hidden');
     });
 
     document.getElementById('mobileLogoutOption')?.addEventListener('click', function(e) {
         e.preventDefault();
         logoutUser(e);
-        document.getElementById('mobileAccountOptions').classList.add('hidden'); // Close mobile menu
+        document.getElementById('mobileAccountOptions').classList.add('hidden');
     });
 
-    // Account dropdown functionality
     document.getElementById('accountIconNav')?.addEventListener('click', function(e) {
         e.stopPropagation();
         const user = auth.currentUser;
@@ -2681,7 +2443,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const accountIconNav = document.getElementById('accountIconNav');
         const dropdownMenu = document.getElementById('dropdownMenu');
@@ -2693,23 +2454,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Profile Option
     document.getElementById('profileOption')?.addEventListener('click', showAccountInfo);
     document.getElementById('mobileProfileOption')?.addEventListener('click', showAccountInfo);
 
-    // Account Info Page
     document.getElementById('closeAccountInfoPage')?.addEventListener('click', () => {
         document.getElementById('account-info-page').classList.add('hidden');
     });
 
-    // Edit Profile
     document.getElementById('editProfileIcon')?.addEventListener('click', showEditProfileModal);
     document.getElementById('closeEditProfileModal')?.addEventListener('click', () => {
         document.getElementById('editProfileModal').classList.add('hidden');
     });
     document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
 
-    // Address Management
     document.getElementById('addAddressLink')?.addEventListener('click', showAddAddressModal);
     document.getElementById('closeAddAddressModal')?.addEventListener('click', cancelAddress);
     document.getElementById('saveAddressBtn')?.addEventListener('click', saveAddress);
@@ -2719,10 +2476,8 @@ document.addEventListener('DOMContentLoaded', function() {
         saveAddress(e);
     });
 
-    // Mobile menu button
     document.getElementById('mobileMenuButton')?.addEventListener('click', toggleMobileMenu);
 
-    // Checkout button
     document.querySelector('.checkout-btn')?.addEventListener('click', function(e) {
         e.preventDefault();
         try {
@@ -2733,21 +2488,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize auth state
     auth.onAuthStateChanged(async (user) => {
         updateAuthButton(user);
         
         if (user) {
-            // User is signed in
             try {
-                // Load user data from Firestore
                 const userDoc = await db.collection("users").doc(user.uid).get();
                 
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     updateUIWithUserData(user, userData);
                 } else {
-                    // Create user document if it doesn't exist
                     await db.collection("users").doc(user.uid).set({
                         name: user.displayName || '',
                         email: user.email,
@@ -2757,16 +2508,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         addresses: []
                     });
                     
-                    // Try getting the document again
                     const newUserDoc = await db.collection("users").doc(user.uid).get();
                     updateUIWithUserData(user, newUserDoc.data());
                 }
                 
-                // Load addresses and orders
                 loadAddresses(user.uid);
                 loadOrders(user.uid);
                 
-                // Sync guest cart with user cart if needed
                 const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
                 if (guestCart.length > 0) {
                     const firestoreCart = await getOrCreateUserCart(user.uid);
@@ -2776,16 +2524,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('guestCart');
                     updateCartCount();
                     renderCart();
-                    renderOrderSummary(); // Ensure order summary is updated after merge
+                    renderOrderSummary();
                 }
             } catch (error) {
                 console.error("Error handling auth state change:", error);
             }
         } else {
-            // User is signed out
             updateUIWithUserData(null, null);
             
-            // If on account page, show login prompt for orders
             if (window.location.pathname.includes('account') && ordersContainer) {
                 ordersContainer.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
@@ -2799,12 +2545,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
             
-            // Load guest cart
             const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
             cart = guestCart;
             updateCartCount();
             renderCart();
-            renderOrderSummary(); // Ensure order summary is updated for guest users
+            renderOrderSummary();
         }
     });
 });
