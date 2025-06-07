@@ -551,18 +551,21 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
     
     <script>
     // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-        authDomain: "vamora-co-in.firebaseapp.com",
-        projectId: "vamora-co-in",
-        storageBucket: "vamora-co-in.appspot.com",
-        messagingSenderId: "613048727757",
-        appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
-        measurementId: "G-8R6TDRQGS6"
-    };
+   const firebaseConfig = {
+    apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+    authDomain: "vamora-co-in.firebaseapp.com",
+    projectId: "vamora-co-in",
+    storageBucket: "vamora-co-in.appspot.com",
+    messagingSenderId: "613048727757",
+    appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+    measurementId: "G-8R6TDRQGS6",
+    clientId: "613048727757-sir5i0r93f98tsr9de41jhhocd6rjk6t.apps.googleusercontent.com" // Add this line
+};
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -571,8 +574,9 @@
     const provider = new firebase.auth.GoogleAuthProvider();
     
     // Only allow specific admin email
-    const ADMIN_EMAIL = 'vamora.co.in@gmail.com';
-    
+// Add to your existing Firebase config
+const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
+const ADMIN_EMAIL = 'vamora.co.in@gmail.com'; // Your admin email    
     // DOM Elements
     const loadingState = document.getElementById('loadingState');
     const unauthorizedState = document.getElementById('unauthorizedState');
@@ -890,9 +894,74 @@
                 }
             });
     }
-    
+    // Initialize Gmail API
+function initGmailAPI() {
+    return new Promise((resolve, reject) => {
+        gapi.load('client', () => {
+            gapi.client.init({
+                apiKey: firebaseConfig.apiKey,
+                clientId: firebaseConfig.clientId, // You'll need to set this up in Google Cloud Console
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+                scope: GMAIL_SCOPE
+            }).then(resolve).catch(reject);
+        });
+    });
+}
+
+// Send email notification
+async function sendOrderNotificationEmail(order) {
+    try {
+        // Ensure Gmail API is initialized and authenticated
+        if (!gapi.client) {
+            await initGmailAPI();
+        }
+        
+        if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            const authSuccess = await handleGmailAuth();
+            if (!authSuccess) throw new Error('Gmail authentication failed');
+        }
+
+        const emailContent = [
+            `From: ${ADMIN_EMAIL}`,
+            `To: ${ADMIN_EMAIL}`,
+            'Content-Type: text/html; charset=utf-8',
+            'MIME-Version: 1.0',
+            `Subject: New Order Received - #${order.id.substring(0, 8)}`,
+            '',
+            `<html><body>`,
+            `<h2>New Order Notification</h2>`,
+            `<p><strong>Order ID:</strong> ${order.id}</p>`,
+            `<p><strong>Customer:</strong> ${order.shippingAddress?.name || 'N/A'}</p>`,
+            `<p><strong>Email:</strong> ${order.email || 'N/A'}</p>`,
+            `<p><strong>Date:</strong> ${new Date(order.timestamp?.toDate()).toLocaleString()}</p>`,
+            `<p><strong>Total Items:</strong> ${order.items.length}</p>`,
+            `<p><strong>Total Amount:</strong> ₹${order.items.reduce((sum, item) => sum + (parseFloat(item.price.replace(/[^\d.]/g, '') || 0) * (item.quantity || 1)), 0).toFixed(2)}</p>`,
+            `<p><a href="${window.location.origin}">View in Admin Dashboard</a></p>`,
+            `</body></html>`
+        ].join('\n');
+
+        const base64Email = btoa(unescape(encodeURIComponent(emailContent)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+
+        await gapi.client.gmail.users.messages.send({
+            userId: 'me',
+            resource: {
+                raw: base64Email
+            }
+        });
+
+        console.log('Email notification sent successfully');
+    } catch (error) {
+        console.error('Error sending email notification:', error);
+        // Optionally show a toast notification
+        showToast('Failed to send email notification', 'error');
+    }
+}    
     // Show new order notification
-    function showNewOrderNotification(order) {
+function showNewOrderNotification(order) {
+    try {
         // Play sound
         notificationSound.currentTime = 0;
         notificationSound.play().catch(e => console.log("Audio play failed:", e));
@@ -906,19 +975,24 @@
             newOrderNotification.classList.add('hidden');
         }, 5000);
         
-        // If admin is on another tab, show browser notification
+        // Send email notification (wrap in try-catch to prevent breaking other notifications)
+        try {
+            sendOrderNotificationEmail(order);
+        } catch (emailError) {
+            console.error('Email notification failed:', emailError);
+        }
+        
+        // Browser notification
         if (Notification.permission === "granted") {
             new Notification(`New Order #${lastOrderId.substring(0, 8)}`, {
                 body: `From ${order.shippingAddress?.name || 'Customer'}`,
-                icon: '/favicon.ico'
+                icon: 'https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436605103'
             });
         }
-        
-        // Reload orders to show the new one
-        loadOrders();
+    } catch (error) {
+        console.error('Error in notification flow:', error);
     }
-    
-    // Request notification permission
+}    // Request notification permission
     function requestNotificationPermission() {
         if (!("Notification" in window)) return;
         
@@ -953,7 +1027,19 @@
         renderOrders(currentPage);
         setupPagination();
     }
-    
+    async function handleGmailAuth() {
+    try {
+        const token = await auth.currentUser.getIdToken();
+        await gapi.auth2.init({
+            client_id: firebaseConfig.clientId,
+            scope: GMAIL_SCOPE
+        });
+        return true;
+    } catch (error) {
+        console.error('Gmail auth failed:', error);
+        return false;
+    }
+}
     // Render orders for the current page
     function renderOrders(page) {
         const startIndex = (page - 1) * ordersPerPage;
