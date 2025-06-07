@@ -555,28 +555,26 @@
 <script src="https://accounts.google.com/gsi/client"></script>
     
     <script>
-    // Firebase Configuration
-   const firebaseConfig = {
-    apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-    authDomain: "vamora-co-in.firebaseapp.com",
-    projectId: "vamora-co-in",
-    storageBucket: "vamora-co-in.appspot.com",
-    messagingSenderId: "613048727757",
-    appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
-    measurementId: "G-8R6TDRQGS6",
-    clientId: "613048727757-sir5i0r93f98tsr9de41jhhocd6rjk6t.apps.googleusercontent.com" // Add this line
-};
+      // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+        authDomain: "vamora-co-in.firebaseapp.com",
+        projectId: "vamora-co-in",
+        storageBucket: "vamora-co-in.appspot.com",
+        messagingSenderId: "613048727757",
+        appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+        measurementId: "G-8R6TDRQGS6",
+        clientId: "613048727757-sir5i0r93f98tsr9de41jhhocd6rjk6t.apps.googleusercontent.com"
+    };
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     const provider = new firebase.auth.GoogleAuthProvider();
+    const ADMIN_EMAIL = 'vamora.co.in@gmail.com';
+    const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
     
-    // Only allow specific admin email
-// Add to your existing Firebase config
-const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
-const ADMIN_EMAIL = 'vamora.co.in@gmail.com'; // Your admin email    
     // DOM Elements
     const loadingState = document.getElementById('loadingState');
     const unauthorizedState = document.getElementById('unauthorizedState');
@@ -632,14 +630,19 @@ const ADMIN_EMAIL = 'vamora.co.in@gmail.com'; // Your admin email
     let currentOrderId = null;
     let lastOrderId = null;
     
-    // Initialize the application
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set up event listeners
-        setupEventListeners();
-        
-        // Check auth state
-        auth.onAuthStateChanged(handleAuthStateChange);
-    });
+   // Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading state immediately
+    loadingState.classList.remove('hidden');
+    unauthorizedState.classList.add('hidden');
+    adminDashboard.classList.add('hidden');
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Check auth state
+    auth.onAuthStateChanged(handleAuthStateChange);
+});
     
     // Set up all event listeners
     function setupEventListeners() {
@@ -735,45 +738,44 @@ const ADMIN_EMAIL = 'vamora.co.in@gmail.com'; // Your admin email
         }
     }
     
-    // Handle authentication state changes
-    function handleAuthStateChange(user) {
-        if (user) {
-            // User is signed in - verify admin status
-            if (user.email === ADMIN_EMAIL) {
-                // User is admin - show dashboard
-                unauthorizedState.classList.add('hidden');
-                adminDashboard.classList.remove('hidden');
-                
-                // Load data
-                loadOrders();
-                loadSubmissions('all');
-                
-                // Hide loading state
-                setTimeout(() => {
-                    loadingState.classList.add('hidden');
-                }, 500);
-            } else {
-                // User is not admin
-                loadingState.classList.add('hidden');
-                unauthorizedState.classList.remove('hidden');
-                adminDashboard.classList.add('hidden');
-                showError("Only admin accounts can access this dashboard");
-                
-                // Sign out non-admin users
-                setTimeout(() => {
-                    auth.signOut();
-                }, 3000);
-            }
+
+// Handle authentication state changes
+function handleAuthStateChange(user) {
+    console.log('Auth state changed:', user);
+    loadingState.classList.add('hidden');
+    
+    if (user) {
+        console.log('User signed in:', user.email);
+        if (user.email === ADMIN_EMAIL) {
+            console.log('Admin user detected');
+            // User is admin - show dashboard
+            unauthorizedState.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            
+            // Load data
+            loadOrders();
+            loadSubmissions('all');
+            
+            // Setup order listener for real-time updates
+            setupOrderListener();
         } else {
-            // No user is signed in
-            loadingState.classList.add('hidden');
+        console.log('No user signed in');
             unauthorizedState.classList.remove('hidden');
             adminDashboard.classList.add('hidden');
+            authError.textContent = "Only admin accounts can access this dashboard";
+            authError.classList.remove('hidden');
+            
+            // Sign out non-admin users
+            auth.signOut();
         }
+    } else {
+        // No user is signed in
+        unauthorizedState.classList.remove('hidden');
+        adminDashboard.classList.add('hidden');
     }
-    
+}    
     // Handle admin login with Google
-    function handleAdminLogin() {
+ function handleAdminLogin() {
         const btn = document.getElementById('adminLoginBtn');
         const originalBtnContent = btn.innerHTML;
         
@@ -871,57 +873,54 @@ const ADMIN_EMAIL = 'vamora.co.in@gmail.com'; // Your admin email
             showToast("Failed to load orders. Please refresh.", "error");
         }
     }
-    
-    // Set up real-time order listener
-    function setupOrderListener() {
-        db.collection("orders")
-            .orderBy("timestamp", "desc")
-            .limit(1)
-            .onSnapshot((snapshot) => {
-                if (snapshot.empty) return;
-                
-                const newOrder = snapshot.docs[0].data();
-                const newOrderId = snapshot.docs[0].id;
-                
-                // If this is a new order
-                if (!lastOrderId || lastOrderId !== newOrderId) {
-                    lastOrderId = newOrderId;
-                    
-                    // Skip notification if this is the initial load
-                    if (allOrders.length > 0) {
-                        showNewOrderNotification(newOrder);
-                    }
-                }
-            });
-    }
     // Initialize Gmail API
-function initGmailAPI() {
-    return new Promise((resolve, reject) => {
-        gapi.load('client', () => {
-            gapi.client.init({
-                apiKey: firebaseConfig.apiKey,
-                clientId: firebaseConfig.clientId, // You'll need to set this up in Google Cloud Console
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
-                scope: GMAIL_SCOPE
-            }).then(resolve).catch(reject);
+async function initGmailAPI() {
+    try {
+        await gapi.load('client:auth2', {
+            callback: async () => {
+                try {
+                    await gapi.client.init({
+                        apiKey: firebaseConfig.apiKey,
+                        clientId: firebaseConfig.clientId,
+                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+                        scope: 'https://www.googleapis.com/auth/gmail.send'
+                    });
+                    console.log('GAPI initialized successfully');
+                } catch (error) {
+                    console.error('GAPI initialization error:', error);
+                    throw error;
+                }
+            },
+            onerror: (error) => {
+                console.error('GAPI load error:', error);
+                throw error;
+            },
+            timeout: 5000
         });
-    });
+    } catch (error) {
+        console.error('Failed to load GAPI client:', error);
+        throw error;
+    }
 }
 
 // Send email notification
 async function sendOrderNotificationEmail(order) {
     try {
-        // Ensure Gmail API is initialized and authenticated
+        // Initialize Gmail API if not already done
         if (!gapi.client) {
             await initGmailAPI();
         }
+
+        // Get the auth instance
+        const authInstance = gapi.auth2.getAuthInstance();
         
-        if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            const authSuccess = await handleGmailAuth();
-            if (!authSuccess) throw new Error('Gmail authentication failed');
+        // Sign in if not already signed in
+        if (!authInstance.isSignedIn.get()) {
+            await authInstance.signIn();
         }
 
-        const emailContent = [
+        // Compose the email
+        const emailLines = [
             `From: ${ADMIN_EMAIL}`,
             `To: ${ADMIN_EMAIL}`,
             'Content-Type: text/html; charset=utf-8',
@@ -933,33 +932,63 @@ async function sendOrderNotificationEmail(order) {
             `<p><strong>Order ID:</strong> ${order.id}</p>`,
             `<p><strong>Customer:</strong> ${order.shippingAddress?.name || 'N/A'}</p>`,
             `<p><strong>Email:</strong> ${order.email || 'N/A'}</p>`,
-            `<p><strong>Date:</strong> ${new Date(order.timestamp?.toDate()).toLocaleString()}</p>`,
+            `<p><strong>Date:</strong> ${order.timestamp?.toDate().toLocaleString() || new Date().toLocaleString()}</p>`,
             `<p><strong>Total Items:</strong> ${order.items.length}</p>`,
-            `<p><strong>Total Amount:</strong> ₹${order.items.reduce((sum, item) => sum + (parseFloat(item.price.replace(/[^\d.]/g, '') || 0) * (item.quantity || 1)), 0).toFixed(2)}</p>`,
-            `<p><a href="${window.location.origin}">View in Admin Dashboard</a></p>`,
+            `<p><strong>Total Amount:</strong> ₹${order.items.reduce((sum, item) => {
+                const price = parseFloat(item.price.replace(/[^\d.]/g, '') || 0);
+                return sum + (price * (item.quantity || 1));
+            }, 0).toFixed(2)}</p>`,
+            `<p><a href="${window.location.origin}/admin">View in Admin Dashboard</a></p>`,
             `</body></html>`
-        ].join('\n');
+        ];
 
-        const base64Email = btoa(unescape(encodeURIComponent(emailContent)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
+        const email = emailLines.join('\r\n').replace(/\n/g, '\r\n');
+        const base64Email = btoa(unescape(encodeURIComponent(email))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
-        await gapi.client.gmail.users.messages.send({
+        // Send the email
+        const response = await gapi.client.gmail.users.messages.send({
             userId: 'me',
             resource: {
                 raw: base64Email
             }
         });
 
-        console.log('Email notification sent successfully');
+        console.log('Email sent successfully:', response);
+        return true;
     } catch (error) {
-        console.error('Error sending email notification:', error);
-        // Optionally show a toast notification
-        showToast('Failed to send email notification', 'error');
+        console.error('Error sending email:', error);
+        showToast('Failed to send email notification: ' + error.message, 'error');
+        return false;
     }
-}    
-    // Show new order notification
+}
+
+// Modified setupOrderListener to handle email notifications
+function setupOrderListener() {
+    db.collection("orders")
+        .orderBy("timestamp", "desc")
+        .limit(1)
+        .onSnapshot((snapshot) => {
+            if (snapshot.empty) return;
+            
+            const newOrder = snapshot.docs[0].data();
+            newOrder.id = snapshot.docs[0].id; // Ensure order ID is included
+            const newOrderId = newOrder.id;
+            
+            if (!lastOrderId || lastOrderId !== newOrderId) {
+                lastOrderId = newOrderId;
+                
+                if (allOrders.length > 0) {
+                    showNewOrderNotification(newOrder);
+                    
+                    // Send email notification
+                    sendOrderNotificationEmail(newOrder).catch(e => {
+                        console.error('Email notification failed:', e);
+                    });
+                }
+            }
+        });
+}
+// Show new order notification
 function showNewOrderNotification(order) {
     try {
         // Play sound
@@ -1482,18 +1511,20 @@ function showNewOrderNotification(order) {
             .replace(/'/g, "&#039;");
     }
     
+ // Helper function to show toast notifications
     function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        
         toast.textContent = message;
-        toast.className = `hidden fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+        toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
             type === 'success' ? 'bg-green-500' : 'bg-red-500'
         }`;
-        toast.classList.remove('hidden');
         
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 3000);
     }
-    
     function showError(message) {
         errorContainer.textContent = message;
         errorContainer.classList.remove('hidden');
