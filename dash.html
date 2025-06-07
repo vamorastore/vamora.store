@@ -559,16 +559,17 @@
     <script src="https://apis.google.com/js/api.js"></script>
     
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
-            authDomain: "vamora-co-in.firebaseapp.com",
-            projectId: "vamora-co-in",
-            storageBucket: "vamora-co-in.appspot.com",
-            messagingSenderId: "613048727757",
-            appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
-            measurementId: "G-8R6TDRQGS6"
-        };
+        // Update your firebaseConfig to include OAuth client ID
+const firebaseConfig = {
+    apiKey: "AIzaSyBkMUmD27GU34yIPQAj7KUErt9muB0MdLk",
+    authDomain: "vamora-co-in.firebaseapp.com",
+    projectId: "vamora-co-in",
+    storageBucket: "vamora-co-in.appspot.com",
+    messagingSenderId: "613048727757",
+    appId: "1:613048727757:web:d0c73e84fa7d93a5c21184",
+    measurementId: "G-8R6TDRQGS6",
+    clientId: "613048727757-xxxxxxxxxxxx.apps.googleusercontent.com" // Add your OAuth client ID here
+};
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -878,64 +879,66 @@
         }
 
         // Initialize Gmail API - Corrected Version
-        async function initGmailAPI() {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    // First load the client library
-                    await new Promise((loadResolve, loadReject) => {
-                        gapi.load('client:auth2', {
-                            callback: loadResolve,
-                            onerror: loadReject,
-                            timeout: 5000
-                        });
-                    });
-
-                    // Then initialize with configuration
-                    await gapi.client.init({
-                        apiKey: firebaseConfig.apiKey,
-                        clientId: firebaseConfig.clientId,
-                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
-                        scope: GMAIL_SCOPE
-                    });
-
-                    console.log('GAPI initialized successfully');
-                    resolve(true);
-                } catch (error) {
-                    console.error('GAPI initialization error:', error);
-                    reject(error);
-                }
+// Improved Gmail API initialization
+async function initGmailAPI() {
+    try {
+        // Load the client library
+        await new Promise((resolve, reject) => {
+            gapi.load('client:auth2', {
+                callback: resolve,
+                onerror: reject
             });
-        }
+        });
 
+        // Initialize with configuration
+        await gapi.client.init({
+            apiKey: firebaseConfig.apiKey,
+            clientId: firebaseConfig.clientId,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+            scope: GMAIL_SCOPE
+        });
+
+        return true;
+    } catch (error) {
+        console.error('GAPI initialization error:', error);
+        throw new Error(error.details || error.message || 'Failed to initialize Gmail API');
+    }
+}
         // Test Gmail Connection
-        async function testGmailConnection() {
-            try {
-                showToast('Initializing Gmail API...', 'info');
-                const success = await initGmailAPI();
-                
-                if (success) {
-                    const authInstance = gapi.auth2.getAuthInstance();
-                    if (!authInstance.isSignedIn.get()) {
-                        await authInstance.signIn({
-                            prompt: 'select_account'
-                        });
-                    }
-                    
-                    const googleUser = authInstance.currentUser.get();
-                    const authResponse = googleUser.getAuthResponse();
-                    
-                    if (authResponse.scope.includes(GMAIL_SCOPE)) {
-                        showToast('Gmail API ready with required scope', 'success');
-                    } else {
-                        showToast('Missing required Gmail scope', 'error');
-                    }
-                }
-            } catch (error) {
-                console.error('Gmail test failed:', error);
-                showToast('Gmail test failed: ' + error.message, 'error');
+// Improved testGmailConnection function
+async function testGmailConnection() {
+    try {
+        showToast('Initializing Gmail API...', 'info');
+        
+        // Initialize Gmail API
+        await initGmailAPI();
+        
+        // Get auth instance
+        const authInstance = gapi.auth2.getAuthInstance();
+        
+        // Check if already signed in
+        if (!authInstance.isSignedIn.get()) {
+            // Sign in with prompt
+            const googleUser = await authInstance.signIn({
+                prompt: 'select_account'
+            });
+            
+            // Check if we have the required scope
+            const authResponse = googleUser.getAuthResponse();
+            if (!authResponse.scope.includes(GMAIL_SCOPE)) {
+                throw new Error('Missing required Gmail scope. Please grant permission.');
             }
         }
-
+        
+        showToast('Gmail API is ready!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Gmail test failed:', error);
+        const errorMsg = error.message || 'Gmail test failed';
+        showToast(errorMsg, 'error');
+        return false;
+    }
+}
         // Send Order Notification Email - Corrected Version
         async function sendOrderNotificationEmail(order) {
             try {
