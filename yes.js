@@ -99,7 +99,7 @@ window.addToCart = async function(product) {
     const user = auth.currentUser;
     
     const existingItem = cart.find(item => 
-        item.id === product.id && i.size === product.size
+        item.id === product.id && item.size === product.size
     );
 
     if (existingItem) {
