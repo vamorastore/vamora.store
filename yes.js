@@ -2100,7 +2100,7 @@ function updateMobileAccountOptions() {
 }
 
 const searchData = [
-    { id: 1, title: "HOOKAIDO.", category: "Oversized", url: "/hokkaido.html" },
+    { id: 1, title: "HOKKAIDO.", category: "Oversized", url: "/hokkaido.html" },
     { id: 2, title: "SIGHT.", category: "Oversized", url: "/sight.html" },
     { id: 3, title: "EPISTLE RAP.", category: "Oversized", url: "/epistlerap.html" },
     { id: 4, title: "ONE.EYE", category: "TEES", url: "/oneeye.html" },
