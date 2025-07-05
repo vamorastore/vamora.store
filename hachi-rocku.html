@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hachi.Rocku</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+         <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+                        font-family: 'Unbounded', sans-serif;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #e5e5e5;
+        }
+        @media (max-width: 768px) {
+    /* Reduce font sizes for mobile */
+    body {
+        font-size: 14px;
+    }
+    
+    /* Product container adjustments */
+    .product-container {
+        padding: 0.5rem;
+        margin: 0.5rem auto;
+    }
+    
+    /* Reduce main image size */
+    .main-image {
+        max-height: 50vh;
+    }
+    
+    /* Reduce thumbnail size */
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+    
+    /* Product title */
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Price */
+    .text-2xl {
+        font-size: 1.25rem;
+    }
+    
+    /* Size buttons */
+    .size-button {
+        font-size: 0.65rem;
+        width: 2rem;
+        height: 2rem;
+        padding: 0.25rem;
+    }
+    
+    /* Quantity input */
+    .quantity-button {
+        padding: 0.5rem;
+    }
+    
+    /* Buttons */
+    #add-to-cart-btn, #buy-now-btn {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Description and features */
+    .text-gray-700 {
+        font-size: 0.9rem;
+    }
+    
+    /* Dropdown sections */
+    .dropdown-button {
+        padding: 0.75rem 0;
+        font-size: 0.9rem;
+    }
+    
+    /* Dropdown content */
+    .dropdown-container ul li {
+        font-size: 0.8rem;
+    }
+    
+    /* Share section */
+    .share-icon {
+        width: 30px;
+        height: 30px;
+    }
+    
+    /* Footer adjustments */
+    .footer {
+        padding: 1rem 0.5rem;
+    }
+    
+    .footer-link {
+        font-size: 0.5rem;
+    }
+    
+    /* Cart items */
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .cart-item-details p {
+        font-size: 0.9rem;
+    }
+}
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+#auth-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100; /* Higher than other elements */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#auth-container.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.auth-modal {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+/* Main content container */
+.main-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: 80px; /* Account for fixed navbar */
+    background-color: white;
+    min-height: calc(100vh - 80px); /* Full height minus navbar */
+    box-sizing: border-box;
+}
+
+/* About container styles */
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Desktop font sizes */
+.about-container h1 {
+    font-size: 2.25rem; /* 36px */
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+.about-container h2 {
+    font-size: 1.75rem; /* 28px */
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+}
+
+.about-container p {
+    font-size: 1rem; /* 16px */
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+/* Mobile font sizes (max-width: 768px) */
+@media (max-width: 768px) {
+    .about-container {
+        padding: 1rem;
+    }
+    
+    .about-container h1 {
+        font-size: 1.75rem; /* 28px */
+        margin-bottom: 1.25rem;
+    }
+    
+    .about-container h2 {
+        font-size: 1.5rem; /* 24px */
+        margin-bottom: 1rem;
+    }
+    
+    .about-container p {
+        font-size: 0.875rem; /* 14px */
+        margin-bottom: 1rem;
+    }
+}
+
+
+
+          /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Login modal styles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 4px;
+            z-index: 10;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+  /* Add to your CSS */
+#account-info-page {
+    transition: overflow 0.3s ease;
+}
+
+#account-info-page.overflow-hidden {
+    overflow: hidden;
+}
+        
+        .size-button {
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .size-button.selected {
+            background-color: black;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .size-button:hover:not(.selected) {
+            border-color: black;
+            transform: translateY(-2px);
+        }
+        
+        .button-effect {
+            transition: all 0.3s ease;
+        }
+        
+        .button-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button-effect:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quantity-button {
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .quantity-button:active {
+            background-color: #e5e7eb;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .thumbnail:hover {
+            border-color: black;
+            transform: scale(1.05);
+        }
+        
+        .main-image {
+            border-radius: 16px;
+            object-fit: contain;
+            background-color: #f9fafb;
+            max-height: 70vh;
+        }
+        
+        .dropdown-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dropdown-container.open {
+            max-height: 1000px;
+            margin-top: 1rem;
+        }
+        
+        .dropdown-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            text-align: left;
+            cursor: pointer;
+        }
+        
+        .dropdown-button .icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .dropdown-button.open .icon {
+            transform: rotate(180deg);
+        }
+        
+        .share-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            color: #000;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .share-icon:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        
+        .policy-link {
+            color: #000;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+        
+        .policy-link:hover {
+            color: #555;
+        }
+
+        /* Navigation styles */
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            background-color: black;
+            left: 50%;
+            bottom: -4px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        .icon-separator {
+            border-left: 1px solid black;
+            height: 28px;
+            margin: 0 10px;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Logo animation */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+        .logo-container img {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            height: 50px;
+            width: 60px;
+        }
+        .logo-container:hover img {
+            transform: rotateY(360deg);
+        }
+        .logo-text {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.6s, left 0.6s;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .logo-container:hover .logo-text {
+            opacity: 1;
+            left: calc(100% + 10px);
+        }
+        
+        /* Navigation bar */
+        .navbar {
+            background-color: #e5e5e5;
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 50;
+            height: 80px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Mobile menu */
+        .mobile-menu-button {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .mobile-menu-button:hover {
+            color: #555;
+            transform: scale(1.1);
+        }
+        
+        .mobile-menu-button:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.75rem;
+        }
+        
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Mobile menu content */
+        .mobile-menu-content {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: #e5e5e5;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+        
+        .mobile-menu-content.active {
+            display: block;
+        }
+        
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .mobile-menu-social {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.75rem;
+            padding: 0.75rem 0;
+        }
+        
+        /* Cart Overlay Styles */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .cart-overlay.active {
+            right: 0;
+        }
+        
+        .overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay-backdrop.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Account dropdown styles */
+        .account-icon-hover {
+            transition: all 0.2s ease;
+        }
+        .account-icon-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .account-icon-hover:active {
+            transform: scale(0.95);
+        }
+        .icon-hover {
+            transition: all 0.2s ease;
+        }
+        .icon-hover:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .icon-hover-blue:hover {
+            color: #2563eb;
+        }
+        .icon-hover-gray:hover {
+            color: #6b7280;
+        }
+        .icon-hover-red:hover {
+            color: #dc2626;
+        }
+        .icon-click-effect:active {
+            transform: scale(0.85);
+        }
+        
+        /* Search styles */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 180px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .search-result-item .title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+        
+        .search-result-item .category {
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        .no-results {
+            padding: 10px 15px;
+            color: #666;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        
+        .search-input-container {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+        
+        .search-input {
+            padding: 8px 15px;
+            padding-right: 35px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 180px;
+            outline: none;
+            transition: width 0.3s;
+        }
+        
+        .search-input:focus {
+            width: 220px;
+            border-color: #999;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        
+        .search-close {
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .search-close:hover {
+            color: #333;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+                order: 1;
+            }
+            
+            .logo-container {
+                order: 2;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .logo-container:hover img {
+                transform: none;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .nav-icons {
+                order: 3;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 1rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1.35rem;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .icon {
+                font-size: 1rem;
+            }
+            
+            /* Mobile search adjustments */
+            .search-input-container {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                padding: 10px;
+                background: #e5e5e5;
+                z-index: 60;
+            }
+            
+            .search-input {
+                width: calc(100% - 50px);
+                padding: 10px 45px 10px 15px;
+            }
+            
+            .search-input:focus {
+                width: calc(100% - 50px);
+            }
+            
+            .search-results {
+                position: fixed;
+                top: 140px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+            }
+            
+            .search-close {
+                right: 45px;
+            }
+            
+            .search-icon {
+                right: 20px;
+            }
+
+            .no-results {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            /* Adjusted dropdown position */
+            #dropdownMenu {
+                top: 100%;
+                right: 0;
+                left: auto;
+                width: 200px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-links {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .nav-links a {
+                font-size: 0.875rem;
+            }
+            
+            .cart-overlay h2 {
+                font-size: 2.25rem;
+            }
+            
+            .cart-overlay .font-medium {
+                font-size: 1.125rem;
+            }
+            
+            .cart-overlay .text-lg {
+                font-size: 1.25rem;
+            }
+            
+            .cart-overlay button {
+                font-size: 1.125rem;
+                padding: 1rem;
+            }
+
+            .cart-overlay .fa-times {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Footer styles */
+        .footer-link {
+            position: relative;
+            cursor: pointer;
+            font-weight: 300;
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background-color: black;
+            left: 50%;
+            bottom: -2px;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+        .footer-link:hover::after,
+        .footer-link.active::after {
+            width: 100%;
+            left: 0;
+        }
+        
+        /* Main content container */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px;
+            background-color: white;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #e5e5e5;
+            padding: 1.5rem;
+            padding-bottom: 3rem;
+        }
+        
+        .footer-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .footer-social-desktop,
+        .footer-social-mobile {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-social-desktop a,
+        .footer-social-mobile a {
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-social-desktop a:hover,
+        .footer-social-mobile a:hover {
+            opacity: 0.7;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #d1d5db;
+            padding-top: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-bottom p {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 1rem;
+                padding-bottom: 2rem;
+            }
+            
+            .footer-social-desktop {
+                display: none;
+            }
+            
+            .footer-social-mobile {
+                display: flex;
+                margin: 1rem 0;
+            }
+            
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .footer-link {
+                font-size: 0.6rem;
+            }
+            
+            .footer-bottom p {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .mobile-menu-links a {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-menu-social a {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .footer-social-mobile {
+                display: none;
+            }
+            
+            .footer-social-desktop {
+                display: flex;
+            }
+            
+            .footer-link {
+                font-size: 0.7rem;
+            }
+            
+            .footer-container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .footer-bottom p {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+                line-height: normal;
+            }
+        }
+
+        /* Product page specific styles */
+        .product-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0;
+            box-shadow: none;
+            width: 100%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            display: flex;
+            min-height: calc(100vh - 80px - 6rem);
+        }
+        
+        .image-section {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        /* Enhanced cart styles */
+        #cartList {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                padding: 1rem;
+                min-height: auto;
+            }
+            
+            .image-section, .details-section {
+                width: 100% !important;
+            }
+            
+            .details-section {
+                margin-left: 0 !important;
+                margin-top: 1.5rem;
+            }
+            
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .size-button {
+                font-size: 0.65rem;
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+            
+            .main-image {
+                max-height: 60vh;
+            }
+            
+            .cart-overlay {
+                max-width: 100%;
+            }
+            
+            .cart-item-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <button class="mobile-menu-button" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="flex items-center logo-container">
+                <img alt="Company logo, a stylized representation of the company initials" class="h-12 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
+                <span class="logo-text">VAMORA.STORE</span>
+            </div>
+            
+            <div class="flex items-center space-x-2 nav-icons">
+                <div class="search-container">
+                    <a class="text-black nav-link" id="enableSearch">
+                        <i class="fas fa-search icon"></i>
+                    </a>
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+                        <span class="search-close" id="closeSearch">&times;</span>
+                        <span class="search-icon" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="icon-separator"></div>
+                <div class="relative">
+                    <div class="cursor-pointer" id="accountIconNav">
+                        <img src="https://ik.imagekit.io/qsjmmsgdx/309035_user_account_human_person_icon.png?updatedAt=1748440169995" 
+                             alt="Account" 
+                             class="account-icon-hover w-8 h-8 rounded-full object-cover border-0 border-gray-300 hover:border-blue-500 transition-all duration-200">
+                    </div>
+                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 font-unbounded">
+                        <a href="#" id="profileOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-user-circle mr-2 icon-hover icon-hover-blue"></i> Profile
+                        </a>
+                        <a href="#" id="logoutOption" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt mr-2 icon-hover icon-hover-red"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <div class="icon-separator"></div>
+                <a class="text-black nav-link" id="cartIconNav">
+                    <i class="fas fa-shopping-cart icon"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="contact.html">CONTACT</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Content -->
+    <div class="mobile-menu-content" id="mobileMenuContent">
+        <div class="mobile-menu-links">
+         <a class="text-black nav-link" href="index.html">HOME</a>
+                <a class="text-black nav-link" href="shop.html">SHOP</a>
+                <a class="text-black nav-link" href="about.html">ABOUT</a>
+                <a class="text-black nav-link" href="contact.html">CONTACT</a>
+        </div>
+        <div class="mobile-menu-social">
+                  <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="overlay-backdrop" id="cartBackdrop"></div>
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-bold text-2xl">Your Cart</h2>
+                <button id="closeCartButton" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="cartContainer" class="flex-grow overflow-y-auto">
+                <div id="cartList" class="divide-y divide-gray-200"></div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4 mt-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="font-medium">Total:</span>
+                    <span id="cartTotal" class="text-xl font-bold">₹ 0.00</span>
+                </div>
+                <button class="w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+<!-- Account Info Page (hidden by default) -->
+<div id="account-info-page" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto pt-20">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white p-6 rounded-lg shadow-md relative">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" id="closeAccountInfoPage">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-4">Account Information</h2>
+            
+            <!-- Profile Information Section -->
+            <div class="mb-6">
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="font-semibold">Name</span>
+                        <i class="fas fa-pen text-blue-500 ml-2 cursor-pointer" id="editProfileIcon"></i>
+                    </div>
+                    <p id="displayName" class="text-gray-700"></p>
+                </div>
+                <div class="mb-4">
+                    <span class="font-semibold">Email</span>
+                    <p id="displayEmail" class="text-gray-700"></p>
+                </div>
+            </div>
+            
+            <!-- Orders Section -->
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-xl font-bold mb-4">Your Orders</h3>
+                <div id="ordersContainer" class="space-y-4">
+                    <!-- Orders will be displayed here -->
+                    <div class="text-center py-8 text-gray-500">
+                        <p>No orders found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Login/Signup Modal -->
+<div id="auth-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white shadow-lg rounded-lg flex flex-col w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+        <button id="close-auth-container" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors" onclick="hideAuthContainer()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="login-section" class="w-full p-6 sm:p-8 auth-section">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Log In</h2>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-email" class="w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">Email</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="login-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" required>
+                     <button type="button"
+            class="password-toggle absolute right-3 text-gray-600"
+            style="top: 65%; transform: translateY(-35%);"
+            data-toggle="login-password">
+      <i class="far fa-eye"></i>
+                </div>
+                <div class="mb-4 flex items-center justify-between">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="remember-me" class="form-checkbox text-blue-500 h-4 w-4">
+                        <span class="ml-2 text-gray-700 text-sm sm:text-base">Remember me</span>
+                    </label>
+                    <a href="#" id="forgot-password-link" class="text-blue-500 hover:underline transition-colors text-sm sm:text-base">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="login-submit-button">
+                    <span id="login-button-text">Log In</span>
+                </button>
+            </form>
+            
+            <p id="login-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Invalid email or password. Please try again.</p>
+            <p id="login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+            
+            <div class="flex items-center my-4">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="mx-4 text-gray-500 text-sm">or</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+            
+            <!-- Google Sign In Button at the bottom -->
+            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
+                <span class="text-gray-500 font-medium"> Log in with Google </span>
+            </button>
+            
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Don't have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-signup">Sign Up</a></p>
+            </div>
+        </div>
+        
+        <div id="signup-section" class="w-full p-6 sm:p-8 bg-gray-50 hidden auth-section">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Sign Up</h2>
+            
+            <!-- In the login-section div -->
+<p id="google-login-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Login successful!</p>
+
+<!-- In the signup-section div -->
+<p id="google-signup-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful!</p>
+
+            <!-- Google Sign Up Button -->
+       
+            <form id="signup-form">
+                <div class="mb-4">
+                    <label for="signup-name" class="block text-gray-700 mb-2 text-sm sm:text-base">Name</label>
+                    <input type="text" id="signup-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your name" required minlength="2" maxlength="50">
+                    <p id="name-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Name must be 2-50 characters long.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="signup-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your email" required>
+                    <p id="email-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Please enter a valid email address.</p>
+                    <p id="email-exists-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Email already exists. Please use a different email.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-password" class="w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">Password</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter your password" minlength="8" required>
+                       <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+            style="top: 40%; transform: translateY(-35%);"
+            data-toggle="signup-password">
+      <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="signup-confirm-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm your password" minlength="8" required>
+                    <button type="button"
+            class="password-toggle absolute right-3 text-gray-600"
+            style="top: 65%; transform: translateY(-35%);"
+            data-toggle="signup-confirm-password">
+      <i class="far fa-eye"></i>
+    </button>
+                    <p id="password-mismatch-error" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
+                    <select id="security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                        <option value="">Select a security question</option>
+                        <option value="pet">What is the name of your first pet?</option>
+                        <option value="school">What is the name of your elementary school?</option>
+                        <option value="city">In what city were you born?</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="security-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
+                    <input type="text" id="security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required minlength="2">
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="signup-submit-button">
+                    <span id="signup-button-text">Sign Up</span>
+                </button>
+                 <div class="flex items-center my-4">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="mx-4 text-gray-500 text-sm">or</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+            
+            <!-- Google Sign In Button at the bottom -->
+            <button id="google-signin-btn" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg mb-4 hover:bg-gray-50 transition-colors duration-200 active:bg-gray-100">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-6 w-8 mr-2">
+                <span class="text-gray-500 font-medium"> Sign up with Google </span>
+            </button>
+            </form>
+            <p id="signup-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">Please fill all fields correctly.</p>
+            <p id="verify-email-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Sign up successful! You can now log in.</p>
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-gray-700 text-sm sm:text-base">Already have an account? <a href="#" class="text-blue-500 hover:underline transition-colors" id="show-login">Log In</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md relative mx-4 max-h-[90vh] overflow-y-auto">
+            <button id="close-forgot-password" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Forgot Password</h2>
+            <form id="forgot-password-form">
+                <div class="mb-4">
+                    <label for="forgot-email" class="block text-gray-700 mb-2 text-sm sm:text-base">Registered Email</label>
+                    <input type="email" id="forgot-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your registered email" required>
+                </div>
+                <div class="mb-4">
+                    <label for="forgot-security-question" class="block text-sm font-medium text-gray-700 mb-1">Security Question</label>
+                    <select id="forgot-security-question" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" required>
+                        <option value="">Select a security question</option>
+                        <option value="pet">What is the name of your first pet?</option>
+                        <option value="school">What is the name of your elementary school?</option>
+                        <option value="city">In what city were you born?</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="forgot-security-answer" class="block text-gray-700 mb-2 text-sm sm:text-base">Answer</label>
+                    <input type="text" id="forgot-security-answer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" placeholder="Enter your answer" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base" id="forgot-submit-button">
+                    <span id="forgot-button-text">Submit</span>
+                </button>
+            </form>
+            <p id="forgot-error" class="text-red-500 mt-4 text-center hidden text-sm sm:text-base">The information provided doesn't match our records.</p>
+            <div id="reset-password-section" class="hidden">
+                <div class="mb-4 mt-6 password-container">
+                    <label for="new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">New Password</label>
+                    <input type="password" id="new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Enter new password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters with uppercase, number, and special character.</p>
+                </div>
+                <div class="mb-4 password-container">
+                    <label for="confirm-new-password" class="block text-gray-700 mb-2 text-sm sm:text-base">Confirm New Password</label>
+                    <input type="password" id="confirm-new-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 password-input text-sm sm:text-base" placeholder="Confirm new password" minlength="8" required>
+                    <button type="button" class="password-toggle" id="toggle-confirm-new-password">
+                        <i class="far fa-eye"></i>
+                    </button>
+                    <p id="reset-password-mismatch" class="text-red-500 mt-2 hidden text-sm sm:text-base">Passwords do not match.</p>
+                </div>
+                <button id="save-new-password" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex justify-center items-center text-sm sm:text-base">
+                    <span id="save-password-button-text">Save Changes</span>
+                </button>
+                <p id="reset-success" class="text-green-500 mt-4 text-center hidden text-sm sm:text-base">Password reset successful! You can now log in with your new password.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- Product Page Content -->
+        <div class="product-container flex flex-col md:flex-row">
+            <!-- Image Section -->
+            <div class="image-section w-full md:w-1/2 mb-0 md:mb-0 md:pr-6">
+                <img alt="HACHI.ROCKU" 
+                     class="main-image w-full h-auto mb-4" 
+                     src="https://ik.imagekit.io/qsjmmsgdx/hac.jpg?updatedAt=1751736444931"/>
+                <div class="flex gap-3 justify-start">
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://ik.imagekit.io/qsjmmsgdx/hac.jpg?updatedAt=1751736444931'">
+                        <img alt="Product view 1" class="thumbnail" src="https://ik.imagekit.io/qsjmmsgdx/hac.jpg?updatedAt=1751736444931"/>
+                    </div>
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://ik.imagekit.io/qsjmmsgdx/ha.jpg?updatedAt=1751736444866'">
+                        <img alt="Product view 2" class="thumbnail" src="https://ik.imagekit.io/qsjmmsgdx/ha.jpg?updatedAt=1751736444866"/>
+                    </div>
+                    <div class="cursor-pointer" onclick="document.querySelector('.main-image').src='https://ik.imagekit.io/qsjmmsgdx/ssa.jpg?updatedAt=1751736444873'">
+                        <img alt="Product view 3" class="thumbnail" src="https://ik.imagekit.io/qsjmmsgdx/ssa.jpg?updatedAt=1751736444873"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="details-section w-full md:w-1/2">
+                <h1 class="text-2xl md:text-3xl font-semibold mb-3">HACHI.ROCKU</h1>
+                
+                <div class="flex items-center mb-1">
+                    <p class="text-2xl font-bold">₹599.00</p>
+                </div>
+                <p class="text-gray-500 text-sm mb-4">Taxes included</p>
+                
+                <div class="mb-4">
+                    <div class="flex items-center justify-between">
+                        <p class="font-medium text-gray-900 text-sm">SIZE</p>
+                        <button id="size-guide-btn" class="text-xs text-gray-500 underline hover:text-black">Size guide</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button class="size-button">S</button>
+                        <button class="size-button">M</button>
+                        <button class="size-button">L</button>
+                        <button class="size-button">XL</button>
+                        <button class="size-button">XXL</button>
+                    </div>
+                </div>
+                
+                <div id="size-guide-container" class="dropdown-container">
+                    <img src="https://ik.imagekit.io/qsjmmsgdx/oversized%20Size%20chart.jpg?updatedAt=1748439912643" alt="Size Guide" class="w-full rounded-lg border border-gray-200">
+                </div>
+                
+                <div class="mb-6 w-full">
+                    <p class="font-medium mb-3 text-gray-900 text-sm">QUANTITY</p>
+                    <div class="flex items-center border border-gray-200 rounded-full w-full max-w-md">
+                        <button class="quantity-button px-4 py-3 text-gray-500 rounded-l-full w-1/4 flex justify-center" id="decrement-quantity">-</button>
+                        <div class="flex-1 text-center w-2/4">
+                            <input class="w-full text-center border-none focus:ring-0 bg-transparent" 
+                                   type="number" 
+                                   min="1" 
+                                   value="1"
+                                   id="product-quantity"/>
+                        </div>
+                        <button class="quantity-button px-4 py-3 text-gray-500 rounded-r-full w-1/4 flex justify-center" id="increment-quantity">+</button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-3 mb-8 w-full max-w-md">
+                    <button id="add-to-cart-btn" class="button-effect w-full py-3 border-2 border-black text-black rounded-full font-medium hover:bg-black hover:text-white">
+                        ADD TO CART
+                    </button>
+                  <button id="buy-now-btn" class="button-effect w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800">
+    BUY IT NOW
+</button>
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2 text-gray-900">DESCRIPTION</h3>
+                    <p class="text-gray-700">" HACHI.ROKU — the mountain doesn’t forget its king.
+Lightweight. Legendary. Laced with tofu.
+Born on backroads, raised on redlines — the AE86 wasn’t built to flex.
+It was built to fly sideways.
+Drift isn’t a move. It’s a language."</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2 text-gray-900">FEATURES</h3>
+                    <ul class="text-gray-700">
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            240-GSM
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Double-stitched seam
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Bio-Washed fabric & Ribbed neck
+                        </li>
+                        <li class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Ethically produced
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Wash Care Section -->
+                <div class="mb-2 mt-6">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">WASH CARE</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    <span>Wash Gently: Hand wash or use a gentle machine cycle (max 15 minutes). Turn inside out before washing.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                    <span>Separate Colors: Wash light and dark colors separately to prevent color bleeding.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                    </svg>
+                                    <span>Minimal Detergent: Use mild detergent, avoid bleach, and never apply detergent directly to the fabric.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                    <span>Air Dry: Hang or lay flat to dry in the shade to maintain color and fabric quality.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    <span>Iron Inside Out: Always iron inside out on low heat to protect the print and fabric.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Return Policy Section with Icons -->
+                <div class="mb-2">
+                    <button class="dropdown-button">
+                        <span class="font-medium text-gray-900">RETURN POLICY</span>
+                        <svg class="icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-container">
+                        <div class="py-4">
+                            <ul class="text-gray-700 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                    <span>AVAILABLE PAN INDIA DELIVERY</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <span>As this item is printed on demand just for you, refunds and cancellations are not available.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span><a href="refund.html" class="policy-link">Read our Return Policy</a></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Share Button -->
+                <div class="mt-6 flex items-center">
+                    <p class="text-sm font-medium text-gray-900 mr-3">SHARE</p>
+                    <div class="share-icon" title="Share this product">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-500 mt-6">
+                    <p>No Return , Exchange or refunds on sale items unless damage.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Centered logo -->
+            <div class="footer-logo">
+                <div class="flex items-center justify-center logo-container">
+                    <img alt="Company logo" class="h-10 w-auto" src="https://ik.imagekit.io/qsjmmsgdx/jpg%20vmora.jpg?updatedAt=1748436587199"/>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on desktop, hidden on mobile -->
+            <div class="footer-social-desktop">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <!-- Footer links grid -->
+            <div class="footer-grid">
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="vamora.co.in@gmail.com">EMAIL</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.instagram.com/vamora.store">INSTAGRAM</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="track.html">ORDER TRACK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="contact.html">CONTACT</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="https://www.facebook.com/vamora.store">FACEBOOK</a>
+                </div>
+                <div class="flex flex-col items-center">
+                    <a class="text-gray-700 hover:text-gray-900 footer-link" href="bulk.html">BULK ORDER</a>
+                </div>
+            </div>
+            
+            <!-- Social icons - shown on mobile, hidden on desktop -->
+            <div class="footer-social-mobile">
+                <a class="text-black" href="https://www.instagram.com/vamora.store"><i class="fab fa-instagram"></i></a>
+                <a class="text-black" href="https://www.facebook.com/vamora.store"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="text-gray-700" style="font-size: 0.5rem; font-weight: 300;">
+                    <span>© 2025, VAMORA.STORE - ALL RIGHTS RESERVED</span>
+                    <span>
+                    <a class="footer-link" href="refund.html" style="font-size: 0.5rem;"> . REFUND POLICY</a>
+                    
+                    <a class="footer-link" href="privacy.html" style="font-size: 0.5rem;"> . PRIVACY POLICY</a>
+                    </span>
+                    <span>
+                    <a class="footer-link" href="tos.html" style="font-size: 0.5rem;"> . TERMS OF SERVICE</a>
+                    
+                    <a class="footer-link" href="shipping.html" style="font-size: 0.5rem;"> . SHIPPING POLICY</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script src="yes.js"></script>
+    
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Size selection
+    const sizeButtons = document.querySelectorAll('.size-button');
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            sizeButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Quantity adjustment
+    const decrementButton = document.getElementById('decrement-quantity');
+    const incrementButton = document.getElementById('increment-quantity');
+    const quantityInput = document.getElementById('product-quantity');
+
+    decrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+        }
+    });
+
+    incrementButton.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+    });
+    
+    // Size guide toggle
+    const sizeGuideBtn = document.getElementById('size-guide-btn');
+    const sizeGuideContainer = document.getElementById('size-guide-container');
+
+    sizeGuideBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sizeGuideContainer.classList.toggle('open');
+        this.textContent = sizeGuideContainer.classList.contains('open') ? 'Hide guide' : 'Size guide';
+    });
+
+    // Input validation
+    quantityInput.addEventListener('change', function() {
+        if (this.value < 1) this.value = 1;
+    });
+    
+    // Share functionality
+    const shareButton = document.querySelector('.share-icon');
+    shareButton.addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.querySelector('h1').textContent,
+                text: "Check out this product from VAMORA.STORE",
+                url: 'https://vamora.store/hachi-rocku.html'
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare();
+            });
+        } else {
+            fallbackShare();
+        }
+    });
+
+    function fallbackShare() {
+        const tempInput = document.createElement('input');
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Link copied to clipboard!');
+    }
+    
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.nextElementSibling;
+            container.classList.toggle('open');
+            
+            // Toggle the icon rotation
+            const icon = this.querySelector('.icon');
+            if (icon) {
+                icon.classList.toggle('rotate-180');
+            }
+        });
+    });
+
+    // Add to cart button
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        
+        const product = {
+            id: window.location.pathname,
+            title: document.querySelector('h1').textContent,
+            size: selectedSize.textContent,
+            price: document.querySelector('.details-section .text-2xl.font-bold').textContent,
+            quantity: parseInt(quantityInput.value),
+            image: document.querySelector('.main-image').src
+        };
+        
+        addToCart(product);
+    });
+
+    // Buy now button
+    document.getElementById('buy-now-btn').addEventListener('click', function() {
+        const selectedSize = document.querySelector('.size-button.selected');
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
+        
+        const product = {
+            id: window.location.pathname,
+            title: document.querySelector('h1').textContent,
+            size: selectedSize.textContent,
+            price: document.querySelector('.details-section .text-2xl.font-bold').textContent,
+            quantity: parseInt(quantityInput.value),
+            image: document.querySelector('.main-image').src
+        };
+        
+        // Replace cart with just this item
+        cart = [product];
+        
+        const user = auth.currentUser;
+        if (user) {
+            saveCartToFirestore(user.uid, cart);
+        } else {
+            localStorage.setItem('guestCart', JSON.stringify(cart));
+        }
+        
+        window.location.href = 'checkout.html';
+    });
+});
+</script>
+</body>
+</html> 
